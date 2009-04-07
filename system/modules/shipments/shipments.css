@@ -1,0 +1,8 @@
+.shipments-icon {
+    background-image:url(images/shipments-16x16.gif) !important;
+}
+.shipments-shortcut img {
+    background-image: url(images/shipments-48x48.gif);
+    filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='system/modules/shipments/images/shipments-48x48.gif', sizingMethod='scale');
+}
+

@@ -1,0 +1,91 @@
+.qoa-console  {
+	background-image:url(icons/application_key.png) !important;
+}
+.qoa-console-shortcut img {
+	background-image:url(icons/application_key.png);
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='system/modules/qo-admin2/common/icons/application_key.png', sizingMethod='scale');
+}
+.qoa-add  {
+	background-image:url(icons/add.png) !important;
+}
+.qoa-edit {
+	background-image:url(icons/pencil.png) !important;
+}
+.qoa-member {
+	background-image:url(icons/user.png) !important;
+}
+.qoa-member-shortcut img {
+	background-image:url(icons/user.png);
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='system/modules/qo-admin2/common/icons/user.png', sizingMethod='scale');
+}
+.qoa-member-add  {
+	background-image:url(icons/user_add.png) !important;
+}
+.qoa-member-edit  {
+	background-image:url(icons/user_edit.png) !important;
+}
+.qoa-group  {
+	background-image:url(icons/group.png) !important;
+}
+.qoa-group-shortcut img {
+	background-image:url(icons/group.png);
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='system/modules/qo-admin2/common/icons/group.png', sizingMethod='scale');
+}
+.qoa-group-add  {
+	background-image:url(icons/group_add.png) !important;
+}
+.qoa-group-edit  {
+	background-image:url(icons/group_edit.png) !important;
+}
+.qoa-module  {
+	background-image:url(icons/application.png) !important;
+}
+.qoa-module-register  {
+	background-image:url(icons/application_add.png) !important;
+}
+.qoa-module-edit  {
+	background-image:url(icons/application_edit.png) !important;
+}
+.qoa-module-file-add {
+	background-image:url(icons/page_white_add.png) !important;
+}
+.qoa-module-file-edit {
+	background-image:url(icons/page_white_edit.png) !important;
+}
+.qoa-module-launcher-add {
+	background-image:url(icons/application_form_add.png) !important;
+}
+.qoa-module-launcher-edit {
+	background-image:url(icons/application_form_edit.png) !important;
+}
+.qoa-permission {
+	background-image:url(icons/link.png) !important;
+}
+.qoa-permission-member-group {
+	background-image:url(icons/group_link.png) !important;
+}
+.qoa-permission-group-module {
+	background-image:url(icons/application_link.png) !important;
+}
+.qoa-session {
+	background-image:url(icons/table.png) !important;
+}
+.qoa-plugin-file {
+	background-image:url(icons/plugin.png) !important;
+}
+.qoa-plugin-file-add {
+	background-image:url(icons/plugin_add.png) !important;
+}
+.qoa-plugin-file-edit {
+	background-image:url(icons/plugin_edit.png) !important;
+}
+.qoa-help {
+	background-image:url(icons/help.png) !important;
+}
+.qoa-admin-audit {
+	background-image:url(icons/table.png) !important;
+}
+.qoa-wrap-cell-data {
+	overflow: auto !important; 
+	white-space: normal !important;
+}

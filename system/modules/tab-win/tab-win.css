@@ -1,0 +1,7 @@
+.tab-icon {
+	background-image: url(images/tab16x16.gif) !important;
+}
+.demo-tab-shortcut img {
+    background-image: url(images/tab48x48.png);
+    filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='system/modules/tab-win/images/tab48x48.png', sizingMethod='scale');
+}
