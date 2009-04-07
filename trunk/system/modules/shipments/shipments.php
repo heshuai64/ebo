@@ -126,6 +126,14 @@ class QoShipments {
 	}
 	
 	public function addShipmentDetail(){
+		$sql = "insert into qo_shipments_detail (shipmentsId,skuId,skuTitle,itemId,itemTitle,quantity) values (
+		'".$_POST['shipmentsId']."','".$_POST['skuId']."','".$_POST['skuTitle']."','".$_POST['itemId']."',
+		'".$_POST['itemTitle']."','".$_POST['quantity']."')";
+		$result = mysql_query($sql);
+		echo $result;
+	}
+	
+	public function saveShipmentInfo(){
 		
 	}
 }
