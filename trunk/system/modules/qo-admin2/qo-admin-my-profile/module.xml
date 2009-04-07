@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<module>
+    <moduleName>QoDesk.QoAdminMyProfile</moduleName>
+    <moduleType>system</moduleType>
+    <moduleId>qo-admin-my-profile</moduleId>
+    <version>2.0.0</version>
+    <author>Paul Simmons</author>
+    <description>Allows users to modify their own profile</description>
+    <files>
+        <js>
+            <file>qo-admin-my-profile.js</file>
+        </js>
+        <php>
+        	<file>qo-admin-my-profile.php</file>
+        </php>
+    </files>
+</module>

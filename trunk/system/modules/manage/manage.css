@@ -1,0 +1,88 @@
+.manage-icon {
+    background-image:url(images/system_16x16.gif) !important;
+}
+.manage-shortcut img {
+    background-image: url(images/system_48x48.gif);
+    filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='system/modules/manage/images/system_48x48.gif', sizingMethod='scale');
+}
+
+.manage-button{
+    float:left;
+    margin-left:16px;
+    margin-top: 16px;
+    text-align: center;
+}
+
+.manage-button-desc{
+    clear: left;
+}
+
+.user-manage-icon {
+    background-image:url(images/user_16x16.gif) !important;
+}
+.user-manage img{
+    background-image:url(images/user_48x48.gif);
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+}
+
+.group-manage-icon {
+    background-image:url(images/group_16x16.gif) !important;
+}
+.group-manage img{
+    background-image:url(images/group_48x48.gif);
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+}
+
+.privilege-manage-icon {
+    background-image:url(images/privilege_16x16.gif) !important;
+}
+.privilege-manage img{
+    background-image:url(images/privilege_48x48.gif);
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+}
+
+.ebay-manage-icon {
+    background-image:url(images/ebay_16x16.png) !important;
+}
+.ebay-manage img{
+    background-image:url(images/ebay_48x48.png);
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+}
+
+.ebay-proxy-icon {
+    background-image:url(images/proxy_16x16.gif) !important;
+}
+.ebay-proxy img{
+    background-image:url(images/proxy_48x48.gif);
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+}
+
+.singular-group{
+    margin-bottom: 12px;
+    background-color: #FFFFFF;
+}
+
+.privilege-group legend{
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.dual-group{
+    margin-bottom: 12px;
+    background-color: #D1DDEF;
+}
+
+.domain {
+    clear: left;
+    margin-bottom: 12px;
+}

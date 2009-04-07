@@ -1,0 +1,10 @@
+.orders-icon {
+    background-image:url(images/orders-16x16.gif) !important;
+}
+.orders-shortcut img {
+    background-image: url(images/orders-48x48.gif);
+    filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='system/modules/orders/images/orders-48x48.gif', sizingMethod='scale');
+}
+.orders-search-create-time{
+    padding:6px 20px 0px 50px;
+}

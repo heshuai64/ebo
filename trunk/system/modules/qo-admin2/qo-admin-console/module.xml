@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<module>
+    <moduleName>QoDesk.QoAdminConsole</moduleName>
+    <moduleType>system</moduleType>
+    <moduleId>qo-admin-console</moduleId>
+    <version>2.0.0</version>
+    <author>Paul Simmons</author>
+    <description>qWikiOffice Admin Console</description>
+    <files>
+        <js>
+            <file>qo-admin-console.js</file>
+        </js>
+        <php>
+        	<file>qo-admin-console.php</file>
+        </php>
+    </files>
+</module>

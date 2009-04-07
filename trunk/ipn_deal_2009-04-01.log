@@ -1,0 +1,8 @@
+2009-04-01 17:10:08   addEbayTransaction: insert into qo_transactions (id,txnId,transactionTime,amountCurrency,amountValue,status,remarks,payeeId,
+                payerId,payerName,payerEmail,payerAddressLine1,payerAddressLine2,payerCity,payerStateOrProvince,
+                payerPostalCode,payerCountry,itemId) values ('TRA200904A0042','441178','2009-04-01 17:08:04',
+                'USD','-49.99','V','','seller@paypalsandbox.com',
+                'testuser_heshuai05','John Smith',
+                'buyer@paypalsandbox.com','123, any street','',
+                'San Jose','CA',
+                '95131','United States','110038450903,110038436041')\n2009-04-01 17:10:08   getEbayOrderId id: select id from qo_orders where buyerId='testuser_heshuai05' and status = 'W' order by createdOn desc\n2009-04-01 17:10:08   getEbayOrderId itemId: select itemId from qo_orders_detail where ordersId='ORD200903A0054'\n2009-04-01 17:10:08   getEbayOrderId ~end one loop~\n2009-04-01 17:10:08   getEbayOrderId itemId: select itemId from qo_orders_detail where ordersId='ORD200903A0053'\n2009-04-01 17:10:08   getEbayOrderId ~end one loop~\n2009-04-01 17:10:08   mapEbayOrder failure, transactionId: TRA200904A0042\n

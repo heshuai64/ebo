@@ -1,0 +1,45 @@
+2009-04-01 17:10:05   441178   Array
+(
+    [test_ipn] => 1
+    [payment_type] => instant
+    [payment_date] => 10:08:04 Apr. 01, 2009 PDT
+    [payment_status] => Reversed
+    [address_status] => confirmed
+    [payer_status] => verified
+    [first_name] => John
+    [last_name] => Smith
+    [payer_email] => buyer@paypalsandbox.com
+    [payer_id] => TESTBUYERID01
+    [address_name] => John Smith
+    [address_country] => United States
+    [address_country_code] => US
+    [address_zip] => 95131
+    [address_state] => CA
+    [address_city] => San Jose
+    [address_street] => 123, any street
+    [business] => seller@paypalsandbox.com
+    [receiver_email] => seller@paypalsandbox.com
+    [receiver_id] => TESTSELLERID1
+    [residence_country] => US
+    [item_name] => something
+    [item_number] => 110038450903
+    [item_name1] => AK-1234
+    [item_number1] => 110038436041
+    [quantity] => 1
+    [quantity1] => 1
+    [shipping] => 3.04
+    [tax] => 2.02
+    [mc_currency] => USD
+    [mc_fee] => 0.44
+    [mc_gross] => -49.99
+    [txn_type] => web_accept
+    [txn_id] => 441178
+    [notify_version] => 2.4
+    [auction_buyer_id] => testuser_heshuai05
+    [auction_closing_date] => Mar. 31, 2009 PDT
+    [for_auction] => TRUE
+    [custom] => xyz123
+    [charset] => windows-1252
+    [verify_sign] => AwYW9JgIUT4nD3-VGLsJeJAINOUHA0qttxsfw2hdWd0qZx5j9JBDwo1g
+)
+\n2009-04-01 17:10:08   441178   VERIFIED\n

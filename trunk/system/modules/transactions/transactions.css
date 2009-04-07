@@ -1,0 +1,11 @@
+.transactions-icon {
+    background-image:url(images/transactions-16x16.png) !important;
+}
+.transactions-shortcut img {
+    background-image: url(images/transactions-48x48.png);
+    filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='system/modules/transactions/images/transactions-48x48.png', sizingMethod='scale');
+}
+
+.transactions-search-date{
+    padding:6px 20px 0px 50px;
+}
