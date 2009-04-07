@@ -93,22 +93,6 @@
                                                     name: 'skuId',
                                                     allowBlank: false,
                                                     fieldLabel: 'Sku'
-                                                },{
-                                                    xtype:'combo',
-                                                    store: new Ext.data.SimpleStore({
-                                                            fields: ["unitPriceCurrencyValue", "unitPriceCurrencyName"],
-                                                            data: currency_data
-                                                            }),
-                                                            listWidth: 60,
-                                                            width: 60,			  
-                                                            mode: 'local',
-                                                            displayField: 'unitPriceCurrencyName',
-                                                            valueField: 'unitPriceCurrencyValue',
-                                                            triggerAction: 'all',
-                                                            editable: false,
-                                                            fieldLabel: 'Currency',
-                                                            name: 'unitPriceCurrency',
-                                                            hiddenName:'unitPriceCurrency'
                                                 }]
                                        },{
                                         columnWidth:0.5,
@@ -123,12 +107,7 @@
                                                 name: 'skuTitle',
                                                 allowBlank: false,
                                                 fieldLabel: 'sku Title'
-                                                },{
-                                                xtype: 'textfield',
-                                                name: 'unitPriceValue',
-                                                allowBlank: false,
-                                                fieldLabel: 'Unit Price'
-                                            }]
+                                                }]
                                        }]
                                 },{
                                     xtype: 'numberfield',
@@ -153,23 +132,21 @@
                                 handler: function(){
                                     Ext.Ajax.request({
                                         waitMsg: 'Please wait...',
-                                        url: 'connect.php?moduleId=qo-orders&action=addOrderDetail',
+                                        url: 'connect.php?moduleId=qo-shipments&action=addShipmentDetail',
                                         params: {
-                                                ordersId: '<?=$_GET['id']?>',
-                                                itemId: add_order_detail_form.form.findField('itemId').getValue(),
-                                                itemTitle: add_order_detail_form.form.findField('itemTitle').getValue(),
-                                                skuId: add_order_detail_form.form.findField('skuId').getValue(),
-                                                skuTitle: add_order_detail_form.form.findField('skuTitle').getValue(),
-                                                quantity: add_order_detail_form.form.findField('quantity').getValue(),
-                                                unitPriceCurrency: add_order_detail_form.form.findField('unitPriceCurrency').getValue(),
-                                                unitPriceValue: add_order_detail_form.form.findField('unitPriceValue').getValue()
+                                                shipmentsId: '<?=$_GET['id']?>',
+                                                itemId: add_shipment_detail_form.form.findField('itemId').getValue(),
+                                                itemTitle: add_shipment_detail_form.form.findField('itemTitle').getValue(),
+                                                skuId: add_shipment_detail_form.form.findField('skuId').getValue(),
+                                                skuTitle: add_shipment_detail_form.form.findField('skuTitle').getValue(),
+                                                quantity: add_shipment_detail_form.form.findField('quantity').getValue()
                                         },
                                         success: function(response){
                                             var result = eval(response.responseText);
                                             switch (result) {
                                                 case 1:
-                                                    orderDetailGridStore.reload();
-                                                    addOrderDetailWindow.hide();
+                                                    shipmentDetailStore.reload();
+                                                    addShipmentDetailWindow.hide();
                                                     break;
                                                 default:
                                                     Ext.MessageBox.alert('Uh uh...', 'We couldn\'t save him...');
@@ -208,6 +185,9 @@
                     columnWidth:0.5,
                     layout:"form",
                     title:"System",
+                    defaults:{
+                            width:200
+                    },
                     items:[{
                         xtype:"textfield",
                         fieldLabel:"Shipment Id",
@@ -384,6 +364,9 @@
                     columnWidth:0.5,
                     layout:"form",
                     title:"Address",
+                    defaults:{
+                            width:200
+                    },
                     items:[{
                         xtype:"textfield",
                         fieldLabel:"Name",
@@ -399,7 +382,7 @@
                       },{
                         xtype:"textfield",
                         fieldLabel:"Address 2",
-                        name:"shipToAddressLine2lue"
+                        name:"shipToAddressLine2"
                       },{
                         xtype:"textfield",
                         fieldLabel:"City",
@@ -430,9 +413,44 @@
                 items: shipmentDetailGrid
             }],
             buttons: [{
-                        text: 'Submit',
+                        text: 'Save',
                         handler: function(){
-                            
+                            Ext.Ajax.request({
+                                waitMsg: 'Please wait...',
+                                url: 'connect.php?moduleId=qo-shipments&action=saveShipmentInfo',
+                                params: {
+                                        id: '<?=$_GET['id']?>',
+                                        ordersId: shipmentDetailForm.form.findField('ordersId').getValue(),
+                                        shippingFeeCurrency: shipmentDetailForm.form.findField('shippingFeeCurrency').getValue(),
+                                        shippingFeeValue: shipmentDetailForm.form.findField('shippingFeeValue').getValue(),
+                                        status: shipmentDetailForm.form.findField('status').getValue(),
+                                        remarks: shipmentDetailForm.form.findField('remarks').getValue(),
+                                        shipToName: shipmentDetailForm.form.findField('shipToName').getValue(),
+                                        shipToEmail: shipmentDetailForm.form.findField('shipToEmail').getValue(),
+                                        shipToAddressLine1: shipmentDetailForm.form.findField('shipToAddressLine1').getValue(),
+                                        shipToAddressLine2: shipmentDetailForm.form.findField('shipToAddressLine2').getValue(),
+                                        shipToCity: shipmentDetailForm.form.findField('shipToCity').getValue(),
+                                        shipToStateOrProvince: shipmentDetailForm.form.findField('shipToStateOrProvince').getValue(),
+                                        shipToPostalCode: shipmentDetailForm.form.findField('shipToPostalCode').getValue(),
+                                        shipToCountry: shipmentDetailForm.form.findField('shipToCountry').getValue(),
+                                        shipToPhoneNo: shipmentDetailForm.form.findField('shipToPhoneNo').getValue()
+                                },
+                                success: function(response){
+                                        var result = eval(response.responseText);
+                                        switch (result) {
+                                            case 1:
+                                                 Ext.MessageBox.alert('Success', 'save Order Info success!');
+                                            break;
+                                            default:
+                                                Ext.MessageBox.alert('Uh uh...', 'We couldn\'t save him...');
+                                            break;
+                                        }
+                                },
+                                failure: function(response){
+                                        var result = response.responseText;
+                                        Ext.MessageBox.alert('error', 'could not connect to the database. retry later');
+                                }
+                            });	
                         }
                     }]
         })
