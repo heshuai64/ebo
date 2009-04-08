@@ -2,7 +2,7 @@ Ext.override(QoDesk.Shipments, {
   
     createWindow : function(){
         var desktop = this.app.getDesktop();
-        var win = desktop.getWindow('grid-win');
+        var win = desktop.getWindow('shipment-win');
         
         if(!win){
             var searchShipment = function(){
@@ -109,6 +109,7 @@ Ext.override(QoDesk.Shipments, {
             
                 
             }
+	    
             
             win = desktop.createWindow({
                 id: 'shipment-win',
@@ -300,11 +301,23 @@ Ext.override(QoDesk.Shipments, {
                               }]
                           }],
                     buttons: [{
-                        text: 'Submit',
+                        text: 'Search',
                         handler: function(){
                             searchShipment();
                         }
-                    }]
+		    },{
+			text: 'Verify Shipment',
+			handler: function(){
+			    win.close();
+			    window.open("http://127.0.0.1/ebayBO/verifyShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");   
+			}
+		    },{
+			text: 'Pack Shipment',
+			handler: function(){
+			    win.close();
+			    window.open("http://127.0.0.1/ebayBO/packShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=500, height=400");  
+			}
+		    }]
                 }],
                 taskbuttonTooltip: '<b>Search Shipment</b><br />Search Shipment Info'
             });
