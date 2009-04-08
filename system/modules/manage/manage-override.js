@@ -463,18 +463,37 @@ Ext.override(QoDesk.Manage, {
 				    groupPrivilegeManageWin.show();
 				    
 				    var saveGroupPrivilegeInfo = function(){
-					    Ext.getCmp("group-privilege-form").submit({
-						    method:'POST',
-						    waitTitle:'请稍后',
-						    waitMsg:'保存信息中...',
-						    url:'connect.php?moduleId=qo-manage&action=saveGroupPrivilege',
-						    success:function(){
-						    },
-						    failure:function(form, action){
+					    var p = "";
+					    var test = function(p1){
+						if(p1.checked){
+						    p += p1.id + "=1@";
+						}else{
+						    p += p1.id + "=0@";
+						}
+					    }
+					   
+					    Ext.each(Ext.query("input"), test);
+					    console.log(p);
+					    
+					    Ext.Ajax.request({
+						waitMsg: 'Please wait...',
+						url: 'connect.php?moduleId=qo-manage&action=saveGroupPrivilege&data='+p,
+						success: function(response){
+						    var result = eval(response.responseText);
+						    switch (result) {
+							case 1:
+							    
+							    break;
+							default:
+							    Ext.MessageBox.alert('Uh uh...', 'We couldn\'t save him...');
+							    break;
 						    }
-			
-						});
-
+						},
+						failure: function(response){
+						    var result = response.responseText;
+						    Ext.MessageBox.alert('error', 'could not connect to the database. retry later');
+						}
+					    });		
 				    }
 				    
 				    var closeGroupPrivilegeWindow = function(){
@@ -499,21 +518,236 @@ Ext.override(QoDesk.Manage, {
 	}
 	
 	var ebayManage = function(){
-	    var ebayManageWin = desktop.getWindow('user-manage-win');
+	    var ebayManageWin = desktop.getWindow('ebay-manage-win');
 	    if(!ebayManageWin){
 		
+		var store = new Ext.data.JsonStore({
+		    root: 'result',
+		    autoLoad: true,
+		    fields: ['id','email','status','token','tokenExpiry','currency','site'],
+		    url:'connect.php?moduleId=qo-manage&action=getAllEbaySeller'
+		});
+		
+		var ebayManageForm = new Ext.FormPanel({
+			id: 'ebay-manage-form',
+			frame: true,
+			labelAlign: 'left',
+			bodyStyle:'padding:5px',
+			labelWidth:80,
+			//width: 750,
+			layout:"column",
+			items:[{
+			    columnWidth: 0.3,
+			    layout: 'fit',
+			    items: {
+				    id:'ebay-manage-grid',
+				    xtype: 'grid',
+				    store: store,
+				    columns:[
+					    {id:'id', header: "id", width: 120, sortable: true, locked:false, dataIndex: 'id'},
+					    {header: "Email", width: 120, sortable: true,  dataIndex: 'email'}
+					],
+				    sm: new Ext.grid.RowSelectionModel({
+					singleSelect: true,
+					listeners: {
+					    rowselect: function(sm, row, rec) {
+						Ext.getCmp("ebay-manage-form").getForm().loadRecord(rec);
+					    }
+					}
+				    }),
+				    height: 350,
+				    title:'eBay账户列表',
+				    border: true,
+				    listeners: {
+					    render: function(g) {
+						    g.getSelectionModel().selectRow(0);
+					    },
+					    delay: 10 // Allow rows to be rendered.
+				    }
+				}
+			},{
+			    columnWidth:0.7,
+			    layout:"form",
+			    items:[{
+				layout:"column",
+				items:[{
+				    columnWidth:0.5,
+				    layout:"form",
+				    items:[{
+					xtype:"textfield",
+					fieldLabel:"ID",
+					name:"id"
+				      },{
+					xtype:"textfield",
+					fieldLabel:"Email",
+					name:"email"
+				      },{
+					xtype:"combo",
+					fieldLabel:"Status",
+					name:"status",
+					width:80,
+					hiddenName:"status"
+				      }]
+				  },{
+				    columnWidth:0.5,
+				    layout:"form",
+				    items:[{
+					xtype:"textfield",
+					fieldLabel:"Token Expiry",
+					name:"tokenExpiry"
+				      },{
+					xtype:"textfield",
+					fieldLabel:"Site",
+					name:"site"
+				      },{
+					xtype:"combo",
+					fieldLabel:"Currency",
+					name:"currency",
+					width:80,
+					hiddenName:"currency"
+				      }]
+				  }]
+			      },{
+				xtype:"textarea",
+				fieldLabel:"Token",
+				height:200,
+				width:350,
+				name:"token"
+			    }]
+		    }],
+			buttons: [{
+			    text: '保存',
+			    handler: function(){
+				 Ext.Ajax.request({
+				    waitMsg: 'Please wait...',
+				    url: 'connect.php?moduleId=qo-orders&action=saveEbaySeller',
+				    params: {
+					    id: ebayManageForm.form.findField('id').getValue(),
+					    email: ebayManageForm.form.findField('email').getValue(),
+					    status: ebayManageForm.form.findField('status').getValue(),
+					    tokenExpiry: ebayManageForm.form.findField('tokenExpiry').getValue(),
+					    site: ebayManageForm.form.findField('site').getValue(),
+					    currency: ebayManageForm.form.findField('currency').getValue(),
+					    token: ebayManageForm.form.findField('token').getValue()
+				    },
+				    success: function(response){
+					    var result = eval(response.responseText);
+					    switch (result) {
+						    case 1:
+							
+							break;
+						    default:
+							Ext.MessageBox.alert('Uh uh...', 'We couldn\'t save him...');
+							break;
+					    }
+				    },
+				    failure: function(response){
+					    var result = response.responseText;
+					    Ext.MessageBox.alert('error', 'could not connect to the database. retry later');
+				    }
+				});		
+			    }
+			},{
+			    text: '添加账户',
+			    handler: function(){
+				var addEbaySellerForm = new Ext.FormPanel({
+				    id: 'ebay-manage-form',
+				    frame: true,
+				    labelAlign: 'left',
+				    bodyStyle:'padding:5px',
+				    labelWidth:80,
+				    items:[{
+					layout:"column",
+					items:[{
+					    columnWidth:0.5,
+					    layout:"form",
+					    items:[{
+						xtype:"textfield",
+						fieldLabel:"ID",
+						name:"id"
+					      },{
+						xtype:"textfield",
+						fieldLabel:"Email",
+						name:"email"
+					      },{
+						xtype:"combo",
+						fieldLabel:"Status",
+						name:"status",
+						width:80,
+						hiddenName:"status"
+					      }]
+					  },{
+					    columnWidth:0.5,
+					    layout:"form",
+					    items:[{
+						xtype:"textfield",
+						fieldLabel:"Token Expiry",
+						name:"tokenExpiry"
+					      },{
+						xtype:"textfield",
+						fieldLabel:"Site",
+						name:"site"
+					      },{
+						xtype:"combo",
+						fieldLabel:"Currency",
+						name:"currency",
+						width:80,
+						hiddenName:"currency"
+					      }]
+					  }]
+				      },{
+					xtype:"textarea",
+					fieldLabel:"Token",
+					height:200,
+					width:350,
+					name:"token"
+				    }],
+				    buttons: [{
+					text: '添加',
+					handler: function(){
+					    
+					}
+				    }]
+				});
+				addEbaySellerWin = desktop.createWindow({
+				    title:'添加eBay账户',
+				    width:500,
+				    height:400,
+				    iconCls: 'ebay-manage-icon',
+				    shim:false,
+				    animCollapse:false,
+				    constrainHeader:true,
+				    layout: 'fit',
+				    items:addEbaySellerForm,
+				    taskbuttonTooltip: '<b>添加eBay账户</b><br />添加eBay账户'
+				});
+				addEbaySellerWin.show();
+			    }
+			},{
+			    text: '删除账户',
+			    handler: function(){
+				console.log(Ext.getCmp("ebay-manage-grid").getSelectionModel().getSelected());
+			    }
+			},{
+			    text: '关闭窗口',
+			    handler: function(){
+				ebayManageWin.close();
+			    }
+			}]
+		});
+				
 		ebayManageWin = desktop.createWindow({
 		    id: 'ebay-manage-win',
-		    title:'eBay用户管理',
-		    width:300,
-		    height:120,
+		    title:'eBay账户管理',
+		    width:700,
+		    height:500,
 		    iconCls: 'ebay-manage-icon',
 		    shim:false,
 		    animCollapse:false,
 		    constrainHeader:true,
 		    layout: 'fit',
-		    html: '用户管理',
-		    taskbuttonTooltip: '<b>eBay用户管理</b><br />管理eBay帐号'
+		    items:ebayManageForm,
+		    taskbuttonTooltip: '<b>eBay账户管理</b><br />管理eBay帐号'
 		});
 	    }
 	    ebayManageWin.show();
