@@ -22,7 +22,7 @@ Ext.override(QoDesk.Shipments, {
                                 packedOnFrom:searchShipmentForm.findField('packedOnFrom').getValue(),packedOnTo:searchShipmentForm.findField('packedOnTo').getValue(),
                                 shippedOnFrom:searchShipmentForm.findField('shippedOnFrom').getValue(),shippedOnTo:searchShipmentForm.findField('shippedOnTo').getValue()
                                 },
-                    fields: ['shipmentsId', 'shipToName', 'shipToEmail', 'ordersId', 'sellerId', 'createdOn','packedOn','shippedOn','status'],
+                    fields: ['id', 'shipToName', 'shipToEmail', 'ordersId', 'sellerId', 'createdOn','packedOn','shippedOn','status'],
                     url:'connect.php?moduleId=qo-shipments&action=searchShipment'
                 });
                 
@@ -30,7 +30,7 @@ Ext.override(QoDesk.Shipments, {
                     store: shipmentGridStore,
                     columns:[{
                         header: "Shipment Id",
-                        dataIndex: 'shipmentsId',
+                        dataIndex: 'id',
                         width: 110,
                         align: 'center',
                         sortable: true
@@ -87,8 +87,7 @@ Ext.override(QoDesk.Shipments, {
                 
                 shipmentGrid.on("rowdblclick", function(oGrid){
                 var oRecord = oGrid.getSelectionModel().getSelected();
-                    
-                    //window.open("http://127.0.0.1:6666/eBayBO/transactions.php?id="+oRecord.data['id'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");        
+                    window.open("http://127.0.0.1:6666/eBayBO/shipments.php?id="+oRecord.data['id'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");        
                 });
                  
                 shipmentGridStore.load({params:{start:0, limit:20}});

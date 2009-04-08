@@ -84,10 +84,10 @@ class QoShipments {
             }
             
             if(empty($shipment_detail_where)){
-                $sql = "select s.id as shipmentsId,o.id as ordersId,s.shipToName,s.shipToEmail,o.sellerId,s.createdOn,
+                $sql = "select s.id,o.id as ordersId,s.shipToName,s.shipToEmail,o.sellerId,s.createdOn,
                 s.packedOn,s.shippedOn,s.status from qo_shipments as s left join qo_orders as o on s.ordersId = o.id where ".$where;
             }else{
-                $sql = "select s.id as shipmentsId,o.id as ordersId,s.shipToName,s.shipToEmail,o.sellerId,s.createdOn,
+                $sql = "select s.id,o.id as ordersId,s.shipToName,s.shipToEmail,o.sellerId,s.createdOn,
                 s.packedOn,s.shippedOn,s.status from (qo_shipments as s left join qo_shipments_detail as sd on s.id=sd.shipmentsId)
                 left join qo_orders as o on s.ordersId = o.id where ".$where.$shipment_detail_where;
             }
