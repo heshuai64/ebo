@@ -324,7 +324,53 @@ Ext.override(QoDesk.Manage, {
 	}
 	
 	var privilegeManage = function(){
-	    
+	    var privilegeManageWin = desktop.getWindow('privilege-manage-win');
+	    if(!privilegeManageWin){
+		var notifyWin = desktop.showNotification({
+			html: '加载权限信息中...',
+			title: '请等待'
+		});
+		
+		Ext.Ajax.request({
+			url: 'connect.php',
+			params: 'moduleId=qo-manage&action=getPrivilegeInfo',
+			success: function(o){
+				if(o && o.responseText){
+				    saveComplete(notifyWin, '完成', '加载权限信息成功.');
+				    var data = eval(o.responseText);
+				    var groupHtml = "";
+				    var checked = "";
+				    
+				    var formHtml = '<form id="privilegeForm">'+groupHtml+'</form>';
+				    
+				    privilegeManageWin = desktop.createWindow({
+					id: 'privilege-manage-win',
+					title:'权限管理',
+					width:600,
+					height:500,
+					iconCls: 'privilege-manage-icon',
+					shim:false,
+					autoScroll: true,
+					animCollapse:false,
+					constrainHeader:true,
+					layout: 'fit',
+					html: formHtml,
+					taskbuttonTooltip: '<b>权限管理</b><br />设置权限于相应的功能'
+				    });
+				    privilegeManageWin.show(); 
+				}else{
+				    saveComplete(notifyWin, '失败', '加载组权限信息失败.');
+				}
+			},
+			failure: function(){
+				saveComplete(notifyWin, '失败', '不能连接服务器.');
+			},
+			scope: this
+		});
+		
+	    }else{
+		privilegeManage.show();
+	    }
 	}
 	
 	var groupPrivilegeManage = function(){
@@ -343,7 +389,6 @@ Ext.override(QoDesk.Manage, {
 				    saveComplete(notifyWin, '完成', '加载组权限信息成功.');
 				    var data = eval(o.responseText);
 				    var groupHtml = "";
-				    var checked = "";
 				    //console.log(data[0].group_privilege);
 				    for(i in data[0].group){
 					if(typeof(data[0].group[i]) != 'function'){
@@ -353,26 +398,10 @@ Ext.override(QoDesk.Manage, {
 						groupHtml += "<div class='singular-group privilege-group'><fieldset>"
 					    }
 					    groupHtml += "<legend>"+data[0].group[i].name+"</legend>";
+					    /*
 					    for(l in data[0].domain){
 						if(typeof(data[0].domain[l]) != 'function'){
 						    groupHtml += '<div class="domain">' + data[0].domain[l].name +':<img width="12px" src="resources/images/default/s.gif"/>';
-						    
-						    /*
-						    for(j in data[0].privilege){
-							if(typeof(data[0].privilege[j]) != 'function'){
-							    
-							    for(k in data[0].group_privilege){
-								    if(typeof(data[0].group_privilege[k]) != 'function'){
-									if(data[0].group_privilege[k].qo_groups_id == data[0].group[i].id && data[0].group_privilege[k].qo_privileges_id == data[0].privilege[j].id){
-									    checked = 'checked="checked"';
-									}
-								    }
-							    }
-							    groupHtml += '<div class="privilege"><input id="'+data[0].group[i].id+"_"+data[0].privilege[j].id+'" '+checked+' type="checkbox"/>      ' + data[0].privilege[j].name + '</div>';
-							    checked = "";
-							}
-						    }
-						    */
 						    for(j in data[0].privilege){
 							if(typeof(data[0].privilege[j]) != 'function'){
 							    for(k in data[0].group_domain_privilege){
@@ -392,10 +421,31 @@ Ext.override(QoDesk.Manage, {
 						    groupHtml += '</div>';
 						}
 					    }
+					    */
+					    for(j in data[0].privilege){
+						if(typeof(data[0].privilege[j]) != 'function'){
+						    for(k in data[0].group_domain_privilege){
+							var checked = "";
+							if(typeof(data[0].group_domain_privilege[k]) != 'function'){
+							    if(data[0].group[i].id == data[0].group_domain_privilege[k].qo_groups_id &&
+							       data[0].privilege[j].id == data[0].group_domain_privilege[k].qo_privileges_id){
+								    //console.log(data[0].group_domain_privilege[k].is_allowed);
+								    if(data[0].group_domain_privilege[k].is_allowed == "1"){
+									checked = 'checked="checked"';
+								    }
+								    groupHtml += '<input id="'+data[0].group[i].id+"_"+data[0].privilege[j].id+'" '+checked+' type="checkbox"/>      ' + data[0].privilege[j].name + '<img width="12px" src="resources/images/default/s.gif"/>'; 
+							    }
+							}
+						    }
+						}
+					    }
 					    groupHtml += "</fieldset></div>";
 					}
 				    }
-				    var formHtml = '<form id="privilegeForm">'+groupHtml+'</form>';
+				    var formHtml = '<form id="group-privilege-form">'+groupHtml+'\
+						    <div style="text-align:center;"><button id="save" type="button">保存</button>\
+						         <button id="close" type="button">关闭</button>\
+						    </div></form>';
 				    groupPrivilegeManageWin = desktop.createWindow({
 					id: 'group-privilege-manage-win',
 					title:'组权限管理',
@@ -410,7 +460,29 @@ Ext.override(QoDesk.Manage, {
 					html: formHtml,
 					taskbuttonTooltip: '<b>组权限管理</b><br />管理用户组的权限'
 				    });
-				    groupPrivilegeManageWin.show(); 
+				    groupPrivilegeManageWin.show();
+				    
+				    var saveGroupPrivilegeInfo = function(){
+					    Ext.getCmp("group-privilege-form").submit({
+						    method:'POST',
+						    waitTitle:'请稍后',
+						    waitMsg:'保存信息中...',
+						    url:'connect.php?moduleId=qo-manage&action=saveGroupPrivilege',
+						    success:function(){
+						    },
+						    failure:function(form, action){
+						    }
+			
+						});
+
+				    }
+				    
+				    var closeGroupPrivilegeWindow = function(){
+					groupPrivilegeManageWin.close();
+				    }
+				    
+				    Ext.EventManager.addListener("save", "click", saveGroupPrivilegeInfo);
+				    Ext.EventManager.addListener("close", "click", closeGroupPrivilegeWindow);
 				}else{
 				    saveComplete(notifyWin, '失败', '加载组权限信息失败.');
 				}
@@ -461,7 +533,6 @@ Ext.override(QoDesk.Manage, {
 		layout: 'fit',
                 html: '<div class="manage-button"><div class="user-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">用户管理</div></div>\
 		       <div class="manage-button"><div class="group-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">用户组管理</div></div>\
-		       <div class="manage-button"><div class="privilege-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">权限管理</div></div>\
 		       <div class="manage-button"><div class="group-privilege-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">组权限管理</div></div>\
 		       <div class="manage-button"><div class="ebay-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">eBay帐号管理</div></div>\
 		       <div class="manage-button"><div class="ebay-proxy"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">eBay代理管理</div></div>',
@@ -469,7 +540,8 @@ Ext.override(QoDesk.Manage, {
             });
 	    Ext.EventManager.on(Ext.DomQuery.select("div[@class='user-manage']")[0], "click", userManage);
 	    Ext.EventManager.on(Ext.DomQuery.select("div[@class='group-manage']")[0], "click", groupManage);
-	    Ext.EventManager.on(Ext.DomQuery.select("div[@class='privilege-manage']")[0], "click", privilegeManage);
+	    //<div class="manage-button"><div class="privilege-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">权限管理</div></div>\
+	    //Ext.EventManager.on(Ext.DomQuery.select("div[@class='privilege-manage']")[0], "click", privilegeManage);
 	    Ext.EventManager.on(Ext.DomQuery.select("div[@class='group-privilege-manage']")[0], "click", groupPrivilegeManage);
 	    Ext.EventManager.on(Ext.DomQuery.select("div[@class='ebay-manage']")[0], "click", ebayManage);
         }

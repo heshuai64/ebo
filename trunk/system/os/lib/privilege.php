@@ -38,7 +38,7 @@ class privilege {
 		if($member_id != "" && $group_id != ""){
 			
 			unset($_SESSION['privileges']);
-		
+			/*
 			$sql = "SELECT
 				is_allowed,
 				P.is_singular AS is_privilege_singular,
@@ -126,6 +126,33 @@ class privilege {
 				}
 				//$privileges[$action][$module_id] = $is_allowed;
 			}
+			*/
+
+			$sql = "SELECT is_allowed,A.name AS action,M.id AS module_id,M.module_id AS moduleId
+			FROM qo_groups_has_domain_privileges as GDP 
+			INNER JOIN qo_privileges AS P on GDP.qo_privileges_id = P.id 
+			INNER JOIN qo_privileges_has_module_actions AS PA ON PA.qo_privileges_id = P.id 
+			INNER JOIN qo_groups AS G ON G.id = GDP.qo_groups_id 
+			INNER JOIN qo_modules_actions AS A ON A.id = PA.qo_modules_actions_id 
+			INNER JOIN qo_modules AS M ON M.id = A.qo_modules_id 
+			WHERE G.id = ".$group_id;
+			
+			$result = mysql_query($sql);
+			$is_allowed = 0;
+			
+			while($row = mysql_fetch_assoc($result)){
+				$action = $row["action"];
+				$module_id = $row["module_id"]; // MySQL table id
+				$moduleId = $row["moduleId"]; // moduleId property of the module
+				$is_allowed = (int) $row["is_allowed"];
+				$_SESSION['privileges'][$action][$moduleId] = $is_allowed;
+				if($is_allowed){
+					// note: moduleId here referes to the javascript moduleId
+					$privileges[$action][] = $moduleId;
+				}
+				
+			}
+			
 		}
 		
 		return json_encode($privileges);
@@ -152,7 +179,7 @@ class privilege {
 					return FALSE;
 				}
 			}
-
+			/*
 			$sql = "SELECT
 				is_allowed,
 				P.is_singular AS is_privilege_singular,
@@ -212,6 +239,21 @@ class privilege {
 				$count++;
 				
 			}
+			*/
+			$sql = "select qo_privileges_id from qo_groups_has_domain_privileges where qo_groups_id=".$group_id;
+			$result = mysql_query($sql);
+			while($row = mysql_fetch_assoc($result)){
+				$sql_1 = "select count(*) as num from qo_privileges_has_module_actions as pma left join qo_modules_actions as ma on pma.qo_modules_actions_id=ma.id 
+				where qo_privileges_id=".$row['qo_privileges_id']." and ma.name='".$action."'";
+				//echo "\n".$sql_1."\n";
+				$result_1 = mysql_query($sql_1);
+				$row_1 = mysql_fetch_assoc($result_1);
+				if($row_1['num'] > 0){
+					$is_allowed = 1;
+					break;
+				}
+			}
+						
 		}
 		
 		// Store value in sessions for next time
@@ -240,12 +282,14 @@ class privilege {
 	    }
 	    */
 	    
+	    /*
 	    $domain_array = array();
 	    $sql = "select * from qo_domains";
 	    $result = mysql_query($sql);
 	    while($row = mysql_fetch_assoc($result)){
 		$domain_array[] = $row;
 	    }
+	    */
 	    
 	    $group_array = array();
 	    $sql = "select * from qo_groups";
@@ -264,13 +308,13 @@ class privilege {
 	    //var_dump($privilege_array);
 	    
 	    $group_privilege_array = array();
-	    $sql = "select qo_groups_id,qo_domains_id,qo_privileges_id,is_allowed from qo_groups_has_domain_privileges order by qo_groups_id";
+	    $sql = "select qo_groups_id,qo_privileges_id,is_allowed from qo_groups_has_domain_privileges order by qo_groups_id";
 	    $result = mysql_query($sql);
 	    while($row = mysql_fetch_assoc($result)){
 		$group_privilege_array[] = $row;
 	    }
 	    //var_dump($group_privilege_array);
-	    $group_domain_privilege = array('group'=>$group_array, 'domain'=> $domain_array, 'privilege'=>$privilege_array, 'group_domain_privilege'=>$group_privilege_array);
+	    $group_domain_privilege = array('group'=>$group_array, 'privilege'=>$privilege_array, 'group_domain_privilege'=>$group_privilege_array);
 	    //print_r($group_domain_privilege);
 	    return '['.json_encode($group_domain_privilege).']';
 	}
