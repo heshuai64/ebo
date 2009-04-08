@@ -254,76 +254,82 @@
                             name:"status",
                             hiddenName:"status"
                           },{
-                            layout:"table",
-                            layoutConfig:{
-                              columns:3
-                            },
-                            width:320,
+                        layout:"table",
+                        layoutConfig:{
+                          columns:3
+                        },
+                        width:320,
+                        border:false,
+                        items:[{
+                            width:95,
+                            html:"<font size=2>Created:</font>",
+                            border:false
+                          },{
+                            layout:"form",
                             border:false,
+                            labelWidth:0,
+                            hideLabels:true,
+                            labelSeparator:"",
                             items:[{
-                                width:70,
-                                html:"<font size=2>Created:</font>",
-                                border:false
-                              },{
-                                layout:"form",
-                                border:false,
-                                labelWidth:30,
-                                withd:110,
-                                items:[{
-                                    xtype:"textfield",
-                                    readOnly:true,
-                                    fieldLabel:"user",
-                                    name:"createdBy",
-                                    width:80
-                                  }]
-                              },{
-                                layout:"form",
-                                border:false,
-                                labelWidth:30,
-                                items:[{
-                                    xtype:"textfield",
-                                    readOnly:true,
-                                    fieldLabel:"time",
-                                    name:"createdOn",
-                                    width:120
-                                  }]
+                                xtype:"textfield",
+                                readOnly:true,
+                                fieldLabel:"",
+                                name:"createdBy",
+                                width:80
                               }]
                           },{
-                            layout:"table",
-                            layoutConfig:{
-                              columns:3
-                            },
-                            width:320,
+                            layout:"form",
                             border:false,
+                            labelWidth:0,
+                            hideLabels:true,
+                            labelSeparator:"",
                             items:[{
-                                width:70,
-                                html:"<font size=2>modified:</font>",
-                                border:false
-                              },{
-                                layout:"form",
-                                border:false,
-                                labelWidth:30,
-                                withd:110,
-                                items:[{
-                                    xtype:"textfield",
-                                    readOnly:true,
-                                    fieldLabel:"user",
-                                    name:"modifiedBy",
-                                    width:80
-                                  }]
-                              },{
-                                layout:"form",
-                                border:false,
-                                labelWidth:30,
-                                items:[{
-                                    xtype:"textfield",
-                                    readOnly:true,
-                                    fieldLabel:"time",
-                                    name:"modifiedOn",
-                                    width:120
-                                  }]
+                                xtype:"textfield",
+                                readOnly:true,
+                                fieldLabel:"",
+                                name:"createdOn",
+                                width:125
+                              }]
+                          }]
+                      },{
+                        layout:"table",
+                        layoutConfig:{
+                          columns:3
+                        },
+                        width:320,
+                        border:false,
+                        items:[{
+                            width:95,
+                            html:"<font size=2>modified:</font>",
+                            border:false
+                          },{
+                            layout:"form",
+                            border:false,
+                            labelWidth:0,
+                            hideLabels:true,
+                            labelSeparator:"",
+                            items:[{
+                                xtype:"textfield",
+                                readOnly:true,
+                                fieldLabel:"",
+                                name:"modifiedBy",
+                                width:80
                               }]
                           },{
+                            layout:"form",
+                            border:false,
+                            labelWidth:0,
+                            hideLabels:true,
+                            labelSeparator:"",
+                            items:[{
+                                xtype:"textfield",
+                                readOnly:true,
+                                fieldLabel:"",
+                                name:"modifiedOn",
+                                width:125
+                              }]
+                          }]
+                      },{
                             xtype:"textarea",
                             fieldLabel:"Remarks",
                             name:"remarks"
