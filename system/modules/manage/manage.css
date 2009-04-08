@@ -47,6 +47,16 @@
     cursor: pointer;
 }
 
+.group-privilege-manage-icon {
+    background-image:url(images/group-privilege_16x16.gif) !important;
+}
+.group-privilege-manage img{
+    background-image:url(images/group-privilege_48x48.gif);
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+}
+
 .ebay-manage-icon {
     background-image:url(images/ebay_16x16.png) !important;
 }

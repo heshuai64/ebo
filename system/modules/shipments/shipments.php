@@ -136,6 +136,35 @@ class QoShipments {
 	public function saveShipmentInfo(){
 		
 	}
+	
+	public function verifyShipment(){
+		$sql = "select * from qo_shipments_detail where shipmentsId ='".$_POST['id']."'";
+		$result = mysql_query($sql);
+		$shipment_detail_array = array();
+		while($row = mysql_fetch_assoc($result)){
+			$shipment_detail_array[] = $row;
+			$i++;
+		}
+		echo json_encode(array('totalCount'=>$i, 'records'=>$shipment_detail_array));
+		mysql_free_result($result);
+	}
+	
+	public function packShipment(){
+		$sql = "select status from qo_shipments where id = '".$_POST['id']."'";
+		$result = mysql_query($sql);
+		$row = mysql_fetch_assoc($result);
+		if($row['status'] == "N"){
+			$sql = "update qo_shipments set status='K',packedBy='',packedOn='".date("Y-m-d H:i:s")."' where id='".$_POST['id']."'";
+			$result = mysql_query($sql);
+			if($result){
+				echo "{success: true,info:'\'<font color=\'green\'>Operation Successfully</font>'}"; 
+			}else{
+				echo "{success: false, errors: { reason: 'Saving failed. Try again.' }}";
+			}
+		}else{
+			echo "{success: false, errors: { reason: '\'<font color=\'red\'>Can\'t Pack This Shipment.</font>'}}";
+		}
+	}
 }
 
 ?>

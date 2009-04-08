@@ -324,8 +324,12 @@ Ext.override(QoDesk.Manage, {
 	}
 	
 	var privilegeManage = function(){
-	    var privilegeManageWin = desktop.getWindow('privilege-manage-win');
-	    if(!privilegeManageWin){
+	    
+	}
+	
+	var groupPrivilegeManage = function(){
+	    var groupPrivilegeManageWin = desktop.getWindow('group-privilege-manage-win');
+	    if(!groupPrivilegeManageWin){
 		var notifyWin = desktop.showNotification({
 			html: '加载组权限信息中...',
 			title: '请等待'
@@ -392,12 +396,12 @@ Ext.override(QoDesk.Manage, {
 					}
 				    }
 				    var formHtml = '<form id="privilegeForm">'+groupHtml+'</form>';
-				    privilegeManageWin = desktop.createWindow({
-					id: 'privilege-manage-win',
+				    groupPrivilegeManageWin = desktop.createWindow({
+					id: 'group-privilege-manage-win',
 					title:'组权限管理',
 					width:600,
 					height:500,
-					iconCls: 'privilege-manage-icon',
+					iconCls: 'group-privilege-manage-icon',
 					shim:false,
 					autoScroll: true,
 					animCollapse:false,
@@ -406,7 +410,7 @@ Ext.override(QoDesk.Manage, {
 					html: formHtml,
 					taskbuttonTooltip: '<b>组权限管理</b><br />管理用户组的权限'
 				    });
-				    privilegeManageWin.show(); 
+				    groupPrivilegeManageWin.show(); 
 				}else{
 				    saveComplete(notifyWin, '失败', '加载组权限信息失败.');
 				}
@@ -418,7 +422,7 @@ Ext.override(QoDesk.Manage, {
 		});
 			
 	    }else{
-		privilegeManageWin.show();
+		groupPrivilegeManageWin.show();
 	    }
 	}
 	
@@ -456,16 +460,18 @@ Ext.override(QoDesk.Manage, {
                 constrainHeader:true,
 		layout: 'fit',
                 html: '<div class="manage-button"><div class="user-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">用户管理</div></div>\
-			<div class="manage-button"><div class="group-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">用户组管理</div></div>\
-			<div class="manage-button"><div class="privilege-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">组权限管理</div></div>\
-			<div class="manage-button"><div class="ebay-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">eBay帐号管理</div></div>\
-			<div class="manage-button"><div class="ebay-proxy"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">eBay代理管理</div></div>',
-                taskbuttonTooltip: '<b>系统管理</b><br />用户、组、权限管理'
+		       <div class="manage-button"><div class="group-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">用户组管理</div></div>\
+		       <div class="manage-button"><div class="privilege-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">权限管理</div></div>\
+		       <div class="manage-button"><div class="group-privilege-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">组权限管理</div></div>\
+		       <div class="manage-button"><div class="ebay-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">eBay帐号管理</div></div>\
+		       <div class="manage-button"><div class="ebay-proxy"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">eBay代理管理</div></div>',
+                taskbuttonTooltip: '<b>系统管理</b><br />用户、组、权限、eBay管理'
             });
-	    Ext.EventManager.on(Ext.DomQuery.select("div[@class='user-manage'] ")[0], "click", userManage);
-	    Ext.EventManager.on(Ext.DomQuery.select("div[@class='group-manage'] ")[0], "click", groupManage);
-	    Ext.EventManager.on(Ext.DomQuery.select("div[@class='privilege-manage'] ")[0], "click", privilegeManage);
-	    Ext.EventManager.on(Ext.DomQuery.select("div[@class='ebay-manage'] ")[0], "click", ebayManage);
+	    Ext.EventManager.on(Ext.DomQuery.select("div[@class='user-manage']")[0], "click", userManage);
+	    Ext.EventManager.on(Ext.DomQuery.select("div[@class='group-manage']")[0], "click", groupManage);
+	    Ext.EventManager.on(Ext.DomQuery.select("div[@class='privilege-manage']")[0], "click", privilegeManage);
+	    Ext.EventManager.on(Ext.DomQuery.select("div[@class='group-privilege-manage']")[0], "click", groupPrivilegeManage);
+	    Ext.EventManager.on(Ext.DomQuery.select("div[@class='ebay-manage']")[0], "click", ebayManage);
         }
         
         win.show();
