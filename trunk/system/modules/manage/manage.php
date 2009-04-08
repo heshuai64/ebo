@@ -46,6 +46,68 @@ class QoManage {
 			}
         }
         
+        /*
+         INSERT INTO `ebaybo`.`qo_modules_actions` (
+        `id` ,
+        `qo_modules_id` ,
+        `name` ,
+        `description`
+        )
+        VALUES (
+        NULL , '9', 'getAllEbaySeller', '获取所有eBay账户信息'
+        );
+        
+        INSERT INTO `ebaybo`.`qo_privileges_has_module_actions` (
+        `id` ,
+        `qo_privileges_id` ,
+        `qo_modules_actions_id`
+        )
+        VALUES (
+        NULL , '3', '36'
+        );
+        */
+        public function getAllEbaySeller(){
+            $sql = "select * from qo_ebay_seller";
+		$result = mysql_query($sql);
+		$array = array();
+		while($row = mysql_fetch_assoc($result)){
+			$array[] = $row;
+		}
+		echo json_encode(array('result'=>$array));
+		mysql_free_result($result);
+        }
+        /*
+         INSERT INTO `ebaybo`.`qo_modules_actions` (
+        `id` ,
+        `qo_modules_id` ,
+        `name` ,
+        `description`
+        )
+        VALUES (
+        NULL , '9', 'saveEbaySeller', '保存eBay账户信息'
+        ), (
+        NULL , '9', 'deleteEbaySeller', '删除eBay账户'
+        );
+        
+        INSERT INTO `ebaybo`.`qo_privileges_has_module_actions` (
+        `id` ,
+        `qo_privileges_id` ,
+        `qo_modules_actions_id`
+        )
+        VALUES (
+        NULL , '3', '37'
+        ), (
+        NULL , '3', '38'
+        );
+        
+        */
+        public function saveEbaySeller(){
+            
+        }
+        
+        public function deleteEbaySeller(){
+            
+        }
 }
 
 ?>
