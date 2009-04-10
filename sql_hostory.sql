@@ -137,3 +137,8 @@ NULL , '3', '46'
 
 
 -------------------------------------------------------------------------------------------------------
+ALTER TABLE `qo_ebay_seller` ADD `devId` TEXT NOT NULL AFTER `status` ,
+ADD `appId` TEXT NOT NULL AFTER `devId` ,
+ADD `cert` TEXT NOT NULL AFTER `appId` ;
+
+-------------------------------------------------------------------------------------------------------

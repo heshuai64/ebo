@@ -91,7 +91,7 @@ class eBay{
     const DATABASE_USER = 'root';
     const DATABASE_PASSWORD = '';
     const DATABASE_NAME = 'ebaybo';
-    
+    const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
     
     public function __construct(){
         eBay::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
@@ -108,7 +108,8 @@ class eBay{
        
     }
     
-    private function configEbay(){
+    private function configEbay($dev, $app, $cert, $token, $proxy_host, $proxy_port){
+    		/*
             // Load developer-specific configuration data from ini file
             $config = parse_ini_file('ebay.ini', true);
             $site = $config['settings']['site'];
@@ -119,23 +120,24 @@ class eBay{
             $cert = $config[$site]['cert'];
             $token = $config[$site]['authToken'];
             $location = $config[$site]['gatewaySOAP'];
-            
+            */
+    		
             // Create and configure session
-            $session = new eBaySession($dev, $app, $cert);
+            $session = new eBaySession($dev, $app, $cert, $proxy_host, $proxy_port);
             $session->token = $token;
             $session->site = 0; // 0 = US;
-            $session->location = $location;
+            $session->location = self::GATEWAY_SOAP;
             
             return $session;
     }
     
-    private function GetSellerTransactions($ModTimeFrom, $ModTimeTo, $sellerId){
+    private function GetSellerTransactions($ModTimeFrom, $ModTimeTo, $sellerId, $dev, $app, $cert, $token, $proxy_host, $proxy_port){
         $sql = "select token from qo_ebay_seller where id = '".$sellerId."'";
         $result = mysql_query($sql, eBay::$database_connect);
         $row = mysql_fetch_assoc($result);
         $token = $row['token'];
         
-        $session = $this->configEbay($token);
+        $session = $this->configEbay($dev, $app, $cert, $token, $proxy_host, $proxy_port);
         try {
                 $client = new eBaySOAP($session);
                  
@@ -333,7 +335,7 @@ class eBay{
         }
     }
     
-     private function createOrderDetailFromEbayOrder($orderId, $transaction){
+    private function createOrderDetailFromEbayOrder($orderId, $transaction){
         $unitPriceCurrency = $transaction->Item->SellingStatus->CurrentPrice->currencyID;
         $unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_;
         $quantity = $transaction->Item->SellingStatus->QuantitySold;
@@ -398,8 +400,8 @@ class eBay{
         }
     }
     
-    public function createOrderFromEbay(){
-        $result = $this->GetSellerTransactions("2009-03-16 00:00:00", "2009-03-28 09:30:00", "TESTUSER_heshuai04");
+    public function createOrderFromEbay($ModTimeFrom, $ModTimeTo, $sellerId, $dev, $app, $cert, $token, $proxy_host, $proxy_port){
+        $result = $this->GetSellerTransactions($ModTimeFrom, $ModTimeTo, $sellerId, $dev, $app, $cert, $token, $proxy_host, $proxy_port);
         print_r($result);
         $TotalNumberOfPages = $result->PaginationResult->TotalNumberOfPages;
         echo "total number: ".$result->PaginationResult->TotalNumberOfEntries."<br>";
@@ -434,6 +436,15 @@ class eBay{
                 }
             }
         }
+    }
+    
+    public function getAllEbayTransaction(){    
+		$sql = "select es.id,es.devId,es.appId,es.cert,es.token,ep.proxy_host,ep.proxy_port from qo_ebay_seller as es left join qo_ebay_proxy as ep on es.id=ep.ebay_seller_id";
+		$result = mysql_query($sql, eBay::$database_connect);
+		while ($row = mysql_fetch_assoc($result)){
+			//authToken   devId  appId  cert  gatewaySOAP
+			$this->createOrderFromEbay("2009-03-16 00:00:00", "2009-03-28 09:30:00", $row['id'], $row['devId'], $row['appId'], $row['cert'], $row['token'], $row['proxy_host'], $row['proxy_port']);
+		}
     }
     
     private function errorLog($text){
@@ -471,10 +482,10 @@ if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
     $server->handle();
     
 }else{
-    //$test = new eBay();
-    //$test->GetSellerTransactions('','','AgAAAA**AQAAAA**aAAAAA**FmQISA**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wHlIOnCZaBpAWdj6x9nY+seQ**Q2AAAA**AAMAAA**K5e4SqBc83jVbhFXLTi50I3ptbripiwsQUS3jIeIcDvpmXzELIv5yXhhUp8jB/r9sdMAKZP2GxQB8g85Eq09tNqTWhmSLMGmFRXq3gBeof7enC9Ch4L0JLBf4rSDdyGWkwa8zpnVueMbOwQbExhx1UjkGZXsDfIxO8vU1FaeGW2tLjVkOffg/0NkzrhwQnoR63SeZ/aPkns9sBbaqkGH7VsoYSik0C/pkO8V9gfxJIuIDjRNuOQ6Stx0UWRNnTPyZRZpWDShtsh9horFcmRsB34ZRxxAkaxx3UmskFoqwxNviz1vYrjEqZlbV2KkQsF+iCOT5lu2YdFTeTZ2uv3/PY1zw+J7sdvK3tI4ucKNKTNLbrBIco0XW/ImHhRoNsun4AizgcHP4HQOwzzuwXnc53Z1QqehYQZsOvMCx+cU+Z2zlA/MP6z7NgdCuHdaYRJbYgINxfDxAuxKCnjzyozpgV6Smk/o7dOBAaZKclEEClNAg3xIpjnyamBh4EBUzk0/tYePv5K2PA6nClMu58PWd7HcGcP/X4FCDnxiDbu5ndxcntPfec6ztdC5f2FHDJJ7ACY9PjRdIYWUQBsgwhV6yZs3t0N1SfR5yuy0tW+fOX4Uw4RkPcMbrgHk9H8m5JEae8YaQMfNkuk3TCKwjjEE+25LDFgpbiTAEu4sYs7FxGhBQBr4RbhoLR6TTdnu0xhpvO2vC4lPb6FQmb9vGRaTv3uxdh2xgMJgD7bhAqt+1vnET+xKvGDrvIFp1XxJ7ij2');
     $test = new eBay();
-    $test->createOrderFromEbay();
+    $test->getAllEbayTransaction();
+    //$test->GetSellerTransactions('','','AgAAAA**AQAAAA**aAAAAA**FmQISA**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wHlIOnCZaBpAWdj6x9nY+seQ**Q2AAAA**AAMAAA**K5e4SqBc83jVbhFXLTi50I3ptbripiwsQUS3jIeIcDvpmXzELIv5yXhhUp8jB/r9sdMAKZP2GxQB8g85Eq09tNqTWhmSLMGmFRXq3gBeof7enC9Ch4L0JLBf4rSDdyGWkwa8zpnVueMbOwQbExhx1UjkGZXsDfIxO8vU1FaeGW2tLjVkOffg/0NkzrhwQnoR63SeZ/aPkns9sBbaqkGH7VsoYSik0C/pkO8V9gfxJIuIDjRNuOQ6Stx0UWRNnTPyZRZpWDShtsh9horFcmRsB34ZRxxAkaxx3UmskFoqwxNviz1vYrjEqZlbV2KkQsF+iCOT5lu2YdFTeTZ2uv3/PY1zw+J7sdvK3tI4ucKNKTNLbrBIco0XW/ImHhRoNsun4AizgcHP4HQOwzzuwXnc53Z1QqehYQZsOvMCx+cU+Z2zlA/MP6z7NgdCuHdaYRJbYgINxfDxAuxKCnjzyozpgV6Smk/o7dOBAaZKclEEClNAg3xIpjnyamBh4EBUzk0/tYePv5K2PA6nClMu58PWd7HcGcP/X4FCDnxiDbu5ndxcntPfec6ztdC5f2FHDJJ7ACY9PjRdIYWUQBsgwhV6yZs3t0N1SfR5yuy0tW+fOX4Uw4RkPcMbrgHk9H8m5JEae8YaQMfNkuk3TCKwjjEE+25LDFgpbiTAEu4sYs7FxGhBQBr4RbhoLR6TTdnu0xhpvO2vC4lPb6FQmb9vGRaTv3uxdh2xgMJgD7bhAqt+1vnET+xKvGDrvIFp1XxJ7ij2');
+    //$test = new eBay();
+    //$test->createOrderFromEbay();
 }
-
 ?>
