@@ -524,7 +524,7 @@ Ext.override(QoDesk.Manage, {
 		var store = new Ext.data.JsonStore({
 		    root: 'result',
 		    autoLoad: true,
-		    fields: ['id','email','status','token','tokenExpiry','currency','site'],
+		    fields: ['id','email','status','devId','appId','cert','token','tokenExpiry','currency','site'],
 		    url:'connect.php?moduleId=qo-manage&action=getAllEbaySeller'
 		});
 		
@@ -544,8 +544,7 @@ Ext.override(QoDesk.Manage, {
 				    xtype: 'grid',
 				    store: store,
 				    columns:[
-					    {id:'id', header: "id", width: 120, sortable: true, locked:false, dataIndex: 'id'},
-					    {header: "Email", width: 120, sortable: true,  dataIndex: 'email'}
+					    {id:'id', header: "id", width: 200, sortable: true, locked:false, dataIndex: 'id'}
 					],
 				    sm: new Ext.grid.RowSelectionModel({
 					singleSelect: true,
@@ -608,6 +607,21 @@ Ext.override(QoDesk.Manage, {
 				      }]
 				  }]
 			      },{
+				xtype:"textfield",
+				fieldLabel:"Dev Id",
+				width:350,
+				name:"devId"
+			    },{
+				xtype:"textfield",
+				fieldLabel:"App Id",
+				width:350,
+				name:"appId"
+			    },{
+				xtype:"textfield",
+				fieldLabel:"Cert",
+				width:350,
+				name:"cert"
+			    },{
 				xtype:"textarea",
 				fieldLabel:"Token",
 				height:200,
@@ -628,6 +642,9 @@ Ext.override(QoDesk.Manage, {
 					    tokenExpiry: ebayManageForm.form.findField('tokenExpiry').getValue(),
 					    site: ebayManageForm.form.findField('site').getValue(),
 					    currency: ebayManageForm.form.findField('currency').getValue(),
+					    devId: ebayManageForm.form.findField('devId').getValue(),
+					    appId: ebayManageForm.form.findField('appId').getValue(),
+					    cert: ebayManageForm.form.findField('cert').getValue(),
 					    token: ebayManageForm.form.findField('token').getValue()
 				    },
 				    success: function(response){
@@ -651,7 +668,7 @@ Ext.override(QoDesk.Manage, {
 			    text: '添加账户',
 			    handler: function(){
 				var addEbaySellerForm = new Ext.FormPanel({
-				    id: 'ebay-manage-form',
+				    id: 'add-ebay-form',
 				    frame: true,
 				    labelAlign: 'left',
 				    bodyStyle:'padding:5px',
@@ -696,6 +713,21 @@ Ext.override(QoDesk.Manage, {
 					      }]
 					  }]
 				      },{
+					xtype:"textfield",
+					fieldLabel:"Dev Id",
+					width:350,
+					name:"devId"
+				    },{
+					xtype:"textfield",
+					fieldLabel:"App Id",
+					width:350,
+					name:"appId"
+				    },{
+					xtype:"textfield",
+					fieldLabel:"Cert",
+					width:350,
+					name:"cert"
+				    },{
 					xtype:"textarea",
 					fieldLabel:"Token",
 					height:200,
@@ -711,8 +743,8 @@ Ext.override(QoDesk.Manage, {
 				});
 				addEbaySellerWin = desktop.createWindow({
 				    title:'添加eBay账户',
-				    width:500,
-				    height:400,
+				    width:600,
+				    height:500,
 				    iconCls: 'ebay-manage-icon',
 				    shim:false,
 				    animCollapse:false,
@@ -800,7 +832,6 @@ Ext.override(QoDesk.Manage, {
 				    }
 				}),
 				height: 350,
-				title:'用户列表',
 				border: true,
 				listeners: {
 					render: function(g) {

@@ -6,7 +6,7 @@ class eBaySession {
 	const URL_PRODUCTION = 'https://api.ebay.com/wsapi';
 	const URL_SANDBOX    = 'https://api.sandbox.ebay.com/wsapi';
 
- 	public function __construct($dev, $app, $cert) {
+ 	public function __construct($dev, $app, $cert, $proxy_host, $proxy_port) {
 		$this->properties = array(
 			'dev'      => null,
 			'app'      => null,
@@ -45,11 +45,13 @@ class eBaySession {
 		                                           'NameValueListType' => 'eBayNameValueListType',
 		                                           'PictureDetailsType' => 'eBayPictureDetailsType',
 		                                          ),
+		                       'proxy_host' => $proxy_host,
+		                       'proxy_port' => (int)$proxy_port
 #		                       'compression' => SOAP_COMPRESSION_ACCEPT,
 		                      );
-
+		
 		$this->ns = 'urn:ebay:apis:eBLBaseComponents';
-		$this->version = 501; // should pull this from the WSDL
+		$this->version = 607; // should pull this from the WSDL
 	}
 
 	public function __set($property, $value) {
