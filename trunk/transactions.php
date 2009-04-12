@@ -12,10 +12,11 @@
         <link rel="stylesheet" type="text/css" href="../Ext/2.2/resources/css/ext-all.css" />
         <script src="../Ext/2.2/adapter/ext/ext-base.js"></script>
         <script src="../Ext/2.2/ext-all-debug.js"></script>
+        <script src="system/modules/transactions/lang.js"></script>
 </head>
 <body>
     <script type="text/javascript">
-        var currency_data = [['USD','USD'],['EUR','EUR'],['GBP','GBP'],['AUD','AUD'],['RMB','RMB'],['CAD','CAD']];
+
         var transactionOrderStore = new Ext.data.JsonStore({
                 root: 'records',
                 totalProperty: 'totalCount',
@@ -42,7 +43,7 @@
                     editor: new Ext.form.ComboBox({
                         store: new Ext.data.SimpleStore({
                             fields: ["grandTotalCurrencyValue", "grandTotalCurrencyName"],
-                            data: currency_data
+                            data: lang.transactions.currency
                         }),
                         mode: 'local',
                         displayField: 'grandTotalCurrencyName',
@@ -90,7 +91,7 @@
                     sortable: true
                 }],
                 bbar: [{
-                    text: 'Map Order',
+                    text: 'Map Orders',
                     handler: function(){
                         var map_transaction_order_data_store = new Ext.data.JsonStore({
                                 root: 'records',
@@ -195,21 +196,40 @@
                     layout:"form",
                     items:[{
                         xtype:"fieldset",
-                        title:"System",
+                        title:"System Info",
                         autoHeight:true,
                         defaults:{
-                            width:200
+                            width:240
                         },
-                        labelWidth:90,
+                        labelWidth:110,
                         items:[{
                             xtype:"textfield",
                             fieldLabel:"Transaction Id",
                             name:"id"
                           },{
-                            xtype:"combo",
+                            xtype:"textfield",
+                            fieldLabel:"Reference Number",
+                            name:"txnId"
+                          },{
+                            xtype:"textfield",
+                            fieldLabel:"Transaction Time",
+                            name:"transactionTime"
+                          },{
+                            xtype: 'combo',
                             fieldLabel:"Payee ID",
-                            name:"payeeId",
-                            hiddenName:"payeeId"
+                            mode: 'local',
+                            store: new Ext.data.JsonStore({
+                                autoLoad: true,
+                                fields: ['id', 'name'],
+                                url: "connect.php?moduleId=qo-transactions&action=getSeller"
+                            }),
+                            valueField:'id',
+                            displayField:'name',
+                            triggerAction: 'all',
+                            editable: false,
+                            selectOnFocus:true,
+                            name: 'payeeId',
+                            hiddenName:'payeeId'
                           },{
                             layout:"table",
                             layoutConfig:{
@@ -226,13 +246,22 @@
                                 hideLabels:true,
                                 labelSeparator:"",
                                 border:false,
-                                style:"padding-left:35px",
+                                style:"padding-left:55px",
                                 items:[{
-                                    xtype:"combo",
-                                    fieldLabel:"",
-                                    name:"amountCurrency",
-                                    hiddenName:"amountCurrency",
-                                    width:50
+                                    xtype:'combo',
+                                    store: new Ext.data.SimpleStore({
+                                        fields: ["amountCurrencyValue", "amountCurrencyName"],
+                                        data: lang.transactions.currency
+                                    }),
+                                    width: 60,			  
+                                    mode: 'local',
+                                    displayField: 'amountCurrencyName',
+                                    valueField: 'amountCurrencyValue',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    fieldLabel: '',
+                                    name: 'amountCurrency',
+                                    hiddenName:'amountCurrency'
                                   }]
                               },{
                                 layout:"form",
@@ -249,48 +278,57 @@
                                   }]
                               }]
                           },{
-                            xtype:"combo",
-                            fieldLabel:"Status",
-                            name:"status",
-                            hiddenName:"status"
+                            xtype:'combo',
+                            fieldLabel: "Status",
+                            store: new Ext.data.SimpleStore({
+                                fields: ["statusValue", "statusName"],
+                                data: lang.transactions.transactions_status
+                            }),		  
+                            mode: 'local',
+                            displayField: 'statusName',
+                            valueField: 'statusValue',
+                            triggerAction: 'all',
+                            editable: false,
+                            name: 'status',
+                            hiddenName:'status'
                           },{
-                        layout:"table",
-                        layoutConfig:{
-                          columns:3
-                        },
-                        width:320,
-                        border:false,
-                        items:[{
-                            width:95,
-                            html:"<font size=2>Created:</font>",
-                            border:false
-                          },{
-                            layout:"form",
+                            layout:"table",
+                            layoutConfig:{
+                              columns:3
+                            },
+                            width:320,
                             border:false,
-                            labelWidth:0,
-                            hideLabels:true,
-                            labelSeparator:"",
                             items:[{
-                                xtype:"textfield",
-                                readOnly:true,
-                                fieldLabel:"",
-                                name:"createdBy",
-                                width:80
+                                width:115,
+                                html:"<font size=2>Created:</font>",
+                                border:false
+                              },{
+                                layout:"form",
+                                border:false,
+                                labelWidth:0,
+                                hideLabels:true,
+                                labelSeparator:"",
+                                items:[{
+                                    xtype:"textfield",
+                                    readOnly:true,
+                                    fieldLabel:"",
+                                    name:"createdBy",
+                                    width:80
+                                  }]
+                              },{
+                                layout:"form",
+                                border:false,
+                                labelWidth:0,
+                                hideLabels:true,
+                                labelSeparator:"",
+                                items:[{
+                                    xtype:"textfield",
+                                    readOnly:true,
+                                    fieldLabel:"",
+                                    name:"createdOn",
+                                    width:125
+                                  }]
                               }]
-                          },{
-                            layout:"form",
-                            border:false,
-                            labelWidth:0,
-                            hideLabels:true,
-                            labelSeparator:"",
-                            items:[{
-                                xtype:"textfield",
-                                readOnly:true,
-                                fieldLabel:"",
-                                name:"createdOn",
-                                width:125
-                              }]
-                          }]
                       },{
                         layout:"table",
                         layoutConfig:{
@@ -299,7 +337,7 @@
                         width:320,
                         border:false,
                         items:[{
-                            width:95,
+                            width:115,
                             html:"<font size=2>modified:</font>",
                             border:false
                           },{
@@ -340,21 +378,13 @@
                     layout:"form",
                     items:[{
                         xtype:"fieldset",
-                        title:"PayPal",
+                        title:"Buyer PayPal Info",
                         autoHeight:true,
                         defaults:{
                             width:200
                         },
                         labelWidth:90,
                         items:[{
-                            xtype:"textfield",
-                            fieldLabel:"Reference No",
-                            name:"txnId"
-                          },{
-                            xtype:"textfield",
-                            fieldLabel:"Transaction Time",
-                            name:"transactionTime"
-                          },{
                             xtype:"textfield",
                             fieldLabel:"Payer ID",
                             name:"payerId"
@@ -387,16 +417,27 @@
                             fieldLabel:"Postal Code/Zip",
                             name:"payerPostalCode"
                           },{
-                            xtype:"combo",
+                            xtype: 'combo',
                             fieldLabel:"Country",
-                            name:"payerCountry",
-                            hiddenName:"payerCountry"
+                            mode: 'local',
+                            store: new Ext.data.JsonStore({
+                                autoLoad: true,
+                                fields: ['id', 'name'],
+                                url: "connect.php?moduleId=qo-transactions&action=getCountries"
+                            }),
+                            valueField:'id',
+                            displayField:'name',
+                            triggerAction: 'all',
+                            editable: false,
+                            selectOnFocus:true,
+                            name: 'paypayerCountryeeId',
+                            hiddenName:'payerCountry'
                           }]
                       }]
                   }]
             },{
                 xtype: 'panel',
-                title: "Order",
+                title: "Orders",
                 autoHeight: true,
                 items: transactionOrderGrid
             }
@@ -433,8 +474,9 @@
                                         var result = eval(response.responseText);
                                         switch (result) {
                                             case 1:
-                                                 Ext.MessageBox.alert('Success', 'save Order Info success!');
+                                                
                                             break;
+                                        
                                             default:
                                                 Ext.MessageBox.alert('Uh uh...', 'We couldn\'t save him...');
                                             break;
