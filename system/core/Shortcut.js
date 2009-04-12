@@ -35,7 +35,7 @@ Ext.ux.Shortcuts = function(config){
 	this.addShortcut = function(config){
 		var div = desktopEl.createChild({tag:'div', cls: 'ux-shortcut-item'}),
 			btn = new Ext.ux.ShortcutButton(Ext.apply(config, {
-				text: Ext.util.Format.ellipsis(config.text, 16)
+				text: Ext.util.Format.ellipsis(config.text, 25)
 			}), div);
 		
 		//btn.container.initDD('DesktopShortcuts');
