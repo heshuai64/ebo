@@ -92,8 +92,8 @@ Ext.override(QoDesk.Shipments, {
                  
                 shipmentGridStore.load({params:{start:0, limit:20}});
                 
-                win = desktop.createWindow({
-                   title:'查询结果',
+                var search_result_win = desktop.createWindow({
+                   title:lang.search_result,
                    width:700,
                    height:400,
                    iconCls: 'shipments-icon',
@@ -102,11 +102,9 @@ Ext.override(QoDesk.Shipments, {
                    constrainHeader:true,
                    layout: 'fit',
                    items: shipmentGrid,
-                   taskbuttonTooltip: '<b>查询结果</b><br />付款货运结果列表'
+                   taskbuttonTooltip: lang.task_button_tooltip
                 })
-                win.show();
-            
-                
+                search_result_win.show();  
             }
 	    
             
@@ -303,20 +301,27 @@ Ext.override(QoDesk.Shipments, {
                         text: 'Search',
                         handler: function(){
                             searchShipment();
+                            win.close();
                         }
 		    },{
 			text: 'Verify Shipment',
 			handler: function(){
 			    win.close();
-			    window.open("http://127.0.0.1/ebayBO/verifyShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");   
+			    window.open("http://127.0.0.1:6666/ebayBO/verifyShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");   
 			}
 		    },{
 			text: 'Pack Shipment',
 			handler: function(){
 			    win.close();
-			    window.open("http://127.0.0.1/ebayBO/packShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=500, height=400");  
+			    window.open("http://127.0.0.1:6666/ebayBO/packShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=500, height=400");  
 			}
-		    }]
+		    },{
+			text: 'Close',
+			handler: function(){
+			    win.close();
+			}
+		    }
+                    ]
                 }],
                 taskbuttonTooltip: '<b>Search Shipment</b><br />Search Shipment Info'
             });
