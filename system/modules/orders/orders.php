@@ -137,11 +137,25 @@ class QoOrders {
 		mysql_free_result($result);
 	}
 	
-	public function saveOrderInfo(){
-		$sql = "";
-		$result = mysql_query($sql);
+	public function updateOrder(){
+		$sql = "update qo_orders set status='".$_POST['status']."',shippingMethod='".$_POST['shippingMethod']."',
+		remarks='".$_POST['remarks']."',sellerId='".$_POST['sellerId']."',buyerId='".$_POST['buyerId']."',
+		shippingFeeCurrency='".$_POST['shippingFeeCurrency']."',shippingFeeValue='".$_POST['shippingFeeValue']."',
+		insuranceCurrency='".$_POST['insuranceCurrency']."',insuranceValue='".$_POST['insuranceValue']."',
+		discountCurrency='".$_POST['discountCurrency']."',discountValue='".$_POST['discountValue']."',
+		grandTotalCurrency='".$_POST['grandTotalCurrency']."',grandTotalValue='".$_POST['grandTotalValue']."',
+		ebayName='".$_POST['ebayName']."',ebayEmail='".$_POST['ebayEmail']."',ebayAddress1='".$_POST['ebayAddress1']."',
+		ebayAddress2='".$_POST['ebayAddress2']."',ebayCity='".$_POST['ebayCity']."',ebayStateOrProvince='".$_POST['ebayStateOrProvince']."',
+		ebayPostalCode='".$_POST['ebayPostalCode']."',ebayCountry='".$_POST['ebayCountry']."',ebayPhone='".$_POST['ebayPhone']."',
+		paypalName='".$_POST['paypalName']."',paypalEmail='".$_POST['paypalEmail']."',paypalAddress1='".$_POST['paypalAddress1']."',
+		paypalAddress2='".$_POST['paypalAddress2']."',paypalCity='".$_POST['paypalCity']."',paypalStateOrProvince='".$_POST['paypalStateOrProvince']."',
+		paypalPostalCode='".$_POST['paypalPostalCode']."',paypalCountry='".$_POST['paypalCountry']."',paypalPhone='".$_POST['paypalPhone']."',
+		modifiedBy='',modifiedOn='".date("Y-m-d H:i:s")."' 
+		where id = '".$_POST['id']."'";
+		//$result = mysql_query($sql);
 		//echo $sql;
-		echo $result;
+		//echo $result;
+		print_r(session_id());
 	}
 	
 	public function getOrderDetail(){
@@ -279,5 +293,23 @@ class QoOrders {
 		mysql_free_result($result);
 	}
 	
+	public function getConfigure(){
+		$sql = "select countries_name as id,countries_name as name from qo_countries";
+		$result = mysql_query($sql);
+		$countries_array = array();
+		while($row = mysql_fetch_assoc($result)){
+			$countries_array[] = array($row['id'], $row['name']);
+		}
+		
+		$sql = "select id as id,id as name from qo_ebay_seller";
+		$result = mysql_query($sql);
+		$seller_array = array();
+		while($row = mysql_fetch_assoc($result)){
+			$seller_array[] = array($row['id'], $row['name']);
+		}
+		
+		echo json_encode(array('countries'=>$countries_array, 'seller'=>$seller_array));
+		mysql_free_result($result);
+	}
 	
 }
