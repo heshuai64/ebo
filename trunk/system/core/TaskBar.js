@@ -403,7 +403,7 @@ Ext.ux.TaskBar.TaskButton = function(win, el){
 	
     Ext.ux.TaskBar.TaskButton.superclass.constructor.call(this, {
         iconCls: win.iconCls,
-        text: Ext.util.Format.ellipsis(win.title, 12),
+        text: Ext.util.Format.ellipsis(win.title, 20),
         tooltip: win.taskbuttonTooltip || win.title,
         renderTo: el,
         handler : function(){
@@ -491,7 +491,7 @@ Ext.extend(Ext.ux.TaskBar.TaskButton, Ext.Button, {
 		if(text){
 			this.text = text;
 			if(this.el){
-				this.el.child("td.x-btn-center " + this.buttonSelector).update(Ext.util.Format.ellipsis(text, 12));
+				this.el.child("td.x-btn-center " + this.buttonSelector).update(Ext.util.Format.ellipsis(text, 20));
 			}
 		}
     },
