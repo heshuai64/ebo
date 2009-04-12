@@ -12,17 +12,16 @@
         <link rel="stylesheet" type="text/css" href="../Ext/2.2/resources/css/ext-all.css" />
         <script src="../Ext/2.2/adapter/ext/ext-base.js"></script>
         <script src="../Ext/2.2/ext-all-debug.js"></script>
+        <script src="system/modules/orders/lang.js"></script>
 </head>
 <body>
     <script type="text/javascript">
-            var currency_data = [['USD','USD'],['EUR','EUR'],['GBP','GBP'],['AUD','AUD'],['RMB','RMB'],['CAD','CAD']];
-            var transaction_status_data = [['P','Completed'],['N','Pending'],['D','Denied'],['F','Failed'],['R','Refunded'],['V','Reversed'],['C','Canceled Reversal'],['X','Canceled']];
             var orderDetailGridStore = new Ext.data.JsonStore({
                 root: 'records',
                 totalProperty: 'totalCount',
                 idProperty: 'id',
                 autoLoad:true,
-                fields: ['id','itemId', 'itemTitle', 'skuId', 'quantity', 'unitPriceCurrency', 'unitPriceValue'],
+                fields: ['id','itemId', 'itemTitle', 'skuId', 'quantity', 'barCode', 'unitPriceCurrency', 'unitPriceValue'],
                 url:'connect.php?moduleId=qo-orders&action=getOrderDetail&id=<?=$_GET['id']?>'
             });
             
@@ -48,6 +47,12 @@
                     align: 'center',
                     sortable: true
                 },{
+                    header: "Bar Code",
+                    dataIndex: 'barCode',
+                    width: 100,
+                    align: 'center',
+                    sortable: true
+                },{
                     header: "Quantity",
                     dataIndex: 'quantity',
                     width: 60,
@@ -60,7 +65,7 @@
                     editor: new Ext.form.ComboBox({
                          store: new Ext.data.SimpleStore({
                              fields: ["unitPriceCurrencyValue", "unitPriceCurrencyName"],
-                             data: currency_data
+                             data: lang.orders.currency
                          }),
                          mode: 'local',
                          displayField: 'unitPriceCurrencyName',
@@ -103,20 +108,26 @@
                                                     },{
                                                         xtype:'combo',
                                                         store: new Ext.data.SimpleStore({
-                                                                fields: ["unitPriceCurrencyValue", "unitPriceCurrencyName"],
-                                                                data: currency_data
-                                                                }),
-                                                                listWidth: 60,
-                                                                width: 60,			  
-                                                                mode: 'local',
-                                                                displayField: 'unitPriceCurrencyName',
-                                                                valueField: 'unitPriceCurrencyValue',
-                                                                triggerAction: 'all',
-                                                                editable: false,
-                                                                fieldLabel: 'Currency',
-                                                                name: 'unitPriceCurrency',
-                                                                hiddenName:'unitPriceCurrency'
-                                                    }]
+                                                            fields: ["unitPriceCurrencyValue", "unitPriceCurrencyName"],
+                                                            data: lang.orders.currency
+                                                        }),
+                                                        listWidth: 60,
+                                                        width: 60,			  
+                                                        mode: 'local',
+                                                        displayField: 'unitPriceCurrencyName',
+                                                        valueField: 'unitPriceCurrencyValue',
+                                                        triggerAction: 'all',
+                                                        editable: false,
+                                                        fieldLabel: 'Currency',
+                                                        name: 'unitPriceCurrency',
+                                                        hiddenName:'unitPriceCurrency'
+                                                    },{
+                                                    xtype: 'numberfield',
+                                                    name: 'quantity',
+                                                    allowBlank: false,
+                                                    fieldLabel: 'Quantity',
+                                                    width: 80
+                                            }]
                                            },{
                                             columnWidth:0.5,
                                             layout: 'form',
@@ -135,15 +146,14 @@
                                                     name: 'unitPriceValue',
                                                     allowBlank: false,
                                                     fieldLabel: 'Unit Price'
-                                                }]
+                                                },{
+                                                    xtype: 'textfield',
+                                                    name: 'barCode',
+                                                    allowBlank: false,
+                                                    fieldLabel: 'Bar Code'
+                                            }]
                                            }]
-                                    },{
-                                        xtype: 'numberfield',
-                                        name: 'quantity',
-                                        allowBlank: false,
-                                        fieldLabel: 'Quantity',
-                                        width: 80
-                                }]
+                                    }]
                             })
                             
                             var addOrderDetailWindow = new Ext.Window({
@@ -168,6 +178,7 @@
                                                     skuId: add_order_detail_form.form.findField('skuId').getValue(),
                                                     skuTitle: add_order_detail_form.form.findField('skuTitle').getValue(),
                                                     quantity: add_order_detail_form.form.findField('quantity').getValue(),
+                                                    barCode: add_order_detail_form.form.findField('barCode').getValue(),
                                                     unitPriceCurrency: add_order_detail_form.form.findField('unitPriceCurrency').getValue(),
                                                     unitPriceValue: add_order_detail_form.form.findField('unitPriceValue').getValue()
                                             },
@@ -176,7 +187,7 @@
                                                 switch (result) {
                                                     case 1:
                                                         orderDetailGridStore.reload();
-                                                        addOrderDetailWindow.hide();
+                                                        addOrderDetailWindow.close();
                                                         break;
                                                     default:
                                                         Ext.MessageBox.alert('Uh uh...', 'We couldn\'t save him...');
@@ -192,7 +203,7 @@
                                 },{
                                     text: 'Cancel',
                                     handler: function(){
-                                          addOrderDetailWindow.hide();
+                                          addOrderDetailWindow.close();
                                     }
                                 }]
                             });
@@ -282,7 +293,7 @@
                     editor: new Ext.form.ComboBox({
                         store: new Ext.data.SimpleStore({
                             fields: ["amountCurrencyValue", "amountCurrencyName"],
-                            data: currency_data
+                            data: lang.orders.currency
                         }),
                         mode: 'local',
                         displayField: 'amountCurrencyName',
@@ -353,7 +364,7 @@
                                                             xtype:'combo',
                                                             store: new Ext.data.SimpleStore({
                                                                 fields: ["amountCurrencyValue", "amountCurrencyName"],
-                                                                data: currency_data
+                                                                data: lang.orders.currency
                                                             }),
                                                             listWidth: 50,
                                                             width: 50,			  
@@ -383,7 +394,7 @@
                                                     xtype:'combo',
                                                     store: new Ext.data.SimpleStore({
                                                         fields: ["statusValue", "statusName"],
-                                                        data: transaction_status_data
+                                                        data: lang.orders.transactions_status
                                                     }),
                                                     listWidth: 120,
                                                     width: 120,			  
@@ -493,7 +504,7 @@
                                                                 switch (result) {
                                                                         case 1:
                                                                                 orderTransactionStore.reload();
-                                                                                addOrderTransactionWindow.hide();
+                                                                                addOrderTransactionWindow.close();
                                                                                 break;
                                                                         default:
                                                                                 Ext.MessageBox.alert('Uh uh...', 'We couldn\'t save him...');
@@ -509,7 +520,7 @@
                                             },{
                                                 text: 'Cancel',
                                                 handler: function(){
-                                                    addOrderTransactionWindow.hide();
+                                                    addOrderTransactionWindow.close();
                                                 }
                                             }]
                                               
@@ -590,7 +601,7 @@
                                                         switch (result) {
                                                             case 1:
                                                                 orderTransactionStore.reload();
-                                                                map_order_transaction_window.hide();
+                                                                map_order_transaction_window.close();
                                                                 break;
                                                             default:
                                                                 Ext.MessageBox.alert('Uh uh...', 'We couldn\'t save him...');
@@ -769,284 +780,431 @@
                                 }
                             }}]	
             });
-                                    
-            var orderDetailForm = new Ext.FormPanel({
-                    autoScroll:true,
-                    reader:new Ext.data.JsonReader({
-                        }, ['id','createdOn','sellerId','ebayName','ebayEmail','ebayAddress1','ebayAddress2','ebayCity','ebayStateOrProvince',
-                            'ebayPostalCode','ebayCountry','ebayPhone','paypalName','paypalEmail','paypalAddress1','paypalAddress2',
-                            'paypalCity','paypalStateOrProvince','paypalPostalCode','paypalCountry','paypalPhone','status','grandTotalCurrency','grandTotalValue',
-                            'shippingFeeCurrency','shippingFeeValue','insuranceCurrency','insuranceValue','discountCurrency','discountValue'
-                    ]),
-                    items:[{
-                        xtype:"textfield",
-                        fieldLabel:"订单号",
-                        name:"id"
-                      },{
-                        xtype:"textfield",
-                        fieldLabel:"创建时间",
-                        name:"createdOn"
-                      },{
-                        xtype:"combo",
-                        fieldLabel:"卖家帐号",
-                        name:"sellerId",
-                        hiddenName:"combovalue"
-                      },{
-                        layout:"column",
-                        items:[{
-                            title:"eBay 地址",
-                            columnWidth:0.5,
-                            layout:"form",
-                            defaults:{
-                                width:200
-                            },
-                            items:[{
-                                xtype:"textfield",
-                                fieldLabel:"帐号",
-                                name:"ebayName"
-                              },{
-                                xtype:"textfield",
-                                fieldLabel:"邮件地址",
-                                name:"ebayEmail"
-                              },{
-                                xtype:"textfield",
-                                fieldLabel:"地址一",
-                                name:"ebayAddress1"
-                              },{
-                                xtype:"textfield",
-                                fieldLabel:"地址二",
-                                name:"ebayAddress2"
-                              },{
-                                xtype:"textfield",
-                                fieldLabel:"城市",
-                                name:"ebayCity"
-                              },{
-                                xtype:"textfield",
-                                fieldLabel:"州/省",
-                                name:"ebayStateOrProvince"
-                              },{
-                                xtype:"textfield",
-                                fieldLabel:"邮政编码",
-                                name:"ebayPostalCode"
-                              },{
-                                xtype:"textfield",
-                                fieldLabel:"国家",
-                                name:"ebayCountry"
-                              },{
-                                xtype:"textfield",
-                                fieldLabel:"电话",
-                                name:"ebayPhone"
-                              }]
-                          },{
-                            title:"PayPal 地址",
-                            columnWidth:0.5,
-                            layout:"form",
-                            defaults:{
-                                width:200
-                            },
-                            items:[{
-                                xtype:"textfield",
-                                fieldLabel:"帐号",
-                                name:"paypalName"
-                              },{
-                                xtype:"textfield",
-                                fieldLabel:"邮件地址",
-                                name:"paypalEmail"
-                              },{
-                                xtype:"textfield",
-                                fieldLabel:"地址一",
-                                name:"paypalAddress1"
-                              },{
-                                xtype:"textfield",
-                                fieldLabel:"地址二",
-                                name:"paypalAddress2"
-                              },{
-                                xtype:"textfield",
-                                fieldLabel:"城市",
-                                name:"paypalCity"
-                              },{
-                                xtype:"textfield",
-                                fieldLabel:"州/省",
-                                name:"paypalStateOrProvince"
-                              },{
-                                xtype:"textfield",
-                                fieldLabel:"邮政编码",
-                                name:"paypalPostalCode"
-                              },{
-                                xtype:"textfield",
-                                fieldLabel:"国家",
-                                name:"paypalCountry"
-                              },{
-                                xtype:"textfield",
-                                fieldLabel:"电话",
-                                name:"paypalPhone"
-                              }]
-                          }]
-                      },{
-                        xtype:"combo",
-                        fieldLabel:"状态",
-                        name:"status",
-                        hiddenName:"status"
-                      },{
-                        layout:"column",
-                        items:[{
-                            title:"运费",
-                            columnWidth:0.25,
-                            layout:"form",
-                            labelWidth:40,
-                            defaults:{
-                                width:80
-                            },
-                            items:[{
-                                xtype:"combo",
-                                fieldLabel:"货币",
-                                name:"shippingFeeCurrency",
-                                hiddenName:"shippingFeeCurrency"
-                              },{
-                                xtype:"textfield",
-                                fieldLabel:"值",
-                                name:"shippingFeeValue"
-                              }]
-                          },{
-                            title:"保险",
-                            columnWidth:0.25,
-                            layout:"form",
-                            labelWidth:40,
-                            defaults:{
-                                width:80
-                            },
-                            items:[{
-                                xtype:"combo",
-                                fieldLabel:"货币",
-                                name:"insuranceCurrency",
-                                hiddenName:"insuranceCurrency"
-                              },{
-                                xtype:"textfield",
-                                fieldLabel:"值",
-                                name:"insuranceValue"
-                              }]
-                          },{
-                            title:"优惠",
-                            columnWidth:0.25,
-                            layout:"form",
-                            labelWidth:40,
-                            defaults:{
-                                width:80
-                            },
-                            items:[{
-                                xtype:"combo",
-                                fieldLabel:"货币",
-                                name:"discountCurrency",
-                                hiddenName:"discountCurrency"
-                              },{
-                                xtype:"textfield",
-                                fieldLabel:"值",
-                                name:"discountValue"
-                              }]
-                          },{
-                            title:"总金额",
-                            columnWidth:0.25,
-                            layout:"form",
-                            labelWidth:40,
-                            defaults:{
-                                width:80
-                            },
-                            items:[{
-                                xtype:"combo",
-                                fieldLabel:"货币",
-                                name:"grandTotalCurrency",
-                                hiddenName:"grandTotalCurrency"
-                              },{
-                                xtype:"textfield",
-                                fieldLabel:"值",
-                                name:"grandTotalValue"
-                              }]
-                          }]
-                    },{
-                        xtype: 'panel',
-                        title: "Order Detail",
-                        autoHeight: true,
-                        items: orderDetailGrid
-                    },{
-                        xtype: 'panel',
-                        title: "Transaction",
-                        autoHeight: true,
-                        items: orderTransactionGrid
-                    },{
-                        xtype: 'panel',
-                        title: "Shipment",
-                        autoHeight: true,
-                        items: orderShipmentGrid
-                    }
-                    ],
-                    buttons: [{
-                        text: 'Save',
-                        handler: function(){
-                            Ext.Ajax.request({
-                                waitMsg: 'Please wait...',
-                                url: 'connect.php?moduleId=qo-orders&action=saveOrderInfo',
-                                params: {
-                                        id: '<?=$_GET['id']?>',
-                                        sellerId: orderDetailForm.form.findField('sellerId').getValue(),
-                                        ebayName: orderDetailForm.form.findField('ebayName').getValue(),
-                                        ebayEmail: orderDetailForm.form.findField('ebayEmail').getValue(),
-                                        ebayAddress1: orderDetailForm.form.findField('ebayAddress1').getValue(),
-                                        ebayAddress2: orderDetailForm.form.findField('ebayAddress2').getValue(),
-                                        ebayCity: orderDetailForm.form.findField('ebayCity').getValue(),
-                                        ebayStateOrProvince: orderDetailForm.form.findField('ebayStateOrProvince').getValue(),
-                                        ebayPostalCode: orderDetailForm.form.findField('ebayPostalCode').getValue(),
-                                        ebayCountry: orderDetailForm.form.findField('ebayCountry').getValue(),
-                                        ebayPhone: orderDetailForm.form.findField('ebayPhone').getValue(),
-                                        paypalName: orderDetailForm.form.findField('paypalName').getValue(),
-                                        paypalEmail: orderDetailForm.form.findField('paypalEmail').getValue(),
-                                        paypalAddress1: orderDetailForm.form.findField('paypalAddress1').getValue(),
-                                        paypalAddress2: orderDetailForm.form.findField('paypalAddress2').getValue(),
-                                        paypalCity: orderDetailForm.form.findField('paypalCity').getValue(),
-                                        paypalStateOrProvince: orderDetailForm.form.findField('paypalStateOrProvince').getValue(),
-                                        paypalPostalCode: orderDetailForm.form.findField('paypalPostalCode').getValue(),
-                                        paypalCountry: orderDetailForm.form.findField('paypalCountry').getValue(),
-                                        paypalPhone: orderDetailForm.form.findField('paypalPhone').getValue(),
-                                        status: orderDetailForm.form.findField('status').getValue(),
-                                        shippingFeeCurrency: orderDetailForm.form.findField('shippingFeeCurrency').getValue(),
-                                        shippingFeeValue: orderDetailForm.form.findField('shippingFeeValue').getValue(),
-                                        insuranceCurrency: orderDetailForm.form.findField('insuranceCurrency').getValue(),
-                                        insuranceValue: orderDetailForm.form.findField('insuranceValue').getValue(),
-                                        discountCurrency: orderDetailForm.form.findField('discountCurrency').getValue(),
-                                        discountValue: orderDetailForm.form.findField('discountValue').getValue()
-                                },
-                                success: function(response){
-                                        var result = eval(response.responseText);
-                                        switch (result) {
-                                            case 1:
-                                                 Ext.MessageBox.alert('Success', 'save Order Info success!');
-                                            break;
-                                            default:
-                                                Ext.MessageBox.alert('Uh uh...', 'We couldn\'t save him...');
-                                            break;
-                                        }
-                                },
-                                failure: function(response){
-                                        var result = response.responseText;
-                                        Ext.MessageBox.alert('error', 'could not connect to the database. retry later');
+            
+            
+            //var beforeLoad = function(F, a){
+                Ext.Ajax.request({  
+                    waitMsg: 'Please Wait',
+                    url: 'connect.php?moduleId=qo-orders&action=getConfigure',
+                    success: function(response){
+                        var result = Ext.decode(response.responseText);
+                        var countries = result.countries;
+                        var seller = result.seller;
+                        //console.log(seller);
+                        var orderDetailForm = new Ext.FormPanel({
+                                autoScroll:true,
+                                reader:new Ext.data.JsonReader({
+                                    }, ['id','createdBy','createdOn','modifiedBy','modifiedOn','sellerId','ebayName','ebayEmail','ebayAddress1','ebayAddress2','ebayCity','ebayStateOrProvince',
+                                        'ebayPostalCode','ebayCountry','ebayPhone','paypalName','paypalEmail','paypalAddress1','paypalAddress2',
+                                        'paypalCity','paypalStateOrProvince','paypalPostalCode','paypalCountry','paypalPhone','status','grandTotalCurrency','grandTotalValue',
+                                        'remarks','shippingMethod','shippingFeeCurrency','shippingFeeValue','insuranceCurrency','insuranceValue','discountCurrency','discountValue'
+                                ]),
+                                items:[{
+                                    xtype:"textfield",
+                                    fieldLabel:lang.orders.form_orders_id,
+                                    name:"id"
+                                  },{
+                                    layout:"table",
+                                    layoutConfig:{
+                                      columns:3
+                                    },
+                                    width:320,
+                                    border:false,
+                                    items:[{
+                                        width:105,
+                                        html:"<font size=2>"+lang.orders.form_created+"</font>",
+                                        border:false
+                                      },{
+                                        layout:"form",
+                                        border:false,
+                                        labelWidth:0,
+                                        hideLabels:true,
+                                        labelSeparator:"",
+                                        items:[{
+                                            xtype:"textfield",
+                                            readOnly:true,
+                                            fieldLabel:"",
+                                            name:"createdBy",
+                                            width:80
+                                          }]
+                                      },{
+                                        layout:"form",
+                                        border:false,
+                                        labelWidth:0,
+                                        hideLabels:true,
+                                        labelSeparator:"",
+                                        items:[{
+                                            xtype:"textfield",
+                                            readOnly:true,
+                                            fieldLabel:"",
+                                            name:"createdOn",
+                                            width:125
+                                          }]
+                                      }]
+                                  },{
+                                    layout:"table",
+                                    layoutConfig:{
+                                      columns:3
+                                    },
+                                    width:320,
+                                    border:false,
+                                    items:[{
+                                        width:105,
+                                        html:"<font size=2>"+lang.orders.form_modified+"</font>",
+                                        border:false
+                                      },{
+                                        layout:"form",
+                                        border:false,
+                                        labelWidth:0,
+                                        hideLabels:true,
+                                        labelSeparator:"",
+                                        items:[{
+                                            xtype:"textfield",
+                                            readOnly:true,
+                                            fieldLabel:"",
+                                            name:"modifiedBy",
+                                            width:80
+                                          }]
+                                      },{
+                                        layout:"form",
+                                        border:false,
+                                        labelWidth:0,
+                                        hideLabels:true,
+                                        labelSeparator:"",
+                                        items:[{
+                                            xtype:"textfield",
+                                            readOnly:true,
+                                            fieldLabel:"",
+                                            name:"modifiedOn",
+                                            width:125
+                                          }]
+                                      }]
+                                  },{
+                                    xtype: 'combo',
+                                    fieldLabel:lang.orders.form_seller_id,
+                                    mode: 'local',
+                                    store: new Ext.data.SimpleStore({
+                                        fields: ['sellerId', 'sellerName'],
+                                        data : seller
+                                    }),
+                                    valueField:'sellerId',
+                                    displayField:'sellerName',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    selectOnFocus:true,
+                                    name: 'sellerId',
+                                    hiddenName:'sellerId'
+                                  },{
+                                    layout:"column",
+                                    items:[{
+                                        title:lang.orders.form_ebay_address_title,
+                                        columnWidth:0.5,
+                                        layout:"form",
+                                        defaults:{
+                                            width:200
+                                        },
+                                        items:[{
+                                            xtype:"textfield",
+                                            fieldLabel:lang.orders.form_ebay_name,
+                                            name:"ebayName"
+                                          },{
+                                            xtype:"textfield",
+                                            fieldLabel:lang.orders.form_ebay_email,
+                                            name:"ebayEmail"
+                                          },{
+                                            xtype:"textfield",
+                                            fieldLabel:lang.orders.form_ebay_address1,
+                                            name:"ebayAddress1"
+                                          },{
+                                            xtype:"textfield",
+                                            fieldLabel:lang.orders.form_ebay_address2,
+                                            name:"ebayAddress2"
+                                          },{
+                                            xtype:"textfield",
+                                            fieldLabel:lang.orders.form_ebay_city,
+                                            name:"ebayCity"
+                                          },{
+                                            xtype:"textfield",
+                                            fieldLabel:lang.orders.form_ebay_state,
+                                            name:"ebayStateOrProvince"
+                                          },{
+                                            xtype:"textfield",
+                                            fieldLabel:lang.orders.form_ebay_postal,
+                                            name:"ebayPostalCode"
+                                          },{
+                                            xtype: 'combo',
+                                            fieldLabel:lang.orders.form_ebay_country,
+                                            mode: 'local',
+                                            store: new Ext.data.SimpleStore({
+                                                fields: ['countryId', 'countryName'],
+                                                data : countries
+                                            }),
+                                            valueField:'countryId',
+                                            displayField:'countryName',
+                                            triggerAction: 'all',
+                                            editable: false,
+                                            selectOnFocus:true,
+                                            name: 'ebayCountry',
+                                            hiddenName:'ebayCountry'
+                                          },{
+                                            xtype:"textfield",
+                                            fieldLabel:lang.orders.form_ebay_phone,
+                                            name:"ebayPhone"
+                                          }]
+                                      },{
+                                        title:lang.orders.form_paypal_address_title,
+                                        columnWidth:0.5,
+                                        layout:"form",
+                                        defaults:{
+                                            width:200
+                                        },
+                                        items:[{
+                                            xtype:"textfield",
+                                            fieldLabel:lang.orders.form_paypal_name,
+                                            name:"paypalName"
+                                          },{
+                                            xtype:"textfield",
+                                            fieldLabel:lang.orders.form_paypal_email,
+                                            name:"paypalEmail"
+                                          },{
+                                            xtype:"textfield",
+                                            fieldLabel:lang.orders.form_paypal_address1,
+                                            name:"paypalAddress1"
+                                          },{
+                                            xtype:"textfield",
+                                            fieldLabel:lang.orders.form_paypal_address2,
+                                            name:"paypalAddress2"
+                                          },{
+                                            xtype:"textfield",
+                                            fieldLabel:lang.orders.form_paypal_city,
+                                            name:"paypalCity"
+                                          },{
+                                            xtype:"textfield",
+                                            fieldLabel:lang.orders.form_paypal_state,
+                                            name:"paypalStateOrProvince"
+                                          },{
+                                            xtype:"textfield",
+                                            fieldLabel:lang.orders.form_paypal_postal,
+                                            name:"paypalPostalCode"
+                                          },{
+                                            xtype: 'combo',
+                                            fieldLabel:lang.orders.form_ebay_country,
+                                            mode: 'local',
+                                            store: new Ext.data.SimpleStore({
+                                                fields: ['countryId', 'countryName'],
+                                                data : countries
+                                            }),
+                                            valueField:'countryId',
+                                            displayField:'countryName',
+                                            triggerAction: 'all',
+                                            editable: false,
+                                            selectOnFocus:true,
+                                            name: 'paypalCountry',
+                                            hiddenName:'paypalCountry'
+                                          },{
+                                            xtype:"textfield",
+                                            fieldLabel:lang.orders.form_paypal_phone,
+                                            name:"paypalPhone"
+                                          }]
+                                      }]
+                                  },{
+                                    xtype:"combo",
+                                    fieldLabel:lang.orders.form_status,
+                                    store: new Ext.data.SimpleStore({
+                                        fields: ["statusValue", "statusName"],
+                                        data: lang.orders.orders_status
+                                    }),
+                                    mode: 'local',
+                                    displayField: 'statusName',
+                                    valueField: 'statusValue',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    name: 'status',
+                                    hiddenName:'status'
+                                  },{
+                                    xtype:"combo",
+                                    fieldLabel:lang.orders.form_shipping_method,
+                                    store: new Ext.data.SimpleStore({
+                                        fields: ["shippingMethodValue", "shippingMethodName"],
+                                        data: lang.orders.shipping_method
+                                    }),
+                                    mode: 'local',
+                                    displayField: 'shippingMethodName',
+                                    valueField: 'shippingMethodValue',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    name: 'shippingMethod',
+                                    hiddenName:'shippingMethod'
+                                  },{
+                                    xtype:"textarea",
+                                    fieldLabel:lang.orders.form_remarks,
+                                    width: 200,
+                                    name: 'shippingMethod'
+                                  },{
+                                    layout:"column",
+                                    items:[{
+                                        title:lang.orders.form_shipping_title,
+                                        columnWidth:0.25,
+                                        layout:"form",
+                                        labelWidth:50,
+                                        defaults:{
+                                            width:80
+                                        },
+                                        items:[{
+                                            xtype:"combo",
+                                            fieldLabel:lang.orders.form_currency,
+                                            store: new Ext.data.SimpleStore({
+                                                fields: ["shippingFeeCurrencyValue", "shippingFeeCurrencyName"],
+                                                data: lang.orders.currency
+                                            }),
+                                            mode: 'local',
+                                            displayField: 'shippingFeeCurrencyName',
+                                            valueField: 'shippingFeeCurrencyValue',
+                                            triggerAction: 'all',
+                                            editable: false,
+                                            name: 'shippingFeeCurrency',
+                                            hiddenName:'shippingFeeCurrency'
+                                          },{
+                                            xtype:"textfield",
+                                            fieldLabel:lang.orders.form_fee,
+                                            name:"shippingFeeValue"
+                                          }]
+                                      },{
+                                        title:lang.orders.form_insurance_title,
+                                        columnWidth:0.25,
+                                        layout:"form",
+                                        labelWidth:50,
+                                        defaults:{
+                                            width:80
+                                        },
+                                        items:[{
+                                            xtype:"combo",
+                                            fieldLabel:lang.orders.form_currency,
+                                            store: new Ext.data.SimpleStore({
+                                                fields: ["insuranceCurrencyValue", "insuranceCurrencyName"],
+                                                data: lang.orders.currency
+                                            }),
+                                            mode: 'local',
+                                            displayField: 'insuranceCurrencyName',
+                                            valueField: 'insuranceCurrencyValue',
+                                            triggerAction: 'all',
+                                            editable: false,
+                                            name: 'insuranceCurrency',
+                                            hiddenName:'insuranceCurrency'
+                                          },{
+                                            xtype:"textfield",
+                                            fieldLabel:lang.orders.form_fee,
+                                            name:"insuranceValue"
+                                          }]
+                                      },{
+                                        title:lang.orders.form_discount_title,
+                                        columnWidth:0.25,
+                                        layout:"form",
+                                        labelWidth:50,
+                                        defaults:{
+                                            width:80
+                                        },
+                                        items:[{
+                                            xtype:"combo",
+                                            fieldLabel:lang.orders.form_currency,
+                                            store: new Ext.data.SimpleStore({
+                                                fields: ["discountCurrencyValue", "discountCurrencyName"],
+                                                data: lang.orders.currency
+                                            }),
+                                            mode: 'local',
+                                            displayField: 'discountCurrencyName',
+                                            valueField: 'discountCurrencyValue',
+                                            triggerAction: 'all',
+                                            editable: false,
+                                            name: 'discountCurrency',
+                                            hiddenName:'discountCurrency'
+                                          },{
+                                            xtype:"textfield",
+                                            fieldLabel:lang.orders.form_fee,
+                                            name:"discountValue"
+                                          }]
+                                      },{
+                                        title:lang.orders.form_total_title,
+                                        columnWidth:0.25,
+                                        layout:"form",
+                                        labelWidth:50,
+                                        defaults:{
+                                            width:80
+                                        },
+                                        items:[{
+                                            xtype:"combo",
+                                            fieldLabel:lang.orders.form_currency,
+                                            store: new Ext.data.SimpleStore({
+                                                fields: ["grandTotalCurrencyValue", "grandTotalCurrencyName"],
+                                                data: lang.orders.currency
+                                            }),
+                                            mode: 'local',
+                                            displayField: 'grandTotalCurrencyName',
+                                            valueField: 'grandTotalCurrencyValue',
+                                            triggerAction: 'all',
+                                            editable: false,
+                                            name: 'grandTotalCurrency',
+                                            hiddenName:'grandTotalCurrency'
+                                          },{
+                                            xtype:"textfield",
+                                            fieldLabel:lang.orders.form_fee,
+                                            name:"grandTotalValue"
+                                          }]
+                                      }]
+                                },{
+                                    xtype: 'panel',
+                                    title: "Order Detail",
+                                    autoHeight: true,
+                                    items: orderDetailGrid
+                                },{
+                                    xtype: 'panel',
+                                    title: "Transaction",
+                                    autoHeight: true,
+                                    items: orderTransactionGrid
+                                },{
+                                    xtype: 'panel',
+                                    title: "Shipment",
+                                    autoHeight: true,
+                                    items: orderShipmentGrid
                                 }
-                            });	
-                        }
-                    },{
-                        text: 'Close',
-                        handler: function(){
-                              
-                        }
-                    }]
-                    
-            })
-
-            orderDetailForm.getForm().load({url:'connect.php?moduleId=qo-orders&action=getOrderInfo', 
-                   method:'GET', 
-                   params: {id: '<?=$_GET['id']?>'}, 
-                   waitMsg:'Please wait...'
-                   }
-            );
-            orderDetailForm.render(document.body);
+                                ],
+                                buttons: [{
+                                    text: 'Save',
+                                    handler: function(){
+                                        orderDetailForm.getForm().submit({
+                                            url: "connect.php?moduleId=qo-orders&action=updateOrder",
+                                            success: function(f, a){
+                                                console.log(a);
+                                            },
+                                            waitMsg: "Please wait..."
+                                            });
+                                    }
+                                },{
+                                    text: 'Close',
+                                    handler: function(){
+                                        window.close();  
+                                    }
+                                }]
+                                
+                        })
+                                    
+                        orderDetailForm.getForm().load({url:'connect.php?moduleId=qo-orders&action=getOrderInfo', 
+                                method:'GET', 
+                                params: {id: '<?=$_GET['id']?>'}, 
+                                waitMsg:'Please wait...'
+                                }
+                        );
+                        orderDetailForm.render(document.body);
+                    },
+                    failure: function(response){
+                        var result=response.responseText;
+                        Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                    }
+                });
+            //}
+            
+            //orderDetailForm.getForm().addListener("beforeaction", beforeLoad);
+            
     </script>
 </body>
 </html>

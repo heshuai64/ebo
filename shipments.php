@@ -12,10 +12,11 @@
         <link rel="stylesheet" type="text/css" href="../Ext/2.2/resources/css/ext-all.css" />
         <script src="../Ext/2.2/adapter/ext/ext-base.js"></script>
         <script src="../Ext/2.2/ext-all-debug.js"></script>
+        <script src="system/modules/shipments/lang.js"></script>
 </head>
 <body>
     <script type="text/javascript">
-        var currency_data = [['USD','USD'],['EUR','EUR'],['GBP','GBP'],['AUD','AUD'],['RMB','RMB'],['CAD','CAD']];
+
         var shipmentDetailStore = new Ext.data.JsonStore({
                 root: 'records',
                 totalProperty: 'totalCount',
@@ -49,7 +50,7 @@
                 },{
                     header: "Sku Title",
                     dataIndex: 'skuTitle',
-                    width: 120,
+                    width: 200,
                     align: 'center',
                     sortable: true
                 },{
@@ -61,7 +62,7 @@
                 },{
                     header: "Item Title",
                     dataIndex: 'itemTitle',
-                    width: 120,
+                    width: 200,
                     align: 'center',
                     sortable: true
                 },{
@@ -186,15 +187,15 @@
                     layout:"form",
                     title:"System",
                     defaults:{
-                            width:200
+                            width:220
                     },
                     items:[{
                         xtype:"textfield",
-                        fieldLabel:"Shipment Id",
+                        fieldLabel:"Shipments Id",
                         name:"id"
                       },{
                         xtype:"textfield",
-                        fieldLabel:"Order Id",
+                        fieldLabel:"Orders Id",
                         name:"ordersId"
                       },{
                         layout:"table",
@@ -214,11 +215,19 @@
                             border:false,
                             style:"padding-left:5px",
                             items:[{
-                                xtype:"combo",
-                                fieldLabel:"",
-                                name:"shippingFeeCurrency",
-                                hiddenName:"shippingFeeCurrency",
-                                width:50
+                                xtype:'combo',
+                                store: new Ext.data.SimpleStore({
+                                    fields: ["shippingFeeCurrencyValue", "shippingFeeCurrencyName"],
+                                    data: lang.shipments.currency
+                                }),
+                                width: 60,			  
+                                mode: 'local',
+                                displayField: 'shippingFeeCurrencyName',
+                                valueField: 'shippingFeeCurrencyValue',
+                                triggerAction: 'all',
+                                editable: false,
+                                name: 'shippingFeeCurrency',
+                                hiddenName:'shippingFeeCurrency'
                               }]
                           },{
                             layout:"form",
@@ -234,11 +243,20 @@
                                 width:80
                               }]
                           }]
-                      },{
-                        xtype:"combo",
+                      },{ 
+                        xtype:'combo',
                         fieldLabel:"Status",
-                        name:"status",
-                        hiddenName:"status"
+                        store: new Ext.data.SimpleStore({
+                            fields: ["statusValue", "statusName"],
+                            data: lang.shipments.shipments_status
+                        }),			  
+                        mode: 'local',
+                        displayField: 'statusName',
+                        valueField: 'statusValue',
+                        triggerAction: 'all',
+                        editable: false,
+                        name: 'status',
+                        hiddenName:'status'
                       },{
                         layout:"table",
                         layoutConfig:{
@@ -396,10 +414,21 @@
                         fieldLabel:"Postal Code/Zip",
                         name:"shipToPostalCode"
                       },{
-                        xtype:"combo",
+                        xtype: 'combo',
                         fieldLabel:"Country",
-                        name:"shipToCountry",
-                        hiddenName:"shipToCountry"
+                        mode: 'local',
+                        store: new Ext.data.JsonStore({
+                            autoLoad: true,
+                            fields: ['id', 'name'],
+                            url: "connect.php?moduleId=qo-transactions&action=getCountries"
+                        }),
+                        valueField:'id',
+                        displayField:'name',
+                        triggerAction: 'all',
+                        editable: false,
+                        selectOnFocus:true,
+                        name: 'shipToCountry',
+                        hiddenName:'shipToCountry'
                       },{
                         xtype:"textfield",
                         fieldLabel:"Phone",
@@ -451,6 +480,11 @@
                                         Ext.MessageBox.alert('error', 'could not connect to the database. retry later');
                                 }
                             });	
+                        }
+                    },{
+                        text: 'Close',
+                        handler: function(){
+                            window.close();
                         }
                     }]
         })
