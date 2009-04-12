@@ -24,24 +24,7 @@ Ext.override(QoDesk.Transactions, {
             });
             
             function renderStatus(v, p, r){
-                switch(v){
-                    case "P":
-                        return "完成付款";
-                    break;
-                
-                    case "V":
-                        return "Reversed";
-                    break;
-                
-                    case "C":
-                        return "Canceled Reversal";
-                    break;
-                
-                    case "R":
-                        return "退款";
-                    break;
-                    
-                }
+                return lang.transactions.transactions_status_json[v]
             }
             
             function renderAmountValue(v, p, r){
@@ -56,38 +39,38 @@ Ext.override(QoDesk.Transactions, {
             var transactionGrid = new Ext.grid.GridPanel({
                 store: transactionGridStore,
                 columns:[{
-                    header: "系统付款号",
+                    header: lang.transactions.grid_transactions_id,
                     dataIndex: 'id',
                     width: 110,
                     align: 'center',
                     sortable: true
                 },{
-                    header: "PayPal付款帐号",
+                    header: lang.transactions.grid_payer_id,
                     dataIndex: 'payerId',
                     width: 120,
                     align: 'center',
                     sortable: true
                 },{
-                    header: "PayPal付款号",
+                    header: lang.transactions.grid_txn_id,
                     dataIndex: 'txnId',
                     width: 100,
                     align: 'center',
                     sortable: true
                 },{
-                    header: "付款时间",
+                    header: lang.transactions.grid_transactions_time,
                     dataIndex: 'transactionTime',
                     width: 150,
                     align: 'center',
                     sortable: true
                 },{
-                    header: "状态",
+                    header: lang.transactions.grid_status,
                     dataIndex: 'status',
                     width: 100,
                     renderer: renderStatus,
                     align: 'center',
                     sortable: true
                 },{
-                    header: "总付款",
+                    header: lang.transactions.grid_amount,
                     dataIndex: 'amountValue',
                     width: 100,
                     renderer: renderAmountValue,
@@ -108,8 +91,8 @@ Ext.override(QoDesk.Transactions, {
              
             transactionGridStore.load({params:{start:0, limit:20}});
             
-            win = desktop.createWindow({
-               title:'查询结果',
+            var search_result_win = desktop.createWindow({
+               title:lang.transactions.search_result,
                width:700,
                height:400,
                iconCls: 'transactions-icon',
@@ -118,15 +101,15 @@ Ext.override(QoDesk.Transactions, {
                constrainHeader:true,
                layout: 'fit',
                items: transactionGrid,
-               taskbuttonTooltip: '<b>查询结果</b><br />付款查询结果列表'
+               taskbuttonTooltip: lang.transactions.task_button_tooltip
             })
-            win.show();
+            search_result_win.show();
         }
         
         if(!win){
              win = desktop.createWindow({
                 id: 'transactions-win',
-                title:'付款查询',
+                title: lang.transactions.search_transactions,
                 width:600,
                 height:350,
                 iconCls: 'transactions-icon',
@@ -144,27 +127,27 @@ Ext.override(QoDesk.Transactions, {
                             layout:"form",
                             items:[{
                                 xtype:"fieldset",
-                                title:"System",
+                                title:"System Info",
                                 autoHeight:true,
                                 defaults:{
                                     width:150
                                 },
                                 items:[{
                                     xtype:"textfield",
-                                    fieldLabel:"付款编号",
+                                    fieldLabel:lang.transactions.form_transactions_id,
                                     name:"transactionsId"
                                   },{
                                     xtype:"textfield",
-                                    fieldLabel:"订单编号",
+                                    fieldLabel:lang.transactions.form_orders_id,
                                     name:"ordersId"
                                   },{
                                     xtype:"combo",
-                                    fieldLabel:"收款帐号",
+                                    fieldLabel:lang.transactions.form_payee_id,
                                     name:"payeeId",
                                     hiddenName:"payeeId"
                                   },{
                                     xtype:"combo",
-                                    fieldLabel:"付款状态",
+                                    fieldLabel:lang.transactions.form_status,
                                     name:"status",
                                     hiddenName:"status"
                                   }]
@@ -174,26 +157,26 @@ Ext.override(QoDesk.Transactions, {
                                 layout:"form",
                                 items:[{
                                     xtype:"fieldset",
-                                    title:"PayPal",
+                                    title:"Buyer PayPal Info",
                                     autoHeight:true,
                                     defaults:{
                                         width:150
                                     },
                                     items:[{
                                         xtype:"textfield",
-                                        fieldLabel:"付款编号",
+                                        fieldLabel:lang.transactions.form_txn_id,
                                         name:"txnId"
                                       },{
                                         xtype:"textfield",
-                                        fieldLabel:"付款帐号",
+                                        fieldLabel:lang.transactions.form_payer_id,
                                         name:"payer"
                                       },{
                                         xtype:"textfield",
-                                        fieldLabel:"付款邮件地址",
+                                        fieldLabel:lang.transactions.form_payer_email,
                                         name:"payerEmail"
                                       },{
                                         xtype:"textfield",
-                                        fieldLabel:"付款地址",
+                                        fieldLabel:lang.transactions.form_payer_address,
                                         name:"payerAddressLine"
                                       }]
                                 }]
@@ -207,14 +190,14 @@ Ext.override(QoDesk.Transactions, {
                                 border:false
                             },
                             items:[{
-                                html:"付款日期:"
+                                html:lang.transactions.form_payment_date
                               },{
                                 layout:"form",
                                 labelWidth:30,
                                 cellCls: "orders-search-create-time",
                                 items:[{
                                     xtype:"datefield",
-                                    fieldLabel:"开始",
+                                    fieldLabel:lang.transactions.form_start,
                                     name:"transactionTimeFrom",
                                     format:'Y-m-d'
                                 }]
@@ -224,19 +207,19 @@ Ext.override(QoDesk.Transactions, {
                                 cellCls: "transactions-search-date",
                                 items:[{
                                     xtype:"datefield",
-                                    fieldLabel:"结束",
+                                    fieldLabel:lang.transactions.form_end,
                                     name:"transactionTimeTo",
                                     format:'Y-m-d'
                                 }]
                               },{
-                                html:"创建日期:"
+                                html:lang.transactions.form_created_date
                               },{
                                 layout:"form",
                                 labelWidth:30,
                                 cellCls: "transactions-search-date",
                                 items:[{
                                     xtype:"datefield",
-                                    fieldLabel:"开始",
+                                    fieldLabel:lang.transactions.form_start,
                                     name:"createdOnFrom",
                                     format:'Y-m-d'
                                 }]
@@ -246,19 +229,19 @@ Ext.override(QoDesk.Transactions, {
                                 cellCls: "orders-search-create-time",
                                 items:[{
                                     xtype:"datefield",
-                                    fieldLabel:"结束",
+                                    fieldLabel:lang.transactions.form_end,
                                     name:"createdOnOnTo",
                                     format:'Y-m-d'
                                 }]
                               },{
-                                html:"修改日期:"
+                                html:lang.transactions.form_modified_date
                               },{
                                 layout:"form",
                                 labelWidth:30,
                                 cellCls: "transactions-search-date",
                                 items:[{
                                     xtype:"datefield",
-                                    fieldLabel:"开始",
+                                    fieldLabel:lang.transactions.form_start,
                                     name:"modifiedOnFrom",
                                     format:'Y-m-d'
                                 }]
@@ -268,21 +251,27 @@ Ext.override(QoDesk.Transactions, {
                                 cellCls: "orders-search-create-time",
                                 items:[{
                                     xtype:"datefield",
-                                    fieldLabel:"结束",
+                                    fieldLabel:lang.transactions.form_end,
                                     name:"modifiedOnTo",
                                     format:'Y-m-d'
                                 }]
                               }]
                           }],
                         buttons: [{
-                            text: '提交查询',
+                            text: lang.transactions.submit,
                             handler: function(){
 				searchTransaction();
+                                win.close();
 			    }
                         },{
-                            text: '创建付款',
+                            text: lang.transactions.create_transactions,
                             handler: function(){
 				
+			    }
+                        },{
+                            text: lang.transactions.close,
+                            handler: function(){
+				win.close();
 			    }
                         }]
                 }],
