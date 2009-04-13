@@ -720,14 +720,18 @@
                                     if(btn=='yes')
                                         Ext.Ajax.request({
                                             waitMsg: 'Please wait...',
-                                            url: 'connect.php?moduleId=qo-orders&action=addOrderShipment&id=<?$_GET['id']?>',
+                                            url: 'connect.php?moduleId=qo-orders&action=addOrderShipment',
+                                            params: { 
+                                                id: '<?=$_GET['id']?>'
+                                            }, 
                                             success: function(response){
                                                 var result = eval(response.responseText);
                                                 if(result=='1')
                                                 {
-                                                    Ext.MessageBox.alert('Attention','Shipment Create Successfully!');																oStore.reload();
+                                                        orderShipmentStore.reload();
+                                                        Ext.MessageBox.alert('Attention','Shipment Create Successfully!');
                                                 }else{
-                                                    Ext.MessageBox.alert('Attention','Shipment Create Failed!');
+                                                        Ext.MessageBox.alert('Attention','Shipment Create Failed!');
                                                 }      
                                             },
                                             failure: function(response){

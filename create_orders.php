@@ -572,9 +572,9 @@
                                                 //window.close();
                                                 var response = Ext.decode(a.response.responseText);
                                                 if(response.success){
-                                                        Ext.Msg.alert('Success', 'Create orders success.');
+                                                        Ext.Msg.alert('Success', 'Order Create Successfully!');
                                                 }else{
-                                                        Ext.Msg.alert('Failure', 'Create orders failure.');
+                                                        Ext.Msg.alert('Failure', 'Order Create Failed!');
                                                 }
                                             },
                                             waitMsg: "Please wait..."

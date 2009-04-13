@@ -194,20 +194,37 @@
         }
 	
 	private function createShipment($ordersId, $ipn_data){
-	    $shipmentId = $this->getShipmentId();
-	    $address = split("\n",$ipn_data['address_street']);
-  	    $payerAddressLine1 = $address[0];
-  	    $payerAddressLine2 = $address[1];
-	    
-	    $sql = "insert into qo_shipments (id,ordersId,status,shippingFeeCurrency,shippingFeeValue,shipToName,
-	    shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,
-	    shipToCountry,shipToPhoneNo,createdBy,createdOn) values ('".$shipmentId."','".$ordersId."',
-	    'N','','','".$ipn_data['address_name']."',
-	    '".$ipn_data['payer_email']."','".$payerAddressLine1."','".$payerAddressLine2."','".$ipn_data['address_city']."',
-	    '".$ipn_data['address_state']."','".$ipn_data['address_zip']."','".$ipn_data['address_country']."','',
-	    'PayPal','".date("Y-m-d H:i:s")."')";
-            $this->log('ipn_deal',"createShipment: ".$sql);
-            $result = mysql_query($sql, PayPal::$database_connect);
+	    $sql = "select count(*) as num from qo_shipments where ordersId = '$ordersId'";
+	    $result = mysql_query($sql, PayPal::$database_connect);
+	    $row = mysql_fetch_assoc($result);
+	    if($row == 0){
+		$sql = "select shippingMethod,ebayName,ebayEmail,ebayAddress1,ebayAddress2,ebayCity,ebayStateOrProvince,ebayPostalCode,ebayCountry,ebayPhone,shippingFeeCurrency,shippingFeeValue from qo_orders where id = '$ordersId'";
+		$result = mysql_query($sql, PayPal::$database_connect);
+		$row = mysql_fetch_assoc($result);
+		
+		$shipmentId = $this->getShipmentId();
+		
+		$sql = "insert into qo_shipments (id,ordersId,status,shippingFeeCurrency,shippingFeeValue,shipToName,
+		shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,
+		shipToCountry,shipToPhoneNo,createdBy,createdOn,modifiedBy,modifiedOn) values ('".$shipmentId."','".$ordersId."',
+		'N','".$row['shippingFeeCurrency']."','".$row['shippingFeeValue']."','".$row['ebayName']."',
+		'".$row['ebayEmail']."','".$row['ebayAddress1']."','".$row['ebayAddress2']."','".$row['ebayCity']."',
+		'".$row['ebayStateOrProvince']."','".$row['ebayPostalCode']."','".$row['ebayCountry']."','".$row['ebayPhone']."',
+		'PayPal','".date("Y-m-d H:i:s")."','PayPal','".date("Y-m-d H:i:s")."')";
+		
+		$this->log('ipn_deal',"createShipment: ".$sql);
+		$result = mysql_query($sql, PayPal::$database_connect);
+		
+		$sql = "select skuId,skuTitle,itemId,itemTitle,quantity,barCode from qo_orders_detail where ordersId = '$ordersId'";
+		$result = mysql_query($sql, PayPal::$database_connect);
+		while($row = mysql_fetch_assoc($result)){
+		    $sql_1 = "insert into qo_shipments_detail (shipmentsId,skuId,skuTitle,itemId,itemTitle,quantity,barCode) values
+		    ('".$shipmentId."','".$row['skuId']."','".$row['skuTitle']."','".$row['itemId']."','".$row['itemTitle']."',
+		    '".$row['quantity']."','".$row['barCode']."')";
+		    $this->log('ipn_deal',"createShipmentDetail: ".$sql_1);
+		    $result_1 = mysql_query($sql_1, PayPal::$database_connect);
+		}
+	    }
 	}
 	
         private function updateOrderAndShipment($ordersId, $ipn_data){
