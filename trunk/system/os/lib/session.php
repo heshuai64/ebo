@@ -59,6 +59,16 @@ class session {
 	} // end get_member_id()
 	
 	
+	public function get_member_name(){
+		$response = '';
+		$member_id = $this->get_member_id();
+		$sql = "select email_address as name from qo_members where id = '".$member_id."'";
+		$result = mysql_query($sql);
+		$row = mysql_fetch_assoc($result);
+		$response = $row['name'];
+		return $response;	
+	}
+	
 	
 	/** get_group_id() Returns the member's group id for this session.
 	  * 

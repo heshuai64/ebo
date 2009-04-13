@@ -166,6 +166,50 @@
             $result = mysql_query($sql, PayPal::$database_connect);
 	}
         
+	private function getShipmentId(){
+            $type = 'SHI';
+            $today = date("Ym");
+            $sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
+            $result = mysql_query($sql, PayPal::$database_connect);
+            $row = mysql_fetch_assoc($result);
+           
+            if($row["curId"] >=9999){
+                // A-Z 66-91
+                $curType = chr(ord($row["curType"]) + 1);
+                $sql = "update  sequence  set curId = 1,curType='$curType' where curDate='$today' and type='$type'";
+                mysql_query($sql, PayPal::$database_connect);
+            }elseif($row["curId"] < 1 || $row["curId"] == null) {
+                  $sql = "insert into sequence (type,curType,curDate,curId) value ('$type','A','$today',1)";
+                  mysql_query($sql, PayPal::$database_connect);
+            }else {   
+                $sql = "update sequence set curId = curId + 1 where curDate='$today' and type='$type'";
+                $result = mysql_query($sql, PayPal::$database_connect);
+            }
+           
+            $sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
+            $result = mysql_query($sql, PayPal::$database_connect);
+            $row = mysql_fetch_assoc($result);
+            $shipmentId = $type.$today.$row["curType"].str_repeat("0",(4-strlen($row["curId"]))).$row["curId"];   
+            return $shipmentId;
+        }
+	
+	private function createShipment($ordersId, $ipn_data){
+	    $shipmentId = $this->getShipmentId();
+	    $address = split("\n",$ipn_data['address_street']);
+  	    $payerAddressLine1 = $address[0];
+  	    $payerAddressLine2 = $address[1];
+	    
+	    $sql = "insert into qo_shipments (id,ordersId,status,shippingFeeCurrency,shippingFeeValue,shipToName,
+	    shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,
+	    shipToCountry,shipToPhoneNo,createdBy,createdOn) values ('".$shipmentId."','".$ordersId."',
+	    'N','','','".$ipn_data['address_name']."',
+	    '".$ipn_data['payer_email']."','".$payerAddressLine1."','".$payerAddressLine2."','".$ipn_data['address_city']."',
+	    '".$ipn_data['address_state']."','".$ipn_data['address_zip']."','".$ipn_data['address_country']."','',
+	    'PayPal','".date("Y-m-d H:i:s")."')";
+            $this->log('ipn_deal',"createShipment: ".$sql);
+            $result = mysql_query($sql, PayPal::$database_connect);
+	}
+	
         private function updateOrderAndShipment($ordersId, $ipn_data){
             switch($ipn_data['payment_status']){	
                 case "Completed":

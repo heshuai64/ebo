@@ -1174,7 +1174,12 @@
                                         orderDetailForm.getForm().submit({
                                             url: "connect.php?moduleId=qo-orders&action=updateOrder",
                                             success: function(f, a){
-                                                console.log(a);
+                                                var response = Ext.decode(a.response.responseText);
+                                                if(response.success){
+                                                        Ext.Msg.alert('Success', 'Update orders success.');
+                                                }else{
+                                                        Ext.Msg.alert('Failure', 'Update orders failure.');
+                                                }
                                             },
                                             waitMsg: "Please wait..."
                                             });
