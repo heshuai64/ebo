@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 2.11.9.2
+-- version 2.11.8.1
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 12, 2009 at 11:26 PM
--- Server version: 5.0.67
--- PHP Version: 5.2.6
+-- Generation Time: Apr 13, 2009 at 08:55 下午
+-- Server version: 5.0.45
+-- PHP Version: 5.1.6
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
@@ -631,7 +631,7 @@ CREATE TABLE IF NOT EXISTS `qo_modules_actions` (
   `name` varchar(35) default NULL,
   `description` text,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=55 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=61 ;
 
 --
 -- Dumping data for table `qo_modules_actions`
@@ -667,7 +667,7 @@ INSERT INTO `qo_modules_actions` (`id`, `qo_modules_id`, `name`, `description`) 
 (27, 11, 'getTransactionOrder', '获取付款订单信息'),
 (28, 11, 'readMapTransactionOrder', '获取付款订单信息'),
 (29, 11, 'mapTransactionOrder', '匹配付款与订单'),
-(30, 11, 'saveTransactionInfo', '保存付款信息'),
+(30, 11, 'updateTransaction', '更新付款信息'),
 (31, 12, 'searchShipment', '查询货运信息'),
 (32, 12, 'getShipmentInfo', '获取货运信息'),
 (33, 12, 'getShipmentDetail', '获取货运描述信息'),
@@ -690,7 +690,13 @@ INSERT INTO `qo_modules_actions` (`id`, `qo_modules_id`, `name`, `description`) 
 (51, 9, 'deleteMember', '删除用户'),
 (52, 10, 'getConfigure', '获取配置信息'),
 (53, 11, 'getSeller', '获取eBay销售帐号'),
-(54, 11, 'getCountries', '获取国家');
+(54, 11, 'getCountries', '获取国家'),
+(55, 10, 'getOrderId', '获取一个订单号'),
+(56, 10, 'createOrder', '创建订单'),
+(57, 11, 'getTransactionId', '获取付款号'),
+(58, 11, 'createTransaction', '创建付款'),
+(59, 10, 'addOrderShipment', '给订单添加货运'),
+(60, 10, 'deleteOrderShipment', '删除订单货运');
 
 -- --------------------------------------------------------
 
@@ -828,7 +834,11 @@ CREATE TABLE IF NOT EXISTS `qo_orders` (
 INSERT INTO `qo_orders` (`id`, `type`, `status`, `shippingMethod`, `paymentMethod`, `remarks`, `sellerId`, `buyerId`, `shippingFeeCurrency`, `shippingFeeValue`, `insuranceCurrency`, `insuranceValue`, `discountCurrency`, `discountValue`, `grandTotalCurrency`, `grandTotalValue`, `ebayName`, `ebayEmail`, `ebayAddress1`, `ebayAddress2`, `ebayCity`, `ebayStateOrProvince`, `ebayPostalCode`, `ebayCountry`, `ebayPhone`, `paypalName`, `paypalEmail`, `paypalAddress1`, `paypalAddress2`, `paypalCity`, `paypalStateOrProvince`, `paypalPostalCode`, `paypalCountry`, `paypalPhone`, `createdBy`, `createdOn`, `modifiedBy`, `modifiedOn`) VALUES
 ('ORD200903A0052', '', 'P', 'U', 'P', '', 'testuser_heshuai04', 'testuser_heshuai05', 'USD', 5.00, 'USD', 0.00, '', 0.00, 'USD', 49.99, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', 'John Smith', 'buyer@paypalsandbox.com', 'John Smith', '', 'San Jose', 'CA', '95131', 'United States', '', 'eBay', '2009-03-18 21:10:54', 'Paypal', '2009-04-01 16:30:42'),
 ('ORD200903A0053', '', 'W', 'B', 'P', '', 'testuser_heshuai04', 'testuser_heshuai05', 'USD', 5.00, 'USD', 0.00, '', 0.00, 'USD', 119.97, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', '', '', '', '', '', '', '', '', '', 'eBay', '2009-03-19 16:49:02', '', '0000-00-00 00:00:00'),
-('ORD200903A0054', '', 'W', 'S', 'P', '', 'testuser_heshuai04', 'testuser_heshuai05', 'USD', 11.00, '', 0.00, '', 0.00, 'USD', 135.95, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', '', '', '', '', '', '', '', '', '', 'eBay', '2009-03-26 23:16:30', '', '0000-00-00 00:00:00');
+('ORD200903A0054', '', 'W', 'S', 'P', '', 'testuser_heshuai04', 'testuser_heshuai05', 'USD', 11.00, '', 0.00, '', 0.00, 'USD', 135.95, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', '', '', '', '', '', '', '', '', '', 'eBay', '2009-03-26 23:16:30', '', '0000-00-00 00:00:00'),
+('ORD200904A0014', '', 'C', 't', '', '', 'TESTUSER_heshuai04', '', 'USD', 1.00, 'EUR', 2.00, 'GBP', 3.00, 'AUD', 4.00, '1', '1', '1', '1', '1', '1', '1', 'Afghanistan', '1', '2', '2', '2', '2', '2', '2', '2', 'Afghanistan', '2', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00'),
+('ORD200904A0015', '', '', '', '', '', '', '', '', 0.00, '', 0.00, '', 0.00, '', 0.00, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '2009-04-13 14:36:55', '', '0000-00-00 00:00:00'),
+('ORD200904A0016', '', '', '', '', '', '', '', '', 0.00, '', 0.00, '', 0.00, '', 0.00, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '2009-04-13 14:37:11', '', '0000-00-00 00:00:00'),
+('ORD200904A0017', '', '', '', '', '', '', '', '', 0.00, '', 0.00, '', 0.00, '', 0.00, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'admin', '2009-04-13 14:57:12', '', '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -851,7 +861,7 @@ CREATE TABLE IF NOT EXISTS `qo_orders_detail` (
   `ebayOrderId` varchar(20) NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `ordersId` (`ordersId`,`skuId`,`itemId`,`ebayTranctionId`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=112 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=113 ;
 
 --
 -- Dumping data for table `qo_orders_detail`
@@ -867,7 +877,8 @@ INSERT INTO `qo_orders_detail` (`id`, `ordersId`, `skuId`, `skuTitle`, `itemId`,
 (100, 'ORD200903A0054', '', '', '110038587274', 'FixedPriceItem_5', 1, '', 'USD', 24.99, '23804686001', ''),
 (101, 'ORD200903A0054', '', '', '110038587365', 'FixedPriceItem_6', 1, '', 'USD', 24.99, '23804717001', ''),
 (102, 'ORD200903A0054', '', '', '110038587418', 'FixedPriceItem_7', 1, '', 'USD', 24.99, '23804749001', ''),
-(103, 'ORD200903A0054', '', '', '110038600875', 'FixedPriceItem_8', 1, '', 'USD', 24.99, '23807868001', '');
+(103, 'ORD200903A0054', '', '', '110038600875', 'FixedPriceItem_8', 1, '', 'USD', 24.99, '23807868001', ''),
+(112, 'ORD200904A0014', '3', '4', '1', '2', 6, '', 'USD', 5.00, '', '');
 
 -- --------------------------------------------------------
 
@@ -934,7 +945,7 @@ CREATE TABLE IF NOT EXISTS `qo_privileges_has_module_actions` (
   `qo_privileges_id` int(11) unsigned default NULL,
   `qo_modules_actions_id` int(11) unsigned default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=58 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=64 ;
 
 --
 -- Dumping data for table `qo_privileges_has_module_actions`
@@ -993,7 +1004,13 @@ INSERT INTO `qo_privileges_has_module_actions` (`id`, `qo_privileges_id`, `qo_mo
 (54, 3, 51),
 (55, 4, 52),
 (56, 5, 53),
-(57, 5, 54);
+(57, 5, 54),
+(58, 4, 55),
+(59, 4, 56),
+(60, 5, 57),
+(61, 5, 58),
+(62, 4, 59),
+(63, 4, 60);
 
 -- --------------------------------------------------------
 
@@ -1033,7 +1050,7 @@ INSERT INTO `qo_sessions` (`id`, `qo_members_id`, `qo_groups_id`, `ip`, `date`) 
 ('057624e5f0f1fbac09618d6d636d8258', 4, 1, '127.0.0.1', '2009-04-04 19:05:27'),
 ('a814a4c868d36d0dd652aeb9b5ae8e7f', 4, 1, '127.0.0.1', '2009-04-05 02:08:39'),
 ('5b8e8556c8d4e940038916c8e7eca03a', 4, 1, '127.0.0.1', '2009-04-08 19:25:06'),
-('4f5997c5475feb3161faac35779946fe', 4, 1, '127.0.0.1', '2009-04-08 19:41:22'),
+('ee686db96b94aabecf96fdf087996d51', 4, 1, '127.0.0.1', '2009-04-13 14:57:00'),
 ('f431405ed31fa4f69cc0e6d1134e308e', 3, 3, '127.0.0.1', '2009-04-08 20:58:04'),
 ('7e4f0c23f8112a5b27ee1bc98e6d5aca', 3, 3, '127.0.0.1', '2009-04-08 20:58:37'),
 ('2013036a6d95b175009bc2af1d959318', 3, 3, '127.0.0.1', '2009-04-08 20:59:40'),
@@ -1106,17 +1123,18 @@ CREATE TABLE IF NOT EXISTS `qo_shipments_detail` (
   `itemId` varchar(150) NOT NULL,
   `itemTitle` varchar(255) NOT NULL,
   `quantity` int(11) NOT NULL,
+  `barCode` varchar(20) NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `shipmentsId` (`shipmentsId`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
 
 --
 -- Dumping data for table `qo_shipments_detail`
 --
 
-INSERT INTO `qo_shipments_detail` (`id`, `shipmentsId`, `skuId`, `skuTitle`, `itemId`, `itemTitle`, `quantity`) VALUES
-(1, 'SHI200903A0001', 'a09030600ux0052', '1', '2', '2', 1),
-(2, 'SHI200903A0001', 'a09032500ux0136', 'a09032500ux0136', 'a09032500ux0136', 'a09032500ux0136', 1);
+INSERT INTO `qo_shipments_detail` (`id`, `shipmentsId`, `skuId`, `skuTitle`, `itemId`, `itemTitle`, `quantity`, `barCode`) VALUES
+(1, 'SHI200903A0001', 'a09030600ux0052', '1', '2', '2', 1, ''),
+(2, 'SHI200903A0001', 'a09032500ux0136', 'a09032500ux0136', 'a09032500ux0136', 'a09032500ux0136', 1, '');
 
 -- --------------------------------------------------------
 
@@ -1207,9 +1225,10 @@ CREATE TABLE IF NOT EXISTS `qo_transactions` (
 --
 
 INSERT INTO `qo_transactions` (`id`, `txnId`, `transactionTime`, `amountCurrency`, `amountValue`, `status`, `remarks`, `createdBy`, `createdOn`, `modifiedBy`, `modifiedOn`, `payeeId`, `payerId`, `payerName`, `payerEmail`, `payerAddressLine1`, `payerAddressLine2`, `payerCity`, `payerStateOrProvince`, `payerPostalCode`, `payerCountry`, `itemId`) VALUES
-('TRA200904A0041', '2541169', '2009-04-01 16:09:25', 'USD', 49.99, 'P', '', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', 'testuser_heshuai04', 'testuser_heshuai05', 'John Smith', 'buyer@paypalsandbox.com', '123, any street', '', 'San Jose', 'CA', '95131', 'United States', '110038450903,110038436041'),
+('TRA200904A0041', '2541169', '2009-04-01 16:09:25', 'USD', 49.99, 'P', 'test', '', '0000-00-00 00:00:00', 'admin', '2009-04-13 17:05:41', 'testuser_heshuai04', 'testuser_heshuai05', 'John Smith', 'buyer@paypalsandbox.com', '123, any street', '', 'San Jose', 'CA', '95131', 'United States', '110038450903,110038436041'),
 ('TRA200904A0051', '222', '2009-04-05 00:00:00', 'EUR', 222.00, 'D', '', '', '2009-04-04 19:06:23', '', '0000-00-00 00:00:00', '22', '222', '2', '22', '2', '22', '22', '2222', '22', '', ''),
-('TRA200904A0050', '1', '2009-04-05 00:00:00', 'GBP', 11.00, 'N', '', '', '2009-04-04 18:40:14', '', '0000-00-00 00:00:00', 'testuser_heshuai04', 'testuser_heshuai05', '1111111111', '11111111111', '111111111111', '1111111111', '11111111111', '11111111111111111', '111111', '', '');
+('TRA200904A0050', '1', '2009-04-05 00:00:00', 'GBP', 11.00, 'N', '', '', '2009-04-04 18:40:14', '', '0000-00-00 00:00:00', 'testuser_heshuai04', 'testuser_heshuai05', '1111111111', '11111111111', '111111111111', '1111111111', '11111111111', '11111111111111111', '111111', '', ''),
+('TRA200904A0004', '1', '0000-00-00 00:00:00', 'USD', 3.00, 'P', '4', 'admin', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', 'TESTUSER_heshuai04', '5', '6', '7', '8', '9', '10', '11', '12', 'Afghanistan', '');
 
 -- --------------------------------------------------------
 
@@ -1253,11 +1272,11 @@ INSERT INTO `qo_wallpapers` (`id`, `name`, `author`, `url`, `path_to_thumbnail`,
 --
 
 CREATE TABLE IF NOT EXISTS `sequence` (
-  `type` varchar(3) NOT NULL,
-  `curType` char(1) NOT NULL,
-  `curDate` varchar(6) NOT NULL,
-  `curId` int(11) NOT NULL,
-  PRIMARY KEY  (`curType`,`curDate`)
+  `type` varchar(3) NOT NULL default '',
+  `curType` char(1) NOT NULL default '',
+  `curDate` varchar(6) NOT NULL default '',
+  `curId` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`type`,`curDate`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
@@ -1265,5 +1284,6 @@ CREATE TABLE IF NOT EXISTS `sequence` (
 --
 
 INSERT INTO `sequence` (`type`, `curType`, `curDate`, `curId`) VALUES
-('ORD', 'A', '200903', 54),
-('TRA', 'A', '200904', 51);
+('ORD', 'A', '200904', 17),
+('TRA', 'A', '200904', 4),
+('SHI', 'A', '200904', 2);
