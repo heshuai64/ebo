@@ -445,48 +445,19 @@
             buttons: [{
                         text: 'Save',
                         handler: function(){
-                            Ext.Ajax.request({
-                                waitMsg: 'Please wait...',
-                                url: 'connect.php?moduleId=qo-transactions&action=saveTransactionInfo',
-                                params: {
-                                        id: '<?=$_GET['id']?>',
-                                        payeeId: transactionDetailForm.form.findField('payeeId').getValue(),
-                                        amountCurrency: transactionDetailForm.form.findField('amountCurrency').getValue(),
-                                        amountValue: transactionDetailForm.form.findField('amountValue').getValue(),
-                                        status: transactionDetailForm.form.findField('status').getValue(),
-                                        remarks: transactionDetailForm.form.findField('remarks').getValue(),
-                                        txnId: transactionDetailForm.form.findField('txnId').getValue(),
-                                        payerId: transactionDetailForm.form.findField('payerId').getValue(),
-                                        payerName: transactionDetailForm.form.findField('payerName').getValue(),
-                                        payerEmail: transactionDetailForm.form.findField('payerEmail').getValue(),
-                                        payerAddressLine1: transactionDetailForm.form.findField('payerAddressLine1').getValue(),
-                                        payerAddressLine2: transactionDetailForm.form.findField('payerAddressLine2').getValue(),
-                                        payerCity: transactionDetailForm.form.findField('payerCity').getValue(),
-                                        paypalAddress1: transactionDetailForm.form.findField('paypalAddress1').getValue(),
-                                        paypalAddress2: transactionDetailForm.form.findField('paypalAddress2').getValue(),
-                                        paypalCity: transactionDetailForm.form.findField('paypalCity').getValue(),
-                                        payerStateOrProvince: transactionDetailForm.form.findField('payerStateOrProvince').getValue(),
-                                        payerPostalCode: transactionDetailForm.form.findField('payerPostalCode').getValue(),
-                                        payerCountry: transactionDetailForm.form.findField('payerCountry').getValue(),
-                                        paypalPhone: transactionDetailForm.form.findField('paypalPhone').getValue()
-                                },
-                                success: function(response){
-                                        var result = eval(response.responseText);
-                                        switch (result) {
-                                            case 1:
-                                                
-                                            break;
-                                        
-                                            default:
-                                                Ext.MessageBox.alert('Uh uh...', 'We couldn\'t save him...');
-                                            break;
-                                        }
-                                },
-                                failure: function(response){
-                                        var result = response.responseText;
-                                        Ext.MessageBox.alert('error', 'could not connect to the database. retry later');
-                                }
-                            });	
+                                transactionDetailForm.getForm().submit({
+                                           url: "connect.php?moduleId=qo-transactions&action=updateTransaction",
+                                           success: function(f, a){
+                                               //console.log(a);
+                                               var response = Ext.decode(a.response.responseText);
+                                               if(response.success){
+                                                       Ext.Msg.alert('Success', 'Update transactions success.');
+                                               }else{
+                                                       Ext.Msg.alert('Failure', 'Update transactions failure.');
+                                               }
+                                           },
+                                           waitMsg: "Please wait..."
+                                });
                         }
                     },{
                         text: 'Close',
@@ -495,7 +466,7 @@
                         }
                     }
             ]
-    })
+        })
     
         transactionDetailForm.getForm().load({url:'connect.php?moduleId=qo-transactions&action=getTransactionInfo', 
                 method:'GET', 
@@ -504,7 +475,7 @@
             }
         );
     
-    transactionDetailForm.render(document.body);
+        transactionDetailForm.render(document.body);
     </script>
 </body>
 </html>

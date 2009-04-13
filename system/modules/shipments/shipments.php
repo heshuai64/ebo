@@ -154,7 +154,7 @@ class QoShipments {
 		$result = mysql_query($sql);
 		$row = mysql_fetch_assoc($result);
 		if($row['status'] == "N"){
-			$sql = "update qo_shipments set status='K',packedBy='',packedOn='".date("Y-m-d H:i:s")."' where id='".$_POST['id']."'";
+			$sql = "update qo_shipments set status='K',packedBy='".$this->os->session->get_member_name()."',packedOn='".date("Y-m-d H:i:s")."' where id='".$_POST['id']."'";
 			$result = mysql_query($sql);
 			if($result){
 				echo "{success: true,info:'\'<font color=\'green\'>Operation Successfully</font>'}"; 

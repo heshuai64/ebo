@@ -7,6 +7,34 @@ class QoTransactions {
 		$this->os = $os;
 	}
         
+	public function getTransactionId(){
+		$type = 'TRA';
+		$today = date("Ym");
+		$sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
+		$result = mysql_query($sql);
+		$row = mysql_fetch_assoc($result);
+	       
+		if($row["curId"] >=9999){
+		    // A-Z 66-91
+		    $curType = chr(ord($row["curType"]) + 1);
+		    $sql = "update  sequence  set curId = 1,curType='$curType' where curDate='$today' and type='$type'";
+		    mysql_query($sql);
+		}elseif($row["curId"] < 1 || $row["curId"] == null) {
+		      $sql = "insert into sequence (type,curType,curDate,curId) value ('$type','A','$today',1)";
+		      mysql_query($sql);
+		}else {   
+		    $sql = "update sequence set curId = curId + 1 where curDate='$today' and type='$type'";
+		    $result = mysql_query($sql);
+		}
+	       
+		$sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
+		$result = mysql_query($sql);
+		$row = mysql_fetch_assoc($result);
+		$TransactionId = $type.$today.$row["curType"].str_repeat("0",(4-strlen($row["curId"]))).$row["curId"];   
+		echo $TransactionId;
+		return $TransactionId;
+	}
+	
         public function searchTransaction(){
 		$where = " 1 = 1 ";
                 
@@ -95,8 +123,42 @@ class QoTransactions {
 		mysql_free_result($result);
         }
 	
-	public function saveTransactionInfo(){
-		
+	public function createTransaction(){
+		$sql = "insert into qo_transactions (id,txnId,transactionTime,amountCurrency,amountValue,status,
+		remarks,createdBy,createdOn,payeeId,payerId,payerName,payerEmail,payerAddressLine1,payerAddressLine2,
+		payerCity,payerStateOrProvince,payerPostalCode,payerCountry) values ('".$_POST['id']."',
+		'".$_POST['txnId']."','".$_POST['transactionTime']."','".$_POST['amountCurrency']."','".$_POST['amountValue']."',
+		'".$_POST['status']."','".$_POST['remarks']."','".$this->os->session->get_member_name()."','".date("Y-m-d H:i:s")."',
+		'".$_POST['payeeId']."','".$_POST['payerId']."','".$_POST['payerName']."','".$_POST['payerEmail']."',
+		'".$_POST['payerAddressLine1']."','".$_POST['payerAddressLine2']."','".$_POST['payerCity']."','".$_POST['payerStateOrProvince']."',
+		'".$_POST['payerPostalCode']."','".$_POST['payerCountry']."')";
+		$result = mysql_query($sql);
+		if($result){
+			echo 	'{success: true}';
+			
+		}else{
+			echo 	'{success: false,
+				  errors: {message: "can\'t create."}
+				}';
+		}
+	}
+	
+	public function updateTransaction(){
+		$sql = "update qo_transactions set txnId='".$_POST['txnId']."',transactionTime='".$_POST['transactionTime']."',
+		amountCurrency='".$_POST['amountCurrency']."',amountValue='".$_POST['amountValue']."',status='".$_POST['status']."',remarks='".$_POST['remarks']."',
+		modifiedBy='".$this->os->session->get_member_name()."',modifiedOn='".date("Y-m-d H:i:s")."',payeeId='".$_POST['payeeId']."',payerId='".$_POST['payerId']."',
+		payerName='".$_POST['payerName']."',payerEmail='".$_POST['payerEmail']."',payerAddressLine1='".$_POST['payerAddressLine1']."',payerAddressLine2='".$_POST['payerAddressLine2']."',
+		payerCity='".$_POST['payerCity']."',payerStateOrProvince='".$_POST['payerStateOrProvince']."',payerPostalCode='".$_POST['payerPostalCode']."',payerCountry='".$_POST['payerCountry']."'
+		where id='".$_POST['id']."'";
+		$result = mysql_query($sql);
+		if($result){
+			echo 	'{success: true}';
+			
+		}else{
+			echo 	'{success: false,
+				  errors: {message: "can\'t create."}
+				}';
+		}
 	}
 	
 	public function getTransactionOrder(){
@@ -147,7 +209,7 @@ class QoTransactions {
 		$sql = "insert into qo_orders_transactions (ordersId,transactionsId,status,amountPayCurrency,amountPayValue,
 			createdBy,createdOn) values ('".$_POST['ordersId']."','".$_POST['transactionsId']."',
 			'A','".$_POST['amountCurrency']."','".$_POST['amountValue']."',
-			'','".date("Y-m-d H:i:s")."')";
+			'".$this->os->session->get_member_name()."','".date("Y-m-d H:i:s")."')";
 		$result = mysql_query($sql);
 		echo $result;
 	}

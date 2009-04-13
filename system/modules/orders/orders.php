@@ -7,7 +7,7 @@ class QoOrders {
 		$this->os = $os;
 	}
         
-	private function getOrderId(){
+	public function getOrderId(){
             $type = 'ORD';
             $today = date("Ym");
             $sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
@@ -30,7 +30,8 @@ class QoOrders {
             $sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
             $result = mysql_query($sql);
             $row = mysql_fetch_assoc($result);
-            $orderId = $type.$today.$row["curType"].str_repeat("0",(4-strlen($row["curId"]))).$row["curId"];   
+            $orderId = $type.$today.$row["curType"].str_repeat("0",(4-strlen($row["curId"]))).$row["curId"];
+	    echo $orderId;
             return $orderId;
         }
 	
@@ -137,6 +138,33 @@ class QoOrders {
 		mysql_free_result($result);
 	}
 	
+	public function createOrder(){
+		$sql = "insert into qo_orders (id,status,shippingMethod,remarks,sellerId,buyerId,
+		shippingFeeCurrency,shippingFeeValue,insuranceCurrency,insuranceValue,
+		discountCurrency,discountValue,grandTotalCurrency,grandTotalValue,
+		ebayName,ebayEmail,ebayAddress1,ebayAddress2,ebayCity,ebayStateOrProvince,ebayPostalCode,
+		ebayCountry,ebayPhone,paypalName,paypalEmail,paypalAddress1,paypalAddress2,paypalCity,paypalStateOrProvince,
+		paypalPostalCode,paypalCountry,paypalPhone,createdBy,createdOn) values ('".$_POST['id']."','".$_POST['status']."',
+		'".$_POST['shippingMethod']."','".$_POST['remarks']."','".$_POST['sellerId']."','".$_POST['buyerId']."',
+		'".$_POST['shippingFeeCurrency']."','".$_POST['shippingFeeValue']."','".$_POST['insuranceCurrency']."','".$_POST['insuranceValue']."',
+		'".$_POST['discountCurrency']."','".$_POST['discountValue']."','".$_POST['grandTotalCurrency']."','".$_POST['grandTotalValue']."',
+		'".$_POST['ebayName']."','".$_POST['ebayEmail']."','".$_POST['ebayAddress1']."','".$_POST['ebayAddress2']."',
+		'".$_POST['ebayCity']."','".$_POST['ebayStateOrProvince']."','".$_POST['ebayPostalCode']."','".$_POST['ebayCountry']."',
+		'".$_POST['ebayPhone']."','".$_POST['paypalName']."','".$_POST['paypalEmail']."','".$_POST['paypalAddress1']."',
+		'".$_POST['paypalAddress2']."','".$_POST['paypalCity']."','".$_POST['paypalStateOrProvince']."','".$_POST['paypalPostalCode']."',
+		'".$_POST['paypalCountry']."','".$_POST['paypalPhone']."','".$this->os->session->get_member_name()."','".date("Y-m-d H:i:s")."')";
+		$result = mysql_query($sql);
+		if($result){
+			echo 	'{success: true}';
+			
+		}else{
+			echo 	'{success: false,
+				  errors: {message: "can\'t create."}
+				}';
+		}
+		
+	}
+	
 	public function updateOrder(){
 		$sql = "update qo_orders set status='".$_POST['status']."',shippingMethod='".$_POST['shippingMethod']."',
 		remarks='".$_POST['remarks']."',sellerId='".$_POST['sellerId']."',buyerId='".$_POST['buyerId']."',
@@ -150,7 +178,7 @@ class QoOrders {
 		paypalName='".$_POST['paypalName']."',paypalEmail='".$_POST['paypalEmail']."',paypalAddress1='".$_POST['paypalAddress1']."',
 		paypalAddress2='".$_POST['paypalAddress2']."',paypalCity='".$_POST['paypalCity']."',paypalStateOrProvince='".$_POST['paypalStateOrProvince']."',
 		paypalPostalCode='".$_POST['paypalPostalCode']."',paypalCountry='".$_POST['paypalCountry']."',paypalPhone='".$_POST['paypalPhone']."',
-		modifiedBy='',modifiedOn='".date("Y-m-d H:i:s")."' 
+		modifiedBy='".$this->os->session->get_member_name()."',modifiedOn='".date("Y-m-d H:i:s")."' 
 		where id = '".$_POST['id']."'";
 		//$result = mysql_query($sql);
 		//echo $sql;
@@ -192,7 +220,7 @@ class QoOrders {
 		createdBy,createdOn,payeeId,payerId,payerName,payerEmail,payerAddressLine1,payerAddressLine2,payerCity,
 		payerStateOrProvince,payerPostalCode,payerCountry) values ('".$transactionId."','".$_POST['txnId']."',
 		'".$_POST['transactionTime']."','".$_POST['amountCurrency']."','".$_POST['amountValue']."','".$_POST['status']."',
-		'".$_POST['remarks']."','','".date("Y-m-d H:i:s")."','".$_POST['payeeId']."','".$_POST['payerId']."',
+		'".$_POST['remarks']."','".$this->os->session->get_member_name()."','".date("Y-m-d H:i:s")."','".$_POST['payeeId']."','".$_POST['payerId']."',
 		'".$_POST['payerName']."','".$_POST['payerEmail']."','".$_POST['payerAddressLine1']."','".$_POST['payerAddressLine2']."',
 		'".$_POST['payerCity']."','".$_POST['payerStateOrProvince']."','".$_POST['payerPostalCode']."','".$_POST['payerCountry']."')";
 		$result = mysql_query($sql);
@@ -200,7 +228,7 @@ class QoOrders {
 			$sql = "insert into qo_orders_transactions (ordersId,transactionsId,status,amountPayCurrency,amountPayValue,
 			createdBy,createdOn) values ('".$_POST['ordersId']."','".$transactionId."',
 			'A','".$_POST['amountCurrency']."','".$_POST['amountValue']."',
-			'','".date("Y-m-d H:i:s")."')";
+			'".$this->os->session->get_member_name()."','".date("Y-m-d H:i:s")."')";
 			$result = mysql_query($sql);
 			echo $result;
 		}else{
@@ -263,7 +291,7 @@ class QoOrders {
 		$sql = "insert into qo_orders_transactions (ordersId,transactionsId,status,amountPayCurrency,amountPayValue,
 			createdBy,createdOn) values ('".$_POST['ordersId']."','".$_POST['transactionId']."',
 			'A','".$_POST['amountCurrency']."','".$_POST['amountValue']."',
-			'','".date("Y-m-d H:i:s")."')";
+			'".$this->os->session->get_member_name()."','".date("Y-m-d H:i:s")."')";
 		$result = mysql_query($sql);
 		echo $result;
 		
