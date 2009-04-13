@@ -382,9 +382,9 @@
                                                 //console.log(a);
                                                 var response = Ext.decode(a.response.responseText);
                                                 if(response.success){
-                                                        Ext.Msg.alert('Success', 'Create transactions success.');
+                                                        Ext.Msg.alert('Success', 'Transaction Create Successfully!');
                                                 }else{
-                                                        Ext.Msg.alert('Failure', 'Create transactions failure.');
+                                                        Ext.Msg.alert('Failure', 'Transaction Create Failed!');
                                                 }
                                             },
                                             waitMsg: "Please wait..."

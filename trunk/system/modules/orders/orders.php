@@ -62,6 +62,33 @@ class QoOrders {
             return $TransactionId;
         }
 	
+	private function getShipmentId(){
+            $type = 'SHI';
+            $today = date("Ym");
+            $sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
+            $result = mysql_query($sql);
+            $row = mysql_fetch_assoc($result);
+           
+            if($row["curId"] >=9999){
+                // A-Z 66-91
+                $curType = chr(ord($row["curType"]) + 1);
+                $sql = "update  sequence  set curId = 1,curType='$curType' where curDate='$today' and type='$type'";
+                mysql_query($sql);
+            }elseif($row["curId"] < 1 || $row["curId"] == null) {
+                  $sql = "insert into sequence (type,curType,curDate,curId) value ('$type','A','$today',1)";
+                  mysql_query($sql);
+            }else {   
+                $sql = "update sequence set curId = curId + 1 where curDate='$today' and type='$type'";
+                $result = mysql_query($sql);
+            }
+           
+            $sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
+            $result = mysql_query($sql);
+            $row = mysql_fetch_assoc($result);
+            $ShipmentId = $type.$today.$row["curType"].str_repeat("0",(4-strlen($row["curId"]))).$row["curId"];   
+            return $ShipmentId;
+        }
+	
 	public function searchOrder(){
 		$where = " 1 = 1 ";
 		
@@ -257,6 +284,48 @@ class QoOrders {
 			echo $result;
 		}
 		*/
+	}
+	
+	public function addOrderShipment(){
+		$shipmentId = $this->getShipmentId();
+		$sql = "select id,shippingMethod,shippingFeeCurrency,shippingFeeValue,ebayName,ebayEmail,ebayAddress1,ebayAddress2,ebayCity,ebayStateOrProvince,ebayPostalCode,ebayCountry,ebayPhone from qo_orders where id='".$_POST['id']."'";
+		$result = mysql_query($sql);
+		$row = mysql_fetch_assoc($result);
+		$sql = "insert into qo_shipments (id,ordersId,shippingMethod,status,shippingFeeCurrency,shippingFeeValue,shipToName,
+		shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,
+		shipToCountry,shipToPhoneNo,createdBy,createdOn,modifiedBy,modifiedOn) values ('".$shipmentId."','".$row['id']."','".$row['shippingMethod']."'
+		'N','".$row['shippingFeeCurrency']."','".$row['shippingFeeValue']."','".$row['ebayName']."',
+		'".$row['ebayEmail']."','".$row['ebayAddress1']."','".$row['ebayAddress2']."','".$row['ebayCity']."',
+		'".$row['ebayStateOrProvince']."','".$row['ebayPostalCode']."','".$row['ebayCountry']."','".$row['ebayPhone']."',
+		'".$this->os->session->get_member_name()."','".date("Y-m-d H:i:s")."','".$this->os->session->get_member_name()."','".date("Y-m-d H:i:s")."')";
+		$result = mysql_query($sql);
+		
+		if($result){
+			$sql_1 = "select skuId,skuTitle,itemId,itemTitle,quantity,barCode from qo_orders_detail where ordersId = '".$_POST['id']."'";
+			$result_1 = mysql_query($sql_1);
+			while($row_1 = mysql_fetch_assoc($result_1)){
+				$sql_1 = "insert into qo_shipments_detail (shipmentsId,skuId,skuTitle,itemId,itemTitle,quantity,barCode) values
+				('".$shipmentId."','".$row_1['skuId']."','".$row_1['skuTitle']."','".$row_1['itemId']."','".$row_1['itemTitle']."',
+				'".$row_1['quantity']."','".$row_1['barCode']."')";
+				$result_1 = mysql_query($sql_1);
+			}
+		}
+		echo $result;
+	}
+	
+	public function deleteOrderShipment(){
+		$shipment_id_array = explode(",", $_POST['ids']);
+		foreach($shipment_id_array as $shipment_id){
+			$sql = "delete from qo_shipments where id = '".$shipment_id."'";
+			$result = mysql_query($sql);
+			
+			if($result){
+				$sql_1 = "delete from qo_shipments_detail where shipmentsId = '".$shipment_id."'";
+				$result_1 = mysql_query($sql_1);
+			}
+		}
+		echo $result;
+		
 	}
 	
 	public function readMapOrderTransaction(){
