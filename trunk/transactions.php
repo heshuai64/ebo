@@ -205,6 +205,7 @@
                         items:[{
                             xtype:"textfield",
                             fieldLabel:"Transaction Id",
+                            readOnly:true,
                             name:"id"
                           },{
                             xtype:"textfield",
@@ -213,6 +214,7 @@
                           },{
                             xtype:"textfield",
                             fieldLabel:"Transaction Time",
+                            readOnly:true,
                             name:"transactionTime"
                           },{
                             xtype: 'combo',

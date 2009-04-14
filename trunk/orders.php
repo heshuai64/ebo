@@ -345,10 +345,21 @@
                                                 fieldLabel:"Reference No",
                                                 name:"txnId"
                                               },{
-                                                xtype:"combo",
+                                                xtype: 'combo',
                                                 fieldLabel:"Payee ID",
-                                                name:"payeeId",
-                                                hiddenName:"payeeId"
+                                                mode: 'local',
+                                                store: new Ext.data.JsonStore({
+                                                    autoLoad: true,
+                                                    fields: ['id', 'name'],
+                                                    url: "connect.php?moduleId=qo-transactions&action=getSeller"
+                                                }),
+                                                valueField:'id',
+                                                displayField:'name',
+                                                triggerAction: 'all',
+                                                editable: false,
+                                                selectOnFocus:true,
+                                                name: 'payeeId',
+                                                hiddenName:'payeeId'
                                               },{
                                                 xtype:"textfield",
                                                 fieldLabel:"Payer ID",
@@ -361,19 +372,39 @@
                                                     layout:"form",
                                                     border:false,
                                                     items:[{
+                                                        /*
+                                                            xtype:'combo',
+                                                            store: new Ext.data.SimpleStore({
+                                                                fields: ["id", "name"],
+                                                                data: lang.orders.currency
+                                                            }),
+                                                            listWidth: 50,
+                                                            width: 50,			  
+                                                            mode: 'local',
+                                                            valueField: 'id',
+                                                            displayField: 'name',
+                                                            triggerAction: 'all',
+                                                            editable: false,
+                                                            selectOnFocus:true,
+                                                            fieldLabel: 'Amount',
+                                                            id: 'amountCurrency',
+                                                            name: 'amountCurrency',
+                                                            hiddenName:'amountCurrency'
+                                                        */   
                                                             xtype:'combo',
                                                             store: new Ext.data.SimpleStore({
                                                                 fields: ["amountCurrencyValue", "amountCurrencyName"],
                                                                 data: lang.orders.currency
                                                             }),
-                                                            listWidth: 50,
-                                                            width: 50,			  
+                                                            listWidth: 60,
+                                                            width: 60,			  
                                                             mode: 'local',
                                                             displayField: 'amountCurrencyName',
                                                             valueField: 'amountCurrencyValue',
                                                             triggerAction: 'all',
                                                             editable: false,
                                                             fieldLabel: 'Amount',
+                                                            id: 'amountCurrency',
                                                             name: 'amountCurrency',
                                                             hiddenName:'amountCurrency'
                                                         }]
@@ -386,6 +417,7 @@
                                                             xtype:"textfield",
                                                             fieldLabel:"",
                                                             width:100,
+                                                            id: 'amountValue',
                                                             name:"amountValue",
                                                             labelSeparator:""
                                                           }]
@@ -447,19 +479,21 @@
                                                 fieldLabel:"Postal Code/Zip",
                                                 name:"payerPostalCode"
                                               },{
-                                                    xtype:'combo',
-                                                    store: new Ext.data.SimpleStore({
-                                                        fields: ["countryValue", "countryName"]
-                                                        //data: countries
-                                                    }),
+                                                    xtype: 'combo',
+                                                    fieldLabel:"Country",
                                                     listWidth: 160,
-                                                    width: 160,			  
+                                                    width: 160,	
                                                     mode: 'local',
-                                                    displayField: 'countryName',
-                                                    valueField: 'countryValue',
+                                                    store: new Ext.data.JsonStore({
+                                                        autoLoad: true,
+                                                        fields: ['id', 'name'],
+                                                        url: "connect.php?moduleId=qo-transactions&action=getCountries"
+                                                    }),
+                                                    valueField:'id',
+                                                    displayField:'name',
                                                     triggerAction: 'all',
                                                     editable: false,
-                                                    fieldLabel: 'Courtry',
+                                                    selectOnFocus:true,
                                                     name: 'payerCountry',
                                                     hiddenName:'payerCountry'
                                           }]
@@ -486,8 +520,8 @@
                                                                 txnId: add_order_transaction_form.form.findField('txnId').getValue(),
                                                                 payeeId: add_order_transaction_form.form.findField('payeeId').getValue(),
                                                                 payerId: add_order_transaction_form.form.findField('payerId').getValue(),
-                                                                amountCurrency: add_order_transaction_form.form.findField('amountCurrency').getValue(),
-                                                                amountValue: add_order_transaction_form.form.findField('amountValue').getValue(),
+                                                                amountCurrency: document.getElementById('amountCurrency').value,
+                                                                amountValue: document.getElementById('amountValue').value,
                                                                 status: add_order_transaction_form.form.findField('status').getValue(),
                                                                 transactionTime: add_order_transaction_form.form.findField('transactionTime').getValue(),
                                                                 payerName: add_order_transaction_form.form.findField('payerName').getValue(),
@@ -806,6 +840,7 @@
                                 items:[{
                                     xtype:"textfield",
                                     fieldLabel:lang.orders.form_orders_id,
+                                    readOnly:true,
                                     name:"id"
                                   },{
                                     layout:"table",
@@ -1180,9 +1215,9 @@
                                             success: function(f, a){
                                                 var response = Ext.decode(a.response.responseText);
                                                 if(response.success){
-                                                        Ext.Msg.alert('Success', 'Update orders success.');
+                                                        Ext.Msg.alert('Success', 'Update orders success!');
                                                 }else{
-                                                        Ext.Msg.alert('Failure', 'Update orders failure.');
+                                                        Ext.Msg.alert('Failure', 'Update orders failure!');
                                                 }
                                             },
                                             waitMsg: "Please wait..."
