@@ -141,15 +141,35 @@ Ext.override(QoDesk.Transactions, {
                                     fieldLabel:lang.transactions.form_orders_id,
                                     name:"ordersId"
                                   },{
-                                    xtype:"combo",
+                                    xtype: 'combo',
                                     fieldLabel:lang.transactions.form_payee_id,
-                                    name:"payeeId",
-                                    hiddenName:"payeeId"
+                                    mode: 'local',
+                                    store: new Ext.data.JsonStore({
+                                        autoLoad: true,
+                                        fields: ['id', 'name'],
+                                        url: "connect.php?moduleId=qo-transactions&action=getSeller"
+                                    }),
+                                    valueField:'id',
+                                    displayField:'name',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    selectOnFocus:true,
+                                    name: 'payeeId',
+                                    hiddenName:'payeeId'
                                   },{
-                                    xtype:"combo",
-                                    fieldLabel:lang.transactions.form_status,
-                                    name:"status",
-                                    hiddenName:"status"
+                                    xtype:'combo',
+                                    fieldLabel: lang.transactions.form_status,
+                                    store: new Ext.data.SimpleStore({
+                                        fields: ["statusValue", "statusName"],
+                                        data: lang.transactions.transactions_status
+                                    }),		  
+                                    mode: 'local',
+                                    displayField: 'statusName',
+                                    valueField: 'statusValue',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    name: 'status',
+                                    hiddenName:'status'
                                   }]
                             }]
                           },{
