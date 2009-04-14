@@ -50,7 +50,16 @@ class QoManage {
             $sql = "insert into qo_groups (name,description,active) values
             ('".$_POST['name']."','".$_POST['description']."','".$_POST['active']."')";
             $result = mysql_query($sql);
-            echo $result;
+            $group_id = mysql_insert_id();
+            
+            $sql = "select id from qo_privileges";
+            $result = mysql_query($sql);
+            while($row = mysql_fetch_assoc($result)){
+                $sql_1 = "insert into qo_groups_has_domain_privileges (qo_groups_id,qo_privileges_id) values ('$group_id','".$row['id']."')";
+                $result_1 = mysql_query($sql_1);
+            }  
+            
+            echo "1";
         }
         
         public function updateGroup(){
@@ -63,11 +72,31 @@ class QoManage {
         public function deleteGroup(){
             $sql = "delete from qo_groups where id = '".$_POST['id']."'";
             $result = mysql_query($sql);
+            
+            if($result){
+                $sql = "delete from qo_groups_has_domain_privileges where qo_groups_id = '".$_POST['id']."'";
+                $result = mysql_query($sql);
+            }
             echo $result;
         }
         
         public function getGroupDomainPrivilege(){
             print $this->os->privilege->get_group_domain_privilege();
+        }
+        
+        public function updateGroupPrivilege(){
+            //echo $_GET['data'];
+            $gpa = explode(",", $_GET['data']);
+            foreach($gpa as $gp){
+                //echo $gp."\n";
+                $a = explode("=", $gp);
+                $b = explode("_", $a[0]);
+                $sql = "update qo_groups_has_domain_privileges set is_allowed = '".$a[1]."' where
+                qo_groups_id = '".$b[0]."' and qo_privileges_id = '".$b[1]."'";
+                //echo $sql;
+                $result = mysql_query($sql);
+            }
+            echo "1";
         }
         
         public function getPrivilegeInfo(){

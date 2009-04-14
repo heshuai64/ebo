@@ -260,7 +260,8 @@ Ext.override(QoDesk.Manage, {
 				    id: userForm.form.findField('id').getValue(),
 				    email_address: userForm.form.findField('email_address').getValue(),
 				    password: userForm.form.findField('password').getValue(),
-				    active: userForm.form.findField('active').getValue()
+				    active: userForm.form.findField('active').getValue(),
+				    group_id: userForm.form.findField('group_id').getValue()
 				},
 				success: function(o){
 				    store.reload();
@@ -752,18 +753,18 @@ Ext.override(QoDesk.Manage, {
 					    var p = "";
 					    var test = function(p1){
 						if(p1.checked){
-						    p += p1.id + "=1@";
+						    p += p1.id + "=1,";
 						}else{
-						    p += p1.id + "=0@";
+						    p += p1.id + "=0,";
 						}
 					    }
 					   
 					    Ext.each(Ext.query("input"), test);
-					    console.log(p);
+					    //console.log(p);
 					    
 					    Ext.Ajax.request({
 						waitMsg: 'Please wait...',
-						url: 'connect.php?moduleId=qo-manage&action=saveGroupPrivilege&data='+p,
+						url: 'connect.php?moduleId=qo-manage&action=updateGroupPrivilege&data='+p,
 						success: function(response){
 						    var result = eval(response.responseText);
 						    switch (result) {
