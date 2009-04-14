@@ -149,15 +149,35 @@ Ext.override(QoDesk.Orders, {
                                     fieldLabel:lang.orders.form_orders_id,
                                     name:"id"
                                   },{
-                                    xtype:"combo",
+                                    xtype: 'combo',
                                     fieldLabel:lang.orders.form_seller_id,
-                                    name:"sellerId",
-                                    hiddenName:"sellerId"
+                                    mode: 'local',
+                                    store: new Ext.data.JsonStore({
+                                        autoLoad: true,
+                                        fields: ['id', 'name'],
+                                        url: "connect.php?moduleId=qo-transactions&action=getSeller"
+                                    }),
+                                    valueField:'id',
+                                    displayField:'name',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    selectOnFocus:true,
+                                    name: 'sellerId',
+                                    hiddenName:'sellerId'
                                   },{
                                     xtype:"combo",
                                     fieldLabel:lang.orders.form_status,
-                                    name:"status",
-                                    hiddenName:"status"
+                                    store: new Ext.data.SimpleStore({
+                                        fields: ["id", "name"],
+                                        data: lang.orders.orders_status
+                                    }),
+                                    mode: 'local',
+                                    valueField: 'id',
+                                    displayField: 'name',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    name: 'status',
+                                    hiddenName:'status'
                                   },{
                                     xtype:"textarea",
                                     fieldLabel:lang.orders.form_remarks,

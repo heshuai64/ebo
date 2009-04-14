@@ -104,8 +104,8 @@ class QoOrders {
 			$where .= " and o.remarks like '%".$_POST['remarks']."%'";
 		}
 		
-		if(!empty($_POST['sellerId '])){
-			$where .= " and o.remarks = '".$_POST['sellerId']."'";
+		if(!empty($_POST['sellerId'])){
+			$where .= " and o.sellerId = '".$_POST['sellerId']."'";
 		}
 		
 		if(!empty($_POST['buyerId'])){
@@ -209,8 +209,14 @@ class QoOrders {
 		where id = '".$_POST['id']."'";
 		$result = mysql_query($sql);
 		//echo $sql;
-		echo $result;
-		//print_r(session_id());
+		if($result){
+			echo 	'{success: true}';
+			
+		}else{
+			echo 	'{success: false,
+				  errors: {message: "can\'t create."}
+				}';
+		}
 	}
 	
 	public function getOrderDetail(){
