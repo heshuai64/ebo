@@ -11,7 +11,7 @@ var lang = {
         search_transactions: "Search Transactions",
         form_transactions_id: "Transactions Id",
         form_orders_id: "Orders Id",
-        form_payee_id: "PayPal Payee Account",
+        form_payee_id: "Payee Account",
         form_status: "Payment Status",
         form_txn_id: "Reference Number",
         form_payer_id: "Account",
