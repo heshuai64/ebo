@@ -6,6 +6,8 @@ class PackingList{
     const DATABASE_USER = 'root';
     const DATABASE_PASSWORD = '';
     const DATABASE_NAME = 'ebaybo';
+    const FILE_PATH = '/export/ebayBO/packing/';
+    const BAR_CODE_URL = '/ebayBO/cron/image.php';
     private $sellerSell = array();
     private $sellSku = array();
     private $startTime;
@@ -15,12 +17,12 @@ class PackingList{
     public function __construct(){
         PackingList::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
 
-        if (!PayPal::$database_connect) {
+        if (!PackingList::$database_connect) {
             echo "Unable to connect to DB: " . mysql_error(PackingList::$database_connect);
             exit;
         }
           
-        if (!mysql_select_db(self::DATABASE_NAME, PayPal::$database_connect)) {
+        if (!mysql_select_db(self::DATABASE_NAME, PackingList::$database_connect)) {
             echo "Unable to select mydbname: " . mysql_error(PackingList::$database_connect);
             exit;
         }
@@ -37,7 +39,8 @@ class PackingList{
     }
     
     private function getSellerSell(){
-        $sql = "select sellerId,count(*) as num from qo_orders as o left join qo_shipments as s on o.id = s.ordersId
+        $sql = "select o.sellerId,sum(sd.quantity) as num from qo_orders as o
+        left join qo_shipments as s on o.id = s.ordersId left join qo_shipments_detail as sd on s.id = sd.shipmentsId 
         where s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N' group by o.sellerId";
         $result = mysql_query($sql, PackingList::$database_connect);
         $i= 0;
@@ -49,8 +52,8 @@ class PackingList{
     }
     
     private function getSellSku(){
-        $sql = "select sd.skuId,sd.quantity from qo_shipments as s left join s.id=sd.shipmentsId
-        where s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N'";
+        $sql = "select sd.skuId,sd.quantity from qo_shipments as s left join qo_shipments_detail as sd
+        on s.id=sd.shipmentsId where s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N'";
         $result = mysql_query($sql, PackingList::$database_connect);
         $i= 0;
         $temp_sku = array();
@@ -91,13 +94,38 @@ class PackingList{
         }
     }
 
-    public function generateFile(){
+    private function generateFile($fileName, $content){
+        if(!file_exists(self::FILE_PATH.date("Ymd"))){
+            mkdir(self::FILE_PATH.date("Ymd"), 0700);
+        }
+        
+        $fileName = self::FILE_PATH.date("Ymd").'/packingList.html';
+        
+        if (!$handle = fopen($fileName, 'w')) {
+            echo "not open file $fileName";
+            exit;
+        }
+
+        if (fwrite($handle, $content) === FALSE) {
+            echo "not write into $fileName";
+            exit;
+        }
+                            
+        fclose($handle);
+    }
+    
+    public function getPackingList(){
         $this->getSellerSell();
         $this->getSellSku();
         $this->getShipment();
-        foreach($this->shipment as $shipment){
-            
-        }
+        //print_r($this->sellerSell);
+        //print_r($this->sellSku);
+        //print_r($this->shipment);
+        ob_start();
+        require("template.php");
+        $content = ob_get_contents();
+	ob_end_clean();
+        $this->generateFile('pickinglist',$content);
     }
     
     public function __destruct(){
@@ -106,4 +134,10 @@ class PackingList{
 
 
 }
+
+$packing_list = new PackingList();
+$packing_list->setStartTime("2009-04-01 00:00:00");
+$packing_list->setEndTime("2009-04-14 12:30:00");
+$packing_list->getPackingList();
+
 ?>

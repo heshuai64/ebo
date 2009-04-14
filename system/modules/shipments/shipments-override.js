@@ -316,6 +316,12 @@ Ext.override(QoDesk.Shipments, {
 			    window.open("http://127.0.0.1:6666/ebayBO/packShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=500, height=400");  
 			}
 		    },{
+			text: 'Ship Shipment',
+			handler: function(){
+			    win.close();
+			    window.open("http://127.0.0.1:6666/ebayBO/shipShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=500, height=400");  
+			}
+		    },{
 			text: 'Close',
 			handler: function(){
 			    win.close();

@@ -92,6 +92,8 @@ class eBay{
     const DATABASE_PASSWORD = '';
     const DATABASE_NAME = 'ebaybo';
     const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
+    private $startTime;
+    private $endTime;
     
     public function __construct(){
         eBay::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
@@ -106,6 +108,14 @@ class eBay{
             exit;
         }
        
+    }
+    
+    public function setStartTime($startTime){
+	$this->startTime = $startTime;
+    }
+    
+    public function setEndTime($endTime){
+	$this->endTime = $endTime;
     }
     
     private function configEbay($dev, $app, $cert, $token, $proxy_host, $proxy_port){
@@ -275,6 +285,7 @@ class eBay{
             }
             echo $sql;
             echo "<br><font color='green'>".$transaction->Item->ItemID." create ebay transaction!</font><br><br>";
+	    $this->mapEbayTransaction($id, $transaction);
         }
     }
     
@@ -394,10 +405,43 @@ class eBay{
             }
             echo $sql;
             echo "<br><font color='green'>".$transaction->Item->ItemID." create ebay order!</font><br><br>";
-            
+            $this->mapEbayTransaction($id, $transaction);
         }else{
             $this->AddOrderDetailBySameBuy($transaction, $row['ordersId']);
         }
+    }
+    
+    private function mapEbayTransaction($ordersId, $transaction){
+	$sql = "select id,itemId from qo_transactions where payerId ='".$transaction->Buyer->UserID."' order by transactionTime desc";
+	$result = mysql_query($sql, eBay::$database_connect);
+	while($row = mysql_fetch_assoc($result)){
+		//$itemNumber = explode(" ", $row['itemId']);
+		$itemNumber = "hs".$row['itemId'];
+		$num = 0;
+		$success_num = 0;
+		$sql_1 = "select itemId from qo_orders_detail where ordersId = '".$ordersId."'";
+		$result_1 = mysql_query($sql_1, eBay::$database_connect);
+		while($row_1 = mysql_fetch_assoc($result_1)){
+			if(strpos($itemNumber, $row_1['itemId'])){
+				$success_num++;
+			}
+			$num++;
+		}
+		if($success_num == $num){
+			$sql_2 = "select count(*) as num from qo_orders_transactions where ordersId = '".$ordersId."' and transactionsId = '".$row['id']."'";
+			$result_2 = mysql_query($sql_2, eBay::$database_connect);
+			$row_2 = mysql_fetch_assoc($result_2);
+			if($row_2['num'] == 0){
+				$sql_3 = "insert into qo_orders_transactions (ordersId,transactionsId,status,amountPayCurrency,
+				amountPayValue,createdBy,createdOn,modifiedBy,modifiedOn) values
+				('".$ordersId."','".$row['id']."','A','".$transaction->AmountPaid->currencyID."',
+				'".$transaction->AmountPaid->_."','eBay','".date("Y-m-d H:i:s")."','eBay','".date("Y-m-d H:i:s")."')";
+				echo "map ebay transaction: ",$sql_3."<br>";
+				$result_3 = mysql_query($sql_3, eBay::$database_connect);
+			}
+			break;	
+		}
+	}
     }
     
     public function createOrderFromEbay($ModTimeFrom, $ModTimeTo, $sellerId, $dev, $app, $cert, $token, $proxy_host, $proxy_port){
@@ -443,7 +487,7 @@ class eBay{
 		$result = mysql_query($sql, eBay::$database_connect);
 		while ($row = mysql_fetch_assoc($result)){
 			//authToken   devId  appId  cert  gatewaySOAP
-			$this->createOrderFromEbay("2009-03-16 00:00:00", "2009-03-28 09:30:00", $row['id'], $row['devId'], $row['appId'], $row['cert'], $row['token'], $row['proxy_host'], $row['proxy_port']);
+			$this->createOrderFromEbay($this->startTime, $this->endTime, $row['id'], $row['devId'], $row['appId'], $row['cert'], $row['token'], $row['proxy_host'], $row['proxy_port']);
 		}
     }
     
@@ -483,6 +527,8 @@ if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
     
 }else{
     $test = new eBay();
+    $test->setStartTime = "2009-03-16 00:00:00";
+    $test->setEndTime = "2009-03-28 09:30:00";
     $test->getAllEbayTransaction();
     //$test->GetSellerTransactions('','','AgAAAA**AQAAAA**aAAAAA**FmQISA**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wHlIOnCZaBpAWdj6x9nY+seQ**Q2AAAA**AAMAAA**K5e4SqBc83jVbhFXLTi50I3ptbripiwsQUS3jIeIcDvpmXzELIv5yXhhUp8jB/r9sdMAKZP2GxQB8g85Eq09tNqTWhmSLMGmFRXq3gBeof7enC9Ch4L0JLBf4rSDdyGWkwa8zpnVueMbOwQbExhx1UjkGZXsDfIxO8vU1FaeGW2tLjVkOffg/0NkzrhwQnoR63SeZ/aPkns9sBbaqkGH7VsoYSik0C/pkO8V9gfxJIuIDjRNuOQ6Stx0UWRNnTPyZRZpWDShtsh9horFcmRsB34ZRxxAkaxx3UmskFoqwxNviz1vYrjEqZlbV2KkQsF+iCOT5lu2YdFTeTZ2uv3/PY1zw+J7sdvK3tI4ucKNKTNLbrBIco0XW/ImHhRoNsun4AizgcHP4HQOwzzuwXnc53Z1QqehYQZsOvMCx+cU+Z2zlA/MP6z7NgdCuHdaYRJbYgINxfDxAuxKCnjzyozpgV6Smk/o7dOBAaZKclEEClNAg3xIpjnyamBh4EBUzk0/tYePv5K2PA6nClMu58PWd7HcGcP/X4FCDnxiDbu5ndxcntPfec6ztdC5f2FHDJJ7ACY9PjRdIYWUQBsgwhV6yZs3t0N1SfR5yuy0tW+fOX4Uw4RkPcMbrgHk9H8m5JEae8YaQMfNkuk3TCKwjjEE+25LDFgpbiTAEu4sYs7FxGhBQBr4RbhoLR6TTdnu0xhpvO2vC4lPb6FQmb9vGRaTv3uxdh2xgMJgD7bhAqt+1vnET+xKvGDrvIFp1XxJ7ij2');
     //$test = new eBay();

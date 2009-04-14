@@ -207,10 +207,10 @@ class QoOrders {
 		paypalPostalCode='".$_POST['paypalPostalCode']."',paypalCountry='".$_POST['paypalCountry']."',paypalPhone='".$_POST['paypalPhone']."',
 		modifiedBy='".$this->os->session->get_member_name()."',modifiedOn='".date("Y-m-d H:i:s")."' 
 		where id = '".$_POST['id']."'";
-		//$result = mysql_query($sql);
+		$result = mysql_query($sql);
 		//echo $sql;
-		//echo $result;
-		print_r(session_id());
+		echo $result;
+		//print_r(session_id());
 	}
 	
 	public function getOrderDetail(){
@@ -291,13 +291,14 @@ class QoOrders {
 		$sql = "select id,shippingMethod,shippingFeeCurrency,shippingFeeValue,ebayName,ebayEmail,ebayAddress1,ebayAddress2,ebayCity,ebayStateOrProvince,ebayPostalCode,ebayCountry,ebayPhone from qo_orders where id='".$_POST['id']."'";
 		$result = mysql_query($sql);
 		$row = mysql_fetch_assoc($result);
-		$sql = "insert into qo_shipments (id,ordersId,shippingMethod,status,shippingFeeCurrency,shippingFeeValue,shipToName,
+		$sql = "insert into qo_shipments (id,ordersId,shipmentMethod,status,shippingFeeCurrency,shippingFeeValue,shipToName,
 		shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,
-		shipToCountry,shipToPhoneNo,createdBy,createdOn,modifiedBy,modifiedOn) values ('".$shipmentId."','".$row['id']."','".$row['shippingMethod']."'
+		shipToCountry,shipToPhoneNo,createdBy,createdOn,modifiedBy,modifiedOn) values ('".$shipmentId."','".$row['id']."','".$row['shippingMethod']."',
 		'N','".$row['shippingFeeCurrency']."','".$row['shippingFeeValue']."','".$row['ebayName']."',
 		'".$row['ebayEmail']."','".$row['ebayAddress1']."','".$row['ebayAddress2']."','".$row['ebayCity']."',
 		'".$row['ebayStateOrProvince']."','".$row['ebayPostalCode']."','".$row['ebayCountry']."','".$row['ebayPhone']."',
 		'".$this->os->session->get_member_name()."','".date("Y-m-d H:i:s")."','".$this->os->session->get_member_name()."','".date("Y-m-d H:i:s")."')";
+		//echo $sql;
 		$result = mysql_query($sql);
 		
 		if($result){

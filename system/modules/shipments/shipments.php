@@ -165,6 +165,23 @@ class QoShipments {
 			echo "{success: false, errors: { reason: '\'<font color=\'red\'>Can\'t Pack This Shipment.</font>'}}";
 		}
 	}
+	
+	public function shipShipment(){
+		$sql = "select status from qo_shipments where id = '".$_POST['id']."'";
+		$result = mysql_query($sql);
+		$row = mysql_fetch_assoc($result);
+		if($row['status'] == "N"){
+			$sql = "update qo_shipments set status='S',shippedBy='".$this->os->session->get_member_name()."',shippedOn='".date("Y-m-d H:i:s")."' where id='".$_POST['id']."'";
+			$result = mysql_query($sql);
+			if($result){
+				echo "{success: true,info:'\'<font color=\'green\'>Operation Successfully</font>'}"; 
+			}else{
+				echo "{success: false, errors: { reason: 'Saving failed. Try again.' }}";
+			}
+		}else{
+			echo "{success: false, errors: { reason: '\'<font color=\'red\'>Can\'t Ship This Shipment.</font>'}}";
+		}
+	}
 }
 
 ?>
