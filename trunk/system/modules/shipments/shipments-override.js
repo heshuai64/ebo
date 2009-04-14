@@ -26,6 +26,10 @@ Ext.override(QoDesk.Shipments, {
                     url:'connect.php?moduleId=qo-shipments&action=searchShipment'
                 });
                 
+                function renderStatus(v, p, r){
+                    return lang.shipments.shipments_status_json[v]
+                }
+            
                 var shipmentGrid = new Ext.grid.GridPanel({
                     store: shipmentGridStore,
                     columns:[{
@@ -74,7 +78,7 @@ Ext.override(QoDesk.Shipments, {
                         header: "Status",
                         dataIndex: 'status',
                         width: 100,
-                        //renderer: renderStatus,
+                        renderer: renderStatus,
                         align: 'center',
                         sortable: true
                     }],
@@ -93,7 +97,7 @@ Ext.override(QoDesk.Shipments, {
                 shipmentGridStore.load({params:{start:0, limit:20}});
                 
                 var search_result_win = desktop.createWindow({
-                   title:lang.search_result,
+                   title:lang.shipments.search_result,
                    width:700,
                    height:400,
                    iconCls: 'shipments-icon',
@@ -102,7 +106,7 @@ Ext.override(QoDesk.Shipments, {
                    constrainHeader:true,
                    layout: 'fit',
                    items: shipmentGrid,
-                   taskbuttonTooltip: lang.task_button_tooltip
+                   taskbuttonTooltip: lang.shipments.task_button_tooltip
                 })
                 search_result_win.show();  
             }
@@ -138,15 +142,35 @@ Ext.override(QoDesk.Shipments, {
                                     fieldLabel:"Order Id",
                                     name:"ordersId"
                                 },{
-                                    xtype:"combo",
-                                    fieldLabel:"Shipment Method",
-                                    name:"shippingMethod",
-                                    hiddenName:"shippingMethod"
+                                    xtype:'combo',
+                                    fieldLabel: "Shipment Method",
+                                    store: new Ext.data.SimpleStore({
+                                        fields: ["id", "name"],
+                                        data: lang.shipments.shipment_method
+                                    }),		  
+                                    mode: 'local',
+                                    valueField: 'id',
+                                    displayField: 'name',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    name: 'shippingMethod',
+                                    hiddenName:'shippingMethod'
                                 },{
-                                    xtype:"combo",
+                                    xtype: 'combo',
                                     fieldLabel:"Seller Id",
-                                    name:"sellerId",
-                                    hiddenName:"sellerId"
+                                    mode: 'local',
+                                    store: new Ext.data.JsonStore({
+                                        autoLoad: true,
+                                        fields: ['id', 'name'],
+                                        url: "connect.php?moduleId=qo-transactions&action=getSeller"
+                                    }),
+                                    valueField:'id',
+                                    displayField:'name',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    selectOnFocus:true,
+                                    name: 'sellerId',
+                                    hiddenName:'sellerId'
                               }]
                           },{
                             columnWidth:0.5,
@@ -167,10 +191,19 @@ Ext.override(QoDesk.Shipments, {
                                 fieldLabel:"Postal Reference",
                                 name:"postalReferenceNo"
                               },{
-                                xtype:"combo",
-                                fieldLabel:"Shipment Status",
-                                name:"status",
-                                hiddenName:"status"
+                                xtype:'combo',
+                                fieldLabel: "Shipment Status",
+                                store: new Ext.data.SimpleStore({
+                                    fields: ["id", "name"],
+                                    data: lang.shipments.shipments_status
+                                }),		  
+                                mode: 'local',
+                                valueField: 'id',
+                                displayField: 'name',
+                                triggerAction: 'all',
+                                editable: false,
+                                name: 'status',
+                                hiddenName:'status'
                               }]
                           }]
                           },{
