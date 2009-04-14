@@ -192,10 +192,12 @@
                     items:[{
                         xtype:"textfield",
                         fieldLabel:"Shipments Id",
+                        readOnly:true,
                         name:"id"
                       },{
                         xtype:"textfield",
                         fieldLabel:"Orders Id",
+                        readOnly:true,
                         name:"ordersId"
                       },{
                         layout:"table",
@@ -258,43 +260,19 @@
                         name: 'status',
                         hiddenName:'status'
                       },{
-                        layout:"table",
-                        layoutConfig:{
-                          columns:3
-                        },
-                        width:320,
-                        border:false,
-                        items:[{
-                            width:105,
-                            html:"<font size=2>Created:</font>",
-                            border:false
-                          },{
-                            layout:"form",
-                            border:false,
-                            labelWidth:0,
-                            hideLabels:true,
-                            labelSeparator:"",
-                            items:[{
-                                xtype:"textfield",
-                                readOnly:true,
-                                fieldLabel:"",
-                                name:"createdBy",
-                                width:80
-                              }]
-                          },{
-                            layout:"form",
-                            border:false,
-                            labelWidth:0,
-                            hideLabels:true,
-                            labelSeparator:"",
-                            items:[{
-                                xtype:"textfield",
-                                readOnly:true,
-                                fieldLabel:"",
-                                name:"createdOn",
-                                width:125
-                              }]
-                          }]
+                        xtype:'combo',
+                        fieldLabel:"Shipment Method",
+                        store: new Ext.data.SimpleStore({
+                            fields: ["id", "name"],
+                            data: lang.shipments.shipment_method
+                        }),			  
+                        mode: 'local',
+                        valueField: 'id',
+                        displayField: 'name',
+                        triggerAction: 'all',
+                        editable: false,
+                        name: 'shipmentMethod',
+                        hiddenName:'shipmentMethod'
                       },{
                         layout:"table",
                         layoutConfig:{
@@ -444,6 +422,7 @@
             buttons: [{
                         text: 'Save',
                         handler: function(){
+                            /*
                             Ext.Ajax.request({
                                 waitMsg: 'Please wait...',
                                 url: 'connect.php?moduleId=qo-shipments&action=saveShipmentInfo',
@@ -479,7 +458,21 @@
                                         var result = response.responseText;
                                         Ext.MessageBox.alert('error', 'could not connect to the database. retry later');
                                 }
-                            });	
+                            });
+                            */
+                            shipmentDetailForm.getForm().submit({
+                                          url: "connect.php?moduleId=qo-shipments&action=saveShipmentInfo",
+                                          success: function(f, a){
+                                              //console.log(a);
+                                              var response = Ext.decode(a.response.responseText);
+                                              if(response.success){
+                                                      Ext.Msg.alert('Success', 'Update shipments success.');
+                                              }else{
+                                                      Ext.Msg.alert('Failure', 'Update shipments failure.');
+                                              }
+                                          },
+                                          waitMsg: "Please wait..."
+                            });
                         }
                     },{
                         text: 'Close',
