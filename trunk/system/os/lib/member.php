@@ -254,6 +254,10 @@ class member {
 		$success = "{'success': false}";
 		$sql = "update qo_members set email_address='".$_POST['email_address']."',password='".$_POST['password']."',active='".$_POST['active']."' where id='".$_POST['id']."'";	
 		$result = mysql_query($sql);
+		
+		$sql = "update qo_groups_has_members set qo_groups_id='".$_POST['group_id']."' where qo_members_id='".$_POST['id']."'";	
+		$result = mysql_query($sql);
+		
 		if($result){
 			$success = "{'success': success}";
 		}
