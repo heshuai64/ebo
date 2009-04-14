@@ -1043,7 +1043,7 @@
                                     xtype:"textarea",
                                     fieldLabel:lang.orders.form_remarks,
                                     width: 200,
-                                    name: 'shippingMethod'
+                                    name: 'remarks'
                                   },{
                                     layout:"column",
                                     items:[{

@@ -10,14 +10,14 @@ class Shipment{
     private $complete_orders = array();
     
     public function __construct(){
-        PackingList::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
+        Shipment::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
 
-        if (!PayPal::$database_connect) {
+        if (!Shipment::$database_connect) {
             echo "Unable to connect to DB: " . mysql_error(Shipment::$database_connect);
             exit;
         }
           
-        if (!mysql_select_db(self::DATABASE_NAME, PayPal::$database_connect)) {
+        if (!mysql_select_db(self::DATABASE_NAME, Shipment::$database_connect)) {
             echo "Unable to select mydbname: " . mysql_error(Shipment::$database_connect);
             exit;
         }
@@ -54,24 +54,24 @@ class Shipment{
         $type = 'SHI';
         $today = date("Ym");
         $sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
-        $result = mysql_query($sql, PayPal::$database_connect);
+        $result = mysql_query($sql, Shipment::$database_connect);
         $row = mysql_fetch_assoc($result);
        
         if($row["curId"] >=9999){
             // A-Z 66-91
             $curType = chr(ord($row["curType"]) + 1);
             $sql = "update  sequence  set curId = 1,curType='$curType' where curDate='$today' and type='$type'";
-            mysql_query($sql, PayPal::$database_connect);
+            mysql_query($sql, Shipment::$database_connect);
         }elseif($row["curId"] < 1 || $row["curId"] == null) {
               $sql = "insert into sequence (type,curType,curDate,curId) value ('$type','A','$today',1)";
-              mysql_query($sql, PayPal::$database_connect);
+              mysql_query($sql, Shipment::$database_connect);
         }else {   
             $sql = "update sequence set curId = curId + 1 where curDate='$today' and type='$type'";
-            $result = mysql_query($sql, PayPal::$database_connect);
+            $result = mysql_query($sql, Shipment::$database_connect);
         }
        
         $sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
-        $result = mysql_query($sql, PayPal::$database_connect);
+        $result = mysql_query($sql, Shipment::$database_connect);
         $row = mysql_fetch_assoc($result);
         $shipmentId = $type.$today.$row["curType"].str_repeat("0",(4-strlen($row["curId"]))).$row["curId"];   
         return $shipmentId;

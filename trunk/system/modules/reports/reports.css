@@ -1,0 +1,28 @@
+.reports-icon {
+    background-image:url(images/reports-16x16.gif) !important;
+}
+.reports-shortcut img {
+    background-image: url(images/reports-48x48.gif);
+    filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='system/modules/reports/images/reports-48x48.gif', sizingMethod='scale');
+}
+
+.manage-button{
+    float:left;
+    margin-left:16px;
+    margin-top: 16px;
+    text-align: center;
+}
+
+.manage-button-desc{
+    clear: left;
+}
+
+.sku-sell-icon {
+    background-image:url(images/skus-sell-16x16.gif) !important;
+}
+.sku-sell img{
+    background-image:url(images/skus-sell-48x48.gif);
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+}
