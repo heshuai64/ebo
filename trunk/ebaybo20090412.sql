@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 13, 2009 at 08:55 下午
+-- Generation Time: Apr 14, 2009 at 08:24 下午
 -- Server version: 5.0.45
 -- PHP Version: 5.1.6
 
@@ -291,7 +291,7 @@ CREATE TABLE IF NOT EXISTS `qo_dependencies` (
   `directory` varchar(255) default '' COMMENT 'The directory within the modules directory stated in the system/os/config.php',
   `file` varchar(255) default NULL COMMENT 'The file that contains the dependency',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
 
 --
 -- Dumping data for table `qo_dependencies`
@@ -300,7 +300,8 @@ CREATE TABLE IF NOT EXISTS `qo_dependencies` (
 INSERT INTO `qo_dependencies` (`id`, `directory`, `file`) VALUES
 (5, 'orders/', 'lang.js'),
 (6, 'transactions/', 'lang.js'),
-(7, 'shipments/', 'lang.js');
+(7, 'shipments/', 'lang.js'),
+(8, 'reports/', 'lang.js');
 
 -- --------------------------------------------------------
 
@@ -461,7 +462,7 @@ CREATE TABLE IF NOT EXISTS `qo_groups_has_domain_privileges` (
   `qo_privileges_id` int(11) unsigned default '0',
   `is_allowed` tinyint(1) unsigned default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=16 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=17 ;
 
 --
 -- Dumping data for table `qo_groups_has_domain_privileges`
@@ -478,7 +479,8 @@ INSERT INTO `qo_groups_has_domain_privileges` (`id`, `qo_groups_id`, `qo_domains
 (12, 3, 0, 3, 0),
 (13, 3, 0, 4, 0),
 (14, 3, 0, 5, 0),
-(15, 3, 0, 6, 0);
+(15, 3, 0, 6, 0),
+(16, 1, 0, 7, 1);
 
 -- --------------------------------------------------------
 
@@ -601,7 +603,7 @@ CREATE TABLE IF NOT EXISTS `qo_modules` (
   `active` tinyint(1) unsigned NOT NULL default '0' COMMENT 'Is the module currently active',
   `load_on_demand` tinyint(1) unsigned NOT NULL default '1' COMMENT 'Preload this module at start up?',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=17 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=18 ;
 
 --
 -- Dumping data for table `qo_modules`
@@ -617,7 +619,8 @@ INSERT INTO `qo_modules` (`id`, `author`, `version`, `url`, `description`, `modu
 (9, 'heshuai', '1.0', 'http://heshuai64.gnway.net', 'system manager', 'system/manage', 'qo-manage', 1, 1),
 (10, 'heshuai', '1.0', 'http://heshuai64.gnway.net', 'orders manager', 'orders', 'qo-orders', 1, 1),
 (11, 'heshuai', '1.0', 'http://heshuai64.gnway.net', 'Transactions manager', 'transactions', 'qo-transactions', 1, 1),
-(12, 'heshuai', '1.0', 'http://heshuai64.gnway.net', 'shipments manager', 'shipments', 'qo-shipments', 1, 1);
+(12, 'heshuai', '1.0', 'http://heshuai64.gnway.net', 'shipments manager', 'shipments', 'qo-shipments', 1, 1),
+(17, 'heshuai', '1.0', 'http://heshuai64.gnway.net', 'reports', 'reports', 'qo-reports', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -631,7 +634,7 @@ CREATE TABLE IF NOT EXISTS `qo_modules_actions` (
   `name` varchar(35) default NULL,
   `description` text,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=61 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=62 ;
 
 --
 -- Dumping data for table `qo_modules_actions`
@@ -696,7 +699,8 @@ INSERT INTO `qo_modules_actions` (`id`, `qo_modules_id`, `name`, `description`) 
 (57, 11, 'getTransactionId', '获取付款号'),
 (58, 11, 'createTransaction', '创建付款'),
 (59, 10, 'addOrderShipment', '给订单添加货运'),
-(60, 10, 'deleteOrderShipment', '删除订单货运');
+(60, 10, 'deleteOrderShipment', '删除订单货运'),
+(61, 12, 'shipShipment', '发送货物');
 
 -- --------------------------------------------------------
 
@@ -754,7 +758,11 @@ INSERT INTO `qo_modules_files` (`qo_modules_id`, `directory`, `file`, `is_styles
 (12, 'shipments/', 'shipments.css', 1, 0, 0, ''),
 (12, 'shipments/', 'shipments.js', 0, 0, 1, 'QoDesk.Shipments'),
 (12, 'shipments/', 'shipments-override.js', 0, 0, 0, ''),
-(12, 'shipments/', 'shipments.php', 0, 1, 0, 'QoShipments');
+(12, 'shipments/', 'shipments.php', 0, 1, 0, 'QoShipments'),
+(17, 'reports/', 'reports.css', 1, 0, 0, ''),
+(17, 'reports/', 'reports.js', 0, 0, 1, 'QoDesk.Reports'),
+(17, 'reports/', 'reports-override.js', 0, 0, 0, ''),
+(17, 'reports/', 'reports.php', 0, 1, 0, 'QoReports');
 
 -- --------------------------------------------------------
 
@@ -775,7 +783,8 @@ CREATE TABLE IF NOT EXISTS `qo_modules_has_dependencies` (
 INSERT INTO `qo_modules_has_dependencies` (`qo_modules_id`, `qo_dependencies_id`) VALUES
 (10, 5),
 (11, 6),
-(12, 7);
+(12, 7),
+(17, 8);
 
 -- --------------------------------------------------------
 
@@ -832,10 +841,10 @@ CREATE TABLE IF NOT EXISTS `qo_orders` (
 --
 
 INSERT INTO `qo_orders` (`id`, `type`, `status`, `shippingMethod`, `paymentMethod`, `remarks`, `sellerId`, `buyerId`, `shippingFeeCurrency`, `shippingFeeValue`, `insuranceCurrency`, `insuranceValue`, `discountCurrency`, `discountValue`, `grandTotalCurrency`, `grandTotalValue`, `ebayName`, `ebayEmail`, `ebayAddress1`, `ebayAddress2`, `ebayCity`, `ebayStateOrProvince`, `ebayPostalCode`, `ebayCountry`, `ebayPhone`, `paypalName`, `paypalEmail`, `paypalAddress1`, `paypalAddress2`, `paypalCity`, `paypalStateOrProvince`, `paypalPostalCode`, `paypalCountry`, `paypalPhone`, `createdBy`, `createdOn`, `modifiedBy`, `modifiedOn`) VALUES
-('ORD200903A0052', '', 'P', 'U', 'P', '', 'testuser_heshuai04', 'testuser_heshuai05', 'USD', 5.00, 'USD', 0.00, '', 0.00, 'USD', 49.99, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', 'John Smith', 'buyer@paypalsandbox.com', 'John Smith', '', 'San Jose', 'CA', '95131', 'United States', '', 'eBay', '2009-03-18 21:10:54', 'Paypal', '2009-04-01 16:30:42'),
-('ORD200903A0053', '', 'W', 'B', 'P', '', 'testuser_heshuai04', 'testuser_heshuai05', 'USD', 5.00, 'USD', 0.00, '', 0.00, 'USD', 119.97, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', '', '', '', '', '', '', '', '', '', 'eBay', '2009-03-19 16:49:02', '', '0000-00-00 00:00:00'),
-('ORD200903A0054', '', 'W', 'S', 'P', '', 'testuser_heshuai04', 'testuser_heshuai05', 'USD', 11.00, '', 0.00, '', 0.00, 'USD', 135.95, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', '', '', '', '', '', '', '', '', '', 'eBay', '2009-03-26 23:16:30', '', '0000-00-00 00:00:00'),
-('ORD200904A0014', '', 'C', 't', '', '', 'TESTUSER_heshuai04', '', 'USD', 1.00, 'EUR', 2.00, 'GBP', 3.00, 'AUD', 4.00, '1', '1', '1', '1', '1', '1', '1', 'Afghanistan', '1', '2', '2', '2', '2', '2', '2', '2', 'Afghanistan', '2', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00'),
+('ORD200903A0052', '', 'P', 'U', 'P', '', 'testuser_heshuai05', 'testuser_heshuai05', 'USD', 5.00, 'USD', 0.00, '', 0.00, 'USD', 49.99, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', 'John Smith', 'buyer@paypalsandbox.com', 'John Smith', '', 'San Jose', 'CA', '95131', 'United States', '', 'eBay', '2009-03-18 21:10:54', 'Paypal', '2009-04-01 16:30:42'),
+('ORD200903A0053', '', 'P', 'B', 'P', '', 'testuser_heshuai04', 'testuser_heshuai05', 'USD', 5.00, 'USD', 0.00, '', 0.00, 'USD', 119.97, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', '', '', '', '', '', '', '', '', '', 'eBay', '2009-03-19 16:49:02', '', '0000-00-00 00:00:00'),
+('ORD200903A0054', '', 'P', 'S', 'P', '', 'testuser_heshuai04', 'testuser_heshuai05', 'USD', 11.00, '', 0.00, '', 0.00, 'USD', 135.95, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', '', '', '', '', '', '', '', '', '', 'eBay', '2009-03-26 23:16:30', '', '0000-00-00 00:00:00'),
+('ORD200904A0014', '', 'P', 'U', '', 'test', 'TESTUSER_heshuai04', '', 'USD', 1.00, 'EUR', 2.00, 'GBP', 3.00, 'AUD', 4.00, '1', '1', '1', '1', '1', '1', '1', 'Afghanistan', '1', '2', '2', '2', '2', '2', '2', '2', 'Afghanistan', '2', '', '0000-00-00 00:00:00', 'admin', '2009-04-14 12:17:26'),
 ('ORD200904A0015', '', '', '', '', '', '', '', '', 0.00, '', 0.00, '', 0.00, '', 0.00, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '2009-04-13 14:36:55', '', '0000-00-00 00:00:00'),
 ('ORD200904A0016', '', '', '', '', '', '', '', '', 0.00, '', 0.00, '', 0.00, '', 0.00, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '2009-04-13 14:37:11', '', '0000-00-00 00:00:00'),
 ('ORD200904A0017', '', '', '', '', '', '', '', '', 0.00, '', 0.00, '', 0.00, '', 0.00, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'admin', '2009-04-13 14:57:12', '', '0000-00-00 00:00:00');
@@ -920,7 +929,7 @@ CREATE TABLE IF NOT EXISTS `qo_privileges` (
   `description` text,
   `is_singular` tinyint(1) unsigned default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=7 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8 ;
 
 --
 -- Dumping data for table `qo_privileges`
@@ -932,7 +941,8 @@ INSERT INTO `qo_privileges` (`id`, `name`, `description`, `is_singular`) VALUES
 (3, '系统模块操作', '超级管理员权限', 1),
 (4, '订单模块操作', NULL, 1),
 (5, '付款模块操作', NULL, 1),
-(6, '货运模块操作', NULL, 1);
+(6, '货运模块操作', NULL, 1),
+(7, '统计报告', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -945,7 +955,7 @@ CREATE TABLE IF NOT EXISTS `qo_privileges_has_module_actions` (
   `qo_privileges_id` int(11) unsigned default NULL,
   `qo_modules_actions_id` int(11) unsigned default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=64 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=65 ;
 
 --
 -- Dumping data for table `qo_privileges_has_module_actions`
@@ -1010,7 +1020,8 @@ INSERT INTO `qo_privileges_has_module_actions` (`id`, `qo_privileges_id`, `qo_mo
 (60, 5, 57),
 (61, 5, 58),
 (62, 4, 59),
-(63, 4, 60);
+(63, 4, 60),
+(64, 6, 61);
 
 -- --------------------------------------------------------
 
@@ -1064,7 +1075,9 @@ INSERT INTO `qo_sessions` (`id`, `qo_members_id`, `qo_groups_id`, `ip`, `date`) 
 ('0bc0be751a7a1d20f7e6f223cc7024b2', 4, 1, '127.0.0.1', '2009-04-11 09:26:58'),
 ('054ab8fa369eff900ffe69febf5c320f', 4, 1, '127.0.0.1', '2009-04-11 15:08:45'),
 ('b8b6e16396ce56f003300ab6edbcf9f8', 4, 1, '127.0.0.1', '2009-04-12 02:52:49'),
-('a4dbc0a08c4554b6115a3e6be976a2df', 4, 1, '127.0.0.1', '2009-04-12 13:04:27');
+('a4dbc0a08c4554b6115a3e6be976a2df', 4, 1, '127.0.0.1', '2009-04-12 13:04:27'),
+('b362b447af127644c56a374c0011833d', 4, 1, '192.168.5.192', '2009-04-14 11:14:29'),
+('8d86de5efde71c006ab3e05abe971e05', 4, 1, '127.0.0.1', '2009-04-14 15:00:08');
 
 -- --------------------------------------------------------
 
@@ -1107,7 +1120,10 @@ CREATE TABLE IF NOT EXISTS `qo_shipments` (
 --
 
 INSERT INTO `qo_shipments` (`id`, `ordersId`, `status`, `shipmentMethod`, `packedBy`, `packedOn`, `shippedBy`, `shippedOn`, `remarks`, `postalReferenceNo`, `shippingFeeCurrency`, `shippingFeeValue`, `shipToName`, `shipToEmail`, `shipToAddressLine1`, `shipToAddressLine2`, `shipToCity`, `shipToStateOrProvince`, `shipToPostalCode`, `shipToCountry`, `shipToPhoneNo`, `createdBy`, `createdOn`, `modifiedBy`, `modifiedOn`) VALUES
-('SHI200903A0001', 'ORD200903A0052', 'K', 'S', '', '2009-04-05 14:05:56', '', '2009-04-05 14:05:53', 'fsf', 'sfsdf', 'USD', 11.11, 'fs', 'ffdsf', 'fdsf', 'dsfds', 'fsdfs', 'ffsdf', 'fdsf', 'sfs', 'fsdfs', 'fsfsd', '2009-04-05 14:05:37', 'fsdfsdfsf', '2009-04-05 14:05:42');
+('SHI200903A0001', 'ORD200903A0052', 'N', 'S', '', '2009-04-05 14:05:56', '', '2009-04-05 14:05:53', 'fsf', 'sfsdf', 'USD', 11.11, 'fs', 'ffdsf', 'fdsf', 'dsfds', 'fsdfs', 'ffsdf', 'fdsf', 'sfs', 'fsdfs', 'fsfsd', '2009-04-05 14:05:37', 'fsdfsdfsf', '2009-04-05 14:05:42'),
+('SHI200904A0009', 'ORD200903A0054', 'N', 'S', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', '', 'USD', 11.00, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', 'admin', '2009-04-14 12:10:48', 'admin', '2009-04-14 12:10:48'),
+('SHI200904A0008', 'ORD200903A0053', 'N', 'B', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', '', 'USD', 5.00, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', 'admin', '2009-04-14 12:10:26', 'admin', '2009-04-14 12:10:26'),
+('SHI200904A0010', 'ORD200904A0014', 'S', 't', '', '0000-00-00 00:00:00', 'admin', '2009-04-14 20:21:39', '', '', 'USD', 1.00, '1', '1', '1', '1', '1', '1', '1', 'Afghanistan', '1', 'admin', '2009-04-14 12:11:17', 'admin', '2009-04-14 12:11:17');
 
 -- --------------------------------------------------------
 
@@ -1126,7 +1142,7 @@ CREATE TABLE IF NOT EXISTS `qo_shipments_detail` (
   `barCode` varchar(20) NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `shipmentsId` (`shipmentsId`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8 ;
 
 --
 -- Dumping data for table `qo_shipments_detail`
@@ -1134,7 +1150,10 @@ CREATE TABLE IF NOT EXISTS `qo_shipments_detail` (
 
 INSERT INTO `qo_shipments_detail` (`id`, `shipmentsId`, `skuId`, `skuTitle`, `itemId`, `itemTitle`, `quantity`, `barCode`) VALUES
 (1, 'SHI200903A0001', 'a09030600ux0052', '1', '2', '2', 1, ''),
-(2, 'SHI200903A0001', 'a09032500ux0136', 'a09032500ux0136', 'a09032500ux0136', 'a09032500ux0136', 1, '');
+(2, 'SHI200903A0001', 'a09032500ux0136', 'a09032500ux0136', 'a09032500ux0136', 'a09032500ux0136', 1, ''),
+(5, 'SHI200904A0008', '', '', '110038445870', 'test_10', 1, ''),
+(6, 'SHI200904A0009', '', '', '110038587148', 'FixedPriceItem_4', 1, ''),
+(7, 'SHI200904A0010', '3', '4', '1', '2', 6, '');
 
 -- --------------------------------------------------------
 
@@ -1286,4 +1305,4 @@ CREATE TABLE IF NOT EXISTS `sequence` (
 INSERT INTO `sequence` (`type`, `curType`, `curDate`, `curId`) VALUES
 ('ORD', 'A', '200904', 17),
 ('TRA', 'A', '200904', 4),
-('SHI', 'A', '200904', 2);
+('SHI', 'A', '200904', 10);
