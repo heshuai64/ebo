@@ -134,7 +134,23 @@ class QoShipments {
 	}
 	
 	public function saveShipmentInfo(){
-		
+		$sql = "update qo_shipments set status='".$_POST['status']."',shipmentMethod='".$_POST['shipmentMethod']."',
+		remarks='".$_POST['remarks']."',postalReferenceNo='".$_POST['postalReferenceNo']."',shippingFeeCurrency='".$_POST['shippingFeeCurrency']."',
+		shippingFeeValue='".$_POST['shippingFeeValue']."',shipToName='".$_POST['shipToName']."',shipToEmail='".$_POST['shipToEmail']."',
+		shipToAddressLine1='".$_POST['shipToAddressLine1']."',shipToAddressLine2='".$_POST['shipToAddressLine2']."',shipToCity='".$_POST['shipToCity']."',
+		shipToStateOrProvince='".$_POST['shipToStateOrProvince']."',shipToPostalCode='".$_POST['shipToPostalCode']."',shipToCountry='".$_POST['shipToCountry']."',
+		shipToPhoneNo='".$_POST['shipToPhoneNo']."',modifiedBy='".$this->os->session->get_member_name()."',modifiedOn='".date("Y-m-d H:i:s")."'
+		where id = '".$_POST['id']."'";
+		//echo $sql;
+		$result = mysql_query($sql);
+		if($result){
+			echo 	'{success: true}';
+			
+		}else{
+			echo 	'{success: false,
+				  errors: {message: "can\'t create."}
+				}';
+		}
 	}
 	
 	public function verifyShipment(){
