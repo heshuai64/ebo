@@ -119,26 +119,27 @@ class eBay{
     }
     
     private function configEbay($dev, $app, $cert, $token, $proxy_host, $proxy_port){
-    		/*
-            // Load developer-specific configuration data from ini file
-            $config = parse_ini_file('ebay.ini', true);
-            $site = $config['settings']['site'];
-            //$compatibilityLevel = $config['settings']['compatibilityLevel'];
-            
-            $dev = $config[$site]['devId'];
-            $app = $config[$site]['appId'];
-            $cert = $config[$site]['cert'];
-            $token = $config[$site]['authToken'];
-            $location = $config[$site]['gatewaySOAP'];
-            */
-    		
-            // Create and configure session
-            $session = new eBaySession($dev, $app, $cert, $proxy_host, $proxy_port);
-            $session->token = $token;
-            $session->site = 0; // 0 = US;
-            $session->location = self::GATEWAY_SOAP;
-            
-            return $session;
+    	
+	// Load developer-specific configuration data from ini file
+	$config = parse_ini_file('ebay.ini', true);
+	$site = $config['settings']['site'];
+	//$compatibilityLevel = $config['settings']['compatibilityLevel'];
+	
+	$dev = $config[$site]['devId'];
+	$app = $config[$site]['appId'];
+	$cert = $config[$site]['cert'];
+	//$token = $config[$site]['authToken'];
+	$location = $config[$site]['gatewaySOAP'];
+	
+	    
+	// Create and configure session
+	$session = new eBaySession($dev, $app, $cert, $proxy_host, $proxy_port);
+	$session->token = $token;
+	$session->site = 0; // 0 = US;
+	$session->location = $location;
+	//$session->location = self::GATEWAY_SOAP;
+	
+	return $session;
     }
     
     private function GetSellerTransactions($ModTimeFrom, $ModTimeTo, $sellerId, $dev, $app, $cert, $token, $proxy_host, $proxy_port){

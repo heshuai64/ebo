@@ -11,7 +11,7 @@ Ext.override(QoDesk.Shipments, {
                     root: 'records',
                     totalProperty: 'totalCount',
                     idProperty: 'id',
-                    remoteSort: true,
+                    //remoteSort: true,
                     baseParams:{id:searchShipmentForm.findField('shipmentsId').getValue(), ordersId:searchShipmentForm.findField('ordersId').getValue(),
                                 shippingMethod:searchShipmentForm.findField('shippingMethod').getValue(),sellerId:searchShipmentForm.findField('sellerId').getValue(),
                                 shipToName:searchShipmentForm.findField('shipToName').getValue(),shipToAddressLine:searchShipmentForm.findField('shipToAddressLine').getValue(),
@@ -218,7 +218,8 @@ Ext.override(QoDesk.Shipments, {
                             items:[{
                                 xtype:"textarea",
                                 name:"itemId",
-                                width:250
+                                width:250,
+				height:50
                               }]
                               },{
                             title:"Title",
@@ -226,7 +227,8 @@ Ext.override(QoDesk.Shipments, {
                             items:[{
                                 xtype:"textarea",
                                 name:"itemTitle",
-                                width:250
+                                width:250,
+				height:50
                               }]
                               }]
                           }]
@@ -242,7 +244,8 @@ Ext.override(QoDesk.Shipments, {
                             items:[{
                                 xtype:"textarea",
                                 name:"skuId",
-                                width:250
+                                width:250,
+				height:50
                               }]
                               },{
                             title:"Title",
@@ -250,7 +253,8 @@ Ext.override(QoDesk.Shipments, {
                             items:[{
                                 xtype:"textarea",
                                 name:"skuTitle",
-                                width:250
+                                width:250,
+				height:50
                               }]
                               }]
                           }]
