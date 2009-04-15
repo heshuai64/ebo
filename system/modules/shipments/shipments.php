@@ -8,15 +8,14 @@ class QoShipments {
 	}
         
         public function searchShipment(){
-            $where = " 1 = 1 ";
-            $shipment_detail_where = "";    
+            $where = " where 1 = 1 ";   
             
             if(!empty($_POST['id'])){
                     $where .= " and s.id like '%".$_POST['id']."%'";
             }
             
             if(!empty($_POST['ordersId'])){
-                    $where .= " and o.ordersId like '%".$_POST['ordersId']."%'";
+                    $where .= " and s.ordersId like '%".$_POST['ordersId']."%'";
             }
             
             if(!empty($_POST['shippingMethod'])){
@@ -44,19 +43,19 @@ class QoShipments {
             }
             
             if(!empty($_POST['itemId'])){
-                    $shipment_detail_where .= " and sd.itemId like '%".$_POST['itemId']."%'";
+                    $where_item .= " and sd.itemId like '%".$_POST['itemId']."%'";
             }
             
             if(!empty($_POST['itemTitle'])){
-                    $shipment_detail_where .= " and sd.itemTitle like '%".$_POST['itemTitle']."%'";
+                    $where_item .= " and sd.itemTitle like '%".$_POST['itemTitle']."%'";
             }
             
             if(!empty($_POST['skuId'])){
-                    $shipment_detail_where .= " and sd.skuId like '%".$_POST['skuId']."%'";
+                    $where_sku .= " and sd.skuId like '%".$_POST['skuId']."%'";
             }
             
             if(!empty($_POST['skuTitle'])){
-                    $shipment_detail_where .= " and sd.skuTitle like '%".$_POST['skuTitle']."%'";
+                    $where_sku .= " and sd.skuTitle like '%".$_POST['skuTitle']."%'";
             }
             
             if(!empty($_POST['createdOnFrom'])){
@@ -83,24 +82,49 @@ class QoShipments {
                     $where .= " and s.shippedOn < '".$_POST['shippedOnTo']."'";
             }
             
-            if(empty($shipment_detail_where)){
-                $sql = "select s.id,o.id as ordersId,s.shipToName,s.shipToEmail,o.sellerId,s.createdOn,
-                s.packedOn,s.shippedOn,s.status from qo_shipments as s left join qo_orders as o on s.ordersId = o.id where ".$where;
-            }else{
-                $sql = "select s.id,o.id as ordersId,s.shipToName,s.shipToEmail,o.sellerId,s.createdOn,
-                s.packedOn,s.shippedOn,s.status from (qo_shipments as s left join qo_shipments_detail as sd on s.id=sd.shipmentsId)
-                left join qo_orders as o on s.ordersId = o.id where ".$where.$shipment_detail_where;
-            }
-            //echo $sql;
-            $result = mysql_query($sql);
-            $i = 0;
+	    if(!empty($where_sku) && !empty($where_item)){
+		$count_sql = "select count(*) as num from (select distinct sd.shipmentsId from (qo_shipments as s left join qo_orders as o on s.ordersId=o.id) 
+		left join qo_shipments_detail as sd on s.id=sd.shipmentsId ".$where.$where_sku.$where_item.") as total";
+		
+		$data_sql = "select s.id,o.id as ordersId,s.shipToName,s.shipToEmail,o.sellerId,s.createdOn,s.packedOn,s.shippedOn,s.status 
+		from (qo_shipments as s left join qo_orders as o on s.ordersId=o.id) 
+		left join qo_shipments_detail as sd on s.id=sd.shipmentsId ".$where.$where_sku.$where_item." group by s.id limit ".$_POST['start'].",".$_POST['limit'];
+	    }elseif(!empty($where_sku)){
+		$count_sql = "select count(*) as num from (select distinct sd.shipmentsId from (qo_shipments as s left join qo_orders as o on s.ordersId=o.id) 
+		left join qo_shipments_detail as sd on s.id=sd.shipmentsId ".$where.$where_sku.") as total";
+		
+		$data_sql = "select s.id,o.id as ordersId,s.shipToName,s.shipToEmail,o.sellerId,s.createdOn,s.packedOn,s.shippedOn,s.status 
+		from (qo_shipments as s left join qo_orders as o on s.ordersId=o.id) 
+		left join qo_shipments_detail as sd on s.id=sd.shipmentsId ".$where.$where_sku." group by s.id limit ".$_POST['start'].",".$_POST['limit'];
+	    }elseif(!empty($where_item)){
+		$count_sql = "select count(*) as num from (select distinct sd.shipmentsId from (qo_shipments as s left join qo_orders as o on s.ordersId=o.id) 
+		left join qo_shipments_detail as sd on s.id=sd.shipmentsId ".$where.$where_item.") as total";
+		
+		$data_sql = "select s.id,o.id as ordersId,s.shipToName,s.shipToEmail,o.sellerId,s.createdOn,s.packedOn,s.shippedOn,s.status 
+		from (qo_shipments as s left join qo_orders as o on s.ordersId=o.id) 
+		left join qo_shipments_detail as sd on s.id=sd.shipmentsId ".$where.$where_item." group by s.id limit ".$_POST['start'].",".$_POST['limit'];
+	    }else{
+		$count_sql = "select count(s.id) as num from qo_shipments as s left join qo_orders as o on s.ordersId=o.id ".$where;
+		
+		$data_sql = "select s.id,o.id as ordersId,s.shipToName,s.shipToEmail,o.sellerId,s.createdOn,s.packedOn,s.shippedOn,s.status 
+		from qo_shipments as s left join qo_orders as o on s.ordersId=o.id ".$where." group by s.id limit ".$_POST['start'].",".$_POST['limit'];
+	    }
+	    
+	    //echo $count_sql;
+	    //echo "\n";
+	    //echo $data_sql;
+	    //exit;
+            $count_result = mysql_query($count_sql);
+	    $count_row = mysql_fetch_assoc($count_result);
+	    $totalCount = $count_row['num'];
+	    
+	    $data_result = mysql_query($data_sql);
             $transaction_array = array();
-            while($row = mysql_fetch_assoc($result)){
-                $transaction_array[] = $row;
-                $i++;
+            while($data_row = mysql_fetch_assoc($data_result)){
+                $transaction_array[] = $data_row;
             }
             //var_dump($order_array);
-            echo json_encode(array('totalCount'=>$i, 'records'=>$transaction_array));
+            echo json_encode(array('totalCount'=>$totalCount, 'records'=>$transaction_array));
             mysql_free_result($result);
         }
 	

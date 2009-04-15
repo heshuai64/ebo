@@ -26,7 +26,7 @@ Ext.override(QoDesk.Reports, {
 			xtype:"form",
 			labelWidth:80,
 			items:[{
-			    id:'sellerId',
+			    //id:'sellerId',
 			    xtype: 'combo',
 			    fieldLabel:lang.reports.seller_id,
 			    mode: 'local',
@@ -40,8 +40,8 @@ Ext.override(QoDesk.Reports, {
 			    triggerAction: 'all',
 			    editable: false,
 			    selectOnFocus:true,
-			    width:150,
-			    listWidth:150,
+			    width:160,
+			    listWidth:160,
 			    name: 'sellerId',
 			    hiddenName:'sellerId'
 			},{

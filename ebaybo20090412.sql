@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 14, 2009 at 08:24 下午
+-- Generation Time: Apr 15, 2009 at 07:26 下午
 -- Server version: 5.0.45
 -- PHP Version: 5.1.6
 
@@ -291,7 +291,7 @@ CREATE TABLE IF NOT EXISTS `qo_dependencies` (
   `directory` varchar(255) default '' COMMENT 'The directory within the modules directory stated in the system/os/config.php',
   `file` varchar(255) default NULL COMMENT 'The file that contains the dependency',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
 
 --
 -- Dumping data for table `qo_dependencies`
@@ -301,7 +301,8 @@ INSERT INTO `qo_dependencies` (`id`, `directory`, `file`) VALUES
 (5, 'orders/', 'lang.js'),
 (6, 'transactions/', 'lang.js'),
 (7, 'shipments/', 'lang.js'),
-(8, 'reports/', 'lang.js');
+(8, 'reports/', 'lang.js'),
+(9, 'attention/', 'lang.js');
 
 -- --------------------------------------------------------
 
@@ -447,7 +448,7 @@ CREATE TABLE IF NOT EXISTS `qo_groups` (
 INSERT INTO `qo_groups` (`id`, `name`, `description`, `importance`, `active`) VALUES
 (1, 'administrator', 'System administrator', 100, 1),
 (2, 'user', 'General user', 50, 1),
-(3, 'demo', 'Demo user', 1, 1);
+(3, 'demo', 'Demo user', 1, 0);
 
 -- --------------------------------------------------------
 
@@ -462,7 +463,7 @@ CREATE TABLE IF NOT EXISTS `qo_groups_has_domain_privileges` (
   `qo_privileges_id` int(11) unsigned default '0',
   `is_allowed` tinyint(1) unsigned default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=17 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=18 ;
 
 --
 -- Dumping data for table `qo_groups_has_domain_privileges`
@@ -480,7 +481,8 @@ INSERT INTO `qo_groups_has_domain_privileges` (`id`, `qo_groups_id`, `qo_domains
 (13, 3, 0, 4, 0),
 (14, 3, 0, 5, 0),
 (15, 3, 0, 6, 0),
-(16, 1, 0, 7, 1);
+(16, 1, 0, 7, 1),
+(17, 1, 0, 8, 1);
 
 -- --------------------------------------------------------
 
@@ -603,7 +605,7 @@ CREATE TABLE IF NOT EXISTS `qo_modules` (
   `active` tinyint(1) unsigned NOT NULL default '0' COMMENT 'Is the module currently active',
   `load_on_demand` tinyint(1) unsigned NOT NULL default '1' COMMENT 'Preload this module at start up?',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=18 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=19 ;
 
 --
 -- Dumping data for table `qo_modules`
@@ -620,7 +622,8 @@ INSERT INTO `qo_modules` (`id`, `author`, `version`, `url`, `description`, `modu
 (10, 'heshuai', '1.0', 'http://heshuai64.gnway.net', 'orders manager', 'orders', 'qo-orders', 1, 1),
 (11, 'heshuai', '1.0', 'http://heshuai64.gnway.net', 'Transactions manager', 'transactions', 'qo-transactions', 1, 1),
 (12, 'heshuai', '1.0', 'http://heshuai64.gnway.net', 'shipments manager', 'shipments', 'qo-shipments', 1, 1),
-(17, 'heshuai', '1.0', 'http://heshuai64.gnway.net', 'reports', 'reports', 'qo-reports', 1, 1);
+(17, 'heshuai', '1.0', 'http://heshuai64.gnway.net', 'reports', 'reports', 'qo-reports', 1, 1),
+(18, 'heshuai', '1.0', 'http://heshuai64.gnway.net', 'attention', 'attention', 'qo-attention', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -634,7 +637,7 @@ CREATE TABLE IF NOT EXISTS `qo_modules_actions` (
   `name` varchar(35) default NULL,
   `description` text,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=62 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=63 ;
 
 --
 -- Dumping data for table `qo_modules_actions`
@@ -700,7 +703,8 @@ INSERT INTO `qo_modules_actions` (`id`, `qo_modules_id`, `name`, `description`) 
 (58, 11, 'createTransaction', '创建付款'),
 (59, 10, 'addOrderShipment', '给订单添加货运'),
 (60, 10, 'deleteOrderShipment', '删除订单货运'),
-(61, 12, 'shipShipment', '发送货物');
+(61, 12, 'shipShipment', '发送货物'),
+(62, 18, 'getUnmapTransaction', '获取没有匹配的付款');
 
 -- --------------------------------------------------------
 
@@ -762,7 +766,11 @@ INSERT INTO `qo_modules_files` (`qo_modules_id`, `directory`, `file`, `is_styles
 (17, 'reports/', 'reports.css', 1, 0, 0, ''),
 (17, 'reports/', 'reports.js', 0, 0, 1, 'QoDesk.Reports'),
 (17, 'reports/', 'reports-override.js', 0, 0, 0, ''),
-(17, 'reports/', 'reports.php', 0, 1, 0, 'QoReports');
+(17, 'reports/', 'reports.php', 0, 1, 0, 'QoReports'),
+(18, 'attention/', 'attention.css', 1, 0, 0, ''),
+(18, 'attention/', 'attention.js', 0, 0, 1, 'QoDesk.Attention'),
+(18, 'attention/', 'attention-override.js', 0, 0, 0, ''),
+(18, 'attention/', 'attention.php', 0, 1, 0, 'QoAttention');
 
 -- --------------------------------------------------------
 
@@ -784,7 +792,8 @@ INSERT INTO `qo_modules_has_dependencies` (`qo_modules_id`, `qo_dependencies_id`
 (10, 5),
 (11, 6),
 (12, 7),
-(17, 8);
+(17, 8),
+(18, 9);
 
 -- --------------------------------------------------------
 
@@ -877,17 +886,17 @@ CREATE TABLE IF NOT EXISTS `qo_orders_detail` (
 --
 
 INSERT INTO `qo_orders_detail` (`id`, `ordersId`, `skuId`, `skuTitle`, `itemId`, `itemTitle`, `quantity`, `barCode`, `unitPriceCurrency`, `unitPriceValue`, `ebayTranctionId`, `ebayOrderId`) VALUES
-(99, 'ORD200903A0054', '', '', '110038587148', 'FixedPriceItem_4', 1, '', 'USD', 24.99, '23804652001', ''),
-(98, 'ORD200903A0053', '', '', '110038586329', 'FixedPriceItem_3', 1, '', 'USD', 24.99, '23804492001', '1040526'),
-(97, 'ORD200903A0053', '', '', '110038458333', 'test_10', 2, '', 'USD', 24.99, '23782474001', '1040526'),
-(96, 'ORD200903A0053', '', '', '110038445870', 'test_10', 1, '', 'USD', 40.00, '0', '1040526'),
-(95, 'ORD200903A0052', '', '', '110038450903', 'test_10', 1, '', 'USD', 24.99, '23780829001', '1040086'),
-(94, 'ORD200903A0052', '', '', '110038436041', 'test_1', 1, '', 'USD', 20.00, '0', '1040086'),
-(100, 'ORD200903A0054', '', '', '110038587274', 'FixedPriceItem_5', 1, '', 'USD', 24.99, '23804686001', ''),
-(101, 'ORD200903A0054', '', '', '110038587365', 'FixedPriceItem_6', 1, '', 'USD', 24.99, '23804717001', ''),
-(102, 'ORD200903A0054', '', '', '110038587418', 'FixedPriceItem_7', 1, '', 'USD', 24.99, '23804749001', ''),
-(103, 'ORD200903A0054', '', '', '110038600875', 'FixedPriceItem_8', 1, '', 'USD', 24.99, '23807868001', ''),
-(112, 'ORD200904A0014', '3', '4', '1', '2', 6, '', 'USD', 5.00, '', '');
+(99, 'ORD200903A0054', '110038587148', '', '110038587148', 'FixedPriceItem_4', 1, '', 'USD', 24.99, '23804652001', ''),
+(98, 'ORD200903A0053', '110038586329', '', '110038586329', 'FixedPriceItem_3', 1, '', 'USD', 24.99, '23804492001', '1040526'),
+(97, 'ORD200903A0053', '110038458333', '', '110038458333', 'test_10', 2, '', 'USD', 24.99, '23782474001', '1040526'),
+(96, 'ORD200903A0053', '110038445870', '', '110038445870', 'test_10', 1, '', 'USD', 40.00, '0', '1040526'),
+(95, 'ORD200903A0052', '110038450903', '', '110038450903', 'test_10', 1, '', 'USD', 24.99, '23780829001', '1040086'),
+(94, 'ORD200903A0052', '110038436041', '', '110038436041', 'test_1', 1, '', 'USD', 20.00, '0', '1040086'),
+(100, 'ORD200903A0054', '110038587274', '', '110038587274', 'FixedPriceItem_5', 1, '', 'USD', 24.99, '23804686001', ''),
+(101, 'ORD200903A0054', '110038587365', '', '110038587365', 'FixedPriceItem_6', 1, '', 'USD', 24.99, '23804717001', ''),
+(102, 'ORD200903A0054', '110038587418', '', '110038587418', 'FixedPriceItem_7', 1, '', 'USD', 24.99, '23804749001', ''),
+(103, 'ORD200903A0054', '110038600875', '', '110038600875', 'FixedPriceItem_8', 1, '', 'USD', 24.99, '23807868001', ''),
+(112, 'ORD200904A0014', '1', '4', '1', '2', 6, '', 'USD', 5.00, '', '');
 
 -- --------------------------------------------------------
 
@@ -929,7 +938,7 @@ CREATE TABLE IF NOT EXISTS `qo_privileges` (
   `description` text,
   `is_singular` tinyint(1) unsigned default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
 
 --
 -- Dumping data for table `qo_privileges`
@@ -942,7 +951,8 @@ INSERT INTO `qo_privileges` (`id`, `name`, `description`, `is_singular`) VALUES
 (4, '订单模块操作', NULL, 1),
 (5, '付款模块操作', NULL, 1),
 (6, '货运模块操作', NULL, 1),
-(7, '统计报告', NULL, 1);
+(7, '统计报告', NULL, 1),
+(8, '系统提醒', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -955,7 +965,7 @@ CREATE TABLE IF NOT EXISTS `qo_privileges_has_module_actions` (
   `qo_privileges_id` int(11) unsigned default NULL,
   `qo_modules_actions_id` int(11) unsigned default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=65 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=66 ;
 
 --
 -- Dumping data for table `qo_privileges_has_module_actions`
@@ -1021,7 +1031,8 @@ INSERT INTO `qo_privileges_has_module_actions` (`id`, `qo_privileges_id`, `qo_mo
 (61, 5, 58),
 (62, 4, 59),
 (63, 4, 60),
-(64, 6, 61);
+(64, 6, 61),
+(65, 8, 62);
 
 -- --------------------------------------------------------
 
@@ -1149,11 +1160,11 @@ CREATE TABLE IF NOT EXISTS `qo_shipments_detail` (
 --
 
 INSERT INTO `qo_shipments_detail` (`id`, `shipmentsId`, `skuId`, `skuTitle`, `itemId`, `itemTitle`, `quantity`, `barCode`) VALUES
-(1, 'SHI200903A0001', 'a09030600ux0052', '1', '2', '2', 1, ''),
+(1, 'SHI200903A0001', '2', '1', '2', '2', 1, ''),
 (2, 'SHI200903A0001', 'a09032500ux0136', 'a09032500ux0136', 'a09032500ux0136', 'a09032500ux0136', 1, ''),
-(5, 'SHI200904A0008', '', '', '110038445870', 'test_10', 1, ''),
-(6, 'SHI200904A0009', '', '', '110038587148', 'FixedPriceItem_4', 1, ''),
-(7, 'SHI200904A0010', '3', '4', '1', '2', 6, '');
+(5, 'SHI200904A0008', '110038445870', '', '110038445870', 'test_10', 1, ''),
+(6, 'SHI200904A0009', '110038587148', '', '110038587148', 'FixedPriceItem_4', 1, ''),
+(7, 'SHI200904A0010', '1', '4', '1', '2', 6, '');
 
 -- --------------------------------------------------------
 
@@ -1247,7 +1258,8 @@ INSERT INTO `qo_transactions` (`id`, `txnId`, `transactionTime`, `amountCurrency
 ('TRA200904A0041', '2541169', '2009-04-01 16:09:25', 'USD', 49.99, 'P', 'test', '', '0000-00-00 00:00:00', 'admin', '2009-04-13 17:05:41', 'testuser_heshuai04', 'testuser_heshuai05', 'John Smith', 'buyer@paypalsandbox.com', '123, any street', '', 'San Jose', 'CA', '95131', 'United States', '110038450903,110038436041'),
 ('TRA200904A0051', '222', '2009-04-05 00:00:00', 'EUR', 222.00, 'D', '', '', '2009-04-04 19:06:23', '', '0000-00-00 00:00:00', '22', '222', '2', '22', '2', '22', '22', '2222', '22', '', ''),
 ('TRA200904A0050', '1', '2009-04-05 00:00:00', 'GBP', 11.00, 'N', '', '', '2009-04-04 18:40:14', '', '0000-00-00 00:00:00', 'testuser_heshuai04', 'testuser_heshuai05', '1111111111', '11111111111', '111111111111', '1111111111', '11111111111', '11111111111111111', '111111', '', ''),
-('TRA200904A0004', '1', '0000-00-00 00:00:00', 'USD', 3.00, 'P', '4', 'admin', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', 'TESTUSER_heshuai04', '5', '6', '7', '8', '9', '10', '11', '12', 'Afghanistan', '');
+('TRA200904A0004', '1', '0000-00-00 00:00:00', 'USD', 3.00, 'P', '4', 'admin', '2009-04-15 00:00:00', '', '0000-00-00 00:00:00', 'TESTUSER_heshuai04', '5', '6', '7', '8', '9', '10', '11', '12', 'Afghanistan', ''),
+('TRA200904A0005', '1212', '0000-00-00 00:00:00', 'USD', 12.12, 'P', '', '', '2009-04-15 00:00:00', '', '0000-00-00 00:00:00', '', '', '', '', '', '', '', '', '', '', '');
 
 -- --------------------------------------------------------
 

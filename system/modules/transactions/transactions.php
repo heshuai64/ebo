@@ -36,7 +36,7 @@ class QoTransactions {
 	}
 	
         public function searchTransaction(){
-		$where = " 1 = 1 ";
+		$where = " where 1 = 1 ";
                 
                 if(!empty($_POST['transactionsId'])){
 			$where .= " and t.id like '%".$_POST['transactionsId']."%'";
@@ -94,23 +94,29 @@ class QoTransactions {
 			$where .= " and t.modifiedOn < '".$_POST['modifiedOnTo']."'";
 		}
                 
-		if(!empty($_POST['ordersId'])){
-			$sql = "select t.id,t.txnId,t.transactionTime,t.status,t.amountCurrency,t.amountValue,t.payerId from
-			qo_transactions as t where ".$where;
+		if(empty($_POST['ordersId'])){
+			$count_sql = "select count(*) as num from qo_transactions as t ".$where;
+			$data_sql = "select t.id,t.txnId,t.transactionTime,t.status,t.amountCurrency,t.amountValue,t.payerId from qo_transactions as t ".$where." limit ".$_POST['start'].",".$_POST['limit'];
 		}else{
-			$sql = "select t.id,t.txnId,t.transactionTime,t.status,t.amountCurrency,t.amountValue,t.payerId from 
-			qo_transactions as t left join qo_orders_transactions as ot on t.id = ot.transactionsId where ".$where."
-			group by t.id";
+			$count_sql = "select count(*) from qo_transactions as t left join qo_orders_transactions as ot on t.id = ot.transactionsId ".$where;
+			$data_sql = "select t.id,t.txnId,t.transactionTime,t.status,t.amountCurrency,t.amountValue,t.payerId from 
+			qo_transactions as t left join qo_orders_transactions as ot on t.id = ot.transactionsId ".$where." limit ".$_POST['start'].",".$_POST['limit'];
 		}
-                $result = mysql_query($sql);
-		$i = 0;
+		//echo $count_sql;
+		//echo "\n";
+		//echo $data_sql;
+		
+		$count_result = mysql_query($count_sql);
+		$count_row = mysql_fetch_assoc($data_result);
+		$totalCount = $count_row['num'];
+		
+                $data_result = mysql_query($data_sql);
 		$transaction_array = array();
-		while($row = mysql_fetch_assoc($result)){
-                    $transaction_array[] = $row;
-                    $i++;
+		while($data_row = mysql_fetch_assoc($data_result)){
+                    $transaction_array[] = $data_row;
 		}
 		//var_dump($order_array);
-		echo json_encode(array('totalCount'=>$i, 'records'=>$transaction_array));
+		echo json_encode(array('totalCount'=>$totalCount, 'records'=>$transaction_array));
 		mysql_free_result($result);
         }
         

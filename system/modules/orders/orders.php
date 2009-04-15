@@ -90,7 +90,7 @@ class QoOrders {
         }
 	
 	public function searchOrder(){
-		$where = " 1 = 1 ";
+		$where = " where 1 = 1 ";
 		
 		if(!empty($_POST['id'])){
 			$where .= " and o.id like '%".$_POST['id']."%'";
@@ -132,6 +132,22 @@ class QoOrders {
 			$where .= " and o.createdOn  < '".$_POST['createdOnTo']."'";
 		}
 		
+		if(!empty($_POST['skuId'])){
+			$where_sku = " and od.skuId like '%".$_POST['skuId']."%'";
+		}
+		
+		if(!empty($_POST['skuTitle'])){
+			$where_sku = " and od.skuTitle like '%".$_POST['skuTitle']."%'";
+		}
+		
+		if(!empty($_POST['itemId'])){
+			$where_item = " and od.itemId like '%".$_POST['itemId']."%'";
+		}
+		
+		if(!empty($_POST['itemTitle'])){
+			$where_item = " and od.itemTitle like '%".$_POST['itemTitle']."%'";
+		}
+		
 		if(!empty($_POST['modifiedOnFrom'])){
 			$where .= " and o.modifiedOn   > '".$_POST['modifiedOnFrom']."'";
 		}
@@ -140,19 +156,44 @@ class QoOrders {
 			$where .= " and o.modifiedOn   < '".$_POST['modifiedOnTo']."'";
 		}
 		
-		$sql = "select o.id,o.status,o.sellerId,o.buyerId,o.ebayName,o.ebayEmail,o.grandTotalCurrency,o.grandTotalValue,ot.amountPayCurrency,sum(ot.amountPayValue) as amountPayValue 
-		from qo_orders as o left join qo_orders_transactions as ot on o.id=ot.ordersId where ".$where." 
-		group by o.id";
-		//echo $sql;
-		$result = mysql_query($sql);
-		$i = 0;
+		if(!empty($where_sku) && !empty($where_item)){
+			$count_sql = "select count(*) as num from (select distinct od.ordersId from qo_orders as o left join qo_orders_detail as od on o.id=od.ordersId ".$where.$where_sku.$where_item.") as total";
+			//distinct
+			$data_sql = "select o.id,o.status,o.sellerId,o.buyerId,o.ebayName,o.ebayEmail,o.grandTotalCurrency,o.grandTotalValue,ot.amountPayCurrency,sum(ot.amountPayValue) as amountPayValue 
+			from (qo_orders as o left join qo_orders_transactions as ot on o.id=ot.ordersId) left join qo_orders_detail as od on o.id=od.ordersId ".$where.$where_sku.$where_item." group by o.id limit ".$_POST['start'].",".$_POST['limit'];
+		}elseif(!empty($where_sku)){
+			$count_sql = "select count(*) as num from (select distinct od.ordersId from qo_orders as o left join qo_orders_detail as od on o.id=od.ordersId ".$where.$where_sku.") as total";
+			
+			$data_sql = "select o.id,o.status,o.sellerId,o.buyerId,o.ebayName,o.ebayEmail,o.grandTotalCurrency,o.grandTotalValue,ot.amountPayCurrency,sum(ot.amountPayValue) as amountPayValue 
+			from (qo_orders as o left join qo_orders_transactions as ot on o.id=ot.ordersId) left join qo_orders_detail as od on o.id=od.ordersId ".$where.$where_sku." group by o.id limit ".$_POST['start'].",".$_POST['limit'];
+		}elseif(!empty($where_item)){
+			$count_sql = "select count(*) as num from (select distinct od.ordersId from qo_orders as o left join qo_orders_detail as od on o.id=od.ordersId ".$where.$where_item.") as total";
+			
+			$data_sql = "select o.id,o.status,o.sellerId,o.buyerId,o.ebayName,o.ebayEmail,o.grandTotalCurrency,o.grandTotalValue,ot.amountPayCurrency,sum(ot.amountPayValue) as amountPayValue 
+			from (qo_orders as o left join qo_orders_transactions as ot on o.id=ot.ordersId) left join qo_orders_detail as od on o.id=od.ordersId ".$where.$where_item." group by o.id limit ".$_POST['start'].",".$_POST['limit'];
+		}else{
+			$count_sql = "select count(*) as num from qo_orders as o ".$where;
+			
+			$data_sql = "select o.id,o.status,o.sellerId,o.buyerId,o.ebayName,o.ebayEmail,o.grandTotalCurrency,o.grandTotalValue,ot.amountPayCurrency,sum(ot.amountPayValue) as amountPayValue 
+			from qo_orders as o left join qo_orders_transactions as ot on o.id=ot.ordersId ".$where." 
+			group by o.id limit ".$_POST['start'].",".$_POST['limit'];
+		}
+		
+		//echo $count_sql;
+		//echo "\n";
+		//echo $data_sql;
+		//exit;
+		$count_result = mysql_query($count_sql);
+		$count_row = mysql_fetch_assoc($count_result);
+		$totalCount = $count_row['num'];
+		
+		$data_result = mysql_query($data_sql);
 		$order_array = array();
-		while($row = mysql_fetch_assoc($result)){
-			$order_array[] = $row;
-			$i++;
+		while($data_row = mysql_fetch_assoc($data_result)){
+			$order_array[] = $data_row;
 		}
 		//var_dump($order_array);
-		echo json_encode(array('totalCount'=>$i, 'records'=>$order_array));
+		echo json_encode(array('totalCount'=>$totalCount, 'records'=>$order_array));
 		mysql_free_result($result);
 	}
 	

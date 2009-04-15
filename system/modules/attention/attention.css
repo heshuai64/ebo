@@ -1,0 +1,8 @@
+.attention-icon {
+    background-image:url(images/attention-16x16.gif) !important;
+}
+.attention-shortcut img {
+    background-image: url(images/attention-48x48.gif);
+    filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='system/modules/attention/images/attention-48x48.gif', sizingMethod='scale');
+}
+

@@ -10,7 +10,7 @@ Ext.override(QoDesk.Transactions, {
                 root: 'records',
                 totalProperty: 'totalCount',
                 idProperty: 'id',
-                remoteSort: true,
+                //remoteSort: true,
                 baseParams:{transactionsId:searchTransactionForm.findField('transactionsId').getValue(), ordersId:searchTransactionForm.findField('ordersId').getValue(),
                             payeeId:searchTransactionForm.findField('payeeId').getValue(),status:searchTransactionForm.findField('status').getValue(),
                             txnId:searchTransactionForm.findField('txnId').getValue(),payer:searchTransactionForm.findField('payer').getValue(),

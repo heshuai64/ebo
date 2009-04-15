@@ -12,11 +12,13 @@ Ext.override(QoDesk.Orders, {
                 root: 'records',
                 totalProperty: 'totalCount',
                 idProperty: 'id',
-                remoteSort: true,
+                //remoteSort: true,
                 baseParams:{id:searchOrderForm.findField('id').getValue(), sellerId:searchOrderForm.findField('sellerId').getValue(),
                             status:searchOrderForm.findField('status').getValue(),remarks:searchOrderForm.findField('remarks').getValue(),
                             buyerId:searchOrderForm.findField('buyerId').getValue(),buyerName:searchOrderForm.findField('buyerName').getValue(),
                             buyerEmail:searchOrderForm.findField('buyerEmail').getValue(),buyerAddress:searchOrderForm.findField('buyerAddress').getValue(),
+			    skuId:searchOrderForm.findField('skuId').getValue(),skuTitle:searchOrderForm.findField('skuTitle').getValue(),
+			    itemId:searchOrderForm.findField('itemId').getValue(),itemTitle:searchOrderForm.findField('itemTitle').getValue(),
                             createdOnFrom:searchOrderForm.findField('createdOnFrom').getValue(),createdOnTo:searchOrderForm.findField('createdOnTo').getValue(),
                             modifiedOnFrom:searchOrderForm.findField('modifiedOnFrom').getValue(),modifiedOnTo:searchOrderForm.findField('modifiedOnTo').getValue()
                             },
@@ -125,7 +127,7 @@ Ext.override(QoDesk.Orders, {
                 id: 'orders-win',
                 title:lang.orders.search_orders,
                 width:600,
-                height:300,
+                height:400,
                 iconCls: 'orders-icon',
                 shim:false,
                 animCollapse:false,
@@ -215,7 +217,48 @@ Ext.override(QoDesk.Orders, {
                             defaults:{
                                 border:false
                             },
+			    width:600,
                             items:[{
+                                html:lang.orders.form_sku
+                              },{
+                                layout:"form",
+                                labelWidth:30,
+                                cellCls: "orders-search-create-time",
+                                items:[{
+                                    xtype:"textfield",
+                                    fieldLabel:lang.orders.form_sku_id,
+                                    name:"skuId"
+                                }]
+                              },{
+                                layout:"form",
+                                labelWidth:30,
+                                cellCls: "orders-search-create-time",
+                                items:[{
+                                    xtype:"textfield",
+                                    fieldLabel:lang.orders.form_sku_title,
+                                    name:"skuTitle"
+                                }]
+                              },{
+                                html:lang.orders.form_item
+                              },{
+                                layout:"form",
+                                labelWidth:30,
+                                cellCls: "orders-search-create-time",
+                                items:[{
+                                    xtype:"textfield",
+                                    fieldLabel:lang.orders.form_item_id,
+                                    name:"itemId"
+                                }]
+                              },{
+                                layout:"form",
+                                labelWidth:30,
+                                cellCls: "orders-search-create-time",
+                                items:[{
+                                    xtype:"textfield",
+                                    fieldLabel:lang.orders.form_item_title,
+                                    name:"itemTitle"
+                                }]
+                              },{
                                 html:lang.orders.form_created_date
                               },{
                                 layout:"form",
