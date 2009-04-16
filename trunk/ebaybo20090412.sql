@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 15, 2009 at 07:26 下午
+-- Generation Time: Apr 16, 2009 at 06:02 下午
 -- Server version: 5.0.45
 -- PHP Version: 5.1.6
 
@@ -405,8 +405,9 @@ CREATE TABLE IF NOT EXISTS `qo_ebay_seller` (
 --
 
 INSERT INTO `qo_ebay_seller` (`id`, `email`, `status`, `devId`, `appId`, `cert`, `token`, `tokenExpiry`, `currency`, `site`) VALUES
-('TESTUSER_heshuai04', 'heshuai04@gmail.com', 'A', '81d79ca0-c641-4b26-ab37-6ca5bbf6fd34', 'Creasion-2b89-4331-9d17-ed62ce38b7b6', '07278e04-4e23-465a-ab45-4fb6ad08af7b', 'AgAAAA**AQAAAA**aAAAAA**pGy/SQ**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wFk4CoDZODqAqdj6x9nY+seQ**ExoBAA**AAMAAA**QMb6da3xBI2I7XFfWjQQQRuo3mjdnwpr6szDQpG9ttp76UDsKMU6bgBtdDdCWsqm3OxAu9p8yOa2+qM9nTIvc/LAEA8+XyzyXtLSm2uWXYAPPmdqdFsWPLGIoLwXXdG9dd59b5/QDac6PBEhJviAUZrkENqOcU+F/lT41Xf1u91U5vllhtCtsguJhcS84XhAYDJ5rlk4X4LWeV1YLMnwkIsMEvH71wMxK1kh6WjAFa5MmAkKnq2DAEHp+838ammQU9poa7e95wNLTufGygyW0HWNJJ4m1PgjrpdboZD4uWq9LCXm5XAw6vcXo980wM8nlnk8S3nyD2/WNKBZ6Wqf09QlfwKBT4HI3eiDotzjdVUlIu22jb0AudD+7mEhFbmL6kSL0VZp65WyHXaNf4emzrHL8c0ilTiirSm7aEXF34fFmuAdyvRhVwX+bqcVqYItpXvxjNimBF3F/bGMXQcI2Lzsk98GxAOLnRnXP/PXnaHtJpwtP3jrjPP4zUCd/PJSvUvwBSMYGtfNjd4YrXhbILXeaGLZrKr8QAkgzqpd/b4nAUFJw3PrHpMocmstIY8Y1LtDsq3P4NUYpYSoRUvi/hSYMUM++j7ZqTbvu/T9so6IRWKtRYPsYPtNS8tqhmby/1LnWLb3AZYYte2n1/30/5SJIvyybxQ/nMt9fOnp0Yw9OY737u59p5TsSA28sqvVGCGerohwoo3TUmmJgVN1q+gr7YwmtzPEZ1TrAmhxkOwH6G9DB/vsx9b6wuJk5hib', '2009-03-27 20:45:26', 'USD', 'US'),
-('TESTUSER_heshuai05', '', '', '', '', '', '', '0000-00-00 00:00:00', '', '');
+('TESTUSER_heshuai04', 'heshuai04@gmail.com', 'I', '81d79ca0-c641-4b26-ab37-6ca5bbf6fd34', 'Creasion-2b89-4331-9d17-ed62ce38b7b6', '07278e04-4e23-465a-ab45-4fb6ad08af7b', 'AgAAAA**AQAAAA**aAAAAA**pGy/SQ**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wFk4CoDZODqAqdj6x9nY+seQ**ExoBAA**AAMAAA**QMb6da3xBI2I7XFfWjQQQRuo3mjdnwpr6szDQpG9ttp76UDsKMU6bgBtdDdCWsqm3OxAu9p8yOa2+qM9nTIvc/LAEA8+XyzyXtLSm2uWXYAPPmdqdFsWPLGIoLwXXdG9dd59b5/QDac6PBEhJviAUZrkENqOcU+F/lT41Xf1u91U5vllhtCtsguJhcS84XhAYDJ5rlk4X4LWeV1YLMnwkIsMEvH71wMxK1kh6WjAFa5MmAkKnq2DAEHp+838ammQU9poa7e95wNLTufGygyW0HWNJJ4m1PgjrpdboZD4uWq9LCXm5XAw6vcXo980wM8nlnk8S3nyD2/WNKBZ6Wqf09QlfwKBT4HI3eiDotzjdVUlIu22jb0AudD+7mEhFbmL6kSL0VZp65WyHXaNf4emzrHL8c0ilTiirSm7aEXF34fFmuAdyvRhVwX+bqcVqYItpXvxjNimBF3F/bGMXQcI2Lzsk98GxAOLnRnXP/PXnaHtJpwtP3jrjPP4zUCd/PJSvUvwBSMYGtfNjd4YrXhbILXeaGLZrKr8QAkgzqpd/b4nAUFJw3PrHpMocmstIY8Y1LtDsq3P4NUYpYSoRUvi/hSYMUM++j7ZqTbvu/T9so6IRWKtRYPsYPtNS8tqhmby/1LnWLb3AZYYte2n1/30/5SJIvyybxQ/nMt9fOnp0Yw9OY737u59p5TsSA28sqvVGCGerohwoo3TUmmJgVN1q+gr7YwmtzPEZ1TrAmhxkOwH6G9DB/vsx9b6wuJk5hib', '2009-03-27 20:45:26', 'USD', 'US'),
+('TESTUSER_heshuai05', '', '', '', '', '', '', '0000-00-00 00:00:00', '', ''),
+('ymca200808', '', 'A', '', '', '', 'AgAAAA**AQAAAA**aAAAAA**f+XmSQ**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wCloKhCpCLow+dj6x9nY+seQ**OqAAAA**AAMAAA**eaPRl2hxxlckzEnqMSsMFTBpdPWOlkwcWr9JUTN3ATEZi6Y8DlOPTm03lq21n1X7JYjh6VAKvcbPAxQrUhA+NBRa6LfeXJS7IncAURcPQhdoEas0mu9p2i1fJiMh3fu9LFODmRdQLIHM0cMzwigGsUn7uz4o3itZGPHH5WYXc7htxyy7dygLmjMAm+dTjyUXh4kyjSJhNFvQvyQ5u7RXPGEU+k534IQqwJhQ/itOpnWMzA16WAfAeXjL9jhKpf0wH3Vj42zR4DrEBzeN2FTfpXbzLeRmQl/8qrwgCrWSQcjA5PjKJMPb7LdLsJn6pgPUQTt55Ttt3kDLaPgb3qUcVnGr/l4pXqySjLaA4uDpyVWg2Q3G9s5l3prnRjb3RK5ygUeTmxjra+ldNtZVm2JEbqHRQUTkAGMj7zVpp1NoRU0DHzzOgCCGJhNzgP/6ncETG3xJDCyMziTTwLZTWAqFr0ISDe0JsMYD0BOmafYKzoptvqA69Lyjmals+KfGqYcXT+sQlZU5VTvB6Jx4i6yOJzrUv6ixW0kkUZmt6uQABYE6i23y4PIEDAeBUQ6thrAYeXPEPEz4Vh2ePL1OpDhv/FfkdouCE1z3n3yyBg9ZMsIp4cW29/JjbHtUxkcvlo1dWHNctpciTE/IV8X0QZxWCCnoLAC/puRaKYOo46bGfC7fyh1TxW8w38ZaCNHLXq8YaB5gjBVjjLpRe8hp73aTDCTU1aVDNohGjZg0A8ajYbQC0zscptQ+xLEhAGKre6Wc', '2010-10-08 07:59:59', '', '');
 
 -- --------------------------------------------------------
 
@@ -505,6 +506,33 @@ CREATE TABLE IF NOT EXISTS `qo_groups_has_members` (
 INSERT INTO `qo_groups_has_members` (`qo_groups_id`, `qo_members_id`, `active`, `admin`) VALUES
 (1, 4, 1, 1),
 (2, 7, 1, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `qo_items`
+--
+
+CREATE TABLE IF NOT EXISTS `qo_items` (
+  `id` varchar(20) NOT NULL,
+  `skuId` varchar(20) NOT NULL,
+  `site` varchar(10) NOT NULL,
+  `title` varchar(60) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `quantitySold` int(11) NOT NULL,
+  `sellerId` varchar(60) NOT NULL,
+  `ListingType` varchar(30) NOT NULL,
+  `StartTime` datetime NOT NULL,
+  `EndTime` datetime NOT NULL,
+  `GalleryURL` varchar(100) NOT NULL,
+  PRIMARY KEY  (`id`),
+  KEY `skuId` (`skuId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `qo_items`
+--
+
 
 -- --------------------------------------------------------
 
