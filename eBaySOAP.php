@@ -44,11 +44,15 @@ class eBaySession {
 		                                           'NameValueListArrayType' => 'eBayNameValueListArrayType',
 		                                           'NameValueListType' => 'eBayNameValueListType',
 		                                           'PictureDetailsType' => 'eBayPictureDetailsType',
-		                                          ),
-		                       'proxy_host' => $proxy_host,
-		                       'proxy_port' => (int)$proxy_port
+		                                          )
+		                       //'proxy_host' => $proxy_host,
+		                       //'proxy_port' => (int)$proxy_port
 #		                       'compression' => SOAP_COMPRESSION_ACCEPT,
 		                      );
+		if(!empty($proxy_host) && !empty($proxy_port)){
+			$this->options['proxy_host'] = $proxy_host;
+			$this->options['proxy_port'] = (int)$proxy_port;
+		}
 		
 		$this->ns = 'urn:ebay:apis:eBLBaseComponents';
 		$this->version = 607; // should pull this from the WSDL
@@ -107,7 +111,7 @@ class eBaySOAP extends SoapClient {
 			$credentials['Password'] = new SoapVar($session->password, XSD_STRING, null, null, null, $session->ns);
 		}
 
-		if (isset($session->token)) {
+		if (isset($session->token) && ($session->token != null)) {
 			$eBayAuth['eBayAuthToken'] = new SoapVar($session->token, XSD_STRING, null, null, null, $session->ns);
 		}
 		$eBayAuth['Credentials'] = new SoapVar($credentials, SOAP_ENC_OBJECT, null, null, null, $session->ns);

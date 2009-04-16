@@ -118,36 +118,36 @@ class eBay{
 	$this->endTime = $endTime;
     }
     
-    private function configEbay($dev, $app, $cert, $token, $proxy_host, $proxy_port){
+    private function configEbay($dev='', $app='', $cert='', $token='', $proxy_host='', $proxy_port=''){
     	
 	// Load developer-specific configuration data from ini file
 	$config = parse_ini_file('ebay.ini', true);
 	$site = $config['settings']['site'];
 	//$compatibilityLevel = $config['settings']['compatibilityLevel'];
 	
-	$dev = $config[$site]['devId'];
-	$app = $config[$site]['appId'];
-	$cert = $config[$site]['cert'];
-	//$token = $config[$site]['authToken'];
+	$dev = (empty($dev)?$config[$site]['devId']:$dev);
+	$app = (empty($app)?$config[$site]['appId']:$app);
+	$cert = (empty($cert)?$config[$site]['cert']:$cert);
+	$token = (empty($token)?$config[$site]['authToken']:$token);
 	$location = $config[$site]['gatewaySOAP'];
+	//$location = self::GATEWAY_SOAP;
 	
-	    
 	// Create and configure session
 	$session = new eBaySession($dev, $app, $cert, $proxy_host, $proxy_port);
 	$session->token = $token;
 	$session->site = 0; // 0 = US;
 	$session->location = $location;
-	//$session->location = self::GATEWAY_SOAP;
 	
 	return $session;
     }
     
     private function GetSellerTransactions($ModTimeFrom, $ModTimeTo, $sellerId, $dev, $app, $cert, $token, $proxy_host, $proxy_port){
-        $sql = "select token from qo_ebay_seller where id = '".$sellerId."'";
+        /*
+	$sql = "select token from qo_ebay_seller where id = '".$sellerId."'";
         $result = mysql_query($sql, eBay::$database_connect);
         $row = mysql_fetch_assoc($result);
         $token = $row['token'];
-        
+        */
         $session = $this->configEbay($dev, $app, $cert, $token, $proxy_host, $proxy_port);
         try {
                 $client = new eBaySOAP($session);
@@ -484,12 +484,133 @@ class eBay{
     }
     
     public function getAllEbayTransaction(){    
-		$sql = "select es.id,es.devId,es.appId,es.cert,es.token,ep.proxy_host,ep.proxy_port from qo_ebay_seller as es left join qo_ebay_proxy as ep on es.id=ep.ebay_seller_id";
+		$sql = "select es.id,es.devId,es.appId,es.cert,es.token,ep.proxy_host,ep.proxy_port from qo_ebay_seller as es left join qo_ebay_proxy as ep on es.id=ep.ebay_seller_id where es.status='A'";
 		$result = mysql_query($sql, eBay::$database_connect);
 		while ($row = mysql_fetch_assoc($result)){
 			//authToken   devId  appId  cert  gatewaySOAP
 			$this->createOrderFromEbay($this->startTime, $this->endTime, $row['id'], $row['devId'], $row['appId'], $row['cert'], $row['token'], $row['proxy_host'], $row['proxy_port']);
 		}
+    }
+    
+    private function checkEbayItemExist($id){
+	$sql = "select count(id) as num from qo_items where id = '".$id."'";
+	$result = mysql_query($sql, eBay::$database_connect);
+        $row = mysql_fetch_assoc($result);
+	return $row['num'];
+    }
+    
+    private function insertEbayItem($item, $sellerId){
+	$sql = "insert into qo_items (id,skuId,site,title,quantity,quantitySold,sellerId,ListingType,StartTime,EndTime,GalleryURL) values 
+	('".$item->ItemID."','','".$item->Site."','".mysql_real_escape_string($item->Title)."','".$item->Quantity."','".$item->SellingStatus->QuantitySold."',
+	'".$sellerId."','".$item->ListingType."','".$item->ListingDetails->StartTime."','".$item->ListingDetails->EndTime."','".$item->PictureDetails->GalleryURL."')";
+	//echo $sql."<br>";
+	$result = mysql_query($sql, eBay::$database_connect);
+    }
+    
+    private function updateEbayItem($item, $sellerId){
+	$sql = "update qo_items set skuId='',site='".$item->Site."',title='".mysql_real_escape_string($item->Title)."',
+	quantity='".$item->Quantity."',quantitySold='".$item->SellingStatus->QuantitySold."',sellerId='".$sellerId."',
+	ListingType'".$item->ListingType."',StartTime='".$item->ListingDetails->StartTime."',EndTime='".$item->ListingDetails->EndTime.".GalleryURL='".$item->PictureDetails->GalleryURL."'' 
+	where id = '".$item->ItemID."'";
+	//echo $sql."<br>";
+	$result = mysql_query($sql, eBay::$database_connect);
+    }
+    
+    private function getSellerList($EndTimeFrom, $EndTimeTo, $sellerId, $dev, $app, $cert, $token, $proxy_host, $proxy_port){
+	$session = $this->configEbay($dev, $app, $cert, $token, $proxy_host, $proxy_port);
+        try {
+                $client = new eBaySOAP($session);
+                 
+                $GranularityLevel = "Fine";
+		$EntriesPerPage = 10;
+		$Pagination = array('EntriesPerPage'=> $EntriesPerPage, 'PageNumber'=> 1);
+		$Sort = 1;
+		$Version = "607";
+		$UserID = $sellerId;
+		$DetailLevel = "ReturnAll";
+		//$EndTimeFrom = "2008-04-05 16:00:00";
+		//$EndTimeTo   = "2008-04-10 00:00:00";
+		//$UserID = "aqualuna0001";
+		$params = array('Version' => $Version, 'GranularityLevel' =>$GranularityLevel, 'Pagination' => $Pagination, 'Sort' => $Sort, 'EndTimeFrom' => $EndTimeFrom, 'EndTimeTo' => $EndTimeTo, 'UserID' => $UserID, 'DetailLevel' => $DetailLevel);
+		$results = $client->GetSellerList($params);
+		
+		//----------   debug --------------------------------
+		//print_r($results);
+                //print "Request: \n".$client->__getLastRequest() ."\n";
+                //print "Response: \n".$client->__getLastResponse()."\n";
+		
+		
+		foreach ($results->ItemArray->Item as $item){
+			if($this->checkEbayItemExist($item->ItemID) == 0){
+				$this->insertEbayItem($item, $UserID);
+			}else{
+				$this->updateEbayItem($item, $UserID);
+			}
+		}
+		
+		$TotalNumberOfPages = $results->PaginationResult->TotalNumberOfPages;  //listing total pages
+		if($TotalNumberOfPages > 1){
+			for($i=2; $i <= $TotalNumberOfPages; $i++){
+				$Pagination = array('EntriesPerPage'=> $EntriesPerPage,'PageNumber'=> $i);
+				$params = array('Version' => $Version, 'GranularityLevel' =>$GranularityLevel, 'Pagination' => $Pagination, 'Sort' => $Sort, 'EndTimeFrom' => $EndTimeFrom, 'EndTimeTo' => $EndTimeTo, 'UserID' => $UserID, 'DetailLevel' => $DetailLevel);
+			    	$results = $client->GetSellerList($params);
+				
+				if(is_array($results->ItemArray->Item)){
+					foreach ($results->ItemArray->Item as $item){
+						if($this->checkEbayItemExist($item->ItemID) == 0){
+							$this->insertEbayItem($item, $UserID);
+						}else{
+							$this->updateEbayItem($item, $UserID);
+						}
+				    	}
+				}else{
+					if($this->checkEbayItemExist($results->ItemArray->Item->ItemID) == 0){
+						$this->insertEbayItem($results->ItemArray->Item, $UserID);
+					}else{
+						$this->updateEbayItem($results->ItemArray->Item, $UserID);
+					}
+				}
+			}   
+		}
+               
+        } catch (SOAPFault $f) {
+                print $f; // error handling
+        }
+    }
+    
+    public function getAllSellerList(){
+		$sql = "select es.id,es.devId,es.appId,es.cert,es.token,ep.proxy_host,ep.proxy_port from qo_ebay_seller as es left join qo_ebay_proxy as ep on es.id=ep.ebay_seller_id where es.status='A'";
+		$result = mysql_query($sql, eBay::$database_connect);
+		while ($row = mysql_fetch_assoc($result)){
+			//authToken   devId  appId  cert  gatewaySOAP
+			$this->getSellerList($this->startTime, $this->endTime, $row['id'], $row['devId'], $row['appId'], $row['cert'], $row['token'], $row['proxy_host'], $row['proxy_port']);
+		}
+    }
+    
+    public function getToken(){
+	$session = $this->configEbay();
+        try {
+		$session->token = NULL;
+		//print_r($session);
+		//exit;
+                $client = new eBaySOAP($session);
+                
+		$Version = "607";
+		$RuName = "Creasion-Creasion-1ca1-4-vldylhxcb";
+                $params = array('Version' => $Version, 'RuName' => $RuName);
+                $results = $client->GetSessionID($params);
+		//$results->SessionID
+		echo "https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Creasion-Creasion-1ca1-4-vldylhxcb&&sid=$results->SessionID";
+		//var_dump("https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Creasion-Creasion-1ca1-4-vldylhxcb&&sid=$results->SessionID");
+                //----------   debug --------------------------------
+                //print "Request: \n".$client->__getLastRequest() ."\n";
+                //print "Response: \n".$client->__getLastResponse()."\n";
+        
+                //return $results;
+                
+        } catch (SOAPFault $f) {
+                print $f; // error handling
+        }
     }
     
     private function errorLog($text){
@@ -505,34 +626,52 @@ class eBay{
 
 
 if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
-    $config = parse_ini_file('ebay.ini', true);
-    $site = $config['settings']['site'];
-    $dev = $config[$site]['devId'];
-    $app = $config[$site]['appId'];
-    $cert = $config[$site]['cert'];
-
-    $session = new eBaySession($dev, $app, $cert);
+	$config = parse_ini_file('ebay.ini', true);
+	$site = $config['settings']['site'];
+	$dev = $config[$site]['devId'];
+	$app = $config[$site]['appId'];
+	$cert = $config[$site]['cert'];
     
-    error_log(serialize(apache_request_headers()));
-    
-    //error_log("trying to listen");
-    
-    $stdin = $GLOBALS['HTTP_RAW_POST_DATA'];
-    file_put_contents('GetItemRequest.xml', $stdin);
-    error_log($stdin);
-    
-    
-    $server = new SOAPServer(null, array('uri'=>'urn:ebay:apis:eBLBaseComponents'));
-    $server->setClass('eBayPlatformNotificationListener', $session, true);
-    $server->handle();
-    
+	$session = new eBaySession($dev, $app, $cert);
+	
+	error_log(serialize(apache_request_headers()));
+	
+	//error_log("trying to listen");
+	
+	$stdin = $GLOBALS['HTTP_RAW_POST_DATA'];
+	file_put_contents('GetItemRequest.xml', $stdin);
+	error_log($stdin);
+	
+	
+	$server = new SOAPServer(null, array('uri'=>'urn:ebay:apis:eBLBaseComponents'));
+	$server->setClass('eBayPlatformNotificationListener', $session, true);
+	$server->handle();
+	
 }else{
-    $test = new eBay();
-    $test->setStartTime = "2009-03-16 00:00:00";
-    $test->setEndTime = "2009-03-28 09:30:00";
-    $test->getAllEbayTransaction();
-    //$test->GetSellerTransactions('','','AgAAAA**AQAAAA**aAAAAA**FmQISA**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wHlIOnCZaBpAWdj6x9nY+seQ**Q2AAAA**AAMAAA**K5e4SqBc83jVbhFXLTi50I3ptbripiwsQUS3jIeIcDvpmXzELIv5yXhhUp8jB/r9sdMAKZP2GxQB8g85Eq09tNqTWhmSLMGmFRXq3gBeof7enC9Ch4L0JLBf4rSDdyGWkwa8zpnVueMbOwQbExhx1UjkGZXsDfIxO8vU1FaeGW2tLjVkOffg/0NkzrhwQnoR63SeZ/aPkns9sBbaqkGH7VsoYSik0C/pkO8V9gfxJIuIDjRNuOQ6Stx0UWRNnTPyZRZpWDShtsh9horFcmRsB34ZRxxAkaxx3UmskFoqwxNviz1vYrjEqZlbV2KkQsF+iCOT5lu2YdFTeTZ2uv3/PY1zw+J7sdvK3tI4ucKNKTNLbrBIco0XW/ImHhRoNsun4AizgcHP4HQOwzzuwXnc53Z1QqehYQZsOvMCx+cU+Z2zlA/MP6z7NgdCuHdaYRJbYgINxfDxAuxKCnjzyozpgV6Smk/o7dOBAaZKclEEClNAg3xIpjnyamBh4EBUzk0/tYePv5K2PA6nClMu58PWd7HcGcP/X4FCDnxiDbu5ndxcntPfec6ztdC5f2FHDJJ7ACY9PjRdIYWUQBsgwhV6yZs3t0N1SfR5yuy0tW+fOX4Uw4RkPcMbrgHk9H8m5JEae8YaQMfNkuk3TCKwjjEE+25LDFgpbiTAEu4sYs7FxGhBQBr4RbhoLR6TTdnu0xhpvO2vC4lPb6FQmb9vGRaTv3uxdh2xgMJgD7bhAqt+1vnET+xKvGDrvIFp1XxJ7ij2');
-    //$test = new eBay();
-    //$test->createOrderFromEbay();
+	$action = $_GET['action'];
+	switch($action){
+		case "getToken":
+			$eBay = new eBay();
+			$eBay->getToken();
+		break;
+	
+		case "getAllSellerList":
+			$eBay = new eBay();
+			$eBay->setStartTime("2009-03-16 00:00:00");
+			$eBay->setEndTime("2009-03-28 09:30:00");
+			$eBay->getAllSellerList();
+			
+		break;
+	
+		case "getAllEbayTransaction":
+			$eBay = new eBay();
+			$eBay->setStartTime("2009-04-10 00:00:00");
+			$eBay->setEndTime("2009-04-16 09:30:00");
+			$eBay->getAllEbayTransaction();
+			//$test->GetSellerTransactions('','','AgAAAA**AQAAAA**aAAAAA**FmQISA**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wHlIOnCZaBpAWdj6x9nY+seQ**Q2AAAA**AAMAAA**K5e4SqBc83jVbhFXLTi50I3ptbripiwsQUS3jIeIcDvpmXzELIv5yXhhUp8jB/r9sdMAKZP2GxQB8g85Eq09tNqTWhmSLMGmFRXq3gBeof7enC9Ch4L0JLBf4rSDdyGWkwa8zpnVueMbOwQbExhx1UjkGZXsDfIxO8vU1FaeGW2tLjVkOffg/0NkzrhwQnoR63SeZ/aPkns9sBbaqkGH7VsoYSik0C/pkO8V9gfxJIuIDjRNuOQ6Stx0UWRNnTPyZRZpWDShtsh9horFcmRsB34ZRxxAkaxx3UmskFoqwxNviz1vYrjEqZlbV2KkQsF+iCOT5lu2YdFTeTZ2uv3/PY1zw+J7sdvK3tI4ucKNKTNLbrBIco0XW/ImHhRoNsun4AizgcHP4HQOwzzuwXnc53Z1QqehYQZsOvMCx+cU+Z2zlA/MP6z7NgdCuHdaYRJbYgINxfDxAuxKCnjzyozpgV6Smk/o7dOBAaZKclEEClNAg3xIpjnyamBh4EBUzk0/tYePv5K2PA6nClMu58PWd7HcGcP/X4FCDnxiDbu5ndxcntPfec6ztdC5f2FHDJJ7ACY9PjRdIYWUQBsgwhV6yZs3t0N1SfR5yuy0tW+fOX4Uw4RkPcMbrgHk9H8m5JEae8YaQMfNkuk3TCKwjjEE+25LDFgpbiTAEu4sYs7FxGhBQBr4RbhoLR6TTdnu0xhpvO2vC4lPb6FQmb9vGRaTv3uxdh2xgMJgD7bhAqt+1vnET+xKvGDrvIFp1XxJ7ij2');
+			//$test = new eBay();
+			//$test->createOrderFromEbay();
+		break;
+	}
 }
 ?>
