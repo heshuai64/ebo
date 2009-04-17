@@ -1,5 +1,4 @@
 
-var currency_data = [['USD','USD'],['EUR','EUR'],['GBP','GBP'],['AUD','AUD'],['RMB','RMB'],['CAD','CAD']];
 Ext.override(QoDesk.Orders, {
     createWindow : function(){
         var desktop = this.app.getDesktop();
