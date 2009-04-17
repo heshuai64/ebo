@@ -34,16 +34,8 @@ if(!class_exists('os')){
 <?php print $os->module->get_css(); ?>
 
 <!-- SYSTEM DIALOGS AND CORE -->
-<!-- In a production environment these should be minified into one file -->
 <script src="system/dialogs/colorpicker/ColorPicker.js"></script>
-<script src="system/core/App.js"></script>
-<script src="system/core/Desktop.js"></script>
-<script src="system/core/HexField.js"></script>
-<script src="system/core/Module.js"></script>
-<script src="system/core/Notification.js"></script>
-<script src="system/core/Shortcut.js"></script>
-<script src="system/core/StartMenu.js"></script>
-<script src="system/core/TaskBar.js"></script>
+<script src="system/core-min.js"></script>
 
 <!-- QoDesk -->
 <script src="QoDesk.php"></script>
