@@ -138,7 +138,8 @@ class QoShipments {
 	}
 	
 	public function getShipmentDetail(){
-		$sql = "select * from qo_shipments_detail where shipmentsId ='".$_GET['id']."'";
+		$sql = "select sd.id,sd.shipmentsId,sd.skuId,sd.skuTitle,sd.itemId,sd.itemTitle,sd.quantity,sd.barCode,qi.galleryURL 
+		from qo_shipments_detail as sd left join qo_items as qi on sd.itemId = qi.id where shipmentsId ='".$_GET['id']."'";
 		$result = mysql_query($sql);
 		$shipment_detail_array = array();
 		while($row = mysql_fetch_assoc($result)){
@@ -153,6 +154,14 @@ class QoShipments {
 		$sql = "insert into qo_shipments_detail (shipmentsId,skuId,skuTitle,itemId,itemTitle,quantity) values (
 		'".$_POST['shipmentsId']."','".$_POST['skuId']."','".$_POST['skuTitle']."','".$_POST['itemId']."',
 		'".$_POST['itemTitle']."','".$_POST['quantity']."')";
+		$result = mysql_query($sql);
+		echo $result;
+	}
+	
+	public function deleteShipmentDetail(){
+		$sql = "delete from qo_shipments_detail where id in (".$_POST['ids'].")";
+		//echo $sql;
+		//exit;
 		$result = mysql_query($sql);
 		echo $result;
 	}

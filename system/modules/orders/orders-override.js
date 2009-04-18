@@ -97,7 +97,7 @@ Ext.override(QoDesk.Orders, {
             
             orderGrid.on("rowdblclick", function(oGrid){
                 var oRecord = oGrid.getSelectionModel().getSelected();
-                window.open("http://127.0.0.1:6666/eBayBO/orders.php?id="+oRecord.data['id'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");
+                window.open("/ebayBO/orders.php?id="+oRecord.data['id'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");
 	    });
              
             orderGridStore.load({params:{start:0, limit:20}});
@@ -118,7 +118,7 @@ Ext.override(QoDesk.Orders, {
         }
         
         var createOrder = function(){
-            window.open("http://127.0.0.1:6666/eBayBO/create_orders.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");
+            window.open("/ebayBO/create_orders.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");
         }
         
         if(!win){

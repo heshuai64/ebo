@@ -4,12 +4,12 @@ Ext.onReady(function(){
                 totalProperty: 'totalCount',
                 idProperty: 'id',
                 autoLoad:true,
-                fields: ['id', 'skuId', 'skuTitle', 'itemId', 'itemTitle', 'quantity'],
+                fields: ['id', 'skuId', 'skuTitle', 'itemId', 'itemTitle', 'quantity','galleryURL'],
                 url:'connect.php?moduleId=qo-shipments&action=getShipmentDetail&id='+shipmentsId
         });
         
         function renderSkuImage(v, p, r){
-                return String.format('<img src="http://m2.sourcingmap.com/smap/images/item/medium/ux_{0}_ux_m.jpg"', v);
+                return String.format('<img width="100" height="100" src="{0}"', v);
         }
             
          var shipmentDetailGrid = new Ext.grid.EditorGridPanel({
@@ -18,7 +18,7 @@ Ext.onReady(function(){
                 selModel: new Ext.grid.RowSelectionModel({}),
                 columns:[{
                     header: "Image",
-                    dataIndex: 'skuId',
+                    dataIndex: 'galleryURL',
                     renderer: renderSkuImage,
                     width: 105,
                     align: 'center',
@@ -150,6 +150,54 @@ Ext.onReady(function(){
                             }]
                         });
                         addShipmentDetailWindow.show();
+                    }
+                },{
+                    text: 'Delete Detail',
+                    handler: function(){
+                        var deleteshipmentDetail = function(btn){
+                                if(btn=='yes'){
+                                    var selections = shipmentDetailGrid.selModel.getSelections();
+                                    //console.log(selections);
+                                    //var prez = [];
+                                    var ids = "";
+                                    for(i = 0; i< shipmentDetailGrid.selModel.getCount(); i++){
+                                        //prez.push(selections[i].data.id);
+                                        ids += selections[i].data.id + ","
+                                    }
+                                    ids = ids.slice(0,-1);
+                                    //console.log(prez);
+                                    //var encoded_array = Ext.encode(prez);
+                                    Ext.Ajax.request({  
+                                        waitMsg: 'Please Wait',
+                                        url: 'connect.php?moduleId=qo-shipments&action=deleteShipmentDetail', 
+                                        params: { 
+                                          //ids:  encoded_array
+                                          ids: ids
+                                        }, 
+                                        success: function(response){
+                                            var result=eval(response.responseText);
+                                            switch(result){
+                                            case 1:  // Success : simply reload
+                                              shipmentDetailStore.reload();
+                                              break;
+                                            default:
+                                              Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
+                                              break;
+                                            }
+                                        },
+                                        failure: function(response){
+                                            var result=response.responseText;
+                                            Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                        }
+                                    });
+                                }  
+                        }
+                        
+                        if(shipmentDetailGrid.selModel.getCount() >= 1){
+                            Ext.MessageBox.confirm('Confirmation','Delete those Details?', deleteshipmentDetail);
+                        } else {
+                            Ext.MessageBox.alert('Uh oh...','You can\'t really delete something you haven\'t selected huh?');
+                        }
                     }
                 }]
         });
@@ -397,7 +445,7 @@ Ext.onReady(function(){
                   }]
               },{
                 xtype: 'panel',
-                title: "Detail",
+                title: "Details",
                 autoHeight: true,
                 items: shipmentDetailGrid
             }],
