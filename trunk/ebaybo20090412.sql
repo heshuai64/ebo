@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 16, 2009 at 06:02 下午
+-- Generation Time: Apr 18, 2009 at 12:13 下午
 -- Server version: 5.0.45
 -- PHP Version: 5.1.6
 
@@ -449,7 +449,7 @@ CREATE TABLE IF NOT EXISTS `qo_groups` (
 INSERT INTO `qo_groups` (`id`, `name`, `description`, `importance`, `active`) VALUES
 (1, 'administrator', 'System administrator', 100, 1),
 (2, 'user', 'General user', 50, 1),
-(3, 'demo', 'Demo user', 1, 0);
+(3, 'demo', 'Demo user', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -464,7 +464,7 @@ CREATE TABLE IF NOT EXISTS `qo_groups_has_domain_privileges` (
   `qo_privileges_id` int(11) unsigned default '0',
   `is_allowed` tinyint(1) unsigned default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=18 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=19 ;
 
 --
 -- Dumping data for table `qo_groups_has_domain_privileges`
@@ -483,7 +483,8 @@ INSERT INTO `qo_groups_has_domain_privileges` (`id`, `qo_groups_id`, `qo_domains
 (14, 3, 0, 5, 0),
 (15, 3, 0, 6, 0),
 (16, 1, 0, 7, 1),
-(17, 1, 0, 8, 1);
+(17, 1, 0, 8, 1),
+(18, 1, 0, 2, 1);
 
 -- --------------------------------------------------------
 
@@ -505,7 +506,8 @@ CREATE TABLE IF NOT EXISTS `qo_groups_has_members` (
 
 INSERT INTO `qo_groups_has_members` (`qo_groups_id`, `qo_members_id`, `active`, `admin`) VALUES
 (1, 4, 1, 1),
-(2, 7, 1, 1);
+(3, 7, 1, 1),
+(3, 8, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -521,10 +523,10 @@ CREATE TABLE IF NOT EXISTS `qo_items` (
   `quantity` int(11) NOT NULL,
   `quantitySold` int(11) NOT NULL,
   `sellerId` varchar(60) NOT NULL,
-  `ListingType` varchar(30) NOT NULL,
-  `StartTime` datetime NOT NULL,
-  `EndTime` datetime NOT NULL,
-  `GalleryURL` varchar(100) NOT NULL,
+  `listingType` varchar(30) NOT NULL,
+  `startTime` datetime NOT NULL,
+  `endTime` datetime NOT NULL,
+  `galleryURL` varchar(100) NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `skuId` (`skuId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -533,6 +535,9 @@ CREATE TABLE IF NOT EXISTS `qo_items` (
 -- Dumping data for table `qo_items`
 --
 
+INSERT INTO `qo_items` (`id`, `skuId`, `site`, `title`, `quantity`, `quantitySold`, `sellerId`, `listingType`, `startTime`, `endTime`, `galleryURL`) VALUES
+('350187839225', '', 'UK', 'Twin Charge Stand +2 x Battery For NINTENDO WII Remote', 50, 0, 'ymca200808', 'StoresFixedPrice', '2009-04-15 09:51:00', '2009-04-18 09:51:00', 'http://218.16.119.54/YMCA200808/game/(11).jpg'),
+('350187839239', '', 'UK', 'Wired Controller Gamepad Game pad For XBOX360', 50, 0, 'ymca200808', 'StoresFixedPrice', '2009-04-15 09:21:00', '2009-04-18 09:21:00', 'http://218.16.119.54/YMCA200808/game/(6).jpg');
 
 -- --------------------------------------------------------
 
@@ -571,7 +576,7 @@ CREATE TABLE IF NOT EXISTS `qo_members` (
   `language` varchar(5) default 'en',
   `active` tinyint(1) unsigned NOT NULL default '0' COMMENT 'Is the member currently active',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
 
 --
 -- Dumping data for table `qo_members`
@@ -579,7 +584,8 @@ CREATE TABLE IF NOT EXISTS `qo_members` (
 
 INSERT INTO `qo_members` (`id`, `first_name`, `last_name`, `email_address`, `password`, `language`, `active`) VALUES
 (4, 'Todd', 'Murdock', 'admin', 'admin', 'en', 1),
-(7, NULL, NULL, 'test1', 'test1', 'en', 1);
+(7, NULL, NULL, 'test1', 'test1', 'en', 1),
+(8, NULL, NULL, 'test', 'test', 'en', 1);
 
 -- --------------------------------------------------------
 
@@ -641,11 +647,6 @@ CREATE TABLE IF NOT EXISTS `qo_modules` (
 
 INSERT INTO `qo_modules` (`id`, `author`, `version`, `url`, `description`, `module_type`, `module_id`, `active`, `load_on_demand`) VALUES
 (1, 'Todd Murdock', '1.0', 'http://www.qwikioffice.com', 'A system application.  Allows users to set, and save their desktop preferences to the database.', 'system/preferences', 'qo-preferences', 1, 1),
-(2, 'Jack Slocum', '1.0', 'http://www.qwikioffice.com', 'Demo of window with grid.', 'demo', 'demo-grid', 1, 1),
-(3, 'Jack Slocum', '1.0', 'http://www.qwikioffice.com', 'Demo of window with tabs.', 'demo', 'demo-tabs', 1, 1),
-(4, 'Jack Slocum', '1.0', 'http://www.qwikioffice.com', 'Demo of window with accordion.', 'demo', 'demo-acc', 1, 1),
-(5, 'Jack Slocum', '1.0', 'http://www.qwikioffice.com', 'Demo of window with layout.', 'demo', 'demo-layout', 1, 1),
-(8, 'Jack Slocum', '1.0', 'http://www.qwikioffice.com', 'Demo of bogus window.', 'demo', 'demo-bogus', 1, 1),
 (9, 'heshuai', '1.0', 'http://heshuai64.gnway.net', 'system manager', 'system/manage', 'qo-manage', 1, 1),
 (10, 'heshuai', '1.0', 'http://heshuai64.gnway.net', 'orders manager', 'orders', 'qo-orders', 1, 1),
 (11, 'heshuai', '1.0', 'http://heshuai64.gnway.net', 'Transactions manager', 'transactions', 'qo-transactions', 1, 1),
@@ -665,7 +666,7 @@ CREATE TABLE IF NOT EXISTS `qo_modules_actions` (
   `name` varchar(35) default NULL,
   `description` text,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=63 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=64 ;
 
 --
 -- Dumping data for table `qo_modules_actions`
@@ -732,7 +733,8 @@ INSERT INTO `qo_modules_actions` (`id`, `qo_modules_id`, `name`, `description`) 
 (59, 10, 'addOrderShipment', '给订单添加货运'),
 (60, 10, 'deleteOrderShipment', '删除订单货运'),
 (61, 12, 'shipShipment', '发送货物'),
-(62, 18, 'getUnmapTransaction', '获取没有匹配的付款');
+(62, 18, 'getUnmapTransaction', '获取没有匹配的付款'),
+(63, 12, 'deleteShipmentDetail', '删除货运描述');
 
 -- --------------------------------------------------------
 
@@ -757,47 +759,32 @@ CREATE TABLE IF NOT EXISTS `qo_modules_files` (
 
 INSERT INTO `qo_modules_files` (`qo_modules_id`, `directory`, `file`, `is_stylesheet`, `is_server_module`, `is_client_module`, `class_name`) VALUES
 (1, 'qo-preferences/', 'qo-preferences-override.js', 0, 0, 0, ''),
-(4, 'acc-win/', 'acc-win-override.js', 0, 0, 0, ''),
-(5, 'layout-win/', 'layout-win-override.js', 0, 0, 0, ''),
-(8, 'bogus/bogus-win/', 'bogus-win-override.js', 0, 0, 0, ''),
-(2, 'grid-win/', 'grid-win-override.js', 0, 0, 0, ''),
-(3, 'tab-win/', 'tab-win-override.js', 0, 0, 0, ''),
 (1, 'qo-preferences/', 'qo-preferences.js', 0, 0, 1, 'QoDesk.QoPreferences'),
 (1, 'qo-preferences/', 'qo-preferences.php', 0, 1, 0, 'QoPreferences'),
-(2, 'grid-win/', 'grid-win.js', 0, 0, 1, 'QoDesk.GridWindow'),
-(3, 'tab-win/', 'tab-win.js', 0, 0, 1, 'QoDesk.TabWindow'),
-(4, 'acc-win/', 'acc-win.js', 0, 0, 1, 'QoDesk.AccordionWindow'),
-(5, 'layout-win/', 'layout-win.js', 0, 0, 1, 'QoDesk.LayoutWindow'),
-(8, 'bogus/bogus-win/', 'bogus-win.js', 0, 0, 1, 'QoDesk.BogusWindow'),
 (1, 'qo-preferences/', 'qo-preferences.css', 1, 0, 0, ''),
-(2, 'grid-win/', 'grid-win.css', 1, 0, 0, ''),
-(3, 'tab-win/', 'tab-win.css', 1, 0, 0, ''),
-(4, 'acc-win/', 'acc-win.css', 1, 0, 0, ''),
-(5, 'layout-win/', 'layout-win.css', 1, 0, 0, ''),
-(8, 'bogus/bogus-win/', 'bogus-win.css', 1, 0, 0, ''),
 (9, 'manage/', 'manage.css', 1, 0, 0, ''),
 (9, 'manage/', 'manage.js', 0, 0, 1, 'QoDesk.Manage'),
-(9, 'manage/', 'manage-override.js', 0, 0, 0, ''),
+(9, 'manage/', 'manage-override-min.js', 0, 0, 0, ''),
 (9, 'manage/', 'manage.php', 0, 1, 0, 'QoManage'),
 (10, 'orders/', 'orders.css', 1, 0, 0, ''),
 (10, 'orders/', 'orders.js', 0, 0, 1, 'QoDesk.Orders'),
-(10, 'orders/', 'orders-override.js', 0, 0, 0, ''),
+(10, 'orders/', 'orders-override-min.js', 0, 0, 0, ''),
 (10, 'orders/', 'orders.php', 0, 1, 0, 'QoOrders'),
 (11, 'transactions/', 'transactions.css', 1, 0, 0, ''),
 (11, 'transactions/', 'transactions.js', 0, 0, 1, 'QoDesk.Transactions'),
-(11, 'transactions/', 'transactions-override.js', 0, 0, 0, ''),
+(11, 'transactions/', 'transactions-override-min.js', 0, 0, 0, ''),
 (11, 'transactions/', 'transactions.php', 0, 1, 0, 'QoTransactions'),
 (12, 'shipments/', 'shipments.css', 1, 0, 0, ''),
 (12, 'shipments/', 'shipments.js', 0, 0, 1, 'QoDesk.Shipments'),
-(12, 'shipments/', 'shipments-override.js', 0, 0, 0, ''),
+(12, 'shipments/', 'shipments-override-min.js', 0, 0, 0, ''),
 (12, 'shipments/', 'shipments.php', 0, 1, 0, 'QoShipments'),
 (17, 'reports/', 'reports.css', 1, 0, 0, ''),
 (17, 'reports/', 'reports.js', 0, 0, 1, 'QoDesk.Reports'),
-(17, 'reports/', 'reports-override.js', 0, 0, 0, ''),
+(17, 'reports/', 'reports-override-min.js', 0, 0, 0, ''),
 (17, 'reports/', 'reports.php', 0, 1, 0, 'QoReports'),
 (18, 'attention/', 'attention.css', 1, 0, 0, ''),
 (18, 'attention/', 'attention.js', 0, 0, 1, 'QoDesk.Attention'),
-(18, 'attention/', 'attention-override.js', 0, 0, 0, ''),
+(18, 'attention/', 'attention-override-min.js', 0, 0, 0, ''),
 (18, 'attention/', 'attention.php', 0, 1, 0, 'QoAttention');
 
 -- --------------------------------------------------------
@@ -833,19 +820,19 @@ CREATE TABLE IF NOT EXISTS `qo_orders` (
   `id` varchar(14) NOT NULL,
   `type` varchar(10) NOT NULL,
   `status` char(1) NOT NULL,
-  `shippingMethod` char(1) NOT NULL,
+  `shippingMethod` varchar(20) NOT NULL,
   `paymentMethod` char(1) NOT NULL,
   `remarks` text NOT NULL,
   `sellerId` varchar(50) NOT NULL,
   `buyerId` varchar(50) NOT NULL,
   `shippingFeeCurrency` varchar(3) NOT NULL,
-  `shippingFeeValue` decimal(10,2) NOT NULL,
+  `shippingFeeValue` decimal(10,3) NOT NULL,
   `insuranceCurrency` varchar(3) NOT NULL,
-  `insuranceValue` decimal(10,2) NOT NULL,
+  `insuranceValue` decimal(10,3) NOT NULL,
   `discountCurrency` varchar(3) NOT NULL,
-  `discountValue` decimal(10,2) NOT NULL,
+  `discountValue` decimal(10,3) NOT NULL,
   `grandTotalCurrency` varchar(3) NOT NULL,
-  `grandTotalValue` decimal(10,2) NOT NULL,
+  `grandTotalValue` decimal(10,3) NOT NULL,
   `ebayName` varchar(50) NOT NULL,
   `ebayEmail` varchar(150) NOT NULL,
   `ebayAddress1` varchar(250) NOT NULL,
@@ -878,13 +865,22 @@ CREATE TABLE IF NOT EXISTS `qo_orders` (
 --
 
 INSERT INTO `qo_orders` (`id`, `type`, `status`, `shippingMethod`, `paymentMethod`, `remarks`, `sellerId`, `buyerId`, `shippingFeeCurrency`, `shippingFeeValue`, `insuranceCurrency`, `insuranceValue`, `discountCurrency`, `discountValue`, `grandTotalCurrency`, `grandTotalValue`, `ebayName`, `ebayEmail`, `ebayAddress1`, `ebayAddress2`, `ebayCity`, `ebayStateOrProvince`, `ebayPostalCode`, `ebayCountry`, `ebayPhone`, `paypalName`, `paypalEmail`, `paypalAddress1`, `paypalAddress2`, `paypalCity`, `paypalStateOrProvince`, `paypalPostalCode`, `paypalCountry`, `paypalPhone`, `createdBy`, `createdOn`, `modifiedBy`, `modifiedOn`) VALUES
-('ORD200903A0052', '', 'P', 'U', 'P', '', 'testuser_heshuai05', 'testuser_heshuai05', 'USD', 5.00, 'USD', 0.00, '', 0.00, 'USD', 49.99, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', 'John Smith', 'buyer@paypalsandbox.com', 'John Smith', '', 'San Jose', 'CA', '95131', 'United States', '', 'eBay', '2009-03-18 21:10:54', 'Paypal', '2009-04-01 16:30:42'),
-('ORD200903A0053', '', 'P', 'B', 'P', '', 'testuser_heshuai04', 'testuser_heshuai05', 'USD', 5.00, 'USD', 0.00, '', 0.00, 'USD', 119.97, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', '', '', '', '', '', '', '', '', '', 'eBay', '2009-03-19 16:49:02', '', '0000-00-00 00:00:00'),
-('ORD200903A0054', '', 'P', 'S', 'P', '', 'testuser_heshuai04', 'testuser_heshuai05', 'USD', 11.00, '', 0.00, '', 0.00, 'USD', 135.95, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', '', '', '', '', '', '', '', '', '', 'eBay', '2009-03-26 23:16:30', '', '0000-00-00 00:00:00'),
-('ORD200904A0014', '', 'P', 'U', '', 'test', 'TESTUSER_heshuai04', '', 'USD', 1.00, 'EUR', 2.00, 'GBP', 3.00, 'AUD', 4.00, '1', '1', '1', '1', '1', '1', '1', 'Afghanistan', '1', '2', '2', '2', '2', '2', '2', '2', 'Afghanistan', '2', '', '0000-00-00 00:00:00', 'admin', '2009-04-14 12:17:26'),
-('ORD200904A0015', '', '', '', '', '', '', '', '', 0.00, '', 0.00, '', 0.00, '', 0.00, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '2009-04-13 14:36:55', '', '0000-00-00 00:00:00'),
-('ORD200904A0016', '', '', '', '', '', '', '', '', 0.00, '', 0.00, '', 0.00, '', 0.00, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '2009-04-13 14:37:11', '', '0000-00-00 00:00:00'),
-('ORD200904A0017', '', '', '', '', '', '', '', '', 0.00, '', 0.00, '', 0.00, '', 0.00, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'admin', '2009-04-13 14:57:12', '', '0000-00-00 00:00:00');
+('ORD200903A0052', '', 'P', 'U', 'P', '', 'testuser_heshuai05', 'testuser_heshuai05', 'USD', 5.000, 'USD', 0.000, '', 0.000, 'USD', 49.990, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', 'John Smith', 'buyer@paypalsandbox.com', 'John Smith', '', 'San Jose', 'CA', '95131', 'United States', '', 'eBay', '2009-03-18 21:10:54', 'Paypal', '2009-04-01 16:30:42'),
+('ORD200903A0053', '', 'P', 'B', 'P', '', 'testuser_heshuai04', 'testuser_heshuai05', 'USD', 5.000, 'USD', 0.000, '', 0.000, 'USD', 119.970, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', '', '', '', '', '', '', '', '', '', 'eBay', '2009-03-19 16:49:02', '', '0000-00-00 00:00:00'),
+('ORD200903A0054', '', 'P', 'S', 'P', '', 'testuser_heshuai04', 'testuser_heshuai05', 'USD', 11.000, '', 0.000, '', 0.000, 'USD', 135.950, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', '', '', '', '', '', '', '', '', '', 'eBay', '2009-03-26 23:16:30', '', '0000-00-00 00:00:00'),
+('ORD200904A0014', '', 'P', 'U', '', 'test', 'TESTUSER_heshuai04', '', 'USD', 1.000, 'EUR', 2.000, 'GBP', 3.000, 'AUD', 4.000, '1', '1', '1', '1', '1', '1', '1', 'Afghanistan', '1', '2', '2', '2', '2', '2', '2', '2', 'Afghanistan', '2', '', '0000-00-00 00:00:00', 'admin', '2009-04-14 12:17:26'),
+('ORD200904A0015', '', '', '', '', '', '', '', '', 0.000, '', 0.000, '', 0.000, '', 0.000, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '2009-04-13 14:36:55', '', '0000-00-00 00:00:00'),
+('ORD200904A0016', '', '', '', '', '', '', '', '', 0.000, '', 0.000, '', 0.000, '', 0.000, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '2009-04-13 14:37:11', '', '0000-00-00 00:00:00'),
+('ORD200904A0017', '', '', '', '', '', '', '', '', 0.000, '', 0.000, '', 0.000, '', 0.000, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'admin', '2009-04-13 14:57:12', '', '0000-00-00 00:00:00'),
+('ORD200904A0018', '', 'W', 'O', 'P', '', 'ymca200808', 'logerot21', 'USD', 65.970, 'USD', 0.000, '', 0.000, 'USD', 44.990, 'GUERAUD. LAURENT', 'Invalid Request', '10 ALLEE ST AMARIN', 'APPART. 2/8', 'Auxerre', 'Bourgogne', '89000', 'France', '', '', '', '', '', '', '', '', '', '', 'eBay', '2009-02-20 09:31:03', '', '0000-00-00 00:00:00'),
+('ORD200904A0019', '', 'W', 'O', 'P', '', 'ymca200808', 'logerot21', 'USD', 21.990, 'USD', 0.000, '', 0.000, 'USD', 22.000, 'GUERAUD. LAURENT', 'Invalid Request', '10 ALLEE ST AMARIN', 'APPART. 2/8', 'Auxerre', 'Bourgogne', '89000', 'France', '', '', '', '', '', '', '', '', '', '', 'eBay', '2009-03-05 08:23:04', '', '0000-00-00 00:00:00'),
+('ORD200904A0020', '', 'W', 'A', 'P', '', 'ymca200808', 'hungrymonkey88', 'AUD', 7.990, 'AUD', 0.000, '', 0.000, 'AUD', 39.980, 'Richard  Knox', 'chilli_factor88@hotmail.com', 'St Marks College', '', 'Townsville', 'Queensland', '4811', 'Australia', '0747595236', '', '', '', '', '', '', '', '', '', 'eBay', '2009-04-08 23:41:41', '', '0000-00-00 00:00:00'),
+('ORD200904A0021', '', 'W', 'O', 'P', '', 'ymca200808', 'blue85284', 'USD', 0.000, 'USD', 0.000, '', 0.000, 'USD', 0.990, 'David Zhang', 'blue85284@yahoo.com', '258 W. El Freda Rd.', '', 'Tempe', 'AZ', '85284', 'United States', '', '', '', '', '', '', '', '', '', '', 'eBay', '2009-04-05 14:36:21', '', '0000-00-00 00:00:00'),
+('ORD200904A0022', '', 'W', 'O', 'P', '', 'ymca200808', 'dsgorton', 'USD', 0.000, 'USD', 0.000, '', 0.000, 'USD', 20.990, 'David Gorton', 'davidgorton@comcast.net', '3807 S. Latawah St.', '', 'Spokane', 'WA', '99203', 'United States', '(509) 624-5650', '', '', '', '', '', '', '', '', '', 'eBay', '2009-04-09 12:04:27', '', '0000-00-00 00:00:00'),
+('ORD200904A0023', '', 'W', 'O', 'P', '', 'ymca200808', 'chrisd_ska', 'USD', 0.000, 'USD', 0.000, '', 0.000, 'USD', 0.990, 'Chris DiRaffaele', 'chrisd_skaaa@yahoo.com', '135 Kristen Ct', 'Apt #702', 'Palm Harbor', 'FL', '34684', 'United States', '', '', '', '', '', '', '', '', '', '', 'eBay', '2009-04-09 12:29:50', '', '0000-00-00 00:00:00'),
+('ORD200904A0024', '', 'W', 'U', 'P', '', 'ymca200808', 'andytunstall', 'GBP', 0.000, 'GBP', 0.000, '', 0.000, 'GBP', 0.990, 'Andy Tunstall', 'andy.tunstall@ntlworld.com', '42 Buxton Avenue', '', 'Reading', 'Berkshire', 'RG47BU', 'United Kingdom', '07866603731', '', '', '', '', '', '', '', '', '', 'eBay', '2009-04-08 21:57:33', '', '0000-00-00 00:00:00'),
+('ORD200904A0025', '', 'W', 'U', 'P', '', 'ymca200808', '123_all4free', 'GBP', 0.000, 'GBP', 0.000, '', 0.000, 'GBP', 0.990, 'jason stroulger', 'j.stroulger@btinternet.com', '11 Glanville Ave', '', 'Chard', 'Somerset', 'TA20 1BU', 'United Kingdom', '', '', '', '', '', '', '', '', '', '', 'eBay', '2009-04-10 05:47:50', '', '0000-00-00 00:00:00'),
+('ORD200904A0026', '', 'W', 'O', 'P', '', 'ymca200808', 'zouroo1', 'USD', 0.000, 'USD', 0.000, '', 0.000, 'USD', 0.990, 'Ihor Korol', 'zouroo@gmail.com', '3708 N Oconto Ave', '', 'Chicago', 'IL', '60634', 'United States', '(773) 123-4234', '', '', '', '', '', '', '', '', '', 'eBay', '2009-04-10 07:08:10', '', '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -902,29 +898,39 @@ CREATE TABLE IF NOT EXISTS `qo_orders_detail` (
   `quantity` int(11) NOT NULL,
   `barCode` varchar(20) NOT NULL,
   `unitPriceCurrency` varchar(3) NOT NULL,
-  `unitPriceValue` decimal(10,2) NOT NULL,
+  `unitPriceValue` decimal(10,3) NOT NULL,
   `ebayTranctionId` varchar(20) NOT NULL,
   `ebayOrderId` varchar(20) NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `ordersId` (`ordersId`,`skuId`,`itemId`,`ebayTranctionId`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=113 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=123 ;
 
 --
 -- Dumping data for table `qo_orders_detail`
 --
 
 INSERT INTO `qo_orders_detail` (`id`, `ordersId`, `skuId`, `skuTitle`, `itemId`, `itemTitle`, `quantity`, `barCode`, `unitPriceCurrency`, `unitPriceValue`, `ebayTranctionId`, `ebayOrderId`) VALUES
-(99, 'ORD200903A0054', '110038587148', '', '110038587148', 'FixedPriceItem_4', 1, '', 'USD', 24.99, '23804652001', ''),
-(98, 'ORD200903A0053', '110038586329', '', '110038586329', 'FixedPriceItem_3', 1, '', 'USD', 24.99, '23804492001', '1040526'),
-(97, 'ORD200903A0053', '110038458333', '', '110038458333', 'test_10', 2, '', 'USD', 24.99, '23782474001', '1040526'),
-(96, 'ORD200903A0053', '110038445870', '', '110038445870', 'test_10', 1, '', 'USD', 40.00, '0', '1040526'),
-(95, 'ORD200903A0052', '110038450903', '', '110038450903', 'test_10', 1, '', 'USD', 24.99, '23780829001', '1040086'),
-(94, 'ORD200903A0052', '110038436041', '', '110038436041', 'test_1', 1, '', 'USD', 20.00, '0', '1040086'),
-(100, 'ORD200903A0054', '110038587274', '', '110038587274', 'FixedPriceItem_5', 1, '', 'USD', 24.99, '23804686001', ''),
-(101, 'ORD200903A0054', '110038587365', '', '110038587365', 'FixedPriceItem_6', 1, '', 'USD', 24.99, '23804717001', ''),
-(102, 'ORD200903A0054', '110038587418', '', '110038587418', 'FixedPriceItem_7', 1, '', 'USD', 24.99, '23804749001', ''),
-(103, 'ORD200903A0054', '110038600875', '', '110038600875', 'FixedPriceItem_8', 1, '', 'USD', 24.99, '23807868001', ''),
-(112, 'ORD200904A0014', '1', '4', '1', '2', 6, '', 'USD', 5.00, '', '');
+(99, 'ORD200903A0054', '110038587148', '', '110038587148', 'FixedPriceItem_4', 1, '', 'USD', 24.990, '23804652001', ''),
+(98, 'ORD200903A0053', '110038586329', '', '110038586329', 'FixedPriceItem_3', 1, '', 'USD', 24.990, '23804492001', '1040526'),
+(97, 'ORD200903A0053', '110038458333', '', '110038458333', 'test_10', 2, '', 'USD', 24.990, '23782474001', '1040526'),
+(96, 'ORD200903A0053', '110038445870', '', '110038445870', 'test_10', 1, '', 'USD', 40.000, '0', '1040526'),
+(95, 'ORD200903A0052', '110038450903', '', '110038450903', 'test_10', 1, '', 'USD', 24.990, '23780829001', '1040086'),
+(94, 'ORD200903A0052', '110038436041', '', '110038436041', 'test_1', 1, '', 'USD', 20.000, '0', '1040086'),
+(100, 'ORD200903A0054', '110038587274', '', '110038587274', 'FixedPriceItem_5', 1, '', 'USD', 24.990, '23804686001', ''),
+(101, 'ORD200903A0054', '110038587365', '', '110038587365', 'FixedPriceItem_6', 1, '', 'USD', 24.990, '23804717001', ''),
+(102, 'ORD200903A0054', '110038587418', '', '110038587418', 'FixedPriceItem_7', 1, '', 'USD', 24.990, '23804749001', ''),
+(103, 'ORD200903A0054', '110038600875', '', '110038600875', 'FixedPriceItem_8', 1, '', 'USD', 24.990, '23807868001', ''),
+(112, 'ORD200904A0014', '1', '4', '1', '2', 6, '', 'USD', 5.000, '', ''),
+(113, 'ORD200904A0018', '', '', '350165535834', 'BROWN WALL ABSTRACT OIL PAINTING P258', 1, '', 'USD', 0.010, '0', '47177337013'),
+(114, 'ORD200904A0018', '', '', '350169182394', 'ABSTRACT HOME DECOR OIL PAINTING P260', 1, '', 'USD', 1.000, '0', '47177337013'),
+(115, 'ORD200904A0019', '', '', '350170859149', 'HAND MADE ABSTRACT OIL PAINTING P257', 1, '', 'USD', 0.010, '0', ''),
+(116, 'ORD200904A0020', '', '', '350185672419', 'Wired Controller Gamepad Game pad For XBOX360', 6, '', 'AUD', 5.330, '134678264022', ''),
+(117, 'ORD200904A0021', '', '', '350177240160', 'LCD SCREEN PROTECTOR Guard FOR NOKIA 5310', 45, '', 'USD', 0.020, '133817679022', ''),
+(118, 'ORD200904A0022', '', '', '350176847440', 'Wireless Nunchuck Nunchuk Controller for Nintendo Wii A', 15, '', 'USD', 1.400, '134821764022', ''),
+(119, 'ORD200904A0023', '', '', '350177240160', 'LCD SCREEN PROTECTOR Guard FOR NOKIA 5310', 45, '', 'USD', 0.020, '134824177022', ''),
+(120, 'ORD200904A0024', '', '', '350177240233', 'Blue Soft Skin Cace Cover for SONY PSP 3000,2000 Slim', 2, '', 'GBP', 0.500, '134659113022', ''),
+(121, 'ORD200904A0025', '', '', '350177240227', 'BLACK RUBBER SKIN CASE FOR LG VIEWTY KU990', 10, '', 'GBP', 0.100, '134985017022', ''),
+(122, 'ORD200904A0026', '', '', '350177240171', 'White Silicone Protective Skin Case FOR NOKIA 5310', 40, '', 'USD', 0.020, '134997745022', '');
 
 -- --------------------------------------------------------
 
@@ -937,7 +943,7 @@ CREATE TABLE IF NOT EXISTS `qo_orders_transactions` (
   `transactionsId` varchar(14) NOT NULL,
   `status` varchar(1) NOT NULL,
   `amountPayCurrency` varchar(3) NOT NULL,
-  `amountPayValue` decimal(10,2) NOT NULL,
+  `amountPayValue` decimal(10,3) NOT NULL,
   `createdBy` varchar(50) NOT NULL,
   `createdOn` datetime NOT NULL,
   `modifiedBy` varchar(50) NOT NULL,
@@ -949,10 +955,10 @@ CREATE TABLE IF NOT EXISTS `qo_orders_transactions` (
 --
 
 INSERT INTO `qo_orders_transactions` (`ordersId`, `transactionsId`, `status`, `amountPayCurrency`, `amountPayValue`, `createdBy`, `createdOn`, `modifiedBy`, `modifiedOn`) VALUES
-('ORD200903A0052', 'TRA200904A0041', 'A', 'USD', 49.99, 'Paypal', '2009-04-01 16:30:42', 'Paypal', '2009-04-01 16:30:42'),
-('ORD200903A0052', 'TRA200904A0050', 'A', 'GBP', 11.00, '', '2009-04-04 18:40:14', '', '0000-00-00 00:00:00'),
-('ORD200903A0053', 'TRA200904A0041', 'A', 'USD', 119.97, '', '2009-04-05 03:49:29', '', '0000-00-00 00:00:00'),
-('ORD200903A0054', 'TRA200904A0041', 'A', 'USD', 135.95, '', '2009-04-05 03:58:45', '', '0000-00-00 00:00:00');
+('ORD200903A0052', 'TRA200904A0041', 'A', 'USD', 49.990, 'Paypal', '2009-04-01 16:30:42', 'Paypal', '2009-04-01 16:30:42'),
+('ORD200903A0052', 'TRA200904A0050', 'A', 'GBP', 11.000, '', '2009-04-04 18:40:14', '', '0000-00-00 00:00:00'),
+('ORD200903A0053', 'TRA200904A0041', 'A', 'USD', 119.970, '', '2009-04-05 03:49:29', '', '0000-00-00 00:00:00'),
+('ORD200903A0054', 'TRA200904A0041', 'A', 'USD', 135.950, '', '2009-04-05 03:58:45', '', '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -993,7 +999,7 @@ CREATE TABLE IF NOT EXISTS `qo_privileges_has_module_actions` (
   `qo_privileges_id` int(11) unsigned default NULL,
   `qo_modules_actions_id` int(11) unsigned default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=66 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=67 ;
 
 --
 -- Dumping data for table `qo_privileges_has_module_actions`
@@ -1060,7 +1066,8 @@ INSERT INTO `qo_privileges_has_module_actions` (`id`, `qo_privileges_id`, `qo_mo
 (62, 4, 59),
 (63, 4, 60),
 (64, 6, 61),
-(65, 8, 62);
+(65, 8, 62),
+(66, 6, 63);
 
 -- --------------------------------------------------------
 
@@ -1116,7 +1123,13 @@ INSERT INTO `qo_sessions` (`id`, `qo_members_id`, `qo_groups_id`, `ip`, `date`) 
 ('b8b6e16396ce56f003300ab6edbcf9f8', 4, 1, '127.0.0.1', '2009-04-12 02:52:49'),
 ('a4dbc0a08c4554b6115a3e6be976a2df', 4, 1, '127.0.0.1', '2009-04-12 13:04:27'),
 ('b362b447af127644c56a374c0011833d', 4, 1, '192.168.5.192', '2009-04-14 11:14:29'),
-('8d86de5efde71c006ab3e05abe971e05', 4, 1, '127.0.0.1', '2009-04-14 15:00:08');
+('8d86de5efde71c006ab3e05abe971e05', 4, 1, '127.0.0.1', '2009-04-14 15:00:08'),
+('88b3a82f23256f0329ba9e5d46ddcdf2', 4, 1, '127.0.0.1', '2009-04-18 12:05:27'),
+('dbcd69f2a0dda6c5db2c30b037054eee', 4, 1, '127.0.0.1', '2009-04-18 09:15:10'),
+('59a604057776fcee7a641935f8d1ac19', 4, 1, '127.0.0.1', '2009-04-18 09:16:50'),
+('8e7990d490d42e3912e600ddf7c21f37', 4, 1, '127.0.0.1', '2009-04-18 12:05:50'),
+('29ba2df94296007ed3147c785d3c07f8', 4, 1, '127.0.0.1', '2009-04-18 12:07:14'),
+('7fb134160b5cc3daa66275aee3011233', 4, 1, '127.0.0.1', '2009-04-18 12:10:14');
 
 -- --------------------------------------------------------
 
@@ -1136,7 +1149,7 @@ CREATE TABLE IF NOT EXISTS `qo_shipments` (
   `remarks` text NOT NULL,
   `postalReferenceNo` varchar(50) NOT NULL,
   `shippingFeeCurrency` varchar(3) NOT NULL,
-  `shippingFeeValue` decimal(10,2) NOT NULL,
+  `shippingFeeValue` decimal(10,3) NOT NULL,
   `shipToName` varchar(50) NOT NULL,
   `shipToEmail` varchar(150) NOT NULL,
   `shipToAddressLine1` varchar(250) NOT NULL,
@@ -1159,10 +1172,10 @@ CREATE TABLE IF NOT EXISTS `qo_shipments` (
 --
 
 INSERT INTO `qo_shipments` (`id`, `ordersId`, `status`, `shipmentMethod`, `packedBy`, `packedOn`, `shippedBy`, `shippedOn`, `remarks`, `postalReferenceNo`, `shippingFeeCurrency`, `shippingFeeValue`, `shipToName`, `shipToEmail`, `shipToAddressLine1`, `shipToAddressLine2`, `shipToCity`, `shipToStateOrProvince`, `shipToPostalCode`, `shipToCountry`, `shipToPhoneNo`, `createdBy`, `createdOn`, `modifiedBy`, `modifiedOn`) VALUES
-('SHI200903A0001', 'ORD200903A0052', 'N', 'S', '', '2009-04-05 14:05:56', '', '2009-04-05 14:05:53', 'fsf', 'sfsdf', 'USD', 11.11, 'fs', 'ffdsf', 'fdsf', 'dsfds', 'fsdfs', 'ffsdf', 'fdsf', 'sfs', 'fsdfs', 'fsfsd', '2009-04-05 14:05:37', 'fsdfsdfsf', '2009-04-05 14:05:42'),
-('SHI200904A0009', 'ORD200903A0054', 'N', 'S', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', '', 'USD', 11.00, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', 'admin', '2009-04-14 12:10:48', 'admin', '2009-04-14 12:10:48'),
-('SHI200904A0008', 'ORD200903A0053', 'N', 'B', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', '', 'USD', 5.00, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', 'admin', '2009-04-14 12:10:26', 'admin', '2009-04-14 12:10:26'),
-('SHI200904A0010', 'ORD200904A0014', 'S', 't', '', '0000-00-00 00:00:00', 'admin', '2009-04-14 20:21:39', '', '', 'USD', 1.00, '1', '1', '1', '1', '1', '1', '1', 'Afghanistan', '1', 'admin', '2009-04-14 12:11:17', 'admin', '2009-04-14 12:11:17');
+('SHI200903A0001', 'ORD200903A0052', 'N', 'S', '', '2009-04-05 14:05:56', '', '2009-04-05 14:05:53', 'fsf', 'sfsdf', 'USD', 11.110, 'fs', 'ffdsf', 'fdsf', 'dsfds', 'fsdfs', 'ffsdf', 'fdsf', 'sfs', 'fsdfs', 'fsfsd', '2009-04-05 14:05:37', 'fsdfsdfsf', '2009-04-05 14:05:42'),
+('SHI200904A0009', 'ORD200903A0054', 'N', 'S', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', '', 'USD', 11.000, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', 'admin', '2009-04-14 12:10:48', 'admin', '2009-04-14 12:10:48'),
+('SHI200904A0008', 'ORD200903A0053', 'N', 'B', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', '', 'USD', 5.000, 'Test User', 'heshuai05@gmail.com', 'address', '', 'city', 'WA', '98102', 'None', '(180) 011-1111 ext.: 1', 'admin', '2009-04-14 12:10:26', 'admin', '2009-04-14 12:10:26'),
+('SHI200904A0010', 'ORD200904A0014', 'S', 't', '', '0000-00-00 00:00:00', 'admin', '2009-04-14 20:21:39', '', '', 'USD', 1.000, '1', '1', '1', '1', '1', '1', '1', 'Afghanistan', '1', 'admin', '2009-04-14 12:11:17', 'admin', '2009-04-14 12:11:17');
 
 -- --------------------------------------------------------
 
@@ -1181,7 +1194,7 @@ CREATE TABLE IF NOT EXISTS `qo_shipments_detail` (
   `barCode` varchar(20) NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `shipmentsId` (`shipmentsId`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
 
 --
 -- Dumping data for table `qo_shipments_detail`
@@ -1191,7 +1204,7 @@ INSERT INTO `qo_shipments_detail` (`id`, `shipmentsId`, `skuId`, `skuTitle`, `it
 (1, 'SHI200903A0001', '2', '1', '2', '2', 1, ''),
 (2, 'SHI200903A0001', 'a09032500ux0136', 'a09032500ux0136', 'a09032500ux0136', 'a09032500ux0136', 1, ''),
 (5, 'SHI200904A0008', '110038445870', '', '110038445870', 'test_10', 1, ''),
-(6, 'SHI200904A0009', '110038587148', '', '110038587148', 'FixedPriceItem_4', 1, ''),
+(6, 'SHI200904A0009', '110038587148', '', '350187839239', 'FixedPriceItem_4', 1, ''),
 (7, 'SHI200904A0010', '1', '4', '1', '2', 6, '');
 
 -- --------------------------------------------------------
@@ -1217,8 +1230,9 @@ CREATE TABLE IF NOT EXISTS `qo_styles` (
 --
 
 INSERT INTO `qo_styles` (`qo_members_id`, `qo_groups_id`, `qo_themes_id`, `qo_wallpapers_id`, `backgroundcolor`, `fontcolor`, `transparency`, `wallpaperposition`) VALUES
-(0, 0, 2, 1, 'f9f9f9', '000000', 100, 'center'),
-(3, 3, 1, 2, '390A0A', 'FFFFFF', 100, 'tile');
+(8, 3, 1, 13, 'FFFFFF', 'FFFFFF', 100, 'tile'),
+(0, 0, 2, 13, 'f9f9f9', '000000', 100, 'tile'),
+(4, 1, 2, 13, 'f9f9f9', '000000', 100, 'tile');
 
 -- --------------------------------------------------------
 
@@ -1257,7 +1271,7 @@ CREATE TABLE IF NOT EXISTS `qo_transactions` (
   `txnId` varchar(50) NOT NULL,
   `transactionTime` datetime NOT NULL,
   `amountCurrency` varchar(3) NOT NULL,
-  `amountValue` decimal(10,2) NOT NULL,
+  `amountValue` decimal(10,3) NOT NULL,
   `status` char(1) NOT NULL,
   `remarks` text NOT NULL,
   `createdBy` varchar(50) NOT NULL,
@@ -1283,11 +1297,11 @@ CREATE TABLE IF NOT EXISTS `qo_transactions` (
 --
 
 INSERT INTO `qo_transactions` (`id`, `txnId`, `transactionTime`, `amountCurrency`, `amountValue`, `status`, `remarks`, `createdBy`, `createdOn`, `modifiedBy`, `modifiedOn`, `payeeId`, `payerId`, `payerName`, `payerEmail`, `payerAddressLine1`, `payerAddressLine2`, `payerCity`, `payerStateOrProvince`, `payerPostalCode`, `payerCountry`, `itemId`) VALUES
-('TRA200904A0041', '2541169', '2009-04-01 16:09:25', 'USD', 49.99, 'P', 'test', '', '0000-00-00 00:00:00', 'admin', '2009-04-13 17:05:41', 'testuser_heshuai04', 'testuser_heshuai05', 'John Smith', 'buyer@paypalsandbox.com', '123, any street', '', 'San Jose', 'CA', '95131', 'United States', '110038450903,110038436041'),
-('TRA200904A0051', '222', '2009-04-05 00:00:00', 'EUR', 222.00, 'D', '', '', '2009-04-04 19:06:23', '', '0000-00-00 00:00:00', '22', '222', '2', '22', '2', '22', '22', '2222', '22', '', ''),
-('TRA200904A0050', '1', '2009-04-05 00:00:00', 'GBP', 11.00, 'N', '', '', '2009-04-04 18:40:14', '', '0000-00-00 00:00:00', 'testuser_heshuai04', 'testuser_heshuai05', '1111111111', '11111111111', '111111111111', '1111111111', '11111111111', '11111111111111111', '111111', '', ''),
-('TRA200904A0004', '1', '0000-00-00 00:00:00', 'USD', 3.00, 'P', '4', 'admin', '2009-04-15 00:00:00', '', '0000-00-00 00:00:00', 'TESTUSER_heshuai04', '5', '6', '7', '8', '9', '10', '11', '12', 'Afghanistan', ''),
-('TRA200904A0005', '1212', '0000-00-00 00:00:00', 'USD', 12.12, 'P', '', '', '2009-04-15 00:00:00', '', '0000-00-00 00:00:00', '', '', '', '', '', '', '', '', '', '', '');
+('TRA200904A0041', '2541169', '2009-04-01 16:09:25', 'USD', 49.990, 'P', 'test', '', '0000-00-00 00:00:00', 'admin', '2009-04-13 17:05:41', 'testuser_heshuai04', 'testuser_heshuai05', 'John Smith', 'buyer@paypalsandbox.com', '123, any street', '', 'San Jose', 'CA', '95131', 'United States', '110038450903,110038436041'),
+('TRA200904A0051', '222', '2009-04-05 00:00:00', 'EUR', 222.000, 'D', '', '', '2009-04-04 19:06:23', '', '0000-00-00 00:00:00', '22', '222', '2', '22', '2', '22', '22', '2222', '22', '', ''),
+('TRA200904A0050', '1', '2009-04-05 00:00:00', 'GBP', 11.000, 'N', '', '', '2009-04-04 18:40:14', '', '0000-00-00 00:00:00', 'testuser_heshuai04', 'testuser_heshuai05', '1111111111', '11111111111', '111111111111', '1111111111', '11111111111', '11111111111111111', '111111', '', ''),
+('TRA200904A0004', '1', '0000-00-00 00:00:00', 'USD', 3.000, 'P', '4', 'admin', '2009-04-15 00:00:00', '', '0000-00-00 00:00:00', 'TESTUSER_heshuai04', '5', '6', '7', '8', '9', '10', '11', '12', 'Afghanistan', ''),
+('TRA200904A0005', '1212', '0000-00-00 00:00:00', 'USD', 12.120, 'P', '', '', '2009-04-15 00:00:00', '', '0000-00-00 00:00:00', '', '', '', '', '', '', '', '', '', '', '');
 
 -- --------------------------------------------------------
 
@@ -1343,6 +1357,6 @@ CREATE TABLE IF NOT EXISTS `sequence` (
 --
 
 INSERT INTO `sequence` (`type`, `curType`, `curDate`, `curId`) VALUES
-('ORD', 'A', '200904', 17),
-('TRA', 'A', '200904', 4),
+('ORD', 'A', '200904', 29),
+('TRA', 'A', '200904', 6),
 ('SHI', 'A', '200904', 10);

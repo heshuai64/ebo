@@ -131,7 +131,9 @@ class preference {
 		$result = false;
 		$member_id = $this->os->session->get_member_id();
 		$group_id = $this->os->session->get_group_id();
-		
+		$styles['member_id'] = $member_id;
+		$styles['group_id'] = $group_id;
+		//print_r($styles);
 		if($member_id != "" && $group_id != ""){			
 			if($this->style_exists($member_id, $group_id)){
 				$sql = "update

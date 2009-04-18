@@ -141,6 +141,10 @@ class eBay{
 	return $session;
     }
     
+    private function saveFetchData($file_name, $data){
+	file_put_contents("/export/ebayBO/log/".$file_name, $data);
+    }
+    
     private function GetSellerTransactions($ModTimeFrom, $ModTimeTo, $sellerId, $dev, $app, $cert, $token, $proxy_host, $proxy_port){
         /*
 	$sql = "select token from qo_ebay_seller where id = '".$sellerId."'";
@@ -165,8 +169,8 @@ class eBay{
                 $results = $client->GetSellerTransactions($params);
                 //----------   debug --------------------------------
                 //print "Request: \n".$client->__getLastRequest() ."\n";
-                print "Response: \n".$client->__getLastResponse()."\n";
-        
+                //print "Response: \n".$client->__getLastResponse()."\n";
+		$this->saveFetchData($sellerId."-GetSellerTransactions-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
                 return $results;
                 
         } catch (SOAPFault $f) {
@@ -465,9 +469,14 @@ class eBay{
         $result = $this->GetSellerTransactions($ModTimeFrom, $ModTimeTo, $sellerId, $dev, $app, $cert, $token, $proxy_host, $proxy_port);
         //print_r($result);
         $TotalNumberOfPages = $result->PaginationResult->TotalNumberOfPages;
-        echo "total number: ".$result->PaginationResult->TotalNumberOfEntries."<br>";
-        echo "total page: ".$TotalNumberOfPages."<br>";
-        
+	$TotalNumberOfEntries = $result->PaginationResult->TotalNumberOfEntries;
+        echo "total number: ".$TotalNumberOfEntries."<br>\n";
+        echo "total page: ".$TotalNumberOfPages."<br>\n";
+	
+	if($TotalNumberOfEntries == 0){
+		return 0;
+	}
+	
         if(is_array($result->TransactionArray->Transaction)){
             foreach ($result->TransactionArray->Transaction as $transaction){
                 //CompleteStatus  Incomplete > Complete
@@ -483,7 +492,7 @@ class eBay{
                         }
                     }
                 }else{
-                    echo "TransactionID: ".$transaction->TransactionID . ", ItemID: " .$transaction->Item->ItemID.", PaymentMethodUsed: ".$transaction->Status->PaymentMethodUsed."<br>";
+                    echo "TransactionID: ".$transaction->TransactionID . ", ItemID: " .$transaction->Item->ItemID.", PaymentMethodUsed: ".$transaction->Status->PaymentMethodUsed."<br>\n";
                 }
             }
         }else{
@@ -497,7 +506,7 @@ class eBay{
                         $this->creteOrderFromEbayOrder($result->Seller->UserID, $result->TransactionArray->Transaction);
                     }
                 }else{
-			echo "TransactionID: ".$result->TransactionArray->Transaction->TransactionID . ", ItemID: " .$result->TransactionArray->Transaction->Item->ItemID.", PaymentMethodUsed: ".$result->TransactionArray->Transaction->Status->PaymentMethodUsed. "<br>";
+			echo "TransactionID: ".$result->TransactionArray->Transaction->TransactionID . ", ItemID: " .$result->TransactionArray->Transaction->Item->ItemID.", PaymentMethodUsed: ".$result->TransactionArray->Transaction->Status->PaymentMethodUsed. "<br>\n";
 		}
             }
         }
@@ -554,11 +563,14 @@ class eBay{
 		$params = array('Version' => $Version, 'GranularityLevel' =>$GranularityLevel, 'Pagination' => $Pagination, 'Sort' => $Sort, 'EndTimeFrom' => $EndTimeFrom, 'EndTimeTo' => $EndTimeTo, 'UserID' => $UserID, 'DetailLevel' => $DetailLevel);
 		$results = $client->GetSellerList($params);
 		
+		if($results->PaginationResult->TotalNumberOfPages == 0)
+			return 0;
+		
 		//----------   debug --------------------------------
 		//print_r($results);
                 //print "Request: \n".$client->__getLastRequest() ."\n";
                 //print "Response: \n".$client->__getLastResponse()."\n";
-		
+		//$this->saveFetchData($sellerId."-getSellerList-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 		
 		foreach ($results->ItemArray->Item as $item){
 			if($this->checkEbayItemExist($item->ItemID) == 0){
@@ -620,7 +632,8 @@ class eBay{
                 $params = array('Version' => $Version, 'RuName' => $RuName);
                 $results = $client->GetSessionID($params);
 		//$results->SessionID
-		echo "https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Creasion-Creasion-1ca1-4-vldylhxcb&&sid=$results->SessionID";
+		//echo "https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Creasion-Creasion-1ca1-4-vldylhxcb&&sid=$results->SessionID";
+		header("Location: https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&runame=".$RuName."&sid=".$results->SessionID);
 		//var_dump("https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Creasion-Creasion-1ca1-4-vldylhxcb&&sid=$results->SessionID");
                 //----------   debug --------------------------------
                 //print "Request: \n".$client->__getLastRequest() ."\n";
@@ -678,16 +691,32 @@ if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
 	
 		case "getAllSellerList":
 			$eBay = new eBay();
-			$eBay->setStartTime("2009-03-16 00:00:00");
-			$eBay->setEndTime("2009-03-28 09:30:00");
+			if(!empty($argv[2]) && !empty($argv[3])){
+				$eBay->setStartTime($argv[2]);
+				$eBay->setEndTime($argv[3]);
+			}elseif(!empty($_GET['start']) && !empty($_GET['end'])){
+				$eBay->setStartTime($_GET['start']);
+				$eBay->setEndTime($_GET['end']);
+			}else{
+				$eBay->setStartTime(date("Y-m-d H:i:s", time() - ((1 * 60 * 60) + (10 * 60))));
+				$eBay->setEndTime(date("Y-m-d H:i:s"));
+			}
 			$eBay->getAllSellerList();
 			
 		break;
 	
 		case "getAllEbayTransaction":
 			$eBay = new eBay();
-			$eBay->setStartTime("2009-04-10 00:00:00");
-			$eBay->setEndTime("2009-04-11 00:00:00");
+			if(!empty($argv[2]) && !empty($argv[3])){
+				$eBay->setStartTime($argv[2]);
+				$eBay->setEndTime($argv[3]);
+			}elseif(!empty($_GET['start']) && !empty($_GET['end'])){
+				$eBay->setStartTime($_GET['start']);
+				$eBay->setEndTime($_GET['end']);
+			}else{
+				$eBay->setStartTime(date("Y-m-d H:i:s", time() - ((2 * 60 * 60) + (20 * 60))));
+				$eBay->setEndTime(date("Y-m-d H:i:s"));
+			}
 			$eBay->getAllEbayTransaction();
 			//$test->GetSellerTransactions('','','AgAAAA**AQAAAA**aAAAAA**FmQISA**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wHlIOnCZaBpAWdj6x9nY+seQ**Q2AAAA**AAMAAA**K5e4SqBc83jVbhFXLTi50I3ptbripiwsQUS3jIeIcDvpmXzELIv5yXhhUp8jB/r9sdMAKZP2GxQB8g85Eq09tNqTWhmSLMGmFRXq3gBeof7enC9Ch4L0JLBf4rSDdyGWkwa8zpnVueMbOwQbExhx1UjkGZXsDfIxO8vU1FaeGW2tLjVkOffg/0NkzrhwQnoR63SeZ/aPkns9sBbaqkGH7VsoYSik0C/pkO8V9gfxJIuIDjRNuOQ6Stx0UWRNnTPyZRZpWDShtsh9horFcmRsB34ZRxxAkaxx3UmskFoqwxNviz1vYrjEqZlbV2KkQsF+iCOT5lu2YdFTeTZ2uv3/PY1zw+J7sdvK3tI4ucKNKTNLbrBIco0XW/ImHhRoNsun4AizgcHP4HQOwzzuwXnc53Z1QqehYQZsOvMCx+cU+Z2zlA/MP6z7NgdCuHdaYRJbYgINxfDxAuxKCnjzyozpgV6Smk/o7dOBAaZKclEEClNAg3xIpjnyamBh4EBUzk0/tYePv5K2PA6nClMu58PWd7HcGcP/X4FCDnxiDbu5ndxcntPfec6ztdC5f2FHDJJ7ACY9PjRdIYWUQBsgwhV6yZs3t0N1SfR5yuy0tW+fOX4Uw4RkPcMbrgHk9H8m5JEae8YaQMfNkuk3TCKwjjEE+25LDFgpbiTAEu4sYs7FxGhBQBr4RbhoLR6TTdnu0xhpvO2vC4lPb6FQmb9vGRaTv3uxdh2xgMJgD7bhAqt+1vnET+xKvGDrvIFp1XxJ7ij2');
 			//$test = new eBay();
@@ -695,4 +724,8 @@ if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
 		break;
 	}
 }
+
+//0 */1 * * * root php -q /export/ebayBO/cron/eBay.php getAllSellerList >> /tmp/getAllSellerList.log
+//30 */2 * * * root php -q /export/ebayBO/cron/eBay.php getAllEbayTransaction >> /tmp/getAllEbayTransaction.log
+
 ?>

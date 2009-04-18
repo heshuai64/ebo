@@ -98,7 +98,7 @@ Ext.onReady(function(){
 									path = path.substring(0, path.lastIndexOf('/') + 1);
 									
 								// set the cookie
-								set_cookie('sessionId', d.sessionId, '', path, '', '' );
+								set_cookie('sessionId', d.sessionId, 1, path, '', '' );
 								
 								// redirect the window
 								window.location = path;
