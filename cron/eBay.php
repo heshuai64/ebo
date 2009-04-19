@@ -142,7 +142,7 @@ class eBay{
     }
     
     private function saveFetchData($file_name, $data){
-	file_put_contents("/export/ebayBO/log/".$file_name, $data);
+	file_put_contents("/export/eBayBO/log/".$file_name, $data);
     }
     
     private function GetSellerTransactions($ModTimeFrom, $ModTimeTo, $sellerId, $dev, $app, $cert, $token, $proxy_host, $proxy_port){
@@ -309,7 +309,8 @@ class eBay{
         }
         */
         $unitPriceCurrency = $transaction->Item->SellingStatus->CurrentPrice->currencyID;
-        $unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_ / $transaction->Item->SellingStatus->QuantitySold;
+        //$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_ / $transaction->Item->SellingStatus->QuantitySold;
+	$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_;
         $quantity = $transaction->Item->SellingStatus->QuantitySold;
         
         $sql = "insert into qo_orders_detail (ordersId,itemId,itemTitle,quantity,unitPriceCurrency,unitPriceValue,ebayTranctionId) values 
@@ -323,7 +324,8 @@ class eBay{
     
     private function AddOrderDetailBySameBuy($transaction, $orderId){
         $unitPriceCurrency = $transaction->Item->SellingStatus->CurrentPrice->currencyID;
-        $unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_ / $transaction->Item->SellingStatus->QuantitySold;
+        //$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_ / $transaction->Item->SellingStatus->QuantitySold;
+	$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_;
         $quantity = $transaction->Item->SellingStatus->QuantitySold;
         
         //consider order status
@@ -354,7 +356,8 @@ class eBay{
     
     private function createOrderDetailFromEbayOrder($orderId, $transaction){
         $unitPriceCurrency = $transaction->Item->SellingStatus->CurrentPrice->currencyID;
-        $unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_ / $transaction->Item->SellingStatus->QuantitySold;
+        //$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_ / $transaction->Item->SellingStatus->QuantitySold;
+	$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_;
         $quantity = $transaction->Item->SellingStatus->QuantitySold;
         
         $sql = "insert into qo_orders_detail (ordersId,itemId,itemTitle,quantity,unitPriceCurrency,unitPriceValue,ebayTranctionId,ebayOrderId) values 
@@ -483,7 +486,7 @@ class eBay{
 		//CheckoutStatus CheckoutIncomplete > CheckoutComplete
 		//BuyerSelectedShipping  false/true
                 //if($transaction->Status->CompleteStatus == "Complete"){
-		if($transaction->Status->PaymentMethodUsed == "PayPal"){
+		if($transaction->Status->PaymentMethodUsed == "PayPal" && $transaction->Status->CheckoutStatus != "SellerResponded"){
                     if(!$this->checkEbayTransactionExist($transaction->Item->ItemID, $transaction->TransactionID)){
                         if(empty($transaction->ContainingOrder)){
                             $this->createOrderFromEbayTransaction($result->Seller->UserID, $transaction);
@@ -499,7 +502,7 @@ class eBay{
             if(!$this->checkEbayTransactionExist($result->TransactionArray->Transaction->Item->ItemID, $result->TransactionArray->Transaction->TransactionID)){
                 //Incomplete --> Complete
                 //if($result->TransactionArray->Transaction->Status->CompleteStatus == "Complete"){
-		if($result->TransactionArray->Transaction->Status->PaymentMethodUsed == "PayPal"){
+		if($result->TransactionArray->Transaction->Status->PaymentMethodUsed == "PayPal" && $transaction->Status->CheckoutStatus != "SellerResponded"){
                     if(empty($result->TransactionArray->Transaction->ContainingOrder)){
                         $this->createOrderFromEbayTransaction($result->Seller->UserID, $result->TransactionArray->Transaction);
                     }else{
@@ -530,14 +533,14 @@ class eBay{
     
     private function insertEbayItem($item, $sellerId){
 	$sql = "insert into qo_items (id,skuId,site,title,quantity,quantitySold,sellerId,ListingType,StartTime,EndTime,GalleryURL) values 
-	('".$item->ItemID."','','".$item->Site."','".mysql_real_escape_string($item->Title)."','".$item->Quantity."','".$item->SellingStatus->QuantitySold."',
+	('".$item->ItemID."','".mysql_real_escape_string($item->SKU)."','".$item->Site."','".mysql_real_escape_string($item->Title)."','".$item->Quantity."','".$item->SellingStatus->QuantitySold."',
 	'".$sellerId."','".$item->ListingType."','".$item->ListingDetails->StartTime."','".$item->ListingDetails->EndTime."','".$item->PictureDetails->GalleryURL."')";
 	//echo $sql."<br>";
 	$result = mysql_query($sql, eBay::$database_connect);
     }
     
     private function updateEbayItem($item, $sellerId){
-	$sql = "update qo_items set skuId='',site='".$item->Site."',title='".mysql_real_escape_string($item->Title)."',
+	$sql = "update qo_items set skuId='".mysql_real_escape_string($item->SKU)."',site='".$item->Site."',title='".mysql_real_escape_string($item->Title)."',
 	quantity='".$item->Quantity."',quantitySold='".$item->SellingStatus->QuantitySold."',sellerId='".$sellerId."',
 	ListingType'".$item->ListingType."',StartTime='".$item->ListingDetails->StartTime."',EndTime='".$item->ListingDetails->EndTime.".GalleryURL='".$item->PictureDetails->GalleryURL."'' 
 	where id = '".$item->ItemID."'";
@@ -563,14 +566,16 @@ class eBay{
 		$params = array('Version' => $Version, 'GranularityLevel' =>$GranularityLevel, 'Pagination' => $Pagination, 'Sort' => $Sort, 'EndTimeFrom' => $EndTimeFrom, 'EndTimeTo' => $EndTimeTo, 'UserID' => $UserID, 'DetailLevel' => $DetailLevel);
 		$results = $client->GetSellerList($params);
 		
-		if($results->PaginationResult->TotalNumberOfPages == 0)
-			return 0;
+		
 		
 		//----------   debug --------------------------------
 		//print_r($results);
                 //print "Request: \n".$client->__getLastRequest() ."\n";
                 //print "Response: \n".$client->__getLastResponse()."\n";
-		//$this->saveFetchData($sellerId."-getSellerList-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		$this->saveFetchData($sellerId."-getSellerList-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		
+		if($results->PaginationResult->TotalNumberOfPages == 0)
+			return 0;
 		
 		foreach ($results->ItemArray->Item as $item){
 			if($this->checkEbayItemExist($item->ItemID) == 0){
@@ -725,7 +730,7 @@ if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
 	}
 }
 
-//0 */1 * * * root php -q /export/ebayBO/cron/eBay.php getAllSellerList >> /tmp/getAllSellerList.log
-//30 */2 * * * root php -q /export/ebayBO/cron/eBay.php getAllEbayTransaction >> /tmp/getAllEbayTransaction.log
-
+//0 */1 * * * root php -q /export/eBayBO/cron/eBay.php getAllSellerList >> /tmp/getAllSellerList.log
+//30 */2 * * * root php -q /export/eBayBO/cron/eBay.php getAllEbayTransaction >> /tmp/getAllEbayTransaction.log
+//http://heshuai64.3322.org/eBayBO/cron/eBay.php?action=getAllEbayTransaction&start=2009-04-18 00:00:00&end=2009-04-19 00:00:00
 ?>
