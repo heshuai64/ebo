@@ -11,7 +11,7 @@
         <!-- EXT JS LIBRARY -->
         <link rel="stylesheet" type="text/css" href="../Ext/2.2/resources/css/ext-all.css" />
         <script src="../Ext/2.2/adapter/ext/ext-base.js"></script>
-        <script src="../Ext/2.2/ext-all-debug.js"></script>
+        <script src="../Ext/2.2/ext-all.js"></script>
         <script src="system/modules/orders/lang.js"></script>
         <script src="system/modules/orders/orders-detail-min.js"></script>
 </head>

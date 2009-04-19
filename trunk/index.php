@@ -22,7 +22,7 @@ if(!class_exists('os')){
 <!-- EXT JS LIBRARY -->
 <link rel="stylesheet" type="text/css" href="../Ext/2.2/resources/css/ext-all.css" />
 <script src="../Ext/2.2/adapter/ext/ext-base.js"></script>
-<script src="../Ext/2.2/ext-all-debug.js"></script> 
+<script src="../Ext/2.2/ext-all.js"></script> 
 
 <!-- DESKTOP CSS -->
 <link rel="stylesheet" type="text/css" href="resources/css/desktop.css" />
