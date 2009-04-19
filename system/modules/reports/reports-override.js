@@ -5,7 +5,7 @@ Ext.override(QoDesk.Reports, {
         var win = desktop.getWindow('reports-win');
         
 	var generateSkuSellReport = function(seller_id, start_date, end_date){
-	    window.open("http://127.0.0.1:6666/eBayBO/reports.php?type=skuSell&seller_id="+seller_id+"&start_date="+start_date+"&end_date="+end_date,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=10, height=10");
+	    window.open("/eBayBO/reports.php?type=skuSell&seller_id="+seller_id+"&start_date="+start_date+"&end_date="+end_date,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=10, height=10");
 	}
 	
 	var skuSellReport = function(){
@@ -84,7 +84,7 @@ Ext.override(QoDesk.Reports, {
                 title:lang.reports.window_title,
                 width:340,
                 height:200,
-                //iconCls: 'reports-icon',
+                iconCls:'reports-icon',
                 shim:false,
                 animCollapse:false,
                 constrainHeader:true,
