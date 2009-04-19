@@ -91,7 +91,7 @@ Ext.override(QoDesk.Shipments, {
                 
                 shipmentGrid.on("rowdblclick", function(oGrid){
                 var oRecord = oGrid.getSelectionModel().getSelected();
-                    window.open("/ebayBO/shipments.php?id="+oRecord.data['id'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");        
+                    window.open("/eBayBO/shipments.php?id="+oRecord.data['id'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");        
                 });
                  
                 shipmentGridStore.load({params:{start:0, limit:20}});
@@ -344,19 +344,19 @@ Ext.override(QoDesk.Shipments, {
 			text: 'Verify Shipment',
 			handler: function(){
 			    win.close();
-			    window.open("/ebayBO/verifyShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");   
+			    window.open("/eBayBO/verifyShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");   
 			}
 		    },{
 			text: 'Pack Shipment',
 			handler: function(){
 			    win.close();
-			    window.open("/ebayBO/packShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=500, height=400");  
+			    window.open("/eBayBO/packShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=500, height=400");  
 			}
 		    },{
 			text: 'Ship Shipment',
 			handler: function(){
 			    win.close();
-			    window.open("/ebayBO/shipShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=500, height=400");  
+			    window.open("/eBayBO/shipShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=500, height=400");  
 			}
 		    },{
 			text: 'Close',
