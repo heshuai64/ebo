@@ -63,8 +63,8 @@ var lang = {
         form_start: "Start",
         form_end: "End",
         form_modified_date: "Modified Date",
-        orders_status_json: {"W": "Incomplete Checkout", "C": "Excess Payment", "V": "Investigate", "S": "Insufficient Payment", "P": "Completed Payment", "X": "Canceled"},
-        orders_status: [["W", "Incomplete Checkout"], ["C", "Excess Payment"], ["V", "Investigate"], ["S", "Insufficient Payment"], ["P", "Completed Payment"], ["X", "Canceled"]],
+        orders_status_json: {"M": "Incomplete Checkout", "W": "Waiting Payment", "E": "Pending for Payment Confirmation", "C": "Excess Payment", "V": "Investigate", "S": "Insufficient Payment", "P": "Completed Payment", "X": "Canceled"},
+        orders_status: [["M", "Incomplete Checkout"], ["W", "Waiting Payment"], ["E", "Pending for Payment Confirmation"], ["C", "Excess Payment"], ["V", "Investigate"], ["S", "Insufficient Payment"], ["P", "Completed Payment"], ["X", "Canceled"]],
         transactions_status: [['P','Completed'],['R','Refunded'],['V','Reversed'],['C','Canceled Reversal'],['X','Canceled']],
         currency: [['USD','USD'],['EUR','EUR'],['GBP','GBP'],['AUD','AUD'],['RMB','RMB'],['CAD','CAD']],
         shipping_method: [['B','Bulk'], ['S','SpeedPost'], ['U','UPS']]
