@@ -112,7 +112,7 @@ Ext.override(QoDesk.Attention, {
                 title:lang.attention.window_title,
                 width:600,
                 height:400,
-                //iconCls: 'reports-icon',
+                iconCls: 'attention-icon',
                 shim:false,
                 animCollapse:false,
                 constrainHeader:true,
