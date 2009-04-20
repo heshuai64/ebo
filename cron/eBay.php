@@ -199,11 +199,11 @@ class eBay{
     
     
     private function checkEbayTransactionExist($itemId, $ebayTransactionId){
-            $sql = "select count(*) as num from qo_orders_detail where itemId = '".$itemId."' and ebayTranctionId = '".$ebayTransactionId."'";
+            $sql = "select o.id as ordersId from qo_orders as o left join qo_orders_detail as od on o.id=od.ordersId where od.itemId = '".$itemId."' and od.ebayTranctionId = '".$ebayTransactionId."'";
             $result = mysql_query($sql, eBay::$database_connect);
             //echo "<br><font color='green'>".$sql."</font><br>";
             $row = mysql_fetch_assoc($result);
-            return $row['num'];
+            return $row['ordersId'];
     }
     
     private function getOrderId(){
@@ -287,10 +287,10 @@ class eBay{
             if (!$result) {
                 $this->errorLog("createOrderFromEbayTransaction: query error ($sql) from DB: " . mysql_error(eBay::$database_connect));
             }else{
-                $this->createOrderDetailFromEbayTransaction($id, $transaction);
-            }
+		$this->createOrderDetailFromEbayTransaction($id, $transaction);
+	    }
             echo $sql;
-            echo "<br><font color='green'>".$transaction->Item->ItemID." create ebay transaction!</font><br><br>";
+            echo "<br><font color='green'>".$transaction->TransactionID.", ".$transaction->Item->ItemID." create order from ebay transaction!</font><br><br>";
 	    $this->mapEbayTransaction($id, $transaction);
         }
     }
@@ -412,15 +412,60 @@ class eBay{
             if (!$result) {
                 $this->errorLog("creteOrderFromEbayOrder: query error ($sql) from DB: " . mysql_error(eBay::$database_connect));
             }else{
-                $this->createOrderDetailFromEbayOrder($id, $transaction);
-            }
+		$this->createOrderDetailFromEbayOrder($id, $transaction);
+	    }
             echo $sql;
-            echo "<br><font color='green'>".$transaction->Item->ItemID." create ebay order!</font><br><br>";
+            echo "<br><font color='green'>".$transaction->TransactionID.", ".$transaction->Item->ItemID." create order from ebay order!</font><br><br>";
             $this->mapEbayTransaction($id, $transaction);
         }else{
             $this->createOrderDetailFromEbayOrder($row['ordersId'], $transaction);
 	    $this->mapEbayTransaction($row['ordersId'], $transaction);
         }
+    }
+    
+    private function updateOrderFromEbay($ordersId, $sellerId, $transaction){
+	$sql = "select status from qo_orders where id = '".$ordersId."'";
+	$result = mysql_query($sql, eBay::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	if($row["status"] == "W"){
+		$shippingMethod = $transaction->ShippingServiceSelected->ShippingService;
+		$paymentMethod = "PayPal";
+		$sellerId = $sellerId;
+		$buyerId = $transaction->Buyer->UserID;
+		$shippingFeeCurrency = $transaction->ShippingServiceSelected->ShippingServiceCost->currencyID;
+		$shippingFeeValue = $transaction->ShippingServiceSelected->ShippingServiceCost->_;
+		$insuranceCurrency = $transaction->ShippingDetails->InsuranceFee->currencyID;
+		$insuranceValue = $transaction->ShippingDetails->InsuranceFee->_;
+		$grandTotalCurrency = $transaction->AmountPaid->currencyID;
+		$grandTotalValue = $transaction->AmountPaid->_;
+		$ebayName = $transaction->Buyer->BuyerInfo->ShippingAddress->Name;
+		$ebayEmail = $transaction->Buyer->Email;
+		$ebayAddress1 = $transaction->Buyer->BuyerInfo->ShippingAddress->Street1;
+		$ebayAddress2 = $transaction->Buyer->BuyerInfo->ShippingAddress->Street2;
+		$ebayCity = $transaction->Buyer->BuyerInfo->ShippingAddress->CityName;
+		$ebayStateOrProvince = $transaction->Buyer->BuyerInfo->ShippingAddress->StateOrProvince;
+		$ebayPostalCode = $transaction->Buyer->BuyerInfo->ShippingAddress->PostalCode;
+		$ebayCountry = $transaction->Buyer->BuyerInfo->ShippingAddress->CountryName;
+		$ebayPhone = $transaction->Buyer->BuyerInfo->ShippingAddress->Phone;
+		$createdBy = "eBay";
+		$modifiedOn = date("Y-m-d H:i:s",strtotime(substr($transaction->CreatedDate, 0 ,-5)) + (8 * 60 * 60));
+		
+		$sql = "update qo_orders set shippingMethod='".$shippingMethod."',
+		paymentMethod='".$paymentMethod."',sellerId='".$sellerId."',buyerId='".$buyerId."',shippingFeeCurrency='".$shippingFeeCurrency."',
+		shippingFeeValue='".$shippingFeeValue."',insuranceCurrency='".$insuranceCurrency."',insuranceValue='".$insuranceValue."',
+		grandTotalCurrency='".$grandTotalCurrency."',grandTotalValue='".$grandTotalValue."',ebayName='".mysql_real_escape_string($ebayName)."',
+		ebayEmail='".$ebayEmail."',ebayAddress1='".mysql_real_escape_string($ebayAddress1)."',ebayAddress2='".mysql_real_escape_string($ebayAddress2)."',
+		ebayCity='".mysql_real_escape_string($ebayCity)."',ebayStateOrProvince='".mysql_real_escape_string($ebayStateOrProvince)."',
+		ebayPostalCode='".$ebayPostalCode."',ebayCountry='".mysql_real_escape_string($ebayCountry)."',ebayPhone='".$ebayPhone."',
+		modifiedBy='".$createdBy."',modifiedOn='".$modifiedOn."' where id = '".$ordersId."'";
+		$result = mysql_query($sql, eBay::$database_connect);
+		if (!$result) {
+		    $this->errorLog("updateOrderFromEbayOrder: query error ($sql) from DB: " . mysql_error(eBay::$database_connect));
+		}
+		echo $sql;
+		echo "<br><font color='green'>".$transaction->TransactionID.", ".$transaction->Item->ItemID." update order from ebay!</font><br><br>";
+		$this->mapEbayTransaction($ordersId, $transaction);
+	}
     }
     
     private function updateOrderStatus($ordersId, $grandTotalValue, $amountValue){
@@ -462,6 +507,8 @@ class eBay{
 				echo "map ebay transaction: ",$sql_3."<br>";
 				$result_3 = mysql_query($sql_3, eBay::$database_connect);
 				$this->updateOrderStatus($ordersId, $transaction->AmountPaid->_, $row['amountValue']);
+			}else{
+				$this->updateOrderStatus($ordersId, $transaction->AmountPaid->_, $row['amountValue']);
 			}
 			break;	
 		}
@@ -481,37 +528,48 @@ class eBay{
 	}
 	
         if(is_array($result->TransactionArray->Transaction)){
-            foreach ($result->TransactionArray->Transaction as $transaction){
-                //CompleteStatus  Incomplete > Complete
-		//CheckoutStatus CheckoutIncomplete > CheckoutComplete
-		//BuyerSelectedShipping  false/true
-                //if($transaction->Status->CompleteStatus == "Complete"){
-		if($transaction->Status->PaymentMethodUsed == "PayPal" && $transaction->Status->CheckoutStatus != "SellerResponded"){
-                    if(!$this->checkEbayTransactionExist($transaction->Item->ItemID, $transaction->TransactionID)){
-                        if(empty($transaction->ContainingOrder)){
-                            $this->createOrderFromEbayTransaction($result->Seller->UserID, $transaction);
-                        }else{
-                            $this->creteOrderFromEbayOrder($result->Seller->UserID, $transaction);
-                        }
-                    }
-                }else{
-                    echo "TransactionID: ".$transaction->TransactionID . ", ItemID: " .$transaction->Item->ItemID.", PaymentMethodUsed: ".$transaction->Status->PaymentMethodUsed."<br>\n";
-                }
-            }
-        }else{
-            if(!$this->checkEbayTransactionExist($result->TransactionArray->Transaction->Item->ItemID, $result->TransactionArray->Transaction->TransactionID)){
-                //Incomplete --> Complete
-                //if($result->TransactionArray->Transaction->Status->CompleteStatus == "Complete"){
-		if($result->TransactionArray->Transaction->Status->PaymentMethodUsed == "PayPal" && $transaction->Status->CheckoutStatus != "SellerResponded"){
-                    if(empty($result->TransactionArray->Transaction->ContainingOrder)){
-                        $this->createOrderFromEbayTransaction($result->Seller->UserID, $result->TransactionArray->Transaction);
-                    }else{
-                        $this->creteOrderFromEbayOrder($result->Seller->UserID, $result->TransactionArray->Transaction);
-                    }
-                }else{
-			echo "TransactionID: ".$result->TransactionArray->Transaction->TransactionID . ", ItemID: " .$result->TransactionArray->Transaction->Item->ItemID.", PaymentMethodUsed: ".$result->TransactionArray->Transaction->Status->PaymentMethodUsed. "<br>\n";
+		foreach ($result->TransactionArray->Transaction as $transaction){
+			//CompleteStatus  Incomplete > Complete
+			//CheckoutStatus CheckoutIncomplete > CheckoutComplete
+			//BuyerSelectedShipping  false/true
+			//if($transaction->Status->CompleteStatus == "Complete"){
+			if($transaction->Status->CheckoutStatus != "SellerResponded"){
+				$ordersId = $this->checkEbayTransactionExist($transaction->Item->ItemID, $transaction->TransactionID);
+				//var_dump($ordersId);
+				if(empty($ordersId)){
+					//Create 
+					if(empty($transaction->ContainingOrder)){
+					    $this->createOrderFromEbayTransaction($result->Seller->UserID, $transaction);
+					}else{
+					    $this->creteOrderFromEbayOrder($result->Seller->UserID, $transaction);
+					}
+				}else{
+					//Update
+					$this->updateOrderFromEbay($ordersId, $result->Seller->UserID, $transaction);
+				}
+			}
+			//else{
+			//	echo "TransactionID: ".$transaction->TransactionID . ", ItemID: " .$transaction->Item->ItemID.", PaymentMethodUsed: ".$transaction->Status->PaymentMethodUsed."<br>\n";
+			//}
 		}
-            }
+        }else{
+		$ordersId = $this->checkEbayTransactionExist($result->TransactionArray->Transaction->Item->ItemID, $result->TransactionArray->Transaction->TransactionID);
+		if(empty($ordersId)){
+			//Incomplete --> Complete
+			//if($result->TransactionArray->Transaction->Status->CompleteStatus == "Complete"){
+			if($transaction->Status->CheckoutStatus != "SellerResponded"){
+			    if(empty($result->TransactionArray->Transaction->ContainingOrder)){
+				$this->createOrderFromEbayTransaction($result->Seller->UserID, $result->TransactionArray->Transaction);
+			    }else{
+				$this->creteOrderFromEbayOrder($result->Seller->UserID, $result->TransactionArray->Transaction);
+			    }
+			}
+			//else{
+			//	echo "TransactionID: ".$result->TransactionArray->Transaction->TransactionID . ", ItemID: " .$result->TransactionArray->Transaction->Item->ItemID.", PaymentMethodUsed: ".$result->TransactionArray->Transaction->Status->PaymentMethodUsed. "<br>\n";
+			//}
+		}else{
+			$this->updateOrderFromEbay($ordersId, $result->Seller->UserID, $result->TransactionArray->Transaction);
+		}
         }
     }
     
