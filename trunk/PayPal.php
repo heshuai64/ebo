@@ -5,8 +5,9 @@
         const DATABASE_USER = 'root';
         const DATABASE_PASSWORD = '';
         const DATABASE_NAME = 'ebaybo';
-        const IPN_VALIDATE_HOST = 'ssl://www.sandbox.paypal.com';
-        //const IPN_VALIDATE_HOST = 'ssl://www.paypal.com';
+        //const IPN_VALIDATE_HOST = 'ssl://www.sandbox.paypal.com';
+        const IPN_VALIDATE_HOST = 'ssl://www.paypal.com';
+        const NVPAPI_HOST = 'https://api-3t.paypal.com/nvp';
         
         public function __construct(){
             PayPal::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
@@ -23,7 +24,7 @@
         }
         
         private function log($file_name, $content){
-            file_put_contents($file_name."_".date("Y-m-d").".log", date("Y-m-d H:i:s")."   ".$content.'\n', FILE_APPEND);
+            file_put_contents("/export/eBayBO/log/Ipn/".$file_name."-".date("Y-m-d").".log", date("Y-m-d H:i:s")."   ".$content."\n", FILE_APPEND);
         }
         
         private function getTransactionId(){
@@ -390,11 +391,11 @@
                     if (strcmp ($res, "VERIFIED") == 0) {
                         $this->log("ipn_data", $_POST['txn_id']."   VERIFIED");
                         //eBay IPN
-                        if(!empty($_POST['auction_buyer_id']) && !empty($_POST['auction_closing_date'])){
+                        //if(!empty($_POST['auction_buyer_id']) && !empty($_POST['auction_closing_date'])){
                             $this->addEbayTransaction($_POST);
-                        }else{
+                        //}else{
                             
-                        }
+                        //}
                         // check the payment_status is Completed
                         // check that txn_id has not been previously processed
                         // check that receiver_email is your Primary PayPal email
@@ -410,15 +411,101 @@
             }
         }
         
+        private function PPHttpPost($userName, $password, $sgnature, $methodName_, $nvpStr_) {
+            $API_Endpoint = PayPal::NVPAPI_HOST;
+            // Set up your API credentials, PayPal end point, and API version.
+            $API_UserName = urlencode($userName);
+            $API_Password = urlencode($password);
+            $API_Signature = urlencode($sgnature);
+
+            $version = urlencode('51.0');
+    
+            // Set the curl parameters.
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $API_Endpoint);
+            curl_setopt($ch, CURLOPT_VERBOSE, 1);
+    
+            // Turn off the server and peer verification (TrustManager Concept).
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+    
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_POST, 1);
+    
+            // Set the API operation, version, and API signature in the request.
+            $nvpreq = "METHOD=$methodName_&VERSION=$version&PWD=$API_Password&USER=$API_UserName&SIGNATURE=$API_Signature$nvpStr_";
+            echo $nvpreq;
+            // Set the request as a POST FIELD for curl.
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $nvpreq);
+    
+            // Get response from the server.
+            $httpResponse = curl_exec($ch);
+    
+            if(!$httpResponse) {
+                    exit("$methodName_ failed: ".curl_error($ch).'('.curl_errno($ch).')');
+            }
+    
+            // Extract the response details.
+            $httpResponseAr = explode("&", $httpResponse);
+    
+            $httpParsedResponseAr = array();
+            foreach ($httpResponseAr as $i => $value) {
+                    $tmpAr = explode("=", $value);
+                    if(sizeof($tmpAr) > 1) {
+                            $httpParsedResponseAr[$tmpAr[0]] = $tmpAr[1];
+                    }
+            }
+    
+            if((0 == sizeof($httpParsedResponseAr)) || !array_key_exists('ACK', $httpParsedResponseAr)) {
+                    exit("Invalid HTTP Response for POST request($nvpreq) to $API_Endpoint.");
+            }
+    
+            return $httpParsedResponseAr;
+        }
+
+        private function TransactionSearch($userName, $password, $sgnature, $start_time, $end_time){
+            
+            $nvpStr .= "&STARTDATE=$start_time";
+            $nvpStr .= "&ENDDATE=$end_time";
+            $httpParsedResponseAr = $this->PPHttpPost($userName, $password, $sgnature, 'TransactionSearch', $nvpStr);
+
+            if("Success" == $httpParsedResponseAr["ACK"]) {
+                    exit('TransactionSearch Completed Successfully: '.print_r($httpParsedResponseAr, true));
+            } else  {
+                    exit('TransactionSearch failed: ' . print_r($httpParsedResponseAr, true));
+            }
+        }
+        
+        private function GetTransactionDetails($userName, $password, $sgnature, $transactionID){
+            // Add request-specific fields to the request string.
+            $nvpStr = "&TRANSACTIONID=$transactionID";
+            
+            // Execute the API operation; see the PPHttpPost function above.
+            $httpParsedResponseAr = $this->PPHttpPost($userName, $password, $sgnature, 'GetTransactionDetails', $nvpStr);
+            
+            if("Success" == $httpParsedResponseAr["ACK"]) {
+                    exit('GetTransactionDetails Completed Successfully: '.print_r($httpParsedResponseAr, true));
+            } else  {
+                    exit('GetTransactionDetails failed: ' . print_r($httpParsedResponseAr, true));
+            }
+        }
+        
+        public function getAllSellerTransactions(){
+            $this->TransactionSearch("paintings.suppliersz_api1.gmail.com", "BQ3G47PGEUPFJYUW", "AFAonZoEN5Tlf1AdMI6LHryIRiuXAZmyV1n8z4H3aK3CTTmVXIajebfk", "2009-04-18 00:00:00", "2009-04-20 00:00:00");
+        }
+        
         public function __destruct(){
             mysql_close(PayPal::$database_connect);
         }
     }
     
     
-    if(!empty($_POST)){
-        $test = new PayPal();
-        $test->ipn();
-    }
+if(!empty($_POST)){
+    $PayPal = new PayPal();
+    $PayPal->ipn();
+}else{
+    $PayPal = new PayPal();
+    $PayPal->getAllSellerTransactions();
+}
     
 ?>
