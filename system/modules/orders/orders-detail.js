@@ -254,6 +254,14 @@ Ext.onReady(function(){
                 url:'connect.php?moduleId=qo-orders&action=getOrderTransaction&id='+ordersId
             });
             
+            function renderTransactionStatus(v, p, r){
+                return lang.orders.orders_status_json[v];
+            }
+            
+            function renderShipmentStatus(v, p, r){
+                return lang.orders.shipments_status_json[v];
+            }
+            
             var orderTransactionGrid = new Ext.grid.EditorGridPanel({
                 autoHeight: true,
                 store: orderTransactionStore,
@@ -301,7 +309,8 @@ Ext.onReady(function(){
                 },{
                     header: "Status",
                     dataIndex: 'status',
-                    width: 80,
+                    renderer: renderTransactionStatus,
+                    width: 120,
                     align: 'center',
                     sortable: true
                 }],
@@ -721,7 +730,8 @@ Ext.onReady(function(){
                 },{
                     header: "Status",
                     dataIndex: 'status',
-                    width: 50,
+                    renderer: renderShipmentStatus,
+                    width: 150,
                     align: 'center',
                     sortable: true
                 }],
