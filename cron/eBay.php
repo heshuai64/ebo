@@ -170,7 +170,7 @@ class eBay{
                 //----------   debug --------------------------------
                 //print "Request: \n".$client->__getLastRequest() ."\n";
                 //print "Response: \n".$client->__getLastResponse()."\n";
-		$this->saveFetchData($sellerId."-GetSellerTransactions-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		$this->saveFetchData("/GetSellerTransactions/".$sellerId."-GetSellerTransactions-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
                 return $results;
                 
         } catch (SOAPFault $f) {
@@ -630,7 +630,7 @@ class eBay{
 		//print_r($results);
                 //print "Request: \n".$client->__getLastRequest() ."\n";
                 //print "Response: \n".$client->__getLastResponse()."\n";
-		$this->saveFetchData($sellerId."-getSellerList-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		$this->saveFetchData("/GetSellerList/".$sellerId."-GetSellerList-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 		
 		if($results->PaginationResult->TotalNumberOfPages == 0)
 			return 0;
