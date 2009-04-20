@@ -415,7 +415,7 @@ class QoOrders {
 	}
 	
 	public function getOrderTransaction(){
-		$sql = "select * from qo_transactions as t left join qo_orders_transactions as ot on t.id = ot.	transactionsId  where ot.ordersId ='".$_GET['id']."'";
+		$sql = "select t.id,t.txnId,t.transactionTime,t.amountCurrency,t.amountValue,t.status from qo_transactions as t left join qo_orders_transactions as ot on t.id = ot.	transactionsId  where ot.ordersId ='".$_GET['id']."'";
 		$result = mysql_query($sql);
 		$order_transaction_array = array();
 		while($row = mysql_fetch_assoc($result)){

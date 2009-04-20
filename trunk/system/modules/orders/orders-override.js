@@ -104,7 +104,7 @@ Ext.override(QoDesk.Orders, {
             
             var search_result_win = desktop.createWindow({
                title:lang.orders.search_result,
-               width:700,
+               width:717,
                height:400,
                iconCls: 'orders-icon',
                shim:false,
