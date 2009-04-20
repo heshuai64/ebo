@@ -972,6 +972,49 @@ Ext.onReady(function(){
                                             xtype:"textfield",
                                             fieldLabel:lang.orders.form_ebay_phone,
                                             name:"ebayPhone"
+                                          },{
+                                             xtype:"button",
+                                             text: "Copy Address Info",
+                                             handler: function(){
+                                                var eBayAddressInfo = orderDetailForm.getForm().findField("ebayName").getValue()+"\n"+
+                                                orderDetailForm.getForm().findField("ebayEmail").getValue()+"\n"+
+                                                orderDetailForm.getForm().findField("ebayAddress1").getValue()+"\n"+
+                                                orderDetailForm.getForm().findField("ebayAddress2").getValue()+"\n"+
+                                                orderDetailForm.getForm().findField("ebayCity").getValue()+"\n"+
+                                                orderDetailForm.getForm().findField("ebayStateOrProvince").getValue()+"\n"+
+                                                orderDetailForm.getForm().findField("ebayPostalCode").getValue()+"\n"+
+                                                orderDetailForm.getForm().findField("ebayCountry").getValue()+"\n"+
+                                                orderDetailForm.getForm().findField("ebayPhone").getValue();
+                                                var copyForm =  form = new Ext.FormPanel({
+                                                            labelWidth:0,
+                                                            hideLabels:true,
+                                                            labelSeparator:"",
+                                                            items: [{xtype:"textarea",
+                                                                     fieldLabel:"",
+                                                                     width: 380,
+                                                                     height: 280,
+                                                                     value:eBayAddressInfo,
+                                                                     name: 'eBayAddressInfo'}
+                                                            ]
+                                                        })
+                                                        
+                                                var copyWindow = new Ext.Window({
+                                                    title: 'eBay Address Info' ,
+                                                    closable:true,
+                                                    width: 400,
+                                                    height: 300,
+                                                    plain:true,
+                                                    layout: 'fit',
+                                                    items: copyForm,
+                                                    buttons: [{
+                                                        text: 'Close',
+                                                        handler: function(){
+                                                              copyWindow.close();
+                                                        }
+                                                    }]
+                                                });
+                                                copyWindow.show();
+                                             }
                                           }]
                                       },{
                                         title:lang.orders.form_paypal_address_title,
@@ -1027,6 +1070,49 @@ Ext.onReady(function(){
                                             xtype:"textfield",
                                             fieldLabel:lang.orders.form_paypal_phone,
                                             name:"paypalPhone"
+                                          },{
+                                             xtype:"button",
+                                             text: "Copy Address Info",
+                                             handler: function(){
+                                               var eBayAddressInfo = orderDetailForm.getForm().findField("paypalName").getValue()+"\n"+
+                                                orderDetailForm.getForm().findField("paypalEmail").getValue()+"\n"+
+                                                orderDetailForm.getForm().findField("paypalAddress1").getValue()+"\n"+
+                                                orderDetailForm.getForm().findField("paypalAddress2").getValue()+"\n"+
+                                                orderDetailForm.getForm().findField("paypalCity").getValue()+"\n"+
+                                                orderDetailForm.getForm().findField("paypalStateOrProvince").getValue()+"\n"+
+                                                orderDetailForm.getForm().findField("paypalPostalCode").getValue()+"\n"+
+                                                orderDetailForm.getForm().findField("paypalCountry").getValue()+"\n"+
+                                                orderDetailForm.getForm().findField("paypalPhone").getValue();
+                                                var copyForm =  form = new Ext.FormPanel({
+                                                            labelWidth:0,
+                                                            hideLabels:true,
+                                                            labelSeparator:"",
+                                                            items: [{xtype:"textarea",
+                                                                     fieldLabel:"",
+                                                                     width: 380,
+                                                                     height: 280,
+                                                                     value:eBayAddressInfo,
+                                                                     name: 'eBayAddressInfo'}
+                                                            ]
+                                                        })
+                                                        
+                                                var copyWindow = new Ext.Window({
+                                                    title: 'PayPal Address Info' ,
+                                                    closable:true,
+                                                    width: 400,
+                                                    height: 300,
+                                                    plain:true,
+                                                    layout: 'fit',
+                                                    items: copyForm,
+                                                    buttons: [{
+                                                        text: 'Close',
+                                                        handler: function(){
+                                                              copyWindow.close();
+                                                        }
+                                                    }]
+                                                });
+                                                copyWindow.show();
+                                             }
                                           }]
                                       }]
                                   },{
