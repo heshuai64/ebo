@@ -303,6 +303,13 @@
             }
         }
         
+	private function getPayeeIdFromEmail($business){
+	    $sql = "select id from qo_ebay_seller where email='".$business."'";
+	    $result = mysql_query($sql);
+	    $row = mysql_fetch_assoc($result);
+	    return $row['id'];
+	}
+	
         private function addEbayTransaction($ipn_data){
             switch($ipn_data['payment_status']){
                 case "Completed":
@@ -322,7 +329,8 @@
                 break;
             }
             $i = 1;
-            $item_number_string = $ipn_data['item_number'];
+            //$item_number_string = $ipn_data['item_number'];
+	    $item_number_string = "";
             while(!empty($ipn_data['item_number'.$i])){
                 $item_number_string .= ",".$ipn_data['item_number'.$i];
                 $i++;
@@ -336,10 +344,12 @@
             $row = mysql_fetch_assoc($result);
             if($row['num'] == 0){
                 $transactionId = $this->getTransactionId();
+		$payeeId = $this->getPayeeIdFromEmail($_POST['business']);
+		
                 $sql = "insert into qo_transactions (id,txnId,transactionTime,amountCurrency,amountValue,status,remarks,createdBy,createdOn,payeeId,
                 payerId,payerName,payerEmail,payerAddressLine1,payerAddressLine2,payerCity,payerStateOrProvince,
                 payerPostalCode,payerCountry,itemId) values ('".$transactionId."','".$_POST['txn_id']."','".date("Y-m-d H:i:s",strtotime($_POST['payment_date']))."',
-                '".$_POST['mc_currency']."','".$_POST['mc_gross']."','".$status."','','PayPal','".date("Y-m-d H:i:s")."','".mysql_real_escape_string($_POST['business'])."',
+                '".$_POST['mc_currency']."','".$_POST['mc_gross']."','".$status."','".mysql_real_escape_string($_POST['memo'])."','PayPal','".date("Y-m-d H:i:s")."','".mysql_real_escape_string($payeeId)."',
                 '".mysql_real_escape_string($_POST['auction_buyer_id'])."','".mysql_real_escape_string($_POST['address_name'])."',
                 '".$_POST['payer_email']."','".mysql_real_escape_string($payerAddressLine1)."','".mysql_real_escape_string($payerAddressLine2)."',
                 '".mysql_real_escape_string($_POST['address_city'])."','".mysql_real_escape_string($_POST['address_state'])."',
@@ -352,7 +362,7 @@
                     $sql = "insert into qo_transactions (id,txnId,transactionTime,amountCurrency,amountValue,status,remarks,createdBy,createdOn,payeeId,
                     payerId,payerName,payerEmail,payerAddressLine1,payerAddressLine2,payerCity,payerStateOrProvince,
                     payerPostalCode,payerCountry,itemId) values ('".$transactionId."','".$_POST['txn_id']."','".date("Y-m-d H:i:s",strtotime($_POST['payment_date']))."',
-                    '".$_POST['mc_currency']."','".$_POST['mc_gross']."','".$status."','','PayPal','".date("Y-m-d H:i:s")."','".mysql_real_escape_string($_POST['business'])."',
+                    '".$_POST['mc_currency']."','".$_POST['mc_gross']."','".$status."','".mysql_real_escape_string($_POST['memo'])."','PayPal','".date("Y-m-d H:i:s")."','".mysql_real_escape_string($_POST['business'])."',
                     '".mysql_real_escape_string($_POST['auction_buyer_id'])."','".mysql_real_escape_string($_POST['address_name'])."',
                     '".$_POST['payer_email']."','".mysql_real_escape_string($payerAddressLine1)."','".mysql_real_escape_string($payerAddressLine2)."',
                     '".mysql_real_escape_string($_POST['address_city'])."','".mysql_real_escape_string($_POST['address_state'])."',
