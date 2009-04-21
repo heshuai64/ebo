@@ -42,7 +42,7 @@ Ext.override(QoDesk.Orders, {
             }
             
             function renderBuyerInfo(v, p, r){
-                return String.format('{0}<br>{1}', r.data.ebayName, r.data.ebayEmail);
+                return String.format('{0}<br>{1}<br>{2}', r.data.buyerId, r.data.ebayName, r.data.ebayEmail);
             }
             
             var orderGrid = new Ext.grid.GridPanel({

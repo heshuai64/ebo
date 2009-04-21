@@ -103,7 +103,7 @@ Ext.override(QoDesk.Attention, {
 	
 	unMapTransactionGrid.on("rowdblclick", function(oGrid){
 	    var oRecord = oGrid.getSelectionModel().getSelected();
-	    window.open("http://127.0.0.1:6666/eBayBO/transactions.php?id="+oRecord.data['id'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");        
+	    window.open("/eBayBO/transactions.php?id="+oRecord.data['id'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");        
 	});
 	 
 	if(!win){

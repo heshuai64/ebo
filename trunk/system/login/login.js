@@ -10,6 +10,15 @@ Ext.onReady(function(){
 		, 'mouseout': { fn: function(){ loginBtn.removeClass('qo-login-submit-over'); } }
 	});
 	
+	Ext.get("field2").addListener('keypress', function(t, e){
+						//console.log(t);
+						//alert(t.getKey());
+						if(t.getKey() == 13){
+							login();
+						}
+					}
+			)
+	
 	Ext.get("field3-label").setDisplayed('none');
 	Ext.get("field3").setDisplayed('none');
 
@@ -49,7 +58,7 @@ Ext.onReady(function(){
 		var group = groupField.dom.value;
 		
 		if(validate(email) === false){
-			alert("Your email address is required");
+			alert("Your user name is required");
 			return false;
 		}
 		

@@ -825,7 +825,7 @@ Ext.onReady(function(){
                         var orderDetailForm = new Ext.FormPanel({
                                 autoScroll:true,
                                 reader:new Ext.data.JsonReader({
-                                    }, ['id','createdBy','createdOn','modifiedBy','modifiedOn','sellerId','ebayName','ebayEmail','ebayAddress1','ebayAddress2','ebayCity','ebayStateOrProvince',
+                                    }, ['id','createdBy','createdOn','modifiedBy','modifiedOn','sellerId','buyerId','ebayName','ebayEmail','ebayAddress1','ebayAddress2','ebayCity','ebayStateOrProvince',
                                         'ebayPostalCode','ebayCountry','ebayPhone','paypalName','paypalEmail','paypalAddress1','paypalAddress2',
                                         'paypalCity','paypalStateOrProvince','paypalPostalCode','paypalCountry','paypalPhone','status','grandTotalCurrency','grandTotalValue',
                                         'remarks','shippingMethod','shippingFeeCurrency','shippingFeeValue','insuranceCurrency','insuranceValue','discountCurrency','discountValue'
@@ -935,10 +935,48 @@ Ext.onReady(function(){
                                         defaults:{
                                             width:200
                                         },
-                                        items:[{
+                                        items:[/*{
                                             xtype:"textfield",
                                             fieldLabel:lang.orders.form_ebay_name,
                                             name:"ebayName"
+                                          },*/{
+                                                layout:"table",
+                                                layoutConfig:{
+                                                  columns:3
+                                                },
+                                                width:320,
+                                                border:false,
+                                                items:[{
+                                                    width:105,
+                                                    html:"<font size=2>"+lang.orders.form_ebay_name+"</font>",
+                                                    border:false
+                                                  },{
+                                                    layout:"form",
+                                                    border:false,
+                                                    labelWidth:0,
+                                                    hideLabels:true,
+                                                    labelSeparator:"",
+                                                    items:[{
+                                                        xtype:"textfield",
+                                                        readOnly:true,
+                                                        fieldLabel:"",
+                                                        name:"buyerId",
+                                                        width:80
+                                                      }]
+                                                  },{
+                                                    layout:"form",
+                                                    border:false,
+                                                    labelWidth:0,
+                                                    hideLabels:true,
+                                                    labelSeparator:"",
+                                                    items:[{
+                                                        xtype:"textfield",
+                                                        readOnly:true,
+                                                        fieldLabel:"",
+                                                        name:"ebayName",
+                                                        width:125
+                                                      }]
+                                                  }]
                                           },{
                                             xtype:"textfield",
                                             fieldLabel:lang.orders.form_ebay_email,
