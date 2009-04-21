@@ -62,7 +62,7 @@ Ext.override(QoDesk.Orders, {
                 },{
                     header: lang.orders.grid_buyer_id_header,
                     dataIndex: 'buyerId',
-                    width: 150,
+                    width: 160,
                     renderer: renderBuyerInfo,
                     align: 'center',
                     sortable: true
@@ -104,7 +104,7 @@ Ext.override(QoDesk.Orders, {
             
             var search_result_win = desktop.createWindow({
                title:lang.orders.search_result,
-               width:717,
+               width:727,
                height:400,
                iconCls: 'orders-icon',
                shim:false,

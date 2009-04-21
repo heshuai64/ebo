@@ -6,8 +6,8 @@ class PackingList{
     const DATABASE_USER = 'root';
     const DATABASE_PASSWORD = '';
     const DATABASE_NAME = 'ebaybo';
-    const FILE_PATH = '/export/ebayBO/packing/';
-    const BAR_CODE_URL = '/ebayBO/cron/image.php';
+    const FILE_PATH = '/export/eBayBO/packing/';
+    const BAR_CODE_URL = '/eBayBO/cron/image.php';
     private $sellerSell = array();
     private $sellSku = array();
     private $startTime;
@@ -26,8 +26,8 @@ class PackingList{
             echo "Unable to select mydbname: " . mysql_error(PackingList::$database_connect);
             exit;
         }
-        $this->startTime = date("Y-m-d 10:00:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
-        $this->endTime = date("Y-m-d 10:00:00");
+        //$this->startTime = date("Y-m-d 10:00:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
+        //$this->endTime = date("Y-m-d 10:00:00");
     }
     
     public function setStartTime($startTime){
@@ -82,12 +82,13 @@ class PackingList{
         $i = 0;
         while($row = mysql_fetch_assoc($result)){
             $this->shipment[$i] = $row;
-            $sql_1 = "select skuId,quantity from qo_shipments_detail where shipmentsId='".$row['id']."'";
+            $sql_1 = "select sd.skuId,sd.quantity,i.galleryURL from qo_shipments_detail as sd left join qo_items as i on sd.itemId=i.id where sd.shipmentsId='".$row['id']."'";
             $result_1 = mysql_query($sql_1, PackingList::$database_connect);
             $j = 0;
             while($row_1 = mysql_fetch_assoc($result_1)){
                 $this->shipment[$i]['shipmentDetail'][$j]['skuId'] = $row_1['skuId'];
                 $this->shipment[$i]['shipmentDetail'][$j]['quantity'] = $row_1['quantity'];
+                $this->shipment[$i]['shipmentDetail'][$j]['image'] = $row_1['galleryURL'];
                 $j++;
             }
             $i++;
@@ -96,7 +97,7 @@ class PackingList{
 
     private function generateFile($fileName, $content){
         if(!file_exists(self::FILE_PATH.date("Ymd"))){
-            mkdir(self::FILE_PATH.date("Ymd"), 0700);
+            mkdir(self::FILE_PATH.date("Ymd"), 0777);
         }
         
         $fileName = self::FILE_PATH.date("Ymd").'/packingList.html';
@@ -135,9 +136,17 @@ class PackingList{
 
 }
 
-$packing_list = new PackingList();
-$packing_list->setStartTime("2009-04-01 00:00:00");
-$packing_list->setEndTime("2009-04-14 12:30:00");
-$packing_list->getPackingList();
+if(!empty($_GET)){
+    $packing_list = new PackingList();
+    $packing_list->setStartTime($_GET['start']);
+    $packing_list->setEndTime($_GET['end']);
+    $packing_list->getPackingList();
+}else{
+    $packing_list = new PackingList();
+    $packing_list->setStartTime(date("Y-m-d H:i:s", time() - ((4 * 60 * 60) + (20 * 60))));
+    $packing_list->setEndTime(date("Y-m-d H:i:s"));
+    $packing_list->getPackingList();
+}
+
 
 ?>

@@ -13,7 +13,7 @@
         <div style="width:800px;text-align:center;margin:auto;">
                 <table align="center" cellpadding="1" cellspacing="1" border="1" width="100%">
                         <tr align="center" class="header">
-                                <th>No</th><th>Address</th><th>Barcode</th><th>Sku</th>
+                                <th>No</th><th>Address</th><th>Barcode</th><th>Sku</th><th>Images</th>
                         </tr>
                         <?php
                         $i = 1;
@@ -37,6 +37,18 @@
                                         echo '<td>';
                                                 foreach($shipment['shipmentDetail'] as $shipmentDetail){
                                                         echo $shipmentDetail['skuId'].' X '.$shipmentDetail['quantity'].'<br>';
+                                                }
+                                        echo '</td>';
+                                         echo '<td>';
+                                                //var_dump($shipment['shipmentDetail']);
+                                                if(count($shipment['shipmentDetail']) == 1){
+                                                        echo '<img width="300" height="200" src="'.$shipmentDetail['image'].'"/><br>';
+                                                }else{
+                                                        $height = round(200 / count($shipment['shipmentDetail']));
+                                                        $width = round(300 / count($shipment['shipmentDetail']));
+                                                        foreach($shipment['shipmentDetail'] as $shipmentDetail){
+                                                                echo '<img width="'.$width.'" height="'.$height.'" src="'.$shipmentDetail['image'].'"/>';
+                                                        }
                                                 }
                                         echo '</td>';
                                 echo '</tr>';

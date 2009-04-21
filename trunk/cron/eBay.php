@@ -273,8 +273,9 @@ class eBay{
             $ebayCountry = $transaction->Buyer->BuyerInfo->ShippingAddress->CountryName;
             $ebayPhone = $transaction->Buyer->BuyerInfo->ShippingAddress->Phone;
             $createdBy = "eBay";
-            $createdOn = date("Y-m-d H:i:s",strtotime(substr($transaction->CreatedDate, 0 ,-5)) + (8 * 60 * 60));
-            
+            //$createdOn = date("Y-m-d H:i:s",strtotime(substr($transaction->CreatedDate, 0 ,-5)) + (8 * 60 * 60));
+            $createdOn = date("Y-m-d H:i:s",strtotime($transaction->CreatedDate));
+	    
             $sql = "insert into qo_orders (id,status,shippingMethod,paymentMethod,sellerId,buyerId,shippingFeeCurrency,shippingFeeValue,
             insuranceCurrency,insuranceValue,grandTotalCurrency,grandTotalValue,ebayName,ebayEmail,ebayAddress1,ebayAddress2,
             ebayCity,ebayStateOrProvince,ebayPostalCode,ebayCountry,ebayPhone,createdBy,createdOn) values
@@ -398,8 +399,9 @@ class eBay{
             $ebayCountry = $transaction->Buyer->BuyerInfo->ShippingAddress->CountryName;
             $ebayPhone = $transaction->Buyer->BuyerInfo->ShippingAddress->Phone;
             $createdBy = "eBay";
-            $createdOn = date("Y-m-d H:i:s",strtotime(substr($transaction->CreatedDate, 0 ,-5)) + (8 * 60 * 60));
-            
+            //$createdOn = date("Y-m-d H:i:s",strtotime(substr($transaction->CreatedDate, 0 ,-5)) + (8 * 60 * 60));
+            $createdOn = date("Y-m-d H:i:s",strtotime($transaction->CreatedDate));
+	    
             $sql = "insert into qo_orders (id,status,shippingMethod,paymentMethod,sellerId,buyerId,shippingFeeCurrency,shippingFeeValue,
             insuranceCurrency,insuranceValue,grandTotalCurrency,grandTotalValue,ebayName,ebayEmail,ebayAddress1,ebayAddress2,
             ebayCity,ebayStateOrProvince,ebayPostalCode,ebayCountry,ebayPhone,createdBy,createdOn) values
@@ -448,7 +450,8 @@ class eBay{
 		$ebayCountry = $transaction->Buyer->BuyerInfo->ShippingAddress->CountryName;
 		$ebayPhone = $transaction->Buyer->BuyerInfo->ShippingAddress->Phone;
 		$createdBy = "eBay";
-		$modifiedOn = date("Y-m-d H:i:s",strtotime(substr($transaction->CreatedDate, 0 ,-5)) + (8 * 60 * 60));
+		//$modifiedOn = date("Y-m-d H:i:s",strtotime(substr($transaction->CreatedDate, 0 ,-5)) + (8 * 60 * 60));
+		$modifiedOn = date("Y-m-d H:i:s",strtotime($transaction->CreatedDate));
 		
 		$sql = "update qo_orders set shippingMethod='".$shippingMethod."',
 		paymentMethod='".$paymentMethod."',sellerId='".$sellerId."',buyerId='".$buyerId."',shippingFeeCurrency='".$shippingFeeCurrency."',
@@ -592,17 +595,17 @@ class eBay{
     private function insertEbayItem($item, $sellerId){
 	$sql = "insert into qo_items (id,skuId,site,title,quantity,quantitySold,sellerId,ListingType,StartTime,EndTime,GalleryURL) values 
 	('".$item->ItemID."','".mysql_real_escape_string($item->SKU)."','".$item->Site."','".mysql_real_escape_string($item->Title)."','".$item->Quantity."','".$item->SellingStatus->QuantitySold."',
-	'".$sellerId."','".$item->ListingType."','".$item->ListingDetails->StartTime."','".$item->ListingDetails->EndTime."','".$item->PictureDetails->GalleryURL."')";
-	//echo $sql."<br>";
+	'".$sellerId."','".$item->ListingType."','".date("Y-m-d H:i:s",strtotime($item->ListingDetails->StartTime))."','".date("Y-m-d H:i:s",strtotime($item->ListingDetails->EndTime))."','".$item->PictureDetails->GalleryURL."')";
+	echo $sql."\n<br>";
 	$result = mysql_query($sql, eBay::$database_connect);
     }
     
     private function updateEbayItem($item, $sellerId){
 	$sql = "update qo_items set skuId='".mysql_real_escape_string($item->SKU)."',site='".$item->Site."',title='".mysql_real_escape_string($item->Title)."',
 	quantity='".$item->Quantity."',quantitySold='".$item->SellingStatus->QuantitySold."',sellerId='".$sellerId."',
-	ListingType'".$item->ListingType."',StartTime='".$item->ListingDetails->StartTime."',EndTime='".$item->ListingDetails->EndTime.".GalleryURL='".$item->PictureDetails->GalleryURL."'' 
+	ListingType'".$item->ListingType."',StartTime='".date("Y-m-d H:i:s",strtotime($item->ListingDetails->StartTime))."',EndTime='".date("Y-m-d H:i:s",strtotime($item->ListingDetails->EndTime))."',GalleryURL='".$item->PictureDetails->GalleryURL."' 
 	where id = '".$item->ItemID."'";
-	//echo $sql."<br>";
+	echo $sql."\n<br>";
 	$result = mysql_query($sql, eBay::$database_connect);
     }
     
@@ -612,7 +615,7 @@ class eBay{
                 $client = new eBaySOAP($session);
                  
                 $GranularityLevel = "Fine";
-		$EntriesPerPage = 10;
+		$EntriesPerPage = 100;
 		$Pagination = array('EntriesPerPage'=> $EntriesPerPage, 'PageNumber'=> 1);
 		$Sort = 1;
 		$Version = "607";
@@ -665,7 +668,8 @@ class eBay{
 						$this->updateEbayItem($results->ItemArray->Item, $UserID);
 					}
 				}
-			}   
+			}
+			sleep(1);
 		}
                
         } catch (SOAPFault $f) {
@@ -761,7 +765,7 @@ if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
 				$eBay->setStartTime($_GET['start']);
 				$eBay->setEndTime($_GET['end']);
 			}else{
-				$eBay->setStartTime(date("Y-m-d H:i:s", time() - ((1 * 60 * 60) + (10 * 60))));
+				$eBay->setStartTime(date("Y-m-d H:i:s", time() - ((2 * 60 * 60) + (10 * 60))));
 				$eBay->setEndTime(date("Y-m-d H:i:s"));
 			}
 			$eBay->getAllSellerList();
@@ -777,7 +781,7 @@ if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
 				$eBay->setStartTime($_GET['start']);
 				$eBay->setEndTime($_GET['end']);
 			}else{
-				$eBay->setStartTime(date("Y-m-d H:i:s", time() - ((2 * 60 * 60) + (20 * 60))));
+				$eBay->setStartTime(date("Y-m-d H:i:s", time() - ((4 * 60 * 60) + (20 * 60))));
 				$eBay->setEndTime(date("Y-m-d H:i:s"));
 			}
 			$eBay->getAllEbayTransaction();
@@ -791,4 +795,5 @@ if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
 //0 */1 * * * root php -q /export/eBayBO/cron/eBay.php getAllSellerList >> /tmp/getAllSellerList.log
 //30 */2 * * * root php -q /export/eBayBO/cron/eBay.php getAllEbayTransaction >> /tmp/getAllEbayTransaction.log
 //http://heshuai64.3322.org/eBayBO/cron/eBay.php?action=getAllEbayTransaction&start=2009-04-18 00:00:00&end=2009-04-19 00:00:00
+//http://heshuai64.3322.org/eBayBO/cron/eBay.php?action=getAllSellerList&start=2009-04-17 00:00:00&end=2009-04-19 00:00:00
 ?>
