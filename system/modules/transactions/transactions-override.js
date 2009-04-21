@@ -53,7 +53,7 @@ Ext.override(QoDesk.Transactions, {
                 },{
                     header: lang.transactions.grid_txn_id,
                     dataIndex: 'txnId',
-                    width: 100,
+                    width: 120,
                     align: 'center',
                     sortable: true
                 },{
@@ -93,7 +93,7 @@ Ext.override(QoDesk.Transactions, {
             
             var search_result_win = desktop.createWindow({
                title:lang.transactions.search_result,
-               width:700,
+               width:720,
                height:400,
                iconCls: 'transactions-icon',
                shim:false,

@@ -700,6 +700,11 @@ Ext.onReady(function(){
                 url:'connect.php?moduleId=qo-orders&action=getOrderShipment&id='+ordersId
             });
             
+            orderTransactionGrid.on("rowdblclick", function(oGrid){
+                var oRecord = oGrid.getSelectionModel().getSelected();
+                window.open("/eBayBO/transactions.php?id="+oRecord.data['id'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");
+	    });
+            
             var orderShipmentGrid = new Ext.grid.EditorGridPanel({
                 autoHeight: true,
                 store: orderShipmentStore,
@@ -812,6 +817,12 @@ Ext.onReady(function(){
                             }}]	
             });
             
+            
+            
+            orderShipmentGrid.on("rowdblclick", function(oGrid){
+                var oRecord = oGrid.getSelectionModel().getSelected();
+                window.open("/eBayBO/shipments.php?id="+oRecord.data['id'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");
+	    });
             
             //var beforeLoad = function(F, a){
                 Ext.Ajax.request({  

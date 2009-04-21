@@ -8,6 +8,10 @@ Ext.onReady(function(){
                 url:'connect.php?moduleId=qo-transactions&action=getTransactionOrder&id='+transactionsId
         });
         
+        function renderStatus(v, p, r){
+                return lang.transactions.transactions_status_json[v]
+        }
+        
         var transactionOrderGrid = new Ext.grid.EditorGridPanel({
                 autoHeight: true,
                 store: transactionOrderStore,
@@ -68,6 +72,7 @@ Ext.onReady(function(){
                 },{
                     header: "Status",
                     dataIndex: 'status',
+                    renderer: renderStatus,
                     width: 80,
                     align: 'center',
                     sortable: true
