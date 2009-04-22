@@ -194,11 +194,12 @@
             return $shipmentId;
         }
 	
-	private function createShipment($ordersId, $ipn_data){
+	private function createShipmentFromPayPal($ordersId){
 	    $sql = "select count(*) as num from qo_shipments where ordersId = '$ordersId'";
 	    $result = mysql_query($sql, PayPal::$database_connect);
 	    $row = mysql_fetch_assoc($result);
-	    if($row == 0){
+	    if($row['num'] == 0){
+                /*
 		$sql = "select shippingMethod,ebayName,ebayEmail,ebayAddress1,ebayAddress2,ebayCity,ebayStateOrProvince,ebayPostalCode,ebayCountry,ebayPhone,shippingFeeCurrency,shippingFeeValue from qo_orders where id = '$ordersId'";
 		$result = mysql_query($sql, PayPal::$database_connect);
 		$row = mysql_fetch_assoc($result);
@@ -225,6 +226,21 @@
 		    $this->log('ipn_deal',"createShipmentDetail: ".$sql_1);
 		    $result_1 = mysql_query($sql_1, PayPal::$database_connect);
 		}
+                */
+                $shipmentsId = $this->getShipmentId();
+                $sql = "insert into qo_shipments (id,ordersId,status,shipmentMethod,remarks,shippingFeeCurrency,shippingFeeValue,shipToName,
+                shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry,
+                shipToPhoneNo,createdBy,createdOn,modifiedBy,modifiedOn) select '".$shipmentsId."','".$ordersId."','N',shippingMethod,remarks,
+                shippingFeeCurrency,shippingFeeValue,ebayName,ebayEmail,ebayAddress1,ebayAddress2,ebayCity,
+                ebayStateOrProvince,ebayPostalCode,ebayCountry,ebayPhone,'eBay','".date("Y-m-d H:i:s")."','eBay','".date("Y-m-d H:i:s")."' from qo_orders where id = '".$ordersId."'";
+                $this->log('ipn_deal',"createShipmentFromPayPal: insert shipment ".$sql);
+                $result = mysql_query($sql, eBay::$database_connect);
+                if($result){
+                        $sql = "insert into qo_shipments_detail (shipmentsId,skuId,skuTitle,itemId,itemTitle,quantity,barCode) 
+                        select '".$shipmentsId."',skuId,skuTitle,itemId,itemTitle,quantity,barCode from qo_orders_detail where ordersId='".$ordersId."'";
+                        $result = mysql_query($sql, eBay::$database_connect);
+                        $this->log('ipn_deal',"createShipmentFromPayPal: add shipment detail ".$sql);
+                }
 	    }
 	}
 	
@@ -238,6 +254,7 @@
                             $this->updateOrderStatus($ordersId, "S");
                     }else{
                             $this->updateOrderStatus($ordersId, "P");
+                            $this->createShipmentFromPayPal($ordersId);
                     }
                 break;
                         
@@ -275,6 +292,7 @@
                         
                 case "Canceled_Reversal":
                     $this->updateOrderStatus($ordersId, "P");
+                    $this->createShipmentFromPayPal($ordersId);
                 break;	   		
             }
 
