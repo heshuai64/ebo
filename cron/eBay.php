@@ -170,7 +170,8 @@ class eBay{
                 //----------   debug --------------------------------
                 //print "Request: \n".$client->__getLastRequest() ."\n";
                 //print "Response: \n".$client->__getLastResponse()."\n";
-		$this->saveFetchData("/GetSellerTransactions/".$sellerId."-GetSellerTransactions-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		$this->saveFetchData("/GetSellerTransactions/".$sellerId."-Request-GetSellerTransactions-".date("Y-m-d H:i:s").".xml", $client->__getLastRequest());
+		$this->saveFetchData("/GetSellerTransactions/".$sellerId."-Response-GetSellerTransactions-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
                 return $results;
                 
         } catch (SOAPFault $f) {
@@ -201,7 +202,7 @@ class eBay{
     private function checkEbayTransactionExist($itemId, $ebayTransactionId){
             $sql = "select o.id as ordersId from qo_orders as o left join qo_orders_detail as od on o.id=od.ordersId where od.itemId = '".$itemId."' and od.ebayTranctionId = '".$ebayTransactionId."'";
             $result = mysql_query($sql, eBay::$database_connect);
-            //echo "<br><font color='green'>".$sql."</font><br>";
+            //echo "<br>\n<font color='green'>".$sql."</font><br>\n";
             $row = mysql_fetch_assoc($result);
             return $row['ordersId'];
     }
@@ -291,7 +292,7 @@ class eBay{
 		$this->createOrderDetailFromEbayTransaction($id, $transaction);
 	    }
             echo $sql;
-            echo "<br><font color='green'>".$transaction->TransactionID.", ".$transaction->Item->ItemID." create order from ebay transaction!</font><br><br>";
+            echo "<br>\n<font color='green'>createOrderFromEbayTransaction from ".$transaction->TransactionID.", ".$transaction->Item->ItemID."</font><br>\n<br>\n";
 	    $this->mapEbayTransaction($id, $transaction);
         }
     }
@@ -312,7 +313,7 @@ class eBay{
         $unitPriceCurrency = $transaction->Item->SellingStatus->CurrentPrice->currencyID;
         //$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_ / $transaction->Item->SellingStatus->QuantitySold;
 	$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_;
-        $quantity = $transaction->Item->SellingStatus->QuantitySold;
+        $quantity = $transaction->QuantityPurchased;
         
         $sql = "insert into qo_orders_detail (ordersId,itemId,itemTitle,quantity,unitPriceCurrency,unitPriceValue,ebayTranctionId) values 
         ('".$orderId."','".$transaction->Item->ItemID."','".$transaction->Item->Title."','".$quantity."','".$unitPriceCurrency."','".$unitPriceValue."','".$transaction->TransactionID."')";
@@ -320,14 +321,18 @@ class eBay{
         if (!$result) {
             $this->errorLog("createOrderDetailFromEbayTransaction: sql error ($sql) from DB: " . mysql_error(eBay::$database_connect));
         }
-    
+	echo $sql;
+	echo "<br>\n<font color='green'>createOrderDetailFromEbayTransaction from ".$orderId."</font><br>\n";
+	
+	$sql = "update qo_orders set shippingFeeValue = shippingFeeValue + ".$transaction->ShippingServiceSelected->ShippingServiceCost->_." where id = '".$orderId."'";
+        $result = mysql_query($sql, eBay::$database_connect);
     }
     
     private function AddOrderDetailBySameBuy($transaction, $orderId){
         $unitPriceCurrency = $transaction->Item->SellingStatus->CurrentPrice->currencyID;
         //$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_ / $transaction->Item->SellingStatus->QuantitySold;
 	$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_;
-        $quantity = $transaction->Item->SellingStatus->QuantitySold;
+        $quantity = $transaction->QuantityPurchased;
         
         //consider order status
         if(empty($transaction->ContainingOrder)){
@@ -347,8 +352,10 @@ class eBay{
             $transaction->ShippingServiceSelected->ShippingServiceCost->_ = 0;
         }
         $sql = "update qo_orders set grandTotalValue = grandTotalValue + ".$transaction->AmountPaid->_.",shippingFeeValue = shippingFeeValue + ".$transaction->ShippingServiceSelected->ShippingServiceCost->_." where id = '".$orderId."'";
-        echo "AddOrderDetailBySameBuy: ".$transaction->Item->ItemID."<br>";
-        echo $sql."<br>";
+        
+	echo $sql;
+	echo "<br>\n<font color='green'>AddOrderDetailBySameBuy from ".$transaction->Item->ItemID."</font><br>\n";
+        
         $result = mysql_query($sql, eBay::$database_connect);
         if (!$result) {
             $this->errorLog("AddOrderDetailBySameBuy: sql error ($sql) from DB: " . mysql_error(eBay::$database_connect));
@@ -359,7 +366,7 @@ class eBay{
         $unitPriceCurrency = $transaction->Item->SellingStatus->CurrentPrice->currencyID;
         //$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_ / $transaction->Item->SellingStatus->QuantitySold;
 	$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_;
-        $quantity = $transaction->Item->SellingStatus->QuantitySold;
+        $quantity = $transaction->QuantityPurchased;
         
         $sql = "insert into qo_orders_detail (ordersId,itemId,itemTitle,quantity,unitPriceCurrency,unitPriceValue,ebayTranctionId,ebayOrderId) values 
         ('".$orderId."','".$transaction->Item->ItemID."','".$transaction->Item->Title."','".$quantity."','".$unitPriceCurrency."','".$unitPriceValue."','".$transaction->TransactionID."','".$transaction->ContainingOrder->OrderID."')";
@@ -367,9 +374,10 @@ class eBay{
         if (!$result) {
             $this->errorLog("createOrderDetailFromEbayOrder: sql error ($sql) from DB: " . mysql_error(eBay::$database_connect));
         }
-    
-        $sql = "update qo_orders set shippingFeeValue = shippingFeeValue + ".$transaction->ShippingServiceSelected->ShippingServiceCost->_." where id = '".$orderId."'";
-        $result = mysql_query($sql, eBay::$database_connect);
+	echo $sql;
+	echo "<br>\n<font color='green'>createOrderDetailFromEbayOrder from ".$orderId."</font><br>\n";
+        //$sql = "update qo_orders set shippingFeeValue = shippingFeeValue + ".$transaction->ShippingServiceSelected->ShippingServiceCost->_." where id = '".$orderId."'";
+        //$result = mysql_query($sql, eBay::$database_connect);
     }
     
     private function creteOrderFromEbayOrder($sellerId, $transaction){
@@ -417,7 +425,7 @@ class eBay{
 		$this->createOrderDetailFromEbayOrder($id, $transaction);
 	    }
             echo $sql;
-            echo "<br><font color='green'>".$transaction->TransactionID.", ".$transaction->Item->ItemID." create order from ebay order!</font><br><br>";
+            echo "<br>\n<font color='green'>creteOrderFromEbayOrder from ".$transaction->TransactionID.", ".$transaction->Item->ItemID."</font><br>\n<br>\n";
             $this->mapEbayTransaction($id, $transaction);
         }else{
             $this->createOrderDetailFromEbayOrder($row['ordersId'], $transaction);
@@ -466,7 +474,7 @@ class eBay{
 		    $this->errorLog("updateOrderFromEbayOrder: query error ($sql) from DB: " . mysql_error(eBay::$database_connect));
 		}
 		echo $sql;
-		echo "<br><font color='green'>".$transaction->TransactionID.", ".$transaction->Item->ItemID." update order from ebay!</font><br><br>";
+		echo "<br>\n<font color='green'>updateOrderFromEbay from ".$transaction->TransactionID.", ".$transaction->Item->ItemID."</font><br>\n<br>\n";
 		$this->mapEbayTransaction($ordersId, $transaction);
 	}
     }
@@ -479,6 +487,8 @@ class eBay{
 	}else{
 		$sql = "update qo_orders set status = 'P' where id = '".$ordersId."'";
 	}
+	echo $sql;
+	echo "<br>\n<font color='green'>updateOrderStatus in ".$ordersId."</font><br>\n";
 	$result = mysql_query($sql, eBay::$database_connect);
     }
     
@@ -507,7 +517,7 @@ class eBay{
 				amountPayValue,createdBy,createdOn,modifiedBy,modifiedOn) values
 				('".$ordersId."','".$row['id']."','A','".$transaction->AmountPaid->currencyID."',
 				'".$transaction->AmountPaid->_."','eBay','".date("Y-m-d H:i:s")."','eBay','".date("Y-m-d H:i:s")."')";
-				echo "map ebay transaction: ",$sql_3."<br>";
+				echo "map ebay transaction: ",$sql_3."<br>\n";
 				$result_3 = mysql_query($sql_3, eBay::$database_connect);
 				$this->updateOrderStatus($ordersId, $transaction->AmountPaid->_, $row['amountValue']);
 			}else{
@@ -523,8 +533,9 @@ class eBay{
         //print_r($result);
         $TotalNumberOfPages = $result->PaginationResult->TotalNumberOfPages;
 	$TotalNumberOfEntries = $result->PaginationResult->TotalNumberOfEntries;
-        echo "total number: ".$TotalNumberOfEntries."<br>\n";
-        echo "total page: ".$TotalNumberOfPages."<br>\n";
+        echo "---------------------------------------------------------------------------------------------------------------------------";
+	echo "<br>\n<br>\n";
+	echo date("Y-m-d H:i:s")."  createOrderFromEbay from ".$sellerId.", total number: ".$TotalNumberOfEntries.", total page: ".$TotalNumberOfPages."<br>\n<br>\n";
 	
 	if($TotalNumberOfEntries == 0){
 		return 0;
@@ -552,7 +563,7 @@ class eBay{
 				}
 			}
 			//else{
-			//	echo "TransactionID: ".$transaction->TransactionID . ", ItemID: " .$transaction->Item->ItemID.", PaymentMethodUsed: ".$transaction->Status->PaymentMethodUsed."<br>\n";
+			//	echo "TransactionID: ".$transaction->TransactionID . ", ItemID: " .$transaction->Item->ItemID.", PaymentMethodUsed: ".$transaction->Status->PaymentMethodUsed."<br>\n\n";
 			//}
 		}
         }else{
@@ -568,7 +579,7 @@ class eBay{
 			    }
 			}
 			//else{
-			//	echo "TransactionID: ".$result->TransactionArray->Transaction->TransactionID . ", ItemID: " .$result->TransactionArray->Transaction->Item->ItemID.", PaymentMethodUsed: ".$result->TransactionArray->Transaction->Status->PaymentMethodUsed. "<br>\n";
+			//	echo "TransactionID: ".$result->TransactionArray->Transaction->TransactionID . ", ItemID: " .$result->TransactionArray->Transaction->Item->ItemID.", PaymentMethodUsed: ".$result->TransactionArray->Transaction->Status->PaymentMethodUsed. "<br>\n\n";
 			//}
 		}else{
 			$this->updateOrderFromEbay($ordersId, $result->Seller->UserID, $result->TransactionArray->Transaction);
@@ -596,16 +607,16 @@ class eBay{
 	$sql = "insert into qo_items (id,skuId,site,title,quantity,quantitySold,sellerId,ListingType,StartTime,EndTime,GalleryURL) values 
 	('".$item->ItemID."','".mysql_real_escape_string($item->SKU)."','".$item->Site."','".mysql_real_escape_string($item->Title)."','".$item->Quantity."','".$item->SellingStatus->QuantitySold."',
 	'".$sellerId."','".$item->ListingType."','".date("Y-m-d H:i:s",strtotime($item->ListingDetails->StartTime))."','".date("Y-m-d H:i:s",strtotime($item->ListingDetails->EndTime))."','".$item->PictureDetails->GalleryURL."')";
-	echo $sql."\n<br>";
+	echo $sql."<br>\n";
 	$result = mysql_query($sql, eBay::$database_connect);
     }
     
     private function updateEbayItem($item, $sellerId){
 	$sql = "update qo_items set skuId='".mysql_real_escape_string($item->SKU)."',site='".$item->Site."',title='".mysql_real_escape_string($item->Title)."',
 	quantity='".$item->Quantity."',quantitySold='".$item->SellingStatus->QuantitySold."',sellerId='".$sellerId."',
-	ListingType'".$item->ListingType."',StartTime='".date("Y-m-d H:i:s",strtotime($item->ListingDetails->StartTime))."',EndTime='".date("Y-m-d H:i:s",strtotime($item->ListingDetails->EndTime))."',GalleryURL='".$item->PictureDetails->GalleryURL."' 
+	ListingType='".$item->ListingType."',StartTime='".date("Y-m-d H:i:s",strtotime($item->ListingDetails->StartTime))."',EndTime='".date("Y-m-d H:i:s",strtotime($item->ListingDetails->EndTime))."',GalleryURL='".$item->PictureDetails->GalleryURL."' 
 	where id = '".$item->ItemID."'";
-	echo $sql."\n<br>";
+	echo $sql."<br>\n";
 	$result = mysql_query($sql, eBay::$database_connect);
     }
     
@@ -613,7 +624,6 @@ class eBay{
 	$session = $this->configEbay($dev, $app, $cert, $token, $proxy_host, $proxy_port);
         try {
                 $client = new eBaySOAP($session);
-                 
                 $GranularityLevel = "Fine";
 		$EntriesPerPage = 100;
 		$Pagination = array('EntriesPerPage'=> $EntriesPerPage, 'PageNumber'=> 1);
@@ -627,7 +637,12 @@ class eBay{
 		$params = array('Version' => $Version, 'GranularityLevel' =>$GranularityLevel, 'Pagination' => $Pagination, 'Sort' => $Sort, 'EndTimeFrom' => $EndTimeFrom, 'EndTimeTo' => $EndTimeTo, 'UserID' => $UserID, 'DetailLevel' => $DetailLevel);
 		$results = $client->GetSellerList($params);
 		
-		
+		$TotalNumberOfPages = $results->PaginationResult->TotalNumberOfPages;
+		$TotalNumberOfEntries = $results->PaginationResult->TotalNumberOfEntries;
+		echo "---------------------------------------------------------------------------------------------------------------------------";
+		echo "<br>\n<br>\n";
+		echo date("Y-m-d H:i:s")."  getSellerList from ".$sellerId.", total number: ".$TotalNumberOfEntries.", total page: ".$TotalNumberOfPages."<br>\n<br>\n";
+	
 		
 		//----------   debug --------------------------------
 		//print_r($results);
@@ -715,7 +730,7 @@ class eBay{
     
     private function errorLog($text){
         $sql = "insert into qo_error_log (text,timestamp) values ('".mysql_real_escape_string($text)."','".date("Y-m-d H:i:s")."')";
-        echo "<br><font color='red'>".$sql."</font><br>";
+        echo "<br>\n<font color='red'>".$sql."</font><br>\n";
         $result = mysql_query($sql, eBay::$database_connect);
     }
     
@@ -765,8 +780,8 @@ if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
 				$eBay->setStartTime($_GET['start']);
 				$eBay->setEndTime($_GET['end']);
 			}else{
-				$eBay->setStartTime(date("Y-m-d H:i:s", time() - ((2 * 60 * 60) + (10 * 60))));
-				$eBay->setEndTime(date("Y-m-d H:i:s"));
+				$eBay->setStartTime(date("Y-m-d H:i:s", time() - ((10 * 60 * 60))));
+				$eBay->setEndTime(date("Y-m-d H:i:s", time() - ((8 * 60 * 60))));
 			}
 			$eBay->getAllSellerList();
 			
@@ -781,8 +796,8 @@ if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
 				$eBay->setStartTime($_GET['start']);
 				$eBay->setEndTime($_GET['end']);
 			}else{
-				$eBay->setStartTime(date("Y-m-d H:i:s", time() - ((4 * 60 * 60) + (20 * 60))));
-				$eBay->setEndTime(date("Y-m-d H:i:s"));
+				$eBay->setStartTime(date("Y-m-d H:i:s", time() - (12 * 60 * 60)));
+				$eBay->setEndTime(date("Y-m-d H:i:s", time() - (8 * 60 * 60)));
 			}
 			$eBay->getAllEbayTransaction();
 			//$test->GetSellerTransactions('','','AgAAAA**AQAAAA**aAAAAA**FmQISA**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wHlIOnCZaBpAWdj6x9nY+seQ**Q2AAAA**AAMAAA**K5e4SqBc83jVbhFXLTi50I3ptbripiwsQUS3jIeIcDvpmXzELIv5yXhhUp8jB/r9sdMAKZP2GxQB8g85Eq09tNqTWhmSLMGmFRXq3gBeof7enC9Ch4L0JLBf4rSDdyGWkwa8zpnVueMbOwQbExhx1UjkGZXsDfIxO8vU1FaeGW2tLjVkOffg/0NkzrhwQnoR63SeZ/aPkns9sBbaqkGH7VsoYSik0C/pkO8V9gfxJIuIDjRNuOQ6Stx0UWRNnTPyZRZpWDShtsh9horFcmRsB34ZRxxAkaxx3UmskFoqwxNviz1vYrjEqZlbV2KkQsF+iCOT5lu2YdFTeTZ2uv3/PY1zw+J7sdvK3tI4ucKNKTNLbrBIco0XW/ImHhRoNsun4AizgcHP4HQOwzzuwXnc53Z1QqehYQZsOvMCx+cU+Z2zlA/MP6z7NgdCuHdaYRJbYgINxfDxAuxKCnjzyozpgV6Smk/o7dOBAaZKclEEClNAg3xIpjnyamBh4EBUzk0/tYePv5K2PA6nClMu58PWd7HcGcP/X4FCDnxiDbu5ndxcntPfec6ztdC5f2FHDJJ7ACY9PjRdIYWUQBsgwhV6yZs3t0N1SfR5yuy0tW+fOX4Uw4RkPcMbrgHk9H8m5JEae8YaQMfNkuk3TCKwjjEE+25LDFgpbiTAEu4sYs7FxGhBQBr4RbhoLR6TTdnu0xhpvO2vC4lPb6FQmb9vGRaTv3uxdh2xgMJgD7bhAqt+1vnET+xKvGDrvIFp1XxJ7ij2');
