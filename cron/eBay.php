@@ -728,6 +728,17 @@ class eBay{
         }
     }
     
+    public function saveToken(){
+	$sql = "insert into qo_ebay_seller (id,token,tokenExpiry) values ('".$_GET['username']."','".$_GET['ebaytkn']."','".$_GET['tknexp']."')";
+	echo $sql;
+	//$result = mysql_query($sql, eBay::$database_connect);
+	if($result){
+		echo "<h1>Thank you, Success!</h1>";
+	}else{
+		echo "<h1>Failure!</h1>";
+	}
+    }
+    
     private function errorLog($text){
         $sql = "insert into qo_error_log (text,timestamp) values ('".mysql_real_escape_string($text)."','".date("Y-m-d H:i:s")."')";
         echo "<br>\n<font color='red'>".$sql."</font><br>\n";
@@ -769,6 +780,11 @@ if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
 		case "getToken":
 			$eBay = new eBay();
 			$eBay->getToken();
+		break;
+		
+		case "saveToken":
+			$eBay = new eBay();
+			$eBay->saveToken();
 		break;
 	
 		case "getAllSellerList":
