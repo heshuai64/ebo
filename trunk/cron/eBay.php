@@ -292,7 +292,7 @@ class eBay{
 		$this->createOrderDetailFromEbayTransaction($id, $transaction);
 	    }
             echo $sql;
-            echo "<br>\n<font color='green'>createOrderFromEbayTransaction from ".$transaction->TransactionID.", ".$transaction->Item->ItemID."</font><br>\n<br>\n";
+            echo "<br>\n<font color='red'>createOrderFromEbayTransaction from ".$transaction->TransactionID.", ".$transaction->Item->ItemID."</font><br>\n<br>\n";
 	    $this->mapEbayTransaction($id, $transaction);
         }
     }
@@ -322,10 +322,10 @@ class eBay{
             $this->errorLog("createOrderDetailFromEbayTransaction: sql error ($sql) from DB: " . mysql_error(eBay::$database_connect));
         }
 	echo $sql;
-	echo "<br>\n<font color='green'>createOrderDetailFromEbayTransaction from ".$orderId."</font><br>\n";
+	echo "<br>\n<font color='green'>createOrderDetailFromEbayTransaction from ".$orderId."</font><br>\n<br>\n";
 	
-	$sql = "update qo_orders set shippingFeeValue = shippingFeeValue + ".$transaction->ShippingServiceSelected->ShippingServiceCost->_." where id = '".$orderId."'";
-        $result = mysql_query($sql, eBay::$database_connect);
+	//$sql = "update qo_orders set shippingFeeValue = shippingFeeValue + ".$transaction->ShippingServiceSelected->ShippingServiceCost->_." where id = '".$orderId."'";
+        //$result = mysql_query($sql, eBay::$database_connect);
     }
     
     private function AddOrderDetailBySameBuy($transaction, $orderId){
@@ -354,7 +354,7 @@ class eBay{
         $sql = "update qo_orders set grandTotalValue = grandTotalValue + ".$transaction->AmountPaid->_.",shippingFeeValue = shippingFeeValue + ".$transaction->ShippingServiceSelected->ShippingServiceCost->_." where id = '".$orderId."'";
         
 	echo $sql;
-	echo "<br>\n<font color='green'>AddOrderDetailBySameBuy from ".$transaction->Item->ItemID."</font><br>\n";
+	echo "<br>\n<font color='green'>AddOrderDetailBySameBuy from ".$transaction->Item->ItemID."</font><br>\n<br>\n";
         
         $result = mysql_query($sql, eBay::$database_connect);
         if (!$result) {
@@ -375,7 +375,7 @@ class eBay{
             $this->errorLog("createOrderDetailFromEbayOrder: sql error ($sql) from DB: " . mysql_error(eBay::$database_connect));
         }
 	echo $sql;
-	echo "<br>\n<font color='green'>createOrderDetailFromEbayOrder from ".$orderId."</font><br>\n";
+	echo "<br>\n<font color='green'>createOrderDetailFromEbayOrder from ".$orderId."</font><br>\n<br>\n";
         //$sql = "update qo_orders set shippingFeeValue = shippingFeeValue + ".$transaction->ShippingServiceSelected->ShippingServiceCost->_." where id = '".$orderId."'";
         //$result = mysql_query($sql, eBay::$database_connect);
     }
@@ -425,7 +425,7 @@ class eBay{
 		$this->createOrderDetailFromEbayOrder($id, $transaction);
 	    }
             echo $sql;
-            echo "<br>\n<font color='green'>creteOrderFromEbayOrder from ".$transaction->TransactionID.", ".$transaction->Item->ItemID."</font><br>\n<br>\n";
+            echo "<br>\n<font color='red'>creteOrderFromEbayOrder from ".$transaction->TransactionID.", ".$transaction->Item->ItemID."</font><br>\n<br>\n";
             $this->mapEbayTransaction($id, $transaction);
         }else{
             $this->createOrderDetailFromEbayOrder($row['ordersId'], $transaction);
@@ -488,8 +488,65 @@ class eBay{
 		$sql = "update qo_orders set status = 'P' where id = '".$ordersId."'";
 	}
 	echo $sql;
-	echo "<br>\n<font color='green'>updateOrderStatus in ".$ordersId."</font><br>\n";
+	echo "<br>\n<font color='green'>updateOrderStatus in ".$ordersId."</font><br>\n<br>\n";
 	$result = mysql_query($sql, eBay::$database_connect);
+    }
+    
+    private function updateOrderPayPalAddress($ordersId, $transactionsId){
+	$sql = "select payerName,payerEmail,payerAddressLine1,payerAddressLine2,payerCity,payerStateOrProvince,payerPostalCode,payerCountry,transactionTime from qo_transactions where id = '".$transactionsId."'";
+	$result = mysql_query($sql, eBay::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	$sql = "update qo_orders set paypalName='".mysql_real_escape_string($row['payerName'])."',paypalEmail='".$row['payerEmail']."',paypalAddress1='".mysql_real_escape_string($row['payerAddressLine1'])."',paypalAddress2='".mysql_real_escape_string($row['payerAddressLine2'])."',
+	paypalCity='".mysql_real_escape_string($row['payerCity'])."',paypalStateOrProvince='".mysql_real_escape_string($row['payerStateOrProvince'])."',paypalPostalCode='".$row['payerPostalCode']."',paypalCountry='".$row['payerCountry']."',modifiedBy='PayPal',modifiedOn='".$row['transactionTime']."' where id = '".$ordersId."'";
+	echo $sql;
+	echo "<br>\n<font color='green'>updateOrderPayPalAddress ".$ordersId." and ".$transactionsId."</font><br>\n<br>\n";
+	$result = mysql_query($sql, eBay::$database_connect);
+    }
+    
+    private function getShipmentId(){
+	$type = 'SHI';
+        $today = date("Ym");
+        $sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
+        $result = mysql_query($sql, eBay::$database_connect);
+        $row = mysql_fetch_assoc($result);
+       
+        if($row["curId"] >=9999){
+            // A-Z 66-91
+            $curType = chr(ord($row["curType"]) + 1);
+            $sql = "update  sequence  set curId = 1,curType='$curType' where curDate='$today' and type='$type'";
+            mysql_query($sql, eBay::$database_connect);
+        }elseif($row["curId"] < 1 || $row["curId"] == null) {
+              $sql = "insert into sequence (type,curType,curDate,curId) value ('$type','A','$today',1)";
+              mysql_query($sql, eBay::$database_connect);
+        }else {   
+            $sql = "update sequence set curId = curId + 1 where curDate='$today' and type='$type'";
+            $result = mysql_query($sql, eBay::$database_connect);
+        }
+       
+        $sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
+        $result = mysql_query($sql, eBay::$database_connect);
+        $row = mysql_fetch_assoc($result);
+        $shipmentId = $type.$today.$row["curType"].str_repeat("0",(4-strlen($row["curId"]))).$row["curId"];   
+        return $shipmentId;
+    }
+    
+    private function createShipmentFromEbay($ordersId){
+	$shipmentsId = $this->getShipmentId();
+	$sql = "insert into qo_shipments (id,ordersId,status,shipmentMethod,remarks,shippingFeeCurrency,shippingFeeValue,shipToName,
+	shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry,
+	shipToPhoneNo,createdBy,createdOn,modifiedBy,modifiedOn) select '".$shipmentsId."','".$ordersId."','N',shippingMethod,remarks,
+	shippingFeeCurrency,shippingFeeValue,ebayName,ebayEmail,ebayAddress1,ebayAddress2,ebayCity,
+	ebayStateOrProvince,ebayPostalCode,ebayCountry,ebayPhone,'eBay','".date("Y-m-d H:i:s")."','eBay','".date("Y-m-d H:i:s")."' from qo_orders where id = '".$ordersId."'";
+	echo $sql."<br>\n";
+	echo "<br>\n<font color='green'>createShipmentFromEbay create shipment from ".$ordersId."</font><br>\n<br>\n";
+	$result = mysql_query($sql, eBay::$database_connect);
+	if($result){
+		$sql = "insert into qo_shipments_detail (shipmentsId,skuId,skuTitle,itemId,itemTitle,quantity,barCode) 
+		select '".$shipmentsId."',skuId,skuTitle,itemId,itemTitle,quantity,barCode from qo_orders_detail where ordersId='".$ordersId."'";
+		$result = mysql_query($sql, eBay::$database_connect);
+		echo $sql."<br>\n";
+		echo "<br>\n<font color='green'>createShipmentFromEbay add shipment detail from ".$ordersId."</font><br>\n<br>\n";
+	}
     }
     
     private function mapEbayTransaction($ordersId, $transaction){
@@ -520,6 +577,8 @@ class eBay{
 				echo "map ebay transaction: ",$sql_3."<br>\n";
 				$result_3 = mysql_query($sql_3, eBay::$database_connect);
 				$this->updateOrderStatus($ordersId, $transaction->AmountPaid->_, $row['amountValue']);
+				$this->updateOrderPayPalAddress($ordersId, $row['id']);
+				$this->createShipmentFromEbay($ordersId);
 			}else{
 				$this->updateOrderStatus($ordersId, $transaction->AmountPaid->_, $row['amountValue']);
 			}
@@ -533,7 +592,7 @@ class eBay{
         //print_r($result);
         $TotalNumberOfPages = $result->PaginationResult->TotalNumberOfPages;
 	$TotalNumberOfEntries = $result->PaginationResult->TotalNumberOfEntries;
-        echo "---------------------------------------------------------------------------------------------------------------------------";
+        echo "<br>\n<br>\n<br>\n<br>\n".date("Y-m-d H:i:s")."-------------------------------------------------- Start -------------------------------------------------------------------";
 	echo "<br>\n<br>\n";
 	echo date("Y-m-d H:i:s")."  createOrderFromEbay from ".$sellerId.", total number: ".$TotalNumberOfEntries.", total page: ".$TotalNumberOfPages."<br>\n<br>\n";
 	
@@ -585,6 +644,7 @@ class eBay{
 			$this->updateOrderFromEbay($ordersId, $result->Seller->UserID, $result->TransactionArray->Transaction);
 		}
         }
+	echo "<br>\n<br>\n<br>\n<br>\n".date("Y-m-d H:i:s")."-------------------------------------------------------- End --------------------------------------------------------------";
     }
     
     public function getAllEbayTransaction(){    
