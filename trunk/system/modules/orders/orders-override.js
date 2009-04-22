@@ -22,7 +22,8 @@ Ext.override(QoDesk.Orders, {
                             modifiedOnFrom:searchOrderForm.findField('modifiedOnFrom').getValue(),modifiedOnTo:searchOrderForm.findField('modifiedOnTo').getValue()
                             },
                 fields: ['id', 'sellerId', 'buyerId', 'ebayName', 'ebayEmail', 'grandTotalCurrency', 'grandTotalValue', 'amountPayCurrency', 'amountPayValue', 'status'],
-                url:'connect.php?moduleId=qo-orders&action=searchOrder'
+                sortInfo:{field: "id", direction: "DESC"},
+		url:'connect.php?moduleId=qo-orders&action=searchOrder'
             });
          
             function renderGrandTotalValue(v, p, r){

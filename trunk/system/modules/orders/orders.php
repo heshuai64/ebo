@@ -160,23 +160,23 @@ class QoOrders {
 			$count_sql = "select count(*) as num from (select distinct od.ordersId from qo_orders as o left join qo_orders_detail as od on o.id=od.ordersId ".$where.$where_sku.$where_item.") as total";
 			//distinct
 			$data_sql = "select o.id,o.status,o.sellerId,o.buyerId,o.ebayName,o.ebayEmail,o.grandTotalCurrency,o.grandTotalValue,ot.amountPayCurrency,sum(ot.amountPayValue) as amountPayValue 
-			from (qo_orders as o left join qo_orders_transactions as ot on o.id=ot.ordersId) left join qo_orders_detail as od on o.id=od.ordersId ".$where.$where_sku.$where_item." group by o.id limit ".$_POST['start'].",".$_POST['limit'];
+			from (qo_orders as o left join qo_orders_transactions as ot on o.id=ot.ordersId) left join qo_orders_detail as od on o.id=od.ordersId ".$where.$where_sku.$where_item." group by o.id order by o.id desc limit ".$_POST['start'].",".$_POST['limit'];
 		}elseif(!empty($where_sku)){
 			$count_sql = "select count(*) as num from (select distinct od.ordersId from qo_orders as o left join qo_orders_detail as od on o.id=od.ordersId ".$where.$where_sku.") as total";
 			
 			$data_sql = "select o.id,o.status,o.sellerId,o.buyerId,o.ebayName,o.ebayEmail,o.grandTotalCurrency,o.grandTotalValue,ot.amountPayCurrency,sum(ot.amountPayValue) as amountPayValue 
-			from (qo_orders as o left join qo_orders_transactions as ot on o.id=ot.ordersId) left join qo_orders_detail as od on o.id=od.ordersId ".$where.$where_sku." group by o.id limit ".$_POST['start'].",".$_POST['limit'];
+			from (qo_orders as o left join qo_orders_transactions as ot on o.id=ot.ordersId) left join qo_orders_detail as od on o.id=od.ordersId ".$where.$where_sku." group by o.id order by o.id desc limit ".$_POST['start'].",".$_POST['limit'];
 		}elseif(!empty($where_item)){
 			$count_sql = "select count(*) as num from (select distinct od.ordersId from qo_orders as o left join qo_orders_detail as od on o.id=od.ordersId ".$where.$where_item.") as total";
 			
 			$data_sql = "select o.id,o.status,o.sellerId,o.buyerId,o.ebayName,o.ebayEmail,o.grandTotalCurrency,o.grandTotalValue,ot.amountPayCurrency,sum(ot.amountPayValue) as amountPayValue 
-			from (qo_orders as o left join qo_orders_transactions as ot on o.id=ot.ordersId) left join qo_orders_detail as od on o.id=od.ordersId ".$where.$where_item." group by o.id limit ".$_POST['start'].",".$_POST['limit'];
+			from (qo_orders as o left join qo_orders_transactions as ot on o.id=ot.ordersId) left join qo_orders_detail as od on o.id=od.ordersId ".$where.$where_item." group by o.id order by o.id desc limit ".$_POST['start'].",".$_POST['limit'];
 		}else{
 			$count_sql = "select count(*) as num from qo_orders as o ".$where;
 			
 			$data_sql = "select o.id,o.status,o.sellerId,o.buyerId,o.ebayName,o.ebayEmail,o.grandTotalCurrency,o.grandTotalValue,ot.amountPayCurrency,sum(ot.amountPayValue) as amountPayValue 
 			from qo_orders as o left join qo_orders_transactions as ot on o.id=ot.ordersId ".$where." 
-			group by o.id limit ".$_POST['start'].",".$_POST['limit'];
+			group by o.id order by o.id desc limit ".$_POST['start'].",".$_POST['limit'];
 		}
 		
 		//echo $count_sql;
