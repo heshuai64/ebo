@@ -96,11 +96,11 @@ class QoTransactions {
                 
 		if(empty($_POST['ordersId'])){
 			$count_sql = "select count(*) as num from qo_transactions as t ".$where;
-			$data_sql = "select t.id,t.txnId,t.transactionTime,t.status,t.amountCurrency,t.amountValue,t.payerId from qo_transactions as t ".$where." limit ".$_POST['start'].",".$_POST['limit'];
+			$data_sql = "select t.id,t.txnId,t.transactionTime,t.status,t.amountCurrency,t.amountValue,t.payerId from qo_transactions as t ".$where." order by t.id desc limit ".$_POST['start'].",".$_POST['limit'];
 		}else{
 			$count_sql = "select count(*) from qo_transactions as t left join qo_orders_transactions as ot on t.id = ot.transactionsId ".$where;
 			$data_sql = "select t.id,t.txnId,t.transactionTime,t.status,t.amountCurrency,t.amountValue,t.payerId from 
-			qo_transactions as t left join qo_orders_transactions as ot on t.id = ot.transactionsId ".$where." limit ".$_POST['start'].",".$_POST['limit'];
+			qo_transactions as t left join qo_orders_transactions as ot on t.id = ot.transactionsId ".$where." order by t.id desc limit ".$_POST['start'].",".$_POST['limit'];
 		}
 		//echo $count_sql;
 		//echo "\n";

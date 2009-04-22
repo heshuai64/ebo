@@ -88,26 +88,26 @@ class QoShipments {
 		
 		$data_sql = "select s.id,o.id as ordersId,s.shipToName,s.shipToEmail,o.sellerId,s.createdOn,s.packedOn,s.shippedOn,s.status 
 		from (qo_shipments as s left join qo_orders as o on s.ordersId=o.id) 
-		left join qo_shipments_detail as sd on s.id=sd.shipmentsId ".$where.$where_sku.$where_item." group by s.id limit ".$_POST['start'].",".$_POST['limit'];
+		left join qo_shipments_detail as sd on s.id=sd.shipmentsId ".$where.$where_sku.$where_item." group by s.id order by s.id limit ".$_POST['start'].",".$_POST['limit'];
 	    }elseif(!empty($where_sku)){
 		$count_sql = "select count(*) as num from (select distinct sd.shipmentsId from (qo_shipments as s left join qo_orders as o on s.ordersId=o.id) 
 		left join qo_shipments_detail as sd on s.id=sd.shipmentsId ".$where.$where_sku.") as total";
 		
 		$data_sql = "select s.id,o.id as ordersId,s.shipToName,s.shipToEmail,o.sellerId,s.createdOn,s.packedOn,s.shippedOn,s.status 
 		from (qo_shipments as s left join qo_orders as o on s.ordersId=o.id) 
-		left join qo_shipments_detail as sd on s.id=sd.shipmentsId ".$where.$where_sku." group by s.id limit ".$_POST['start'].",".$_POST['limit'];
+		left join qo_shipments_detail as sd on s.id=sd.shipmentsId ".$where.$where_sku." group by s.id order by s.id limit ".$_POST['start'].",".$_POST['limit'];
 	    }elseif(!empty($where_item)){
 		$count_sql = "select count(*) as num from (select distinct sd.shipmentsId from (qo_shipments as s left join qo_orders as o on s.ordersId=o.id) 
 		left join qo_shipments_detail as sd on s.id=sd.shipmentsId ".$where.$where_item.") as total";
 		
 		$data_sql = "select s.id,o.id as ordersId,s.shipToName,s.shipToEmail,o.sellerId,s.createdOn,s.packedOn,s.shippedOn,s.status 
 		from (qo_shipments as s left join qo_orders as o on s.ordersId=o.id) 
-		left join qo_shipments_detail as sd on s.id=sd.shipmentsId ".$where.$where_item." group by s.id limit ".$_POST['start'].",".$_POST['limit'];
+		left join qo_shipments_detail as sd on s.id=sd.shipmentsId ".$where.$where_item." group by s.id order by s.id limit ".$_POST['start'].",".$_POST['limit'];
 	    }else{
 		$count_sql = "select count(s.id) as num from qo_shipments as s left join qo_orders as o on s.ordersId=o.id ".$where;
 		
 		$data_sql = "select s.id,o.id as ordersId,s.shipToName,s.shipToEmail,o.sellerId,s.createdOn,s.packedOn,s.shippedOn,s.status 
-		from qo_shipments as s left join qo_orders as o on s.ordersId=o.id ".$where." group by s.id limit ".$_POST['start'].",".$_POST['limit'];
+		from qo_shipments as s left join qo_orders as o on s.ordersId=o.id ".$where." group by s.id order by s.id limit ".$_POST['start'].",".$_POST['limit'];
 	    }
 	    
 	    //echo $count_sql;
