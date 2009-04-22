@@ -8,7 +8,7 @@ class QoTransactions {
 	}
         
 	public function getTransactionId(){
-		$type = 'TRA';
+		$type = 'TRM';
 		$today = date("Ym");
 		$sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
 		$result = mysql_query($sql);
