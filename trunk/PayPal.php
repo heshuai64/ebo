@@ -395,6 +395,9 @@
         }
         
         public function ipn(){
+            if(empty($_POST['payment_status'])){
+                return 0;
+            }
             // read the post from PayPal system and add 'cmd'
             $req = 'cmd=_notify-validate';
             
