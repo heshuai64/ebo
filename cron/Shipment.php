@@ -84,7 +84,7 @@ class Shipment{
     
     public function createShipment(){
         $this->getCompleteOrder();
-        print_r($this->complete_orders);
+        //print_r($this->complete_orders);
         foreach($this->complete_orders as $orders){
             $sql_0 = "select count(*) as num from qo_shipments where ordersId = '".$orders['id']."'";
             $result_0 = mysql_query($sql_0, Shipment::$database_connect);

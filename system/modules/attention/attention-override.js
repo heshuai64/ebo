@@ -55,7 +55,7 @@ Ext.override(QoDesk.Attention, {
                 },{
                     header: lang.attention.grid_txn_id,
                     dataIndex: 'txnId',
-                    width: 100,
+                    width: 120,
                     align: 'center',
                     sortable: true
                 },{
@@ -65,17 +65,17 @@ Ext.override(QoDesk.Attention, {
                     align: 'center',
                     sortable: true
                 },{
-                    header: lang.attention.grid_status,
-                    dataIndex: 'status',
-                    width: 100,
-                    renderer: renderStatus,
-                    align: 'center',
-                    sortable: true
-                },{
                     header: lang.attention.grid_amount,
                     dataIndex: 'amountValue',
                     width: 100,
                     renderer: renderAmountValue,
+                    align: 'center',
+                    sortable: true
+                },{
+                    header: lang.attention.grid_status,
+                    dataIndex: 'status',
+                    width: 100,
+                    renderer: renderStatus,
                     align: 'center',
                     sortable: true
                 }],
@@ -110,7 +110,7 @@ Ext.override(QoDesk.Attention, {
             win = desktop.createWindow({
                 id: 'attention-win',
                 title:lang.attention.window_title,
-                width:600,
+                width:720,
                 height:400,
                 iconCls: 'attention-icon',
                 shim:false,
