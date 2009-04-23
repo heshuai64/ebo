@@ -486,6 +486,7 @@ class eBay{
 		$sql = "update qo_orders set status = 'S' where id = '".$ordersId."'";
 	}else{
 		$sql = "update qo_orders set status = 'P' where id = '".$ordersId."'";
+		$this->createShipmentFromEbay($ordersId);
 	}
 	echo $sql;
 	echo "<br>\n<font color='green'>updateOrderStatus in ".$ordersId."</font><br>\n<br>\n";
@@ -578,7 +579,7 @@ class eBay{
 				$result_3 = mysql_query($sql_3, eBay::$database_connect);
 				$this->updateOrderStatus($ordersId, $transaction->AmountPaid->_, $row['amountValue']);
 				$this->updateOrderPayPalAddress($ordersId, $row['id']);
-				$this->createShipmentFromEbay($ordersId);
+				
 			}else{
 				$this->updateOrderStatus($ordersId, $transaction->AmountPaid->_, $row['amountValue']);
 			}
@@ -630,7 +631,7 @@ class eBay{
 		if(empty($ordersId)){
 			//Incomplete --> Complete
 			//if($result->TransactionArray->Transaction->Status->CompleteStatus == "Complete"){
-			if($transaction->Status->CheckoutStatus != "SellerResponded"){
+			if($result->TransactionArray->Transaction->Status->CheckoutStatus != "SellerResponded"){
 			    if(empty($result->TransactionArray->Transaction->ContainingOrder)){
 				$this->createOrderFromEbayTransaction($result->Seller->UserID, $result->TransactionArray->Transaction);
 			    }else{
