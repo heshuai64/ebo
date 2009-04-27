@@ -49,11 +49,31 @@ class eBaySession {
 		                       //'proxy_port' => (int)$proxy_port
 #		                       'compression' => SOAP_COMPRESSION_ACCEPT,
 		                      );
-		if(!empty($proxy_host) && !empty($proxy_port)){
-			$this->options['proxy_host'] = $proxy_host;
-			$this->options['proxy_port'] = (int)$proxy_port;
-		}
 		
+		if(!empty($proxy_host) && !empty($proxy_port)){
+			$this->options = array('trace' => true, 
+						'exceptions' => false,
+						'classmap' => array(/* 'UserType' => 'eBayUserType', */
+								    'GetSearchResultsResponseType' => 'eBayGetSearchResultsResponseType',
+								    'SearchResultItemArrayType' => 'eBaySearchResultItemArrayType',
+								    'SearchResultItemType' => 'eBaySearchResultItemType',
+								    'AmountType' => 'eBayAmountType',
+								    'FeeType' => 'eBayFeeType',
+								    'FeesType' => 'eBayFeesType',
+								    'PaginatedItemArrayType' => 'eBayPaginatedItemArrayType',
+								    'ItemArrayType' => 'eBayItemArrayType',
+								    'ItemType' => 'eBayItemType',
+								    'NameValueListArrayType' => 'eBayNameValueListArrayType',
+								    'NameValueListType' => 'eBayNameValueListType',
+								    'PictureDetailsType' => 'eBayPictureDetailsType',
+								   ),
+						'proxy_host' => $proxy_host,
+						'proxy_port' => (int)$proxy_port
+	 #		                       'compression' => SOAP_COMPRESSION_ACCEPT,
+					       );
+		}
+		//print_r($this->options);
+		//exit;
 		$this->ns = 'urn:ebay:apis:eBLBaseComponents';
 		$this->version = 607; // should pull this from the WSDL
 	}
