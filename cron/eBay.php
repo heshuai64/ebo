@@ -170,9 +170,10 @@ class eBay{
                 //----------   debug --------------------------------
                 //print "Request: \n".$client->__getLastRequest() ."\n";
                 //print "Response: \n".$client->__getLastResponse()."\n";
-		$this->saveFetchData("/GetSellerTransactions/".$sellerId."-Request-GetSellerTransactions-".date("Y-m-d H:i:s").".xml", $client->__getLastRequest());
-		$this->saveFetchData("/GetSellerTransactions/".$sellerId."-Response-GetSellerTransactions-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
-                return $results;
+		//$this->saveFetchData("/GetSellerTransactions/".$sellerId."-Request-GetSellerTransactions-".date("Y-m-d H:i:s").".xml", $client->__getLastRequest());
+		//$this->saveFetchData("/GetSellerTransactions/".$sellerId."-Response-GetSellerTransactions-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+                $this->saveFetchData("/GetSellerTransactions/".$sellerId.date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		return $results;
                 
         } catch (SOAPFault $f) {
                 print $f; // error handling
@@ -593,7 +594,7 @@ class eBay{
         //print_r($result);
         $TotalNumberOfPages = $result->PaginationResult->TotalNumberOfPages;
 	$TotalNumberOfEntries = $result->PaginationResult->TotalNumberOfEntries;
-        echo "<br>\n<br>\n<br>\n<br>\n".date("Y-m-d H:i:s")."-------------------------------------------------- Start -------------------------------------------------------------------";
+        echo "<br>\n<br>\n<br>\n<br>\n".date("Y-m-d H:i:s")."------------------------------------------- ".$sellerId." Start ----------------------------------------------------------";
 	echo "<br>\n<br>\n";
 	echo date("Y-m-d H:i:s")."  createOrderFromEbay from ".$sellerId.", total number: ".$TotalNumberOfEntries.", total page: ".$TotalNumberOfPages."<br>\n<br>\n";
 	
@@ -645,15 +646,20 @@ class eBay{
 			$this->updateOrderFromEbay($ordersId, $result->Seller->UserID, $result->TransactionArray->Transaction);
 		}
         }
-	echo "<br>\n<br>\n<br>\n<br>\n".date("Y-m-d H:i:s")."-------------------------------------------------------- End --------------------------------------------------------------";
+	echo "<br>\n<br>\n<br>\n<br>\n".date("Y-m-d H:i:s")."------------------------------------------- ".$sellerId." End ----------------------------------------------------------";
     }
     
-    public function getAllEbayTransaction(){    
-		$sql = "select es.id,es.devId,es.appId,es.cert,es.token,ep.proxy_host,ep.proxy_port from qo_ebay_seller as es left join qo_ebay_proxy as ep on es.id=ep.ebay_seller_id where es.status='A'";
+    public function getAllEbayTransaction($id=""){
+		if(empty($id)){	
+			$sql = "select es.id,es.devId,es.appId,es.cert,es.token,ep.proxy_host,ep.proxy_port from qo_ebay_seller as es left join qo_ebay_proxy as ep on es.id=ep.ebay_seller_id where es.status='A'";
+		}else{
+			$sql = "select es.id,es.devId,es.appId,es.cert,es.token,ep.proxy_host,ep.proxy_port from qo_ebay_seller as es left join qo_ebay_proxy as ep on es.id=ep.ebay_seller_id where es.status='A' and es.id='".$id."'";
+		}
 		$result = mysql_query($sql, eBay::$database_connect);
 		while ($row = mysql_fetch_assoc($result)){
 			//authToken   devId  appId  cert  gatewaySOAP
 			$this->createOrderFromEbay($this->startTime, $this->endTime, $row['id'], $row['devId'], $row['appId'], $row['cert'], $row['token'], $row['proxy_host'], $row['proxy_port']);
+			
 		}
     }
     
@@ -700,7 +706,8 @@ class eBay{
 		
 		$TotalNumberOfPages = $results->PaginationResult->TotalNumberOfPages;
 		$TotalNumberOfEntries = $results->PaginationResult->TotalNumberOfEntries;
-		echo "---------------------------------------------------------------------------------------------------------------------------";
+		echo "<br>\n<br>\n";
+		echo "-------------------------------------------------------------- ".$sellerId." start -----------------------------------------------------------------";
 		echo "<br>\n<br>\n";
 		echo date("Y-m-d H:i:s")."  getSellerList from ".$sellerId.", total number: ".$TotalNumberOfEntries.", total page: ".$TotalNumberOfPages."<br>\n<br>\n";
 	
@@ -709,7 +716,7 @@ class eBay{
 		//print_r($results);
                 //print "Request: \n".$client->__getLastRequest() ."\n";
                 //print "Response: \n".$client->__getLastResponse()."\n";
-		$this->saveFetchData("/GetSellerList/".$sellerId."-GetSellerList-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		$this->saveFetchData("/GetSellerList/".$sellerId.date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 		
 		if($results->PaginationResult->TotalNumberOfPages == 0)
 			return 0;
@@ -744,17 +751,25 @@ class eBay{
 						$this->updateEbayItem($results->ItemArray->Item, $UserID);
 					}
 				}
-			}
-			sleep(1);
+				$this->saveFetchData("/GetSellerList/".$sellerId.date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+				sleep(1);
+			}		
 		}
-               
+		
+		echo "<br>\n<br>\n";
+		echo "-------------------------------------------------------------- ".$sellerId." end -----------------------------------------------------------------";
+                echo "<br>\n<br>\n";
         } catch (SOAPFault $f) {
                 print $f; // error handling
         }
     }
     
-    public function getAllSellerList(){
-		$sql = "select es.id,es.devId,es.appId,es.cert,es.token,ep.proxy_host,ep.proxy_port from qo_ebay_seller as es left join qo_ebay_proxy as ep on es.id=ep.ebay_seller_id where es.status='A'";
+    public function getAllSellerList($id=""){
+		if(empty($id)){	
+			$sql = "select es.id,es.devId,es.appId,es.cert,es.token,ep.proxy_host,ep.proxy_port from qo_ebay_seller as es left join qo_ebay_proxy as ep on es.id=ep.ebay_seller_id where es.status='A'";
+		}else{
+			$sql = "select es.id,es.devId,es.appId,es.cert,es.token,ep.proxy_host,ep.proxy_port from qo_ebay_seller as es left join qo_ebay_proxy as ep on es.id=ep.ebay_seller_id where es.status='A' and es.id='".$id."'";
+		}
 		$result = mysql_query($sql, eBay::$database_connect);
 		while ($row = mysql_fetch_assoc($result)){
 			//authToken   devId  appId  cert  gatewaySOAP
@@ -860,7 +875,7 @@ if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
 				$eBay->setStartTime(date("Y-m-d H:i:s", time() - ((10 * 60 * 60))));
 				$eBay->setEndTime(date("Y-m-d H:i:s", time() - ((8 * 60 * 60))));
 			}
-			$eBay->getAllSellerList();
+			$eBay->getAllSellerList($_GET['id']);
 			
 		break;
 	
@@ -876,7 +891,7 @@ if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
 				$eBay->setStartTime(date("Y-m-d H:i:s", time() - (12 * 60 * 60)));
 				$eBay->setEndTime(date("Y-m-d H:i:s", time() - (8 * 60 * 60)));
 			}
-			$eBay->getAllEbayTransaction();
+			$eBay->getAllEbayTransaction($_GET['id']);
 			//$test->GetSellerTransactions('','','AgAAAA**AQAAAA**aAAAAA**FmQISA**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wHlIOnCZaBpAWdj6x9nY+seQ**Q2AAAA**AAMAAA**K5e4SqBc83jVbhFXLTi50I3ptbripiwsQUS3jIeIcDvpmXzELIv5yXhhUp8jB/r9sdMAKZP2GxQB8g85Eq09tNqTWhmSLMGmFRXq3gBeof7enC9Ch4L0JLBf4rSDdyGWkwa8zpnVueMbOwQbExhx1UjkGZXsDfIxO8vU1FaeGW2tLjVkOffg/0NkzrhwQnoR63SeZ/aPkns9sBbaqkGH7VsoYSik0C/pkO8V9gfxJIuIDjRNuOQ6Stx0UWRNnTPyZRZpWDShtsh9horFcmRsB34ZRxxAkaxx3UmskFoqwxNviz1vYrjEqZlbV2KkQsF+iCOT5lu2YdFTeTZ2uv3/PY1zw+J7sdvK3tI4ucKNKTNLbrBIco0XW/ImHhRoNsun4AizgcHP4HQOwzzuwXnc53Z1QqehYQZsOvMCx+cU+Z2zlA/MP6z7NgdCuHdaYRJbYgINxfDxAuxKCnjzyozpgV6Smk/o7dOBAaZKclEEClNAg3xIpjnyamBh4EBUzk0/tYePv5K2PA6nClMu58PWd7HcGcP/X4FCDnxiDbu5ndxcntPfec6ztdC5f2FHDJJ7ACY9PjRdIYWUQBsgwhV6yZs3t0N1SfR5yuy0tW+fOX4Uw4RkPcMbrgHk9H8m5JEae8YaQMfNkuk3TCKwjjEE+25LDFgpbiTAEu4sYs7FxGhBQBr4RbhoLR6TTdnu0xhpvO2vC4lPb6FQmb9vGRaTv3uxdh2xgMJgD7bhAqt+1vnET+xKvGDrvIFp1XxJ7ij2');
 			//$test = new eBay();
 			//$test->createOrderFromEbay();
