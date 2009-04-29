@@ -1175,6 +1175,81 @@ Ext.onReady(function(){
                                           }]
                                       }]
                                   },{
+                                             xtype:"button",
+                                             text: "Send Email To Buyer",
+                                             handler: function(){
+                                                var ebayName = orderDetailForm.getForm().findField("ebayName").getValue();
+                                                var ebayEmail = orderDetailForm.getForm().findField("ebayEmail").getValue();
+                                                var sendEmailForm =  form = new Ext.FormPanel({
+                                                            //labelWidth:0,
+                                                            //hideLabels:true,
+                                                            //labelSeparator:"",
+                                                            items: [{
+                                                                        xtype:"textfield",
+                                                                        fieldLabel:lang.orders.send_to_name,
+                                                                        value:ebayName,
+                                                                        name:"toName"
+                                                                     },{
+                                                                        xtype:"textfield",
+                                                                        fieldLabel:lang.orders.send_to_email,
+                                                                        value:ebayEmail,
+                                                                        name:"toEmail"
+                                                                     },{xtype:"textarea",
+                                                                        fieldLabel:"",
+                                                                        width: 380,
+                                                                        height: 280,
+                                                                        //value:eBayAddressInfo,
+                                                                        fieldLabel:lang.orders.send_to_content,
+                                                                        name: 'toContent'}
+                                                            ]
+                                                        })
+                                                        
+                                                var sendEmailWindow = new Ext.Window({
+                                                    title: 'eBay Address Info' ,
+                                                    closable:true,
+                                                    width: 520,
+                                                    height: 410,
+                                                    plain:true,
+                                                    layout: 'fit',
+                                                    items: sendEmailForm,
+                                                    buttons: [{
+                                                                        text: 'Send',
+                                                                        handler: function(){
+                                                                                    Ext.Ajax.request({
+                                                                                                waitMsg: 'Please wait...',
+                                                                                                url: 'service.php?action=sendEmail',
+                                                                                                params: {
+                                                                                                    toName: sendEmailForm.form.findField('toName').getValue(),
+                                                                                                    toEmail: sendEmailForm.form.findField('toEmail').getValue(),
+                                                                                                    toContent: sendEmailForm.form.findField('toContent').getValue()
+                                                                                                },
+                                                                                                success: function(response){
+                                                                                                    var result = eval(response.responseText);
+                                                                                                    switch (result) {
+                                                                                                        case 1:
+                                                                                                            Ext.MessageBox.alert('Success', 'Send Email Success!');
+                                                                                                            break;
+                                                                                                        default:
+                                                                                                            Ext.MessageBox.alert('Uh uh...', 'We couldn\'t save him...');
+                                                                                                            break;
+                                                                                                    }
+                                                                                                },
+                                                                                                failure: function(response){
+                                                                                                    var result = response.responseText;
+                                                                                                    Ext.MessageBox.alert('error', 'could not connect to the database. retry later');
+                                                                                                }
+                                                                                    });               
+                                                                        }
+                                                            },{
+                                                                        text: 'Close',
+                                                                        handler: function(){
+                                                                                    sendEmailWindow.close();
+                                                                        }
+                                                    }]
+                                                });
+                                                sendEmailWindow.show();
+                                             }
+                                    },{
                                     xtype:"combo",
                                     fieldLabel:lang.orders.form_status,
                                     store: new Ext.data.SimpleStore({
