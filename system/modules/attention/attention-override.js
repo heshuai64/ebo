@@ -79,7 +79,11 @@ Ext.override(QoDesk.Attention, {
                     align: 'center',
                     sortable: true
                 }],
-		tbar: [{xtype: 'tbtext', text: 'Start Date:'},
+		tbar: [
+		       {xtype: 'tbtext', text: 'Seller:'},
+		       {xtype:"textfield", id:"payeeId", name:"payeeId"},
+		       {xtype: 'tbseparator'},
+		       {xtype: 'tbtext', text: 'Start Date:'},
 		       {xtype:"datefield", id:"start_date", name:"start_date", format:'Y-m-d', value:start_date},
 		       {xtype: 'tbseparator'},
 		       {xtype: 'tbtext', text: 'End Date:'},
@@ -87,6 +91,7 @@ Ext.override(QoDesk.Attention, {
 		       {xtype:"tbbutton", text: 'Submit', handler:function(){
 			    //console.log(unMapTransactionGridStore);
 			    unMapTransactionGridStore.baseParams = {
+				payeeId: document.getElementById("payeeId").value,
 				start_date: document.getElementById("start_date").value,
 				end_date: document.getElementById("end_date").value
 			    };
