@@ -215,13 +215,55 @@ class QoShipments {
 		}
 	}
 	
+	public function inventoryTakeOut($inventory_model, $quantity, $note, $shipment_method){
+		$request =  'http://127.0.0.1:6666/tracmor/service.php?action=inventoryTakeOut&inventory_model='.$inventory_model.'&quantity='.$quantity.'&note='.urlencode($note).'&shipment_method='.urlencode($shipment_method);
+
+		$session = curl_init($request);
+		
+		curl_setopt($session, CURLOPT_HEADER, true);
+		curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+		
+		$response = curl_exec($session);
+		
+		curl_close($session);
+		
+		$status_code = array();
+		preg_match('/\d\d\d/', $response, $status_code);
+		
+		switch( $status_code[0] ) {
+			case 200:
+				$sql = "update qo_shipments_detail set inventoryStatus='1' where shipmentsId='".$note."' and skuId='".$inventory_model."'";
+				$result = mysql_query($sql);
+				break;
+			case 503:
+				die('Your call to Yahoo Web Services failed and returned an HTTP status of 503. That means: Service unavailable. An internal problem prevented us from returning data to you.');
+				break;
+			case 403:
+				die('Your call to Yahoo Web Services failed and returned an HTTP status of 403. That means: Forbidden. You do not have permission to access this resource, or are over your rate limit.');
+				break;
+			case 400:
+				die('Your call to Yahoo Web Services failed and returned an HTTP status of 400. That means:  Bad request. The parameters passed to the service did not match as expected. The exact error is returned in the XML response.');
+				break;
+			default:
+				die('Your call to Yahoo Web Services returned an unexpected HTTP status of:' . $status_code[0]);
+		}
+
+	}
+	
 	public function shipShipment(){
-		$sql = "select status from qo_shipments where id = '".$_POST['id']."'";
+		$sql = "select status,shipmentMethod from qo_shipments where id = '".$_POST['id']."'";
 		$result = mysql_query($sql);
 		$row = mysql_fetch_assoc($result);
 		if($row['status'] == "N"){
 			$sql = "update qo_shipments set status='S',shippedBy='".$this->os->session->get_member_name()."',shippedOn='".date("Y-m-d H:i:s")."' where id='".$_POST['id']."'";
 			$result = mysql_query($sql);
+			
+			$sql_1 = "select shipmentsId,skuId,quantity from qo_shipments_detail where shipmentsId = '".$_POST['id']."'";
+			$result_1 = mysql_query($sql_1);
+			while($row_1 = mysql_fetch_assoc($result_1)){
+				$this->inventoryTakeOut($row_1['skuId'], $row_1['quantity'], $row_1['shipmentsId'], $row['shipmentMethod']);
+			}
+			
 			if($result){
 				echo "{success: true,info:'\'<font color=\'green\'>Operation Successfully</font>'}"; 
 			}else{
