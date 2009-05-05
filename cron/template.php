@@ -10,7 +10,7 @@
         
 </head>
 <body>
-        <div style="width:800px;text-align:center;margin:auto;">
+        <div style="width:800px;margin:auto;">
                 <table align="center" cellpadding="0" cellspacing="0" border="1" width="100%">
                         <tr align="center" class="header">
                                 <th>No</th><th>Address</th><th>Barcode</th><th>Sku</th><th>Images</th>
