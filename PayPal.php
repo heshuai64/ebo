@@ -356,11 +356,22 @@
             $address = split("\n",$ipn_data['address_street']);
   	    $payerAddressLine1 = $address[0];
   	    $payerAddressLine2 = $address[1];
-                
-            $sql = "select count(*) as num from qo_transactions where txnId='".$ipn_data['txn_id']."'";
-            $result = mysql_query($sql, PayPal::$database_connect);
-            $row = mysql_fetch_assoc($result);
-            if($row['num'] == 0){
+            
+	    if($status == "V"){
+		$sql = "select count(*) as num from qo_transactions where txnId='".$ipn_data['txn_id']."' and status = 'V'";
+		$result = mysql_query($sql, PayPal::$database_connect);
+		$row = mysql_fetch_assoc($result);
+	    }elseif($status == "C"){
+		$sql = "select count(*) as num from qo_transactions where txnId='".$ipn_data['txn_id']."' and status = 'C'";
+		$result = mysql_query($sql, PayPal::$database_connect);
+		$row = mysql_fetch_assoc($result);
+	    }else{
+		$sql = "select count(*) as num from qo_transactions where txnId='".$ipn_data['txn_id']."'";
+		$result = mysql_query($sql, PayPal::$database_connect);
+		$row = mysql_fetch_assoc($result);
+	    }
+	    
+	    if($row['num'] == 0){
                 $transactionId = $this->getTransactionId();
 		$payeeId = $this->getPayeeIdFromEmail($_POST['business']);
 		
