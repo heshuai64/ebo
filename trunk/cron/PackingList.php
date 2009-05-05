@@ -82,7 +82,7 @@ class PackingList{
         $i = 0;
         while($row = mysql_fetch_assoc($result)){
             $this->shipment[$i] = $row;
-            $sql_1 = "select sd.skuId,sd.quantity,i.galleryURL from qo_shipments_detail as sd left join qo_items as i on sd.itemId=i.id where sd.shipmentsId='".$row['id']."'";
+            $sql_1 = "select sd.skuId,sd.itemId,sd.quantity,i.galleryURL from qo_shipments_detail as sd left join qo_items as i on sd.itemId=i.id where sd.shipmentsId='".$row['id']."'";
             $result_1 = mysql_query($sql_1, PackingList::$database_connect);
             $j = 0;
             while($row_1 = mysql_fetch_assoc($result_1)){

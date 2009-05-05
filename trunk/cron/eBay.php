@@ -172,7 +172,7 @@ class eBay{
                 //print "Response: \n".$client->__getLastResponse()."\n";
 		//$this->saveFetchData("/GetSellerTransactions/".$sellerId."-Request-GetSellerTransactions-".date("Y-m-d H:i:s").".xml", $client->__getLastRequest());
 		//$this->saveFetchData("/GetSellerTransactions/".$sellerId."-Response-GetSellerTransactions-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
-                $this->saveFetchData("/GetSellerTransactions/".$sellerId.date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+                $this->saveFetchData("/GetSellerTransactions/".$sellerId.'-'.date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 		return $results;
                 
         } catch (SOAPFault $f) {
@@ -687,7 +687,7 @@ class eBay{
 	$result = mysql_query($sql, eBay::$database_connect);
     }
     
-    private function getSellerList($EndTimeFrom, $EndTimeTo, $sellerId, $dev, $app, $cert, $token, $proxy_host, $proxy_port){
+    private function getSellerList($StartTimeFrom, $StartTimeTo, $sellerId, $dev, $app, $cert, $token, $proxy_host, $proxy_port){
 	$session = $this->configEbay($dev, $app, $cert, $token, $proxy_host, $proxy_port);
         try {
                 $client = new eBaySOAP($session);
@@ -701,7 +701,7 @@ class eBay{
 		//$EndTimeFrom = "2008-04-05 16:00:00";
 		//$EndTimeTo   = "2008-04-10 00:00:00";
 		//$UserID = "aqualuna0001";
-		$params = array('Version' => $Version, 'GranularityLevel' =>$GranularityLevel, 'Pagination' => $Pagination, 'Sort' => $Sort, 'EndTimeFrom' => $EndTimeFrom, 'EndTimeTo' => $EndTimeTo, 'UserID' => $UserID, 'DetailLevel' => $DetailLevel);
+		$params = array('Version' => $Version, 'GranularityLevel' =>$GranularityLevel, 'Pagination' => $Pagination, 'Sort' => $Sort, 'StartTimeFrom' => $StartTimeFrom, 'StartTimeTo' => $StartTimeTo, 'UserID' => $UserID, 'DetailLevel' => $DetailLevel);
 		$results = $client->GetSellerList($params);
 		
 		$TotalNumberOfPages = $results->PaginationResult->TotalNumberOfPages;
@@ -716,7 +716,9 @@ class eBay{
 		//print_r($results);
                 //print "Request: \n".$client->__getLastRequest() ."\n";
                 //print "Response: \n".$client->__getLastResponse()."\n";
-		$this->saveFetchData("/GetSellerList/".$sellerId.date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		//$this->saveFetchData("/GetSellerList/".$sellerId.'-Request-'.date("Y-m-d H:i:s").".xml", $client->__getLastRequest());
+		//$this->saveFetchData("/GetSellerList/".$sellerId.'-Response-'.date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		$this->saveFetchData("/GetSellerList/".$sellerId.'-'.date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 		
 		if($results->PaginationResult->TotalNumberOfPages == 0)
 			return 0;
@@ -733,7 +735,7 @@ class eBay{
 		if($TotalNumberOfPages > 1){
 			for($i=2; $i <= $TotalNumberOfPages; $i++){
 				$Pagination = array('EntriesPerPage'=> $EntriesPerPage,'PageNumber'=> $i);
-				$params = array('Version' => $Version, 'GranularityLevel' =>$GranularityLevel, 'Pagination' => $Pagination, 'Sort' => $Sort, 'EndTimeFrom' => $EndTimeFrom, 'EndTimeTo' => $EndTimeTo, 'UserID' => $UserID, 'DetailLevel' => $DetailLevel);
+				$params = array('Version' => $Version, 'GranularityLevel' =>$GranularityLevel, 'Pagination' => $Pagination, 'Sort' => $Sort, 'StartTimeFrom' => $StartTimeFrom, 'StartTimeTo' => $StartTimeTo, 'UserID' => $UserID, 'DetailLevel' => $DetailLevel);
 			    	$results = $client->GetSellerList($params);
 				
 				if(is_array($results->ItemArray->Item)){
@@ -751,7 +753,7 @@ class eBay{
 						$this->updateEbayItem($results->ItemArray->Item, $UserID);
 					}
 				}
-				$this->saveFetchData("/GetSellerList/".$sellerId.date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+				$this->saveFetchData("/GetSellerList/".$sellerId.'-'.date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 				sleep(1);
 			}		
 		}
