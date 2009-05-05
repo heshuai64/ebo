@@ -69,7 +69,7 @@ Ext.onReady(function(){
                 bbar: [{
                         text: 'Add Detail',
                         handler: function(){
-                            var add_order_detail_form =  form = new Ext.FormPanel({
+                            var add_order_detail_form = new Ext.FormPanel({
                                 labelAlign: 'top',
                                 bodyStyle:'padding:5px',     
                                 items: [{
@@ -318,7 +318,7 @@ Ext.onReady(function(){
                     text: 'Add Transaction',
                     //tooltip: 'Great tooltips...',
                     handler: function(){
-                                var add_order_transaction_form =  form = new Ext.FormPanel({
+                                var add_order_transaction_form = new Ext.FormPanel({
                                     labelAlign: 'top',
                                     bodyStyle:'padding:5px',
                                     //width: 400,        
@@ -1044,7 +1044,7 @@ Ext.onReady(function(){
                                                 orderDetailForm.getForm().findField("ebayPostalCode").getValue()+"\n"+
                                                 orderDetailForm.getForm().findField("ebayCountry").getValue()+"\n"+
                                                 orderDetailForm.getForm().findField("ebayPhone").getValue();
-                                                var copyForm =  form = new Ext.FormPanel({
+                                                var copyForm = new Ext.FormPanel({
                                                             labelWidth:0,
                                                             hideLabels:true,
                                                             labelSeparator:"",
@@ -1142,7 +1142,7 @@ Ext.onReady(function(){
                                                 orderDetailForm.getForm().findField("paypalPostalCode").getValue()+"\n"+
                                                 orderDetailForm.getForm().findField("paypalCountry").getValue()+"\n"+
                                                 orderDetailForm.getForm().findField("paypalPhone").getValue();
-                                                var copyForm =  form = new Ext.FormPanel({
+                                                var copyForm = new Ext.FormPanel({
                                                             labelWidth:0,
                                                             hideLabels:true,
                                                             labelSeparator:"",
@@ -1180,7 +1180,7 @@ Ext.onReady(function(){
                                              handler: function(){
                                                 var ebayName = orderDetailForm.getForm().findField("ebayName").getValue();
                                                 var ebayEmail = orderDetailForm.getForm().findField("ebayEmail").getValue();
-                                                var sendEmailForm =  form = new Ext.FormPanel({
+                                                var sendEmailForm = new Ext.FormPanel({
                                                             //labelWidth:0,
                                                             //hideLabels:true,
                                                             //labelSeparator:"",
