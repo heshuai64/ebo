@@ -867,6 +867,7 @@ if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
 	
 		case "getAllSellerList":
 			$eBay = new eBay();
+			$id = (!empty($_GET['id'])?$_GET['id']:$argv[4]);
 			if(!empty($argv[2]) && !empty($argv[3])){
 				$eBay->setStartTime($argv[2]);
 				$eBay->setEndTime($argv[3]);
@@ -877,12 +878,13 @@ if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
 				$eBay->setStartTime(date("Y-m-d H:i:s", time() - ((10 * 60 * 60))));
 				$eBay->setEndTime(date("Y-m-d H:i:s", time() - ((8 * 60 * 60))));
 			}
-			$eBay->getAllSellerList($_GET['id']);
+			$eBay->getAllSellerList($id);
 			
 		break;
 	
 		case "getAllEbayTransaction":
 			$eBay = new eBay();
+			$id = (!empty($_GET['id'])?$_GET['id']:$argv[4]);
 			if(!empty($argv[2]) && !empty($argv[3])){
 				$eBay->setStartTime($argv[2]);
 				$eBay->setEndTime($argv[3]);
@@ -893,7 +895,7 @@ if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
 				$eBay->setStartTime(date("Y-m-d H:i:s", time() - (12 * 60 * 60)));
 				$eBay->setEndTime(date("Y-m-d H:i:s", time() - (8 * 60 * 60)));
 			}
-			$eBay->getAllEbayTransaction($_GET['id']);
+			$eBay->getAllEbayTransaction($id);
 			//$test->GetSellerTransactions('','','AgAAAA**AQAAAA**aAAAAA**FmQISA**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wHlIOnCZaBpAWdj6x9nY+seQ**Q2AAAA**AAMAAA**K5e4SqBc83jVbhFXLTi50I3ptbripiwsQUS3jIeIcDvpmXzELIv5yXhhUp8jB/r9sdMAKZP2GxQB8g85Eq09tNqTWhmSLMGmFRXq3gBeof7enC9Ch4L0JLBf4rSDdyGWkwa8zpnVueMbOwQbExhx1UjkGZXsDfIxO8vU1FaeGW2tLjVkOffg/0NkzrhwQnoR63SeZ/aPkns9sBbaqkGH7VsoYSik0C/pkO8V9gfxJIuIDjRNuOQ6Stx0UWRNnTPyZRZpWDShtsh9horFcmRsB34ZRxxAkaxx3UmskFoqwxNviz1vYrjEqZlbV2KkQsF+iCOT5lu2YdFTeTZ2uv3/PY1zw+J7sdvK3tI4ucKNKTNLbrBIco0XW/ImHhRoNsun4AizgcHP4HQOwzzuwXnc53Z1QqehYQZsOvMCx+cU+Z2zlA/MP6z7NgdCuHdaYRJbYgINxfDxAuxKCnjzyozpgV6Smk/o7dOBAaZKclEEClNAg3xIpjnyamBh4EBUzk0/tYePv5K2PA6nClMu58PWd7HcGcP/X4FCDnxiDbu5ndxcntPfec6ztdC5f2FHDJJ7ACY9PjRdIYWUQBsgwhV6yZs3t0N1SfR5yuy0tW+fOX4Uw4RkPcMbrgHk9H8m5JEae8YaQMfNkuk3TCKwjjEE+25LDFgpbiTAEu4sYs7FxGhBQBr4RbhoLR6TTdnu0xhpvO2vC4lPb6FQmb9vGRaTv3uxdh2xgMJgD7bhAqt+1vnET+xKvGDrvIFp1XxJ7ij2');
 			//$test = new eBay();
 			//$test->createOrderFromEbay();
@@ -905,4 +907,8 @@ if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
 //30 */2 * * * root php -q /export/eBayBO/cron/eBay.php getAllEbayTransaction >> /tmp/getAllEbayTransaction.log
 //http://heshuai64.3322.org/eBayBO/cron/eBay.php?action=getAllEbayTransaction&start=2009-04-18 00:00:00&end=2009-04-19 00:00:00
 //http://heshuai64.3322.org/eBayBO/cron/eBay.php?action=getAllSellerList&start=2009-04-17 00:00:00&end=2009-04-19 00:00:00
+//php -q /export/eBayBO/cron/eBay.php getAllSellerList 2009-05-05 2009-05-06 bestnbestonline
+
+
+
 ?>
