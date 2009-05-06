@@ -86,7 +86,7 @@ class PackingList{
             $result_1 = mysql_query($sql_1, PackingList::$database_connect);
             $j = 0;
             while($row_1 = mysql_fetch_assoc($result_1)){
-                $this->shipment[$i]['shipmentDetail'][$j]['skuId'] = $row_1['itemId'];
+                $this->shipment[$i]['shipmentDetail'][$j]['skuId'] = $row_1['skuId'];
                 $this->shipment[$i]['shipmentDetail'][$j]['quantity'] = $row_1['quantity'];
                 $this->shipment[$i]['shipmentDetail'][$j]['image'] = $row_1['galleryURL'];
                 $j++;
