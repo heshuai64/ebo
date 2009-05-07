@@ -6,24 +6,41 @@ class Service{
     const DATABASE_PASSWORD = '';
     const DATABASE_NAME = 'ebaybo';
     
-    const SHIPPED_REGISTERED_TEMPLET = "Hi %s,<p>
-            Thank you for your purchasing from us and prompt payment, your item %s has been posted to our dispatch center just now and will be sent out soon via the HongKong post regular air mail without tracking number. It normally will takes around 7 to 15 business days (public holidays and weekends are not recognized as \"business days\"), please kindly wait a few days for delivery.<p>
+    const SHIPPED_BULK_TEMPLET = "Hi %s,<p>
+            Thank you for your purchasing from us and prompt payment, your item %s has been posted to the dispatch center just now which will be sent out soon via the HongKong post regular air mail without tracking number. It normally will takes around 7 to 15 business days from the dispatch date (public holidays and weekends are not recognized as \"business days\"), please kindly wait a few days for delivery.<p>
             
             The shipping address as below:<p>
             %s<p>
             
-            Hopefully you'll receive it soon and could leave us a positive feedback & 5stars DSRs. If has any problem please do not hesitate to advise. Thanks!<p>
-
+            Hopefully you could receive it soon and leave us a valued positive feedback & all 5 stars DSRs.<p>
+            
+            If has any problem please feel free to contact us %s. Thanks!<p>
+           
             Yours sincerely,<p>
-            %s";    
+            %s";
+    
+    const SHIPPED_REGISTERED_TEMPLET = "Hi %s,<p>
+            Thank you for your purchasing from us and prompt payment, your item %s has been posted to the dispatch center just now which will be sent out soon via the HongKong post registered air mail with tracking number %s. It normally will takes around 7 to 15 business days from the dispatch date (public holidays and weekends are not recognized as \"business days\"), please kindly wait a few days for delivery.<p>
+            
+            The shipping address as below:<p>
+            %s<p>
+            
+            Hopefully you could receive it soon and leave us a valued positive feedback & all 5 stars DSRs.<p>
+            
+            If has any problem please feel free to contact us %s. Thanks!<p>
+            
+            Yours sincerely,<p>
+            %s";
     
     const SHIPPED_SPEEDPOST_TEMPLET = "Hi %s,<p>
-            Thank you for your purchasing from us and prompt payment, your item %s has been posted to our dispatch center just now and will be sent out soon via the HongKong post registered air mail with tracking number  . It normally will takes around 7 to 15 business days (public holidays and weekends are not recognized as \"business days\"), please kindly wait a few days for delivery.<p>
+            Thank you for your purchasing from us and prompt payment, your item %s has been posted to the dispatch center just now which will be sent out soon via the Express shipping (Worldwide EMS) with tracking number %s. It normally will takes around 3 to 5 business days from the dispatch date (public holidays and weekends are not recognized as \"business days\"), please kindly wait a few days for delivery.<p>
             
             The shipping address as below:<p>
             %s<p>
             
-            Hopefully you'll receive it soon and could leave us a positive feedback & 5stars DSRs. If has any problem please do not hesitate to advise. Thanks!<p>
+            Hopefully you could receive it soon and leave us a valued positive feedback & all 5 stars DSRs. <p>
+            
+            If has any problem please feel free to contact us %s. Thanks!<p>
             
             Yours sincerely,<p>
             %s";
@@ -66,12 +83,17 @@ class Service{
                     $_REQUEST['shipToCountry'].'<br>';
                                                 
         switch($_REQUEST['shipmentMethod']){
+            
+            case "B":
+                $toContent = sprintf(self::SHIPPED_BULK_TEMPLET, $_REQUEST['shipToName'], $_REQUEST['itemId'], $address, $seller['email'], $_REQUEST['sellerId']);
+                break;
+            
             case "R":
-                $toContent = sprintf(self::SHIPPED_REGISTERED_TEMPLET, $_REQUEST['shipToName'], $_REQUEST['itemId'], $address, $_REQUEST['sellerId']);
+                $toContent = sprintf(self::SHIPPED_REGISTERED_TEMPLET, $_REQUEST['shipToName'], $_REQUEST['itemId'], $_REQUEST['postalReferenceNo'], $address, $seller['email'], $_REQUEST['sellerId']);
                 break;
             
             case "S":
-                $toContent = sprintf(self::SHIPPED_SPEEDPOST_TEMPLET, $_REQUEST['shipToName'], $_REQUEST['itemId'], $address, $_REQUEST['sellerId']);
+                $toContent = sprintf(self::SHIPPED_SPEEDPOST_TEMPLET, $_REQUEST['shipToName'], $_REQUEST['itemId'], $_REQUEST['postalReferenceNo'], $address, $seller['email'], $_REQUEST['sellerId']);
                 break;
             
             case "U":
@@ -98,7 +120,7 @@ class Service{
         $mail->From       = $seller['email'];
         $mail->FromName   = $seller['id'];
         
-        $mail->Subject    = "PHPMailer Test Subject via gmail";
+        $mail->Subject    = $_REQUEST['subject'];
         
         $mail->Body       = $toContent;                      //HTML Body
         //$mail->AltBody    = $toContent; // optional, comment out and test
