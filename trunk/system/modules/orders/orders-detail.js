@@ -26,7 +26,7 @@ Ext.onReady(function(){
                 },{
                     header: "SKU",
                     dataIndex: 'skuId',
-                    width: 100,
+                    width: 200,
                     align: 'center',
                     sortable: true
                 },{

@@ -260,7 +260,7 @@ class QoShipments {
 		$postargs = 'action=sendEmail&itemId='.$itemId.'&sellerId='.$sellerId.'&shipmentMethod='.$shipmentMethod.
 		'&postalReferenceNo='.$postalReferenceNo.'&shipToName='.$shipToName.'&shipToAddressLine1='.$shipToAddressLine1.
 		'&shipToAddressLine2='.$shipToAddressLine2.'&shipToCity='.$shipToCity.'&shipToStateOrProvince='.$shipToStateOrProvince.
-		'&shipToPostalCode='.$shipToPostalCode.'&shipToCountry='.$shipToCountry;
+		'&shipToPostalCode='.$shipToPostalCode.'&shipToCountry='.$shipToCountry.'&subject=Shipping status of your order!';
 		
 		// Get the curl session object
 		$session = curl_init($request);
