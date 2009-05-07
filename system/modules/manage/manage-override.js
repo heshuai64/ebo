@@ -811,7 +811,7 @@ Ext.override(QoDesk.Manage, {
 		var store = new Ext.data.JsonStore({
 		    root: 'result',
 		    autoLoad: true,
-		    fields: ['id','email','status','devId','appId','cert','token','tokenExpiry','currency','site'],
+		    fields: ['id','email','emailPassword','status','devId','appId','cert','token','tokenExpiry','currency','site'],
 		    url:'connect.php?moduleId=qo-manage&action=getAllEbaySeller'
 		});
 		
@@ -863,11 +863,11 @@ Ext.override(QoDesk.Manage, {
 					xtype:"textfield",
 					fieldLabel:"ID",
 					name:"id"
-				      },{
+				      }/*,{
 					xtype:"textfield",
 					fieldLabel:"Email",
 					name:"email"
-				      },{
+				      }*/,{
 					xtype:"combo",
 					fieldLabel:"Status",
 					name:"status",
@@ -881,11 +881,11 @@ Ext.override(QoDesk.Manage, {
 					xtype:"textfield",
 					fieldLabel:"Token Expiry",
 					name:"tokenExpiry"
-				      },{
+				      }/*,{
 					xtype:"textfield",
 					fieldLabel:"Site",
 					name:"site"
-				      },{
+				      }*/,{
 					xtype:"combo",
 					fieldLabel:"Currency",
 					name:"currency",
@@ -894,6 +894,16 @@ Ext.override(QoDesk.Manage, {
 				      }]
 				  }]
 			      },{
+				xtype:"textfield",
+				fieldLabel:"Email",
+				width:350,
+				name:"email"
+			    },{
+				xtype:"textfield",
+				fieldLabel:"Email Password",
+				width:350,
+				name:"emailPassword"
+			    }/*,{
 				xtype:"textfield",
 				fieldLabel:"Dev Id",
 				width:350,
@@ -908,7 +918,7 @@ Ext.override(QoDesk.Manage, {
 				fieldLabel:"Cert",
 				width:350,
 				name:"cert"
-			    },{
+			    }*/,{
 				xtype:"textarea",
 				fieldLabel:"Token",
 				height:200,
@@ -925,13 +935,14 @@ Ext.override(QoDesk.Manage, {
 				    params: {
 					    id: ebayManageForm.form.findField('id').getValue(),
 					    email: ebayManageForm.form.findField('email').getValue(),
+					    emailPassword: ebayManageForm.form.findField('emailPassword').getValue(),
 					    status: ebayManageForm.form.findField('status').getValue(),
 					    tokenExpiry: ebayManageForm.form.findField('tokenExpiry').getValue(),
-					    site: ebayManageForm.form.findField('site').getValue(),
+					    //site: ebayManageForm.form.findField('site').getValue(),
 					    currency: ebayManageForm.form.findField('currency').getValue(),
-					    devId: ebayManageForm.form.findField('devId').getValue(),
-					    appId: ebayManageForm.form.findField('appId').getValue(),
-					    cert: ebayManageForm.form.findField('cert').getValue(),
+					    //devId: ebayManageForm.form.findField('devId').getValue(),
+					    //appId: ebayManageForm.form.findField('appId').getValue(),
+					    //cert: ebayManageForm.form.findField('cert').getValue(),
 					    token: ebayManageForm.form.findField('token').getValue()
 				    },
 				    success: function(response){
