@@ -2,7 +2,9 @@
 class QoShipments {
 	
 	private $os;
-
+	private $inventory_service_address = 'http://127.0.0.1:6666/tracmor/service.php';
+	private $email_service_address = 'http://127.0.0.1/eBayBO/service.php';
+	
 	public function __construct($os){
 		$this->os = $os;
 	}
@@ -216,7 +218,7 @@ class QoShipments {
 	}
 	
 	public function inventoryTakeOut($inventory_model, $quantity, $note, $shipment_method){
-		$request =  'http://127.0.0.1:6666/tracmor/service.php?action=inventoryTakeOut&inventory_model='.$inventory_model.'&quantity='.$quantity.'&note='.urlencode($note).'&shipment_method='.urlencode($shipment_method);
+		$request =  $this->inventory_service_address.'?action=inventoryTakeOut&inventory_model='.$inventory_model.'&quantity='.$quantity.'&note='.urlencode($note).'&shipment_method='.urlencode($shipment_method);
 
 		$session = curl_init($request);
 		
@@ -234,6 +236,7 @@ class QoShipments {
 			case 200:
 				$sql = "update qo_shipments_detail set inventoryStatus='1' where shipmentsId='".$note."' and skuId='".$inventory_model."'";
 				$result = mysql_query($sql);
+				return $result;
 				break;
 			case 503:
 				die('Your call to Yahoo Web Services failed and returned an HTTP status of 503. That means: Service unavailable. An internal problem prevented us from returning data to you.');
@@ -246,25 +249,98 @@ class QoShipments {
 				break;
 			default:
 				die('Your call to Yahoo Web Services returned an unexpected HTTP status of:' . $status_code[0]);
+				return false;
 		}
-
+	}
+	
+	public function sendEmailToBuyer($shipmentId, $itemId, $sellerId, $shipmentMethod, $postalReferenceNo, $shipToName, $shipToEmail, $shipToAddressLine1, $shipToAddressLine2, $shipToCity, $shipToStateOrProvince, $shipToPostalCode, $shipToCountry){
+		// The POST URL and parameters
+		$request =  $this->email_service_address;
+		
+		$postargs = 'action=sendEmail&itemId='.$itemId.'&sellerId='.$sellerId.'&shipmentMethod='.$shipmentMethod.
+		'&postalReferenceNo='.$postalReferenceNo.'&shipToName='.$shipToName.'&shipToAddressLine1='.$shipToAddressLine1.
+		'&shipToAddressLine2='.$shipToAddressLine2.'&shipToCity='.$shipToCity.'&shipToStateOrProvince='.$shipToStateOrProvince.
+		'&shipToPostalCode='.$shipToPostalCode.'&shipToCountry='.$shipToCountry;
+		
+		// Get the curl session object
+		$session = curl_init($request);
+		
+		// Set the POST options.
+		curl_setopt ($session, CURLOPT_POST, true);
+		curl_setopt ($session, CURLOPT_POSTFIELDS, $postargs);
+		curl_setopt($session, CURLOPT_HEADER, true);
+		curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+		
+		// Do the POST and then close the session
+		$response = curl_exec($session);
+		curl_close($session);
+		
+		// Get HTTP Status code from the response
+		$status_code = array();
+		preg_match('/\d\d\d/', $response, $status_code);
+		
+		// Check for errors
+		switch( $status_code[0] ) {
+			case 200:
+				$sql = "update qo_shipments set emailStatus='1' where id='".$shipmentId."'";
+				$result = mysql_query($sql);
+				return $result;
+				break;
+			case 503:
+				die('Your call to Web Services failed and returned an HTTP status of 503. That means: Service unavailable. An internal problem prevented us from returning data to you.');
+				break;
+			case 403:
+				die('Your call to Web Services failed and returned an HTTP status of 403. That means: Forbidden. You do not have permission to access this resource, or are over your rate limit.');
+				break;
+			case 400:
+				// You may want to fall through here and read the specific XML error
+				die('Your call to Web Services failed and returned an HTTP status of 400. That means:  Bad request. The parameters passed to the service did not match as expected. The exact error is returned in the XML response.');
+				break;
+			default:
+				die('Your call to Web Services returned an unexpected HTTP status of:' . $status_code[0]);
+				return false;
+		}
+		//$response
 	}
 	
 	public function shipShipment(){
-		$sql = "select status,shipmentMethod from qo_shipments where id = '".$_POST['id']."'";
+		$sql = "select ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry,status from qo_shipments where id = '".$_POST['id']."'";
 		$result = mysql_query($sql);
 		$row = mysql_fetch_assoc($result);
+		
 		if($row['status'] == "N"){
-			$sql = "update qo_shipments set status='S',shippedBy='".$this->os->session->get_member_name()."',shippedOn='".date("Y-m-d H:i:s")."' where id='".$_POST['id']."'";
-			$result = mysql_query($sql);
-			
-			$sql_1 = "select shipmentsId,skuId,quantity from qo_shipments_detail where shipmentsId = '".$_POST['id']."'";
+			//get item Id
+			$sql_1 = "select itemId from qo_shipments_detail where shipmentsId = '".$_POST['id']."'";
 			$result_1 = mysql_query($sql_1);
+			$itemId = "";
 			while($row_1 = mysql_fetch_assoc($result_1)){
-				$this->inventoryTakeOut($row_1['skuId'], $row_1['quantity'], $row_1['shipmentsId'], $row['shipmentMethod']);
+				$itemId .= $row_1['itemId'].",";
+			}
+			$itemId = substr($itemId, 0, -1);
+			
+			//get seller Id
+			$sql_2 = "select sellerId from qo_orders where id = '".$row['ordersId']."'";
+			$result_2 = mysql_query($sql_2);
+			$row_2 = mysql_fetch_assoc($result_2);
+			$sellerId = $row_2['sellerId'];
+			
+			//update shipment status
+			$sql_3 = "update qo_shipments set status='S',shippedBy='".$this->os->session->get_member_name()."',shippedOn='".date("Y-m-d H:i:s")."' where id='".$_POST['id']."'";
+			$result_3 = mysql_query($sql_3);
+			
+			$sql_4 = "select shipmentsId,skuId,quantity from qo_shipments_detail where shipmentsId = '".$_POST['id']."'";
+			$result_4 = mysql_query($sql_4);
+			while($row_4 = mysql_fetch_assoc($result_4)){
+				//send stock to inventory system
+				//$service_result_1 = $this->inventoryTakeOut($row_4['skuId'], $row_4['quantity'], $row_4['shipmentsId'], $row['shipmentMethod']);
 			}
 			
-			if($result){
+		
+			$service_result_2 = $this->sendEmailToBuyer($_POST['id'], $itemId, $sellerId, $row['shipmentMethod'], $row['postalReferenceNo'], $row['shipToName'], $row['shipToEmail'], $row['shipToAddressLine1'], $row['shipToAddressLine2'], $row['shipToCity'], $row['shipToStateOrProvince'], $row['shipToPostalCode'], $row['shipToCountry']);
+			
+			print_r($service_result_2);
+			
+			if($result_3){
 				echo "{success: true,info:'\'<font color=\'green\'>Operation Successfully</font>'}"; 
 			}else{
 				echo "{success: false, errors: { reason: 'Saving failed. Try again.' }}";
