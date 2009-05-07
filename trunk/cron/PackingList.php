@@ -21,6 +21,8 @@ class PackingList{
             echo "Unable to connect to DB: " . mysql_error(PackingList::$database_connect);
             exit;
         }
+        
+        mysql_query("SET NAMES 'UTF8'", PackingList::$database_connect);
           
         if (!mysql_select_db(self::DATABASE_NAME, PackingList::$database_connect)) {
             echo "Unable to select mydbname: " . mysql_error(PackingList::$database_connect);
@@ -39,7 +41,7 @@ class PackingList{
     }
     
     private function getSellerSell(){
-        $sql = "select o.sellerId,sum(sd.quantity) as num from qo_orders as o
+        $sql = "select o.sellerId,sum(sd.quantity) as num from qo_orders as o 
         left join qo_shipments as s on o.id = s.ordersId left join qo_shipments_detail as sd on s.id = sd.shipmentsId 
         where s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N' group by o.sellerId";
         $result = mysql_query($sql, PackingList::$database_connect);
@@ -52,7 +54,7 @@ class PackingList{
     }
     
     private function getSellSku(){
-        $sql = "select sd.skuId,sd.quantity from qo_shipments as s left join qo_shipments_detail as sd
+        $sql = "select sd.skuId,sd.quantity from qo_shipments as s left join qo_shipments_detail as sd 
         on s.id=sd.shipmentsId where s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N'";
         $result = mysql_query($sql, PackingList::$database_connect);
         $i= 0;
@@ -75,7 +77,7 @@ class PackingList{
     }
     
     private function getShipment(){
-        $sql = "select id,shipToName,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry
+        $sql = "select id,shipToName,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry 
         from qo_shipments where modifiedOn between '$this->startTime' and '$this->endTime' and status = 'N'";
         $result = mysql_query($sql, PackingList::$database_connect);
         
@@ -94,13 +96,46 @@ class PackingList{
             $i++;
         }
     }
-
+    
+    private function getAllSellerId(){
+        $sql = "select id from qo_ebay_seller where status = 'A'";
+        $result = mysql_query($sql, PackingList::$database_connect);
+        $array = array();
+        while($row = mysql_fetch_assoc($result)){
+            $array[] = $row['id'];
+        }
+        return $array;
+    }
+    
+    private function getShipmentBySellerId($sellerId){
+        unset($this->shipment);
+        $sql = "select s.id,s.shipToName,s.shipToAddressLine1,s.shipToAddressLine2,s.shipToCity,s.shipToStateOrProvince,s.shipToPostalCode,s.shipToCountry 
+        from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where o.sellerId='".$sellerId."' and s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N'";
+        $result = mysql_query($sql, PackingList::$database_connect);
+        //echo $sql;
+        
+        $i = 0;
+        while($row = mysql_fetch_assoc($result)){
+            $this->shipment[$i] = $row;
+            $sql_1 = "select i.skuId,sd.itemId,sd.quantity,i.galleryURL from qo_shipments_detail as sd left join qo_items as i on sd.itemId=i.id where sd.shipmentsId='".$row['id']."'";
+            $result_1 = mysql_query($sql_1, PackingList::$database_connect);
+            $j = 0;
+            while($row_1 = mysql_fetch_assoc($result_1)){
+                $this->shipment[$i]['shipmentDetail'][$j]['skuId'] = $row_1['skuId'];
+                $this->shipment[$i]['shipmentDetail'][$j]['quantity'] = $row_1['quantity'];
+                $this->shipment[$i]['shipmentDetail'][$j]['image'] = $row_1['galleryURL'];
+                $j++;
+            }
+            $i++;
+        }
+    }
+    
     private function generateFile($fileName, $content){
         if(!file_exists(self::FILE_PATH.date("Ymd"))){
             mkdir(self::FILE_PATH.date("Ymd"), 0777);
         }
         
-        $fileName = self::FILE_PATH.date("Ymd").'/packingList.html';
+        $fileName = self::FILE_PATH.date("Ymd").'/'.$fileName.'.html';
         
         if (!$handle = fopen($fileName, 'w')) {
             echo "not open file $fileName";
@@ -118,6 +153,7 @@ class PackingList{
     public function getPackingList(){
         $this->getSellerSell();
         $this->getSellSku();
+        /*
         $this->getShipment();
         //print_r($this->sellerSell);
         //print_r($this->sellSku);
@@ -126,7 +162,18 @@ class PackingList{
         require("template.php");
         $content = ob_get_contents();
 	ob_end_clean();
-        $this->generateFile('pickinglist',$content);
+        $this->generateFile('pickinglist', $content);
+        */
+        $sellerIdArray = $this->getAllSellerId();
+        foreach($sellerIdArray as $sellerId){
+            $this->getShipmentBySellerId($sellerId);
+            //print_r($this->shipment);
+            ob_start();
+            require("template.php");
+            $content = ob_get_contents();
+            ob_end_clean();
+            $this->generateFile($sellerId.'-packinglist', $content);
+        }
     }
     
     public function __destruct(){

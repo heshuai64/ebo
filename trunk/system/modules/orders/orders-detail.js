@@ -1036,7 +1036,7 @@ Ext.onReady(function(){
                                              text: "Copy Address Info",
                                              handler: function(){
                                                 var eBayAddressInfo = orderDetailForm.getForm().findField("ebayName").getValue()+"\n"+
-                                                orderDetailForm.getForm().findField("ebayEmail").getValue()+"\n"+
+                                                //orderDetailForm.getForm().findField("ebayEmail").getValue()+"\n"+
                                                 orderDetailForm.getForm().findField("ebayAddress1").getValue()+"\n"+
                                                 orderDetailForm.getForm().findField("ebayAddress2").getValue()+"\n"+
                                                 orderDetailForm.getForm().findField("ebayCity").getValue()+"\n"+
@@ -1134,7 +1134,7 @@ Ext.onReady(function(){
                                              text: "Copy Address Info",
                                              handler: function(){
                                                var eBayAddressInfo = orderDetailForm.getForm().findField("paypalName").getValue()+"\n"+
-                                                orderDetailForm.getForm().findField("paypalEmail").getValue()+"\n"+
+                                                //orderDetailForm.getForm().findField("paypalEmail").getValue()+"\n"+
                                                 orderDetailForm.getForm().findField("paypalAddress1").getValue()+"\n"+
                                                 orderDetailForm.getForm().findField("paypalAddress2").getValue()+"\n"+
                                                 orderDetailForm.getForm().findField("paypalCity").getValue()+"\n"+

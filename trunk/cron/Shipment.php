@@ -17,6 +17,8 @@ class Shipment{
             exit;
         }
           
+        mysql_query("SET NAMES 'UTF8'", Shipment::$database_connect);
+        
         if (!mysql_select_db(self::DATABASE_NAME, Shipment::$database_connect)) {
             echo "Unable to select mydbname: " . mysql_error(Shipment::$database_connect);
             exit;
