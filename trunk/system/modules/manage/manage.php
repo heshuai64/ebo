@@ -141,8 +141,7 @@ class QoManage {
         }
         
         public function updateEbaySeller(){
-            $sql = "update qo_ebay_seller set email='".$_POST['email']."',status='".$_POST['status']."',
-            email='".$_POST['email']."',email='".$_POST['email']."',email='".$_POST['email']."',
+            $sql = "update qo_ebay_seller set email='".$_POST['email']."',emailPassword='".$_POST['emailPassword']."',status='".$_POST['status']."',
             devId='".$_POST['devId']."',appId='".$_POST['appId']."',cert='".$_POST['cert']."',
             token='".$_POST['token']."',tokenExpiry='".$_POST['tokenExpiry']."',currency='".$_POST['currency']."',
             site='".$_POST['site']."' where id = '".$_POST['id']."'";
