@@ -143,13 +143,90 @@ class Service{
         //http://127.0.0.1/eBayBO/service.php?action=sendEmail&itemId=350187839239&sellerId=testuser_heshuai04&shipmentMethod=S&postalReferenceNo=&shipToName=Test User&shipToAddressLine1=address&shipToAddressLine2=&shipToCity=city&shipToStateOrProvince=WA&shipToPostalCode=98102&shipToCountry=
     }
     
+    public function getService($request){
+        
+        //$request =  'http://search.yahooapis.com/ImageSearchService/V1/imageSearch?appid=YahooDemo&query='.urlencode('Al Gore').'&results=1';
+        
+        // Make the request
+        $json = file_get_contents($request);
+        //echo $request;
+        // Retrieve HTTP status code
+        list($version,$status_code,$msg) = explode(' ',$http_response_header[0], 3);
+        
+        // Check the HTTP Status code
+        switch($status_code) {
+                case 200:
+                        return $json;
+                        // Success
+                        break;
+                case 503:
+                        echo('Your call to Web Services failed and returned an HTTP status of 503. That means: Service unavailable. An internal problem prevented us from returning data to you.');
+                        break;
+                case 403:
+                        echo('Your call to Web Services failed and returned an HTTP status of 403. That means: Forbidden. You do not have permission to access this resource, or are over your rate limit.');
+                        break;
+                case 400:
+                        // You may want to fall through here and read the specific XML error
+                        echo('Your call to Web Services failed and returned an HTTP status of 400. That means:  Bad request. The parameters passed to the service did not match as expected. The exact error is returned in the JSON response.');
+                        break;
+                default:
+                        echo('Your call to Web Services returned an unexpected HTTP status of:' . $status_code);
+                        return false;
+        }
+    }
+    
+    public function updateShippingMethod(){
+        $service_url = "http://127.0.0.1/einv2/service.php";
+        $sql = "select id,ebayCountry from qo_orders where id = 'ORD200904A0019'";//shippingMethodStatus = 0
+        $result = mysql_query($sql, Service::$database_connect);
+        //var_dump($result);
+        //exit;
+        while($row = mysql_fetch_assoc($result)){
+            //$sku_string = "";
+            $sql_1 = "select skuId,quantity from qo_orders_detail where ordersId = '".$row['id']."'";
+            //echo $sql_1."<br>";
+            $result_1 = mysql_query($sql_1, Service::$database_connect);
+            $sku_array = array();
+            while($row_1 = mysql_fetch_assoc($result_1)){
+                $sku_array[] = $row_1;
+                //$sku_string .= $row_1['skuId'].",";
+            }
+            
+            $data_array = array('country'=>$row['ebayCountry'], 'sku_array'=>$sku_array);
+            $data_json = json_encode($data_array);
+            //$sku_string = substr($sku_string, 0, -1);
+            //$json_result = $this->getService($request."?skuString=".$sku_string."&country=".$row['ebayCountry']);
+            $json_result = $this->getService($service_url."?action=getShippingMethodBySku&data=".urlencode($data_json));
+            echo $json_result;
+            $service_result = json_decode($json_result);
+            var_dump($service_result);
+            $shippingMethod = $service_result['shippingMethod'];
+            
+            $sql_2 = "update qo_orders set shippingMethodStatus = 1, shippingMethod='".$shippingMethod."' where id = '".$row['id']."'";
+            echo $sql_2."<br>";
+            $result_2 = mysql_query($sql_2, Service::$database_connect);
+            
+            $sql_3 = "update qo_shipments set shipmentMethod = '".$shippingMethod."' where ordersId = '".$row['id']."'";
+            echo $sql_3."<br>";
+            $result_3 = mysql_query($sql_3, Service::$database_connect);
+            //sleep(1);
+            exit;
+        }
+        
+    }
+    
     public function __destruct(){
         mysql_close(Service::$database_connect);
     }
 }
 
+if(!empty($argv[1])){
+    $action = $argv[1];
+}else{
+    $action = (!empty($_GET['action']))?$_GET['action']:$_POST['action'];
+}
+
 $service = new Service();
-$action = (!empty($_GET['action']))?$_GET['action']:$_POST['action'];
 $service->$action();
 
 ?>
