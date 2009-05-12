@@ -202,15 +202,17 @@ class Service{
             var_dump($service_result);
             $shippingMethod = $service_result['shippingMethod'];
             
-            $sql_2 = "update qo_orders set shippingMethodStatus = 1, shippingMethod='".$shippingMethod."' where id = '".$row['id']."'";
-            echo $sql_2."<br>";
-            $result_2 = mysql_query($sql_2, Service::$database_connect);
-            
-            $sql_3 = "update qo_shipments set shipmentMethod = '".$shippingMethod."' where ordersId = '".$row['id']."'";
-            echo $sql_3."<br>";
-            $result_3 = mysql_query($sql_3, Service::$database_connect);
-            //sleep(1);
-            exit;
+            if(!empty($shippingMethod)){
+                $sql_2 = "update qo_orders set shippingMethodStatus = 1, shippingMethod='".$shippingMethod."' where id = '".$row['id']."'";
+                echo $sql_2."<br>";
+                $result_2 = mysql_query($sql_2, Service::$database_connect);
+                
+                $sql_3 = "update qo_shipments set shipmentMethod = '".$shippingMethod."' where ordersId = '".$row['id']."'";
+                echo $sql_3."<br>";
+                $result_3 = mysql_query($sql_3, Service::$database_connect);
+                //sleep(1);
+                //exit;
+            }
         }
         
     }
@@ -229,4 +231,5 @@ if(!empty($argv[1])){
 $service = new Service();
 $service->$action();
 
+////http://127.0.0.1:6666/eBayBo/service.php?action=updateShippingMethod
 ?>
