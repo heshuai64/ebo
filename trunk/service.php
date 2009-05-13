@@ -192,24 +192,27 @@ class Service{
                 //$sku_string .= $row_1['skuId'].",";
             }
             
-            $data_array = array('country'=>$row['ebayCountry'], 'sku_array'=>$sku_array);
+            $data_array = array('id'=>$row['id'], 'country'=>$row['ebayCountry'], 'sku_array'=>$sku_array);
             $data_json = json_encode($data_array);
             //$sku_string = substr($sku_string, 0, -1);
             //$json_result = $this->getService($request."?skuString=".$sku_string."&country=".$row['ebayCountry']);
+            //echo $data_json;
+            //echo "<br>";
             $json_result = $this->getService(self::INVENTORY_SERVICE."?action=getShippingMethodBySku&data=".urlencode($data_json));
             echo $json_result;
+            echo "<br>";
             $service_result = json_decode($json_result);
             var_dump($service_result);
-            $shippingMethod = $service_result['shippingMethod'];
+            $shippingMethod = $service_result->shippingMethod;
             
             if(!empty($shippingMethod)){
                 $sql_2 = "update qo_orders set shippingMethodStatus = 1, shippingMethod='".$shippingMethod."' where id = '".$row['id']."'";
                 echo $sql_2."<br>";
-                $result_2 = mysql_query($sql_2, Service::$database_connect);
+                //$result_2 = mysql_query($sql_2, Service::$database_connect);
                 
                 $sql_3 = "update qo_shipments set shipmentMethod = '".$shippingMethod."' where ordersId = '".$row['id']."'";
                 echo $sql_3."<br>";
-                $result_3 = mysql_query($sql_3, Service::$database_connect);
+                //$result_3 = mysql_query($sql_3, Service::$database_connect);
                 //sleep(1);
                 //exit;
             }
@@ -231,5 +234,5 @@ if(!empty($argv[1])){
 $service = new Service();
 $service->$action();
 
-////http://127.0.0.1:6666/eBayBo/service.php?action=updateShippingMethod
+//http://127.0.0.1:6666/eBayBO/service.php?action=updateShippingMethod
 ?>
