@@ -725,11 +725,19 @@ class eBay{
 		if($results->PaginationResult->TotalNumberOfPages == 0)
 			return 0;
 		
-		foreach ($results->ItemArray->Item as $item){
-			if($this->checkEbayItemExist($item->ItemID) == 0){
-				$this->insertEbayItem($item, $UserID);
+		if(is_array($results->ItemArray->Item)){
+			foreach ($results->ItemArray->Item as $item){
+				if($this->checkEbayItemExist($item->ItemID) == 0){
+					$this->insertEbayItem($item, $UserID);
+				}else{
+					$this->updateEbayItem($item, $UserID);
+				}
+			}
+		}else{
+			if($this->checkEbayItemExist($results->ItemArray->Item->ItemID) == 0){
+				$this->insertEbayItem($results->ItemArray->Item, $UserID);
 			}else{
-				$this->updateEbayItem($item, $UserID);
+				$this->updateEbayItem($results->ItemArray->Item, $UserID);
 			}
 		}
 		
@@ -757,7 +765,7 @@ class eBay{
 				}
 				$this->saveFetchData("/GetSellerList/".$sellerId.'-'.date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 				sleep(1);
-			}		
+			}	
 		}
 		
 		echo "<br>\n<br>\n";
