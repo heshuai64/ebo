@@ -3,7 +3,7 @@ class Shipment{
     private static $database_connect;
     const DATABASE_HOST = 'localhost';
     const DATABASE_USER = 'root';
-    const DATABASE_PASSWORD = '';
+    const DATABASE_PASSWORD = '5333533';
     const DATABASE_NAME = 'ebaybo';
     private $startTime;
     private $endTime;

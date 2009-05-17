@@ -3,7 +3,7 @@ class Service{
     private static $database_connect;
     const DATABASE_HOST = 'localhost';
     const DATABASE_USER = 'root';
-    const DATABASE_PASSWORD = '';
+    const DATABASE_PASSWORD = '5333533';
     const DATABASE_NAME = 'ebaybo';
     const INVENTORY_SERVICE = 'http://127.0.0.1/einv2/service.php';
     
