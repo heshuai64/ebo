@@ -23,8 +23,8 @@ class Shipment{
             echo "Unable to select mydbname: " . mysql_error(Shipment::$database_connect);
             exit;
         }
-        $this->startTime = date("Y-m-d 10:00:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
-        $this->endTime = date("Y-m-d 10:00:00");
+        $this->startTime = date("Y-m-d 14:00:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
+        $this->endTime = date("Y-m-d 14:00:00");
     }
     
     public function setStartTime($startTime){
@@ -93,6 +93,8 @@ class Shipment{
             $row_0 = mysql_fetch_assoc($result_0);
             if($row_0['num'] == 0){
                 $shipmentId = $this->getShipmentId();
+                print_r($orders, true);
+                echo "<br>";
                 $sql = "insert into qo_shipments (id,ordersId,status,shippingFeeCurrency,shippingFeeValue,shipToName,
                 shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,
                 shipToCountry,shipToPhoneNo,createdBy,createdOn,modifiedBy,modifiedOn) values ('".$shipmentId."','".$orders['id']."',
