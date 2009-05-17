@@ -4,7 +4,7 @@ class PackingList{
     private static $database_connect;
     const DATABASE_HOST = 'localhost';
     const DATABASE_USER = 'root';
-    const DATABASE_PASSWORD = '';
+    const DATABASE_PASSWORD = '5333533';
     const DATABASE_NAME = 'ebaybo';
     const FILE_PATH = '/export/eBayBO/packing/';
     const BAR_CODE_URL = '/eBayBO/cron/image.php';

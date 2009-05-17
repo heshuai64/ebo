@@ -33,7 +33,7 @@ class config {
 	// local database
 	public $DB_HOST = 'localhost';
 	public $DB_USERNAME = 'root';
-	public $DB_PASSWORD = '';
+	public $DB_PASSWORD = '5333533';
 	public $DB_NAME = 'ebaybo';
 	
 	public function __construct(){
