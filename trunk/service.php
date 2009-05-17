@@ -177,7 +177,8 @@ class Service{
     }
     
     public function updateShippingMethod(){
-        $sql = "select id,ebayCountry from qo_orders where id = 'ORD200904A0019'";//shippingMethodStatus = 0
+        //$sql = "select id,ebayCountry from qo_orders where id = 'ORD200904A0019'";//shippingMethodStatus = 0
+        $sql = "select id,ebayCountry from qo_orders where shippingMethodStatus = 0";
         $result = mysql_query($sql, Service::$database_connect);
         //var_dump($result);
         //exit;
@@ -202,7 +203,7 @@ class Service{
             echo $json_result;
             echo "<br>";
             $service_result = json_decode($json_result);
-            var_dump($service_result);
+            //var_dump($service_result);
             $shippingMethod = $service_result->shippingMethod;
             
             if(!empty($shippingMethod)){
