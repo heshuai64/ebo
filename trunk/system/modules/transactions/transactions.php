@@ -107,7 +107,7 @@ class QoTransactions {
 		//echo $data_sql;
 		
 		$count_result = mysql_query($count_sql);
-		$count_row = mysql_fetch_assoc($data_result);
+		$count_row = mysql_fetch_assoc($count_result);
 		$totalCount = $count_row['num'];
 		
                 $data_result = mysql_query($data_sql);
