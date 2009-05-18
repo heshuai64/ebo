@@ -8,6 +8,11 @@ class QoAttention {
 	}
 	
 	public function getUnmapTransaction(){
+		if(empty($_POST['start']) || empty($_POST['limit'])){
+			$_POST['start'] = 0;
+			$_POST['limit'] = 10;
+		}
+		
 		if(!empty($_POST['payeeId'])){
 			$sql = "select count(*) as num from qo_transactions where payeeId='".$_POST['payeeId']."' and createdOn between '".$_POST['start_date']."' and '".$_POST['end_date']."' and id not in (select transactionsId from qo_orders_transactions)";
 			$result = mysql_query($sql);

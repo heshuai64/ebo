@@ -15,9 +15,7 @@ Ext.override(QoDesk.Attention, {
 	    //remoteSort: true,
 	    baseParams:{
 		start_date: start_date,
-		end_date: end_date,
-		start:0,
-		limit:20
+		end_date: end_date
 	    },
 	    autoLoad: true,
 	    fields: ['id', 'txnId', 'transactionTime', 'status', 'amountCurrency', 'amountValue','payerId'],
@@ -95,14 +93,14 @@ Ext.override(QoDesk.Attention, {
 				start_date: document.getElementById("start_date").value,
 				end_date: document.getElementById("end_date").value
 			    };
-			    unMapTransactionGridStore.load({params:{start:0, limit:20}});
+			    unMapTransactionGridStore.load({params:{start:0, limit:10}});
 		       }
 		       }
 		    ],
                 bbar: new Ext.PagingToolbar({
-                                    pageSize: 20,
-                                    store: unMapTransactionGridStore,
-                                    displayInfo: true
+		    pageSize: 10,
+		    store: unMapTransactionGridStore,
+		    displayInfo: true
                 })
         });
 	
@@ -116,7 +114,7 @@ Ext.override(QoDesk.Attention, {
                 id: 'attention-win',
                 title:lang.attention.window_title,
                 width:720,
-                height:400,
+                height:550,
                 iconCls: 'attention-icon',
                 shim:false,
                 animCollapse:false,
