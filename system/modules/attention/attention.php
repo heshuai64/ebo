@@ -18,7 +18,7 @@ class QoAttention {
 			$result = mysql_query($sql);
 			$row = mysql_fetch_assoc($result);
 			
-			$sql_1 = "select * from qo_transactions where payeeId='".$_POST['payeeId']."' and createdOn between '".$_POST['start_date']."' and '".$_POST['end_date']."' and id not in (select transactionsId from qo_orders_transactions) limit ".$_POST['start'].",".$_POST['limit'];
+			$sql_1 = "select * from qo_transactions where payeeId='".$_POST['payeeId']."' and createdOn between '".$_POST['start_date']."' and '".$_POST['end_date']."' and id not in (select transactionsId from qo_orders_transactions) order by id desc limit ".$_POST['start'].",".$_POST['limit'];
 			$result_1 = mysql_query($sql_1);
 			$array = array();
 			while($row_1 = mysql_fetch_assoc($result_1)){
@@ -29,7 +29,7 @@ class QoAttention {
 			$result = mysql_query($sql);
 			$row = mysql_fetch_assoc($result);
 			
-			$sql_1 = "select * from qo_transactions where createdOn between '".$_POST['start_date']."' and '".$_POST['end_date']."' and id not in (select transactionsId from qo_orders_transactions) limit ".$_POST['start'].",".$_POST['limit'];
+			$sql_1 = "select * from qo_transactions where createdOn between '".$_POST['start_date']."' and '".$_POST['end_date']."' and id not in (select transactionsId from qo_orders_transactions) order by id desc limit ".$_POST['start'].",".$_POST['limit'];
 			$result_1 = mysql_query($sql_1);
 			$array = array();
 			while($row_1 = mysql_fetch_assoc($result_1)){

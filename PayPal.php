@@ -346,13 +346,18 @@
                     $status = "R";
                 break;
             }
-            $i = 1;
+            $i = 0;
             //$item_number_string = $ipn_data['item_number'];
 	    $item_number_string = "";
             while(!empty($ipn_data['item_number'.$i])){
                 $item_number_string .= ",".$ipn_data['item_number'.$i];
                 $i++;
             }
+	    
+	    if($i == 1){
+		$item_number_string = substr($item_number_string, 1);
+	    }
+	    
             $address = split("\n",$ipn_data['address_street']);
   	    $payerAddressLine1 = $address[0];
   	    $payerAddressLine2 = $address[1];

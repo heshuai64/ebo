@@ -13,7 +13,7 @@
         <div style="width:900px;margin:auto;">
                 <table align="center" cellpadding="0" cellspacing="0" border="1" width="100%">
                         <tr align="center" class="header">
-                                <th>No</th><th>Shipment Id</th><th>Address</th><th>Sku</th><th>Images</th>
+                                <th>No</th><th>Shipment Id</th><th>Address</th><th>Sku</th><th>Images</th><th>Shipping</th>
                         </tr>
                         <?php
                         $i = 1;
@@ -38,7 +38,7 @@
                                                         echo $shipmentDetail['skuId'].' X '.$shipmentDetail['quantity'].'<br>';
                                                 }
                                         echo '</td>';
-                                         echo '<td>';
+                                        echo '<td>';
                                                 //var_dump($shipment['shipmentDetail']);
                                                 if(count($shipment['shipmentDetail']) == 1){
                                                         echo '<img width="150" height="100" src="'.$shipmentDetail['image'].'"/><br>';
@@ -49,6 +49,9 @@
                                                                 echo '<img width="'.$width.'" height="'.$height.'" src="'.$shipmentDetail['image'].'"/>';
                                                         }
                                                 }
+                                        echo '</td>';
+                                        echo '<td>';
+                                                echo $shipment['shippingMethod'];
                                         echo '</td>';
                                 echo '</tr>';
                                 $i++;

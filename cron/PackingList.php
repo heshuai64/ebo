@@ -109,15 +109,31 @@ class PackingList{
     
     private function getShipmentBySellerId($sellerId){
         unset($this->shipment);
-        $sql = "select s.id,s.shipToName,s.shipToAddressLine1,s.shipToAddressLine2,s.shipToCity,s.shipToStateOrProvince,s.shipToPostalCode,s.shipToCountry 
+        $sql = "select s.id,o.shippingMethod,s.shipToName,s.shipToAddressLine1,s.shipToAddressLine2,s.shipToCity,s.shipToStateOrProvince,s.shipToPostalCode,s.shipToCountry 
         from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where o.sellerId='".$sellerId."' and s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N'";
         $result = mysql_query($sql, PackingList::$database_connect);
         //echo $sql;
         
         $i = 0;
         while($row = mysql_fetch_assoc($result)){
+            if(in_array($row['shippingMethod'], array('B', 'R', 'S'))){
+                switch($row['shippingMethod']){
+                    case "B":
+                        $row['shippingMethod'] = "Bulk";
+                    break;
+                
+                    case "R":
+                        $row['shippingMethod'] = "Registered";
+                    break;
+                
+                    case "S":
+                        $row['shippingMethod'] = "SpeedPost";
+                    break;
+                }
+            }
+            
             $this->shipment[$i] = $row;
-            $sql_1 = "select i.skuId,sd.itemId,sd.quantity,i.galleryURL from qo_shipments_detail as sd left join qo_items as i on sd.itemId=i.id where sd.shipmentsId='".$row['id']."'";
+            $sql_1 = "select sd.skuId,sd.itemId,sd.quantity,i.galleryURL from qo_shipments_detail as sd left join qo_items as i on sd.itemId=i.id where sd.shipmentsId='".$row['id']."'";
             $result_1 = mysql_query($sql_1, PackingList::$database_connect);
             $j = 0;
             while($row_1 = mysql_fetch_assoc($result_1)){
