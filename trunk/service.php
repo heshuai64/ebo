@@ -5,7 +5,7 @@ class Service{
     const DATABASE_USER = 'root';
     const DATABASE_PASSWORD = '5333533';
     const DATABASE_NAME = 'ebaybo';
-    const INVENTORY_SERVICE = 'http://127.0.0.1/einv2/service.php';
+    const INVENTORY_SERVICE = 'http://192.168.5.169/inventory/service.php';
     
     const SHIPPED_BULK_TEMPLET = "Hi %s,<p>
             Thank you for your purchasing from us and prompt payment, your item %s has been posted to the dispatch center just now which will be sent out soon via the HongKong post regular air mail without tracking number. It normally will takes around 7 to 15 business days from the dispatch date (public holidays and weekends are not recognized as \"business days\"), please kindly wait a few days for delivery.<p>
@@ -177,8 +177,8 @@ class Service{
     }
     
     public function updateShippingMethod(){
-        //$sql = "select id,ebayCountry from qo_orders where id = 'ORD200904A0019'";//shippingMethodStatus = 0
-        $sql = "select id,ebayCountry from qo_orders where shippingMethodStatus = 0";
+        $sql = "select id,ebayCountry from qo_orders where id = 'ORD200905A0043'";
+        //$sql = "select id,ebayCountry from qo_orders where shippingMethodStatus = 0";
         $result = mysql_query($sql, Service::$database_connect);
         //var_dump($result);
         //exit;
