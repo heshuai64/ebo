@@ -26,13 +26,11 @@
                                                 //image.php?code=code128&o=1&t=30&r=2&text='.$shipment['id'].'&f1=Arial.ttf&f2=8&a1=&a2=B&a3=
                                                 echo '<img src="'.PackingList::BAR_CODE_URL.'?code=code128&o=1&t=30&r=1&text='.$shipment['id'].'&f1=Arial.ttf&f2=8&a1=&a2=B&a3=">';
                                         echo '</td>';
-                                        echo '<td><font size="4">';
-                                                echo $shipment['shipToName'].'<br>'.
-                                                $shipment['shipToAddressLine1'].'<br>'.
-                                                (!empty($shipment['shipToAddressLine2'])?$shipment['shipToAddressLine2'].'<br>':'').
-                                                $shipment['shipToCity'].'<br>'.
-                                                $shipment['shipToStateOrProvince'].'<br>'.
-                                                $shipment['shipToPostalCode'].'<br>'.
+                                        echo '<td style="padding-left:10px"><font size="5">';
+                                                echo "Attn: ".$shipment['shipToName'].'<br>'.
+                                                $shipment['shipToAddressLine1']." ".(!empty($shipment['shipToAddressLine2'])?$shipment['shipToAddressLine2'].'<br>':'').
+                                                $shipment['shipToCity']. '<br>'.
+                                                $shipment['shipToStateOrProvince']. ", ". $shipment['shipToPostalCode'].'<br>'.
                                                 $shipment['shipToCountry'].'<br>';
                                         echo '</font></td>';
                                         echo '<td>';
