@@ -16,7 +16,9 @@
                 echo "Unable to connect to DB: " . mysql_error(PayPal::$database_connect);
                 exit;
             }
-              
+            
+	    mysql_query("SET NAMES 'UTF8'", PayPal::$database_connect);
+	    
             if (!mysql_select_db(self::DATABASE_NAME, PayPal::$database_connect)) {
                 echo "Unable to select mydbname: " . mysql_error(PayPal::$database_connect);
                 exit;
