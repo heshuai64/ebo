@@ -348,7 +348,7 @@
                     $status = "R";
                 break;
             }
-            $i = 0;
+            $i = 1;
             //$item_number_string = $ipn_data['item_number'];
 	    $item_number_string = "";
             while(!empty($ipn_data['item_number'.$i])){
@@ -356,7 +356,8 @@
                 $i++;
             }
 	    
-	    if($i == 1){
+	    //if items only one, cut off ","
+	    if($i == 2){
 		$item_number_string = substr($item_number_string, 1);
 	    }
 	    
