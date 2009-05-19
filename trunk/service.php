@@ -5,7 +5,7 @@ class Service{
     const DATABASE_USER = 'root';
     const DATABASE_PASSWORD = '5333533';
     const DATABASE_NAME = 'ebaybo';
-    const INVENTORY_SERVICE = 'http://192.168.5.169/inventory/service.php';
+    const INVENTORY_SERVICE = 'http://192.168.1.169:8080/inventory/service.php';
     
     const SHIPPED_BULK_TEMPLET = "Hi %s,<p>
             Thank you for your purchasing from us and prompt payment, your item %s has been posted to the dispatch center just now which will be sent out soon via the HongKong post regular air mail without tracking number. It normally will takes around 7 to 15 business days from the dispatch date (public holidays and weekends are not recognized as \"business days\"), please kindly wait a few days for delivery.<p>
@@ -61,6 +61,11 @@ class Service{
             echo "Unable to select mydbname: " . mysql_error(Service::$database_connect);
             exit;
         }
+    }
+    
+    private function log($file_name, $data){
+        file_put_contents("/export/eBayBO/log/".$file_name."-".date("Y-m-d").".html", $data, FILE_APPEND);
+        //echo $data;   
     }
     
     public function getSellerEmailAccountAndPassword($sellerId){
@@ -150,6 +155,7 @@ class Service{
         
         // Make the request
         $json = file_get_contents($request);
+        //var_dump($json);
         //echo $request;
         // Retrieve HTTP status code
         list($version,$status_code,$msg) = explode(' ',$http_response_header[0], 3);
@@ -177,12 +183,16 @@ class Service{
     }
     
     public function updateShippingMethod(){
-        $sql = "select id,ebayCountry from qo_orders where id = 'ORD200905A0043'";
-        //$sql = "select id,ebayCountry from qo_orders where shippingMethodStatus = 0";
+        //$sql = "select id,ebayCountry from qo_orders where id = 'ORD200905A0138'";
+        $sql = "select id,ebayCountry from qo_orders where shippingMethodStatus = 0";
         $result = mysql_query($sql, Service::$database_connect);
         //var_dump($result);
         //exit;
+        
         while($row = mysql_fetch_assoc($result)){
+            $id = $row['id'];
+            $ebayCountry = $row['ebayCountry'];
+            
             //$sku_string = "";
             $sql_1 = "select skuId,quantity from qo_orders_detail where ordersId = '".$row['id']."'";
             //echo $sql_1."<br>";
@@ -193,8 +203,10 @@ class Service{
                 //$sku_string .= $row_1['skuId'].",";
             }
             
-            $data_array = array('id'=>$row['id'], 'country'=>$row['ebayCountry'], 'sku_array'=>$sku_array);
+            $data_array = array('id'=>$id, 'country'=>$ebayCountry, 'sku_array'=>$sku_array);
+            //print_r($data_array);
             $data_json = json_encode($data_array);
+            //print_r($data_json);
             //$sku_string = substr($sku_string, 0, -1);
             //$json_result = $this->getService($request."?skuString=".$sku_string."&country=".$row['ebayCountry']);
             //echo $data_json;
@@ -207,15 +219,17 @@ class Service{
             $shippingMethod = $service_result->shippingMethod;
             
             if(!empty($shippingMethod)){
-                $sql_2 = "update qo_orders set shippingMethodStatus = 1, shippingMethod='".$shippingMethod."' where id = '".$row['id']."'";
+                $sql_2 = "update qo_orders set shippingMethodStatus = 1, shippingMethod='".$shippingMethod."' where id = '".$id."'";
                 echo $sql_2."<br>";
-                //$result_2 = mysql_query($sql_2, Service::$database_connect);
+                $result_2 = mysql_query($sql_2, Service::$database_connect);
                 
-                $sql_3 = "update qo_shipments set shipmentMethod = '".$shippingMethod."' where ordersId = '".$row['id']."'";
+                $sql_3 = "update qo_shipments set shipmentMethod = '".$shippingMethod."' where ordersId = '".$id."'";
                 echo $sql_3."<br>";
-                //$result_3 = mysql_query($sql_3, Service::$database_connect);
+                $result_3 = mysql_query($sql_3, Service::$database_connect);
                 //sleep(1);
                 //exit;
+            }else{
+                $this->log("updateShippingMethod", "ordersId: ".$id."<br> sku: ".print_r($sku_array, true)." no in inventory system<br>");
             }
         }
         
@@ -236,4 +250,5 @@ $service = new Service();
 $service->$action();
 
 //http://127.0.0.1:6666/eBayBO/service.php?action=updateShippingMethod
+//http://heshuai64.3322.org/eBayBO/service.php?action=updateShippingMethod
 ?>
