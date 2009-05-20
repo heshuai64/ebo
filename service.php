@@ -8,7 +8,7 @@ class Service{
     const INVENTORY_SERVICE = 'http://192.168.1.169:8080/inventory/service.php';
     
     const SHIPPED_BULK_TEMPLET = "Hi %s,<p>
-            Thank you for your purchasing from us and prompt payment, your item %s has been posted to the dispatch center just now which will be sent out soon via the HongKong post regular air mail without tracking number. It normally will takes around 7 to 15 business days from the dispatch date (public holidays and weekends are not recognized as \"business days\"), please kindly wait a few days for delivery.<p>
+            Thank you for your purchasing from us and prompt payment, your item #%s has been posted to the dispatch center just now which will be sent out soon via the HongKong post regular air mail without tracking number. It normally will takes around 7 to 15 business days from the dispatch date (public holidays and weekends are not recognized as \"business days\"), please kindly wait a few days for delivery.<p>
             
             The shipping address as below:<p>
             %s<p>
@@ -21,7 +21,7 @@ class Service{
             %s";
     
     const SHIPPED_REGISTERED_TEMPLET = "Hi %s,<p>
-            Thank you for your purchasing from us and prompt payment, your item %s has been posted to the dispatch center just now which will be sent out soon via the HongKong post registered air mail with tracking number %s. It normally will takes around 7 to 15 business days from the dispatch date (public holidays and weekends are not recognized as \"business days\"), please kindly wait a few days for delivery.<p>
+            Thank you for your purchasing from us and prompt payment, your item #%s has been posted to the dispatch center just now which will be sent out soon via the HongKong post registered air mail with tracking number %s. It normally will takes around 7 to 15 business days from the dispatch date (public holidays and weekends are not recognized as \"business days\"), please kindly wait a few days for delivery.<p>
             
             The shipping address as below:<p>
             %s<p>
@@ -34,7 +34,7 @@ class Service{
             %s";
     
     const SHIPPED_SPEEDPOST_TEMPLET = "Hi %s,<p>
-            Thank you for your purchasing from us and prompt payment, your item %s has been posted to the dispatch center just now which will be sent out soon via the Express shipping (Worldwide EMS) with tracking number %s. It normally will takes around 3 to 5 business days from the dispatch date (public holidays and weekends are not recognized as \"business days\"), please kindly wait a few days for delivery.<p>
+            Thank you for your purchasing from us and prompt payment, your item #%s has been posted to the dispatch center just now which will be sent out soon via the Express shipping (Worldwide EMS) with tracking number %s. It normally will takes around 3 to 5 business days from the dispatch date (public holidays and weekends are not recognized as \"business days\"), please kindly wait a few days for delivery.<p>
             
             The shipping address as below:<p>
             %s<p>
@@ -143,7 +143,7 @@ class Service{
         
         $mail->MsgHTML($toContent);
         
-        //$mail->AddAddress($_POST['toEmail'], $_POST['toName']);
+        //$mail->AddAddress($_POST['shipToEmail'], $_POST['shipToName']);
         $mail->AddAddress("meidgen_de_holy@126.com", "meidgen de");
         
         $mail->IsHTML(true); // send as HTML

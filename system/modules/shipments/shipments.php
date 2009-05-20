@@ -260,7 +260,7 @@ class QoShipments {
 		$request =  $this->email_service_address;
 		
 		$postargs = 'action=sendEmail&itemId='.urlencode($itemId).'&sellerId='.urlencode($sellerId).'&shipmentMethod='.urlencode($shipmentMethod).
-		'&postalReferenceNo='.urlencode($postalReferenceNo).'&shipToName='.urlencode($shipToName).'&shipToAddressLine1='.urlencode($shipToAddressLine1).
+		'&postalReferenceNo='.urlencode($postalReferenceNo).'&shipToName='.urlencode($shipToName).'&shipToEmail='.$shipToEmail.'&shipToAddressLine1='.urlencode($shipToAddressLine1).
 		'&shipToAddressLine2='.urlencode($shipToAddressLine2).'&shipToCity='.urlencode($shipToCity).'&shipToStateOrProvince='.urlencode($shipToStateOrProvince).
 		'&shipToPostalCode='.urlencode($shipToPostalCode).'&shipToCountry='.urlencode($shipToCountry).'&subject='.urlencode('Shipping status of your order!');
 		
