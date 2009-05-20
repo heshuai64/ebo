@@ -66,29 +66,11 @@ class eBayListing{
 	return $session;
     }
     
-    
-    public function getCategories($siteId){
-        try {
-                $client = new eBaySOAP($this->session);
-
-                $CategorySiteID = $siteId;
-                $Version = '607';
-                $DetailLevel = "ReturnAll";
-             
-                $params = array('Version' => $Version, 'DetailLevel' => $DetailLevel, 'CategorySiteID' => $CategorySiteID);
-                $results = $client->GetCategories($params);
-                //----------   debug --------------------------------
-                print "Request: \n".$client->__getLastRequest() ."\n";
-                print "Response: \n".$client->__getLastResponse()."\n";
-                
-		return $results;
-                
-        } catch (SOAPFault $f) {
-                print $f; // error handling
-        }
+    private function saveFetchData($file_name, $data){
+	file_put_contents("/export/eBayBO/eBayListing/log".$file_name, $data);
     }
     
-    public function checkCategoriesVersion($siteId, $version){
+    private function checkCategoriesVersion($siteId, $categoryVersion){
         try {
                 $client = new eBaySOAP($this->session);
 
@@ -97,27 +79,176 @@ class eBayListing{
                 $params = array('Version' => $Version, 'CategorySiteID' => $CategorySiteID);
                 $results = $client->GetCategories($params);
                 //----------   debug --------------------------------
-                print "Request: \n".$client->__getLastRequest() ."\n";
-                print "Response: \n".$client->__getLastResponse()."\n";
-		return $results;
-                exit;
+                //print "Request: \n".$client->__getLastRequest() ."\n";
+                //print "Response: \n".$client->__getLastResponse()."\n";
+		$this->saveFetchData("/checkCategoriesVersion-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		
+		if($categoryVersion < $results->CategoryVersion){
+		    $sql = "update site set version = '".$results->CategoryVersion."' where id = '".$siteId."'";
+		    echo $sql;
+		    $result = mysql_query($sql, eBayListing::$database_connect);
+		    return true;
+		}else{
+		    return false;
+		}
+		
         } catch (SOAPFault $f) {
                 print $f; // error handling
         }
     }
     
     
+    private function getCategories($categorySiteID){
+        try {
+                $client = new eBaySOAP($this->session);
+
+                $CategorySiteID = $categorySiteID;
+                $Version = '607';
+                $DetailLevel = "ReturnAll";
+             
+                $params = array('Version' => $Version, 'DetailLevel' => $DetailLevel, 'CategorySiteID' => $CategorySiteID);
+                $results = $client->GetCategories($params);
+                //----------   debug --------------------------------
+                //print "Request: \n".$client->__getLastRequest() ."\n";
+                //print "Response: \n".$client->__getLastResponse()."\n";
+                $this->saveFetchData("/getCategories-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		foreach($results->CategoryArray->Category as $category){
+		    $sql = "insert into categories (CategoryID,CategoryLevel,CategoryName,CategoryParentID,LeafCategory,BestOfferEnabled,AutoPayEnabled,CategorySiteID) values 
+		    ('".$category->CategoryID."','".$category->CategoryLevel."','".$category->CategoryName."','".$category->CategoryParentID."',
+		    '".$category->LeafCategory."','".$category->BestOfferEnabled."','".$category->AutoPayEnabled."','".$CategorySiteID."')";
+		    //echo $sql;
+		    $result = mysql_query($sql, eBayListing::$database_connect);
+		}
+                
+        } catch (SOAPFault $f) {
+                print $f; // error handling
+        }
+    }
+    
     public function getAllCategories(){
 	$sql = "select id,name,version from site where status = 1";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while ($row = mysql_fetch_assoc($result)){
-	    $result = $this->checkCategoriesVersion($row['id'], $row['version']);
-	    if($result){
+	    $service_result = $this->checkCategoriesVersion($row['id'], $row['version']);
+	    if($service_result){
 		$this->getCategories($row['id']);
 	    }else{
 		echo $row['name']." categories no change<br>";
 	    }
 	}
+    }
+    
+    private function getStoreCategories($userID){
+	try {
+                $client = new eBaySOAP($this->session);
+
+                $CategoryStructureOnly = true;
+                $Version = '607';
+		$UserID = $userID;
+		
+                $params = array('Version' => $Version, 'CategoryStructureOnly' => $CategoryStructureOnly, 'UserID' => $UserID);
+                $results = $client->GetStore($params);
+                //----------   debug --------------------------------
+                //print "Request: \n".$client->__getLastRequest() ."\n";
+                //print "Response: \n".$client->__getLastResponse()."\n";
+                $this->saveFetchData("/getStoreCategories-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		foreach($results->Store->CustomCategories->CustomCategory as $customCategory){
+		    $level = 1;
+		    $sql = "INSERT INTO `account_categories` (`CategoryID` ,`CategoryLevel` ,`Name` ,`Order` ,`UserID`) VALUES ('".$customCategory->CategoryID."','".$level."','".$customCategory->Name."','".$customCategory->Order."','".$userID."')";
+		    echo $sql."<br>\n";
+		    $result = mysql_query($sql, eBayListing::$database_connect);
+		    
+		    if(is_array($customCategory->ChildCategory)){
+			$twoChildCategories = $customCategory->ChildCategory;
+			//two level
+			foreach($twoChildCategories as $twoChildCategory){
+			    $level = 2;
+			    $sql = "INSERT INTO `account_categories` (`CategoryID` ,`CategoryLevel` ,`Name` ,`Order` ,`UserID`) VALUES ('".$twoChildCategory->CategoryID."','".$level."','".$twoChildCategory->Name."','".$twoChildCategory->Order."','".$userID."')";
+			    echo $sql."<br>\n";
+			    $result = mysql_query($sql, eBayListing::$database_connect);
+			    
+			    //three leve
+			    if(is_array($twoChildCategory->ChildCategory)){
+				$threeChildCategories = $twoChildCategory->ChildCategory;
+				foreach($threeChildCategories as $threeChildCategory){
+				    $level = 3;
+				    $sql = "INSERT INTO `account_categories` (`CategoryID` ,`CategoryLevel` ,`Name` ,`Order` ,`UserID`) VALUES ('".$threeChildCategory->CategoryID."','".$level."','".$threeChildCategory->Name."','".$threeChildCategory->Order."','".$userID."')";
+				    echo $sql."<br>\n";
+				    $result = mysql_query($sql, eBayListing::$database_connect);
+				}
+			    }
+			}
+			
+		    }
+		}
+                
+        } catch (SOAPFault $f) {
+                print $f; // error handling
+        }
+    }
+    
+    public function getAllStoreCategories(){
+	$sql = "select * from account where status = 1";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	while ($row = mysql_fetch_assoc($result)){
+	    $this->getStoreCategories($row['name']);
+	}
+    }
+    
+    public function addItems(){
+	/*
+	 
+	<BuyItNowPrice currencyID="CurrencyCodeType"> AmountType (double) </BuyItNowPrice>
+ 
+	
+	<Currency> CurrencyCodeType </Currency>
+	<Description> string </Description>
+
+
+	<ListingDuration> token </ListingDuration>
+	
+	
+	<ListingType> ListingTypeCodeType </ListingType>
+	//Auction,Chinese,Dutch,FixedPriceItem,StoresFixedPrice
+	
+	<PaymentMethods> BuyerPaymentMethodCodeType </PaymentMethods>
+	<!-- ... more PaymentMethods nodes here ... -->
+	<PayPalEmailAddress> string </PayPalEmailAddress>
+
+
+	<PictureDetails> PictureDetailsType 
+	    <GalleryDuration> token </GalleryDuration>
+	    <GalleryType> GalleryTypeCodeType </GalleryType>
+	    <GalleryURL> anyURI </GalleryURL>
+	    <PhotoDisplay> PhotoDisplayCodeType </PhotoDisplay>
+	    <PictureURL> anyURI </PictureURL>
+	    <!-- ... more PictureURL nodes here ... -->
+	</PictureDetails>
+
+
+	<PrimaryCategory> CategoryType 
+	    <CategoryID> string </CategoryID>
+	</PrimaryCategory>
+
+
+	<Quantity> int </Quantity>
+
+	<Site> SiteCodeType </Site>
+	<SKU> SKUType </SKU>
+
+	<StartPrice currencyID="CurrencyCodeType"> AmountType (double) </StartPrice>
+
+
+	<Storefront> StorefrontType 
+	    <StoreCategory2ID> long </StoreCategory2ID>
+	    <StoreCategoryID> long </StoreCategoryID>
+	</Storefront>
+	
+	<SubTitle> string </SubTitle>
+	<Title> string </Title>
+
+	*/
+	
     }
     
     public function __destruct(){
@@ -126,5 +257,7 @@ class eBayListing{
 }
 
 $service = new eBayListing();
-$service->getAllCategories();
+$acton = (!empty($_GET['action'])?$_GET['action']:$argv[1]);
+$service->$acton();
+
 ?>
