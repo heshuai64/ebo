@@ -195,6 +195,10 @@ class eBayListing{
 	}
     }
     
+    public function getCategoryFeatures(){
+	
+    }
+    
     public function addItems(){
 	/*
 	 
@@ -232,6 +236,29 @@ class eBayListing{
 
 
 	<Quantity> int </Quantity>
+
+	<ScheduleTime> dateTime </ScheduleTime>
+	
+	<ShippingDetails>
+	
+	    <InternationalShippingServiceOption> InternationalShippingServiceOptionsType 
+		<ShippingService> token </ShippingService>
+		<ShippingServiceAdditionalCost currencyID="CurrencyCodeType"> AmountType (double) </ShippingServiceAdditionalCost>
+		<ShippingServiceCost currencyID="CurrencyCodeType"> AmountType (double) </ShippingServiceCost>
+		<ShippingServicePriority> int </ShippingServicePriority>
+		<ShipToLocation> string </ShipToLocation>
+		<!-- ... more ShipToLocation nodes here ... -->
+	    </InternationalShippingServiceOption>
+
+	    <ShippingServiceOptions> ShippingServiceOptionsType 
+		<FreeShipping> boolean </FreeShipping>
+		<ShippingService> token </ShippingService>
+		<ShippingServiceAdditionalCost currencyID="CurrencyCodeType"> AmountType (double) </ShippingServiceAdditionalCost>
+		<ShippingServiceCost currencyID="CurrencyCodeType"> AmountType (double) </ShippingServiceCost>
+		<ShippingServicePriority> int </ShippingServicePriority>
+		<ShippingSurcharge currencyID="CurrencyCodeType"> AmountType (double) </ShippingSurcharge>
+	    </ShippingServiceOptions>
+	</ShippingDetails>
 
 	<Site> SiteCodeType </Site>
 	<SKU> SKUType </SKU>
