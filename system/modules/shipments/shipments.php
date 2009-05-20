@@ -2,7 +2,7 @@
 class QoShipments {
 	
 	private $os;
-	private $inventory_service_address = 'http://127.0.0.1:6666/tracmor/service.php';
+	private $inventory_service_address = 'http://192.168.1.169:8080/inventory/service.php';
 	private $email_service_address = 'http://127.0.0.1/eBayBO/service.php';
 	
 	public function __construct($os){
@@ -218,7 +218,7 @@ class QoShipments {
 	}
 	
 	public function inventoryTakeOut($inventory_model, $quantity, $shipment_id, $shipment_method){
-		$request =  $this->inventory_service_address.'?action=inventoryTakeOut&inventory_model='.$inventory_model.'&quantity='.$quantity.'&shipment_id='.urlencode($shipment_id).'&shipment_method='.urlencode($shipment_method);
+		$request =  $this->inventory_service_address.'?action=inventoryTakeOut&inventory_model='.urlencode($inventory_model).'&quantity='.$quantity.'&shipment_id='.urlencode($shipment_id).'&shipment_method='.urlencode($shipment_method);
 
 		$session = curl_init($request);
 		
@@ -234,9 +234,11 @@ class QoShipments {
 		
 		switch( $status_code[0] ) {
 			case 200:
-				$sql = "update qo_shipments_detail set inventoryStatus='1' where shipmentsId='".$shipment_id."' and skuId='".$inventory_model."'";
-				$result = mysql_query($sql);
-				return $result;
+				if(strpos($response, "success")){
+					$sql = "update qo_shipments_detail set inventoryStatus='1' where shipmentsId='".$shipment_id."' and skuId='".$inventory_model."'";
+					$result = mysql_query($sql);
+					return $result;
+				}
 				break;
 			case 503:
 				die('Your call to Yahoo Web Services failed and returned an HTTP status of 503. That means: Service unavailable. An internal problem prevented us from returning data to you.');
@@ -257,10 +259,10 @@ class QoShipments {
 		// The POST URL and parameters
 		$request =  $this->email_service_address;
 		
-		$postargs = 'action=sendEmail&itemId='.$itemId.'&sellerId='.$sellerId.'&shipmentMethod='.$shipmentMethod.
-		'&postalReferenceNo='.$postalReferenceNo.'&shipToName='.$shipToName.'&shipToAddressLine1='.$shipToAddressLine1.
-		'&shipToAddressLine2='.$shipToAddressLine2.'&shipToCity='.$shipToCity.'&shipToStateOrProvince='.$shipToStateOrProvince.
-		'&shipToPostalCode='.$shipToPostalCode.'&shipToCountry='.$shipToCountry.'&subject=Shipping status of your order!';
+		$postargs = 'action=sendEmail&itemId='.urlencode($itemId).'&sellerId='.urlencode($sellerId).'&shipmentMethod='.urlencode($shipmentMethod).
+		'&postalReferenceNo='.urlencode($postalReferenceNo).'&shipToName='.urlencode($shipToName).'&shipToAddressLine1='.urlencode($shipToAddressLine1).
+		'&shipToAddressLine2='.urlencode($shipToAddressLine2).'&shipToCity='.urlencode($shipToCity).'&shipToStateOrProvince='.urlencode($shipToStateOrProvince).
+		'&shipToPostalCode='.urlencode($shipToPostalCode).'&shipToCountry='.urlencode($shipToCountry).'&subject='.urlencode('Shipping status of your order!');
 		
 		// Get the curl session object
 		$session = curl_init($request);
@@ -282,9 +284,11 @@ class QoShipments {
 		// Check for errors
 		switch( $status_code[0] ) {
 			case 200:
-				$sql = "update qo_shipments set emailStatus='1' where id='".$shipmentId."'";
-				$result = mysql_query($sql);
-				return $result;
+				if(strpos($response, "success")){
+					$sql = "update qo_shipments set emailStatus='1' where id='".$shipmentId."'";
+					$result = mysql_query($sql);
+					return $result;
+				}
 				break;
 			case 503:
 				die('Your call to Web Services failed and returned an HTTP status of 503. That means: Service unavailable. An internal problem prevented us from returning data to you.');
@@ -307,6 +311,7 @@ class QoShipments {
 		$sql = "select ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry,status from qo_shipments where id = '".$_POST['id']."'";
 		$result = mysql_query($sql);
 		$row = mysql_fetch_assoc($result);
+		$info = "ship shipment success!<br>";
 		
 		if($row['status'] == "N"){
 			//get item Id
@@ -325,7 +330,7 @@ class QoShipments {
 			$sellerId = $row_2['sellerId'];
 			
 			//update shipment status
-			//$sql_3 = "update qo_shipments set status='S',shippedBy='".$this->os->session->get_member_name()."',shippedOn='".date("Y-m-d H:i:s")."' where id='".$_POST['id']."'";
+			$sql_3 = "update qo_shipments set status='S',shippedBy='".$this->os->session->get_member_name()."',shippedOn='".date("Y-m-d H:i:s")."' where id='".$_POST['id']."'";
 			$result_3 = mysql_query($sql_3);
 			
 			$sql_4 = "select shipmentsId,skuId,quantity from qo_shipments_detail where shipmentsId = '".$_POST['id']."'";
@@ -333,15 +338,25 @@ class QoShipments {
 			while($row_4 = mysql_fetch_assoc($result_4)){
 				//send stock to inventory system
 				$service_result_1 = $this->inventoryTakeOut($row_4['skuId'], $row_4['quantity'], $row_4['shipmentsId'], $row['shipmentMethod']);
+				if($service_result_1){
+					$info .= $row_4['skuId']." take out success!<br>";
+				}else{
+					$info .= $row_4['skuId']." take out failure, please notice admin.<br>";
+				}
 			}
 			
 		
-			//$service_result_2 = $this->sendEmailToBuyer($_POST['id'], $itemId, $sellerId, $row['shipmentMethod'], $row['postalReferenceNo'], $row['shipToName'], $row['shipToEmail'], $row['shipToAddressLine1'], $row['shipToAddressLine2'], $row['shipToCity'], $row['shipToStateOrProvince'], $row['shipToPostalCode'], $row['shipToCountry']);
+			$service_result_2 = $this->sendEmailToBuyer($_POST['id'], $itemId, $sellerId, $row['shipmentMethod'], $row['postalReferenceNo'], $row['shipToName'], $row['shipToEmail'], $row['shipToAddressLine1'], $row['shipToAddressLine2'], $row['shipToCity'], $row['shipToStateOrProvince'], $row['shipToPostalCode'], $row['shipToCountry']);
+			if($service_result_2){
+				$info .= "send email to customer success!<br>";
+			}else{
+				$info .= "send email to customer failure, please notice admin.<br>";
+			}
 			
 			//print_r($service_result_2);
 			
-			if($result_3){
-				echo "{success: true,info:'\'<font color=\'green\'>Operation Successfully</font>'}"; 
+			if($service_result_1 && $service_result_2){
+				echo "{success: true,info:'\'<font color=\'green\'>".$info."</font>'}"; 
 			}else{
 				echo "{success: false, errors: { reason: 'Saving failed. Try again.' }}";
 			}
