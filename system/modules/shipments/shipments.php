@@ -330,8 +330,14 @@ class QoShipments {
 			$sellerId = $row_2['sellerId'];
 			
 			//update shipment status
-			$sql_3 = "update qo_shipments set status='S',shippedBy='".$this->os->session->get_member_name()."',shippedOn='".date("Y-m-d H:i:s")."' where id='".$_POST['id']."'";
-			$result_3 = mysql_query($sql_3);
+			if(!empty($_POST['postalReferenceNo'])){
+				$sql_3 = "update qo_shipments set status='S',postalReferenceNo='".$_POST['postalReferenceNo']."',shippedBy='".$this->os->session->get_member_name()."',shippedOn='".date("Y-m-d H:i:s")."' where id='".$_POST['id']."'";
+				$result_3 = mysql_query($sql_3);
+			}else{
+				$sql_3 = "update qo_shipments set status='S',shippedBy='".$this->os->session->get_member_name()."',shippedOn='".date("Y-m-d H:i:s")."' where id='".$_POST['id']."'";
+				$result_3 = mysql_query($sql_3);
+			}
+			
 			
 			$sql_4 = "select shipmentsId,skuId,quantity from qo_shipments_detail where shipmentsId = '".$_POST['id']."'";
 			$result_4 = mysql_query($sql_4);
