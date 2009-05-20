@@ -217,8 +217,9 @@ Ext.onReady(function(){
                     layout:"form",
                     title:"System",
                     defaults:{
-                            width:220
+                        width:240
                     },
+                    labelWidth: 120,
                     items:[{
                         xtype:"textfield",
                         fieldLabel:"Shipments Id",
@@ -236,7 +237,7 @@ Ext.onReady(function(){
                         },
                         border:false,
                         items:[{
-                            width:100,
+                            width:120,
                             html:"<font size=2>Shipping Fee:</font>",
                             border:false
                           },{
@@ -277,6 +278,8 @@ Ext.onReady(function(){
                           }]
                       },{ 
                         xtype:'combo',
+                        width: 150,
+                        listWidth: 150,
                         fieldLabel:"Status",
                         store: new Ext.data.SimpleStore({
                             fields: ["statusValue", "statusName"],
@@ -291,6 +294,9 @@ Ext.onReady(function(){
                         hiddenName:'status'
                       },{
                         xtype:'combo',
+                        //labelWidth: 300,
+                        width: 150,
+                        listWidth: 150,
                         fieldLabel:"Shipment Method",
                         store: new Ext.data.SimpleStore({
                             fields: ["id", "name"],
@@ -308,10 +314,10 @@ Ext.onReady(function(){
                         layoutConfig:{
                           columns:3
                         },
-                        width:320,
+                        width:340,
                         border:false,
                         items:[{
-                            width:105,
+                            width:125,
                             html:"<font size=2>packed:</font>",
                             border:false
                           },{
@@ -338,7 +344,7 @@ Ext.onReady(function(){
                                 readOnly:true,
                                 fieldLabel:"",
                                 name:"packedOn",
-                                width:125
+                                width:145
                               }]
                           }]
                       },{
@@ -346,10 +352,10 @@ Ext.onReady(function(){
                         layoutConfig:{
                           columns:3
                         },
-                        width:320,
+                        width:340,
                         border:false,
                         items:[{
-                            width:105,
+                            width:125,
                             html:"<font size=2>shipped:</font>",
                             border:false
                           },{
@@ -376,15 +382,51 @@ Ext.onReady(function(){
                                 readOnly:true,
                                 fieldLabel:"",
                                 name:"shippedOn",
-                                width:125
+                                width:145
                               }]
                           }]
                       },{
-                            xtype:"textarea",
-                            height:48,
-                            width:200,
-                            fieldLabel:"Remarks",
-                            name:"remarks"
+                        layout:"table",
+                        layoutConfig:{
+                          columns:3
+                        },
+                        width:340,
+                        border:false,
+                        items:[{
+                            width:125,
+                            html:"<font size=2>modified:</font>",
+                            border:false
+                          },{
+                            layout:"form",
+                            border:false,
+                            labelWidth:0,
+                            hideLabels:true,
+                            labelSeparator:"",
+                            items:[{
+                                xtype:"textfield",
+                                readOnly:true,
+                                fieldLabel:"",
+                                name:"modifiedBy",
+                                width:80
+                              }]
+                          },{
+                            layout:"form",
+                            border:false,
+                            labelWidth:0,
+                            hideLabels:true,
+                            labelSeparator:"",
+                            items:[{
+                                xtype:"textfield",
+                                readOnly:true,
+                                fieldLabel:"",
+                                name:"modifiedOn",
+                                width:145
+                              }]
+                          }]
+                      },{
+                                xtype:"textfield",
+                                fieldLabel:"PostalReferenceNo",
+                                name:"postalReferenceNo"
                         }]
                   },{
                     columnWidth:0.5,
@@ -444,6 +486,12 @@ Ext.onReady(function(){
                       }]
                   }]
               },{
+                        xtype:"textarea",
+                        height:50,
+                        width:250,
+                        fieldLabel:"Remarks",
+                        name:"remarks"
+                },{
                 xtype: 'panel',
                 title: "Details",
                 autoHeight: true,
