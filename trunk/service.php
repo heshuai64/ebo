@@ -69,17 +69,26 @@ class Service{
     }
     
     public function getSellerEmailAccountAndPassword($sellerId){
+        /*
         $sql = "select id,email,emailPassword from qo_ebay_seller where id = '".$sellerId."'";
         $result = mysql_query($sql, Service::$database_connect);
         $row = mysql_fetch_assoc($result);
         return array('id'=>$row['id'],
                      'email'=>$row['email'],
                      'emailPassword'=>$row['emailPassword']);
+        */
+        
+        $array = array('ymca200808'=> array('id'=>'ymca200808', 'email'=> 'ymca2u@gmail.com', 'emailPassword'=> 'yingying3510'),
+                       'libra.studio'=> array('id'=>'libra.studio', 'email'=> 'libra.studio.cn@gmail.com', 'emailPassword'=> 'ldpandll99'),
+                       'bestnbestonline'=> array('id'=>'bestnbestonline', 'email'=> 'bestnbestonline@gmail.com', 'emailPassword'=> 'sun2769kk'));
+        
+        return $array[$sellerId];
     }
     
     public function sendEmail(){
         //file_put_contents("/tmp/1.log", print_r($_POST, true), FILE_APPEND);
         $seller = $this->getSellerEmailAccountAndPassword($_REQUEST['sellerId']);
+        $this->log("sendEmail", print_r($seller, true)."<br>");
         $address =  $_REQUEST['shipToName'].'<br>'.
                     $_REQUEST['shipToAddressLine1'].'<br>'.
                     (!empty($_POST['shipToAddressLine2'])?$_REQUEST['shipToAddressLine2'].'<br>':'').
@@ -135,7 +144,7 @@ class Service{
         $mail->MsgHTML($toContent);
         
         //$mail->AddAddress($_POST['toEmail'], $_POST['toName']);
-        $mail->AddAddress("heshuai64@gmail.com", "heshuai64");
+        $mail->AddAddress("meidgen_de_holy@126.com", "meidgen de");
         
         $mail->IsHTML(true); // send as HTML
         
@@ -143,7 +152,7 @@ class Service{
             //file_put_contents("/tmp/1.log", $mail->ErrorInfo, FILE_APPEND);
             echo "Mailer Error: " . $mail->ErrorInfo;
         } else {
-            echo "1";
+            echo "send email success";
             //file_put_contents("/tmp/1.log", "Success!", FILE_APPEND);
         }
         //http://127.0.0.1/eBayBO/service.php?action=sendEmail&itemId=350187839239&sellerId=testuser_heshuai04&shipmentMethod=S&postalReferenceNo=&shipToName=Test User&shipToAddressLine1=address&shipToAddressLine2=&shipToCity=city&shipToStateOrProvince=WA&shipToPostalCode=98102&shipToCountry=
