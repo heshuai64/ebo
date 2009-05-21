@@ -3,11 +3,17 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: May 20, 2009 at 05:37 下午
+-- Generation Time: May 21, 2009 at 06:01 下午
 -- Server version: 5.0.45
 -- PHP Version: 5.2.6
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
 
 --
 -- Database: `ebaylisting`
@@ -26009,6 +26015,70 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `listing_duration`
+--
+
+CREATE TABLE IF NOT EXISTS `listing_duration` (
+  `id` int(11) NOT NULL,
+  `name` varchar(15) NOT NULL,
+  `version` int(11) NOT NULL,
+  PRIMARY KEY  (`id`,`name`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `listing_duration`
+--
+
+INSERT INTO `listing_duration` (`id`, `name`, `version`) VALUES
+(31, 'Days_3', 6),
+(31, 'Days_5', 6),
+(31, 'Days_7', 6),
+(31, 'Days_10', 6),
+(31, 'Days_30', 6),
+(31, 'GTC', 6),
+(14, 'Days_30', 6),
+(14, 'Days_60', 6),
+(14, 'Days_90', 6),
+(8, 'Days_3', 6),
+(8, 'Days_5', 6),
+(8, 'Days_7', 6),
+(8, 'Days_10', 6),
+(8, 'Days_30', 6),
+(7, 'Days_30', 6),
+(7, 'GTC', 6),
+(2, 'Days_30', 6),
+(2, 'Days_90', 6),
+(1, 'Days_3', 6),
+(1, 'Days_5', 6),
+(1, 'Days_7', 6),
+(1, 'Days_10', 6);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `listing_duration_type`
+--
+
+CREATE TABLE IF NOT EXISTS `listing_duration_type` (
+  `id` int(11) NOT NULL,
+  `name` varchar(30) NOT NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `listing_duration_type`
+--
+
+INSERT INTO `listing_duration_type` (`id`, `name`) VALUES
+(14, 'LeadGeneration'),
+(31, 'FixedPriceItem'),
+(1, 'PersonalOffer'),
+(7, 'StoresFixedPrice'),
+(2, 'AdType');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `proxy`
 --
 
@@ -26036,7 +26106,7 @@ CREATE TABLE IF NOT EXISTS `site` (
   `id` int(3) NOT NULL,
   `abbreviation` varchar(8) NOT NULL,
   `name` varchar(32) NOT NULL,
-  `version` int(11) NOT NULL,
+  `categoryVersion` int(11) NOT NULL,
   `status` int(1) NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `abbreviation` (`abbreviation`,`name`)
@@ -26046,7 +26116,7 @@ CREATE TABLE IF NOT EXISTS `site` (
 -- Dumping data for table `site`
 --
 
-INSERT INTO `site` (`id`, `abbreviation`, `name`, `version`, `status`) VALUES
+INSERT INTO `site` (`id`, `abbreviation`, `name`, `categoryVersion`, `status`) VALUES
 (0, 'US', 'United States', 90, 1),
 (2, 'CA', 'Canada', 0, 0),
 (3, 'UK', 'United Kingdom', 0, 0),

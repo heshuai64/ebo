@@ -84,7 +84,7 @@ class eBayListing{
 		$this->saveFetchData("/checkCategoriesVersion-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 		
 		if($categoryVersion < $results->CategoryVersion){
-		    $sql = "update site set version = '".$results->CategoryVersion."' where id = '".$siteId."'";
+		    $sql = "update site set categoryVersion = '".$results->CategoryVersion."' where id = '".$siteId."'";
 		    echo $sql;
 		    $result = mysql_query($sql, eBayListing::$database_connect);
 		    return true;
@@ -126,10 +126,10 @@ class eBayListing{
     }
     
     public function getAllCategories(){
-	$sql = "select id,name,version from site where status = 1";
+	$sql = "select id,name,categoryVersion from site where status = 1";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while ($row = mysql_fetch_assoc($result)){
-	    $service_result = $this->checkCategoriesVersion($row['id'], $row['version']);
+	    $service_result = $this->checkCategoriesVersion($row['id'], $row['categoryVersion']);
 	    if($service_result){
 		$this->getCategories($row['id']);
 	    }else{
@@ -196,7 +196,42 @@ class eBayListing{
     }
     
     public function getCategoryFeatures(){
-	
+	try {
+	    $client = new eBaySOAP($this->session);
+	    
+	    $DetailLevel = 'ReturnAll';
+	    $Version = '607';
+	    $FeatureID = 'ListingDurations';
+	    
+	    $params = array('DetailLevel' => $DetailLevel, 'Version' => $Version, 'FeatureID' => $FeatureID);
+	    $results = $client->GetCategoryFeatures($params);
+	    //print_r($results);
+	    
+	    print_r($results->SiteDefaults->ListingDuration);
+	    foreach($results->SiteDefaults->ListingDuration as $listingDurationType){
+		$sql = "insert into listing_duration_type (id,name) values ('".$listingDurationType->_."','".$listingDurationType->type."')";
+		echo $sql;
+		echo "<br>";
+		$result = mysql_query($sql, eBayListing::$database_connect);
+	    }
+	    
+	    print_r($results->FeatureDefinitions->ListingDurations);
+	    foreach($results->FeatureDefinitions->ListingDurations->ListingDuration as $listingDuration){
+		foreach($listingDuration->Duration as $duration){
+		    $sql = "insert into listing_duration (id,name,version) values ('".$listingDuration->durationSetID."','".$duration."','".$results->FeatureDefinitions->ListingDurations->Version."')";
+		    echo $sql;
+		    echo "<br>";
+		    $result = mysql_query($sql, eBayListing::$database_connect);
+		}
+	    }
+	    
+	    //----------   debug --------------------------------
+	    //print "Request: \n".$client->__getLastRequest() ."\n";
+	    //print "Response: \n".$client->__getLastResponse()."\n";
+	    $this->saveFetchData("/getCategoryFeatures-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+	 } catch (SOAPFault $f) {
+                print $f; // error handling
+        }
     }
     
     public function addItems(){
@@ -204,7 +239,8 @@ class eBayListing{
 	 
 	<BuyItNowPrice currencyID="CurrencyCodeType"> AmountType (double) </BuyItNowPrice>
  
-	
+	<Country> CountryCodeType </Country>
+
 	<Currency> CurrencyCodeType </Currency>
 	<Description> string </Description>
 
@@ -215,6 +251,8 @@ class eBayListing{
 	<ListingType> ListingTypeCodeType </ListingType>
 	//Auction,Chinese,Dutch,FixedPriceItem,StoresFixedPrice
 	
+	<Location> string </Location>
+
 	<PaymentMethods> BuyerPaymentMethodCodeType </PaymentMethods>
 	<!-- ... more PaymentMethods nodes here ... -->
 	<PayPalEmailAddress> string </PayPalEmailAddress>
@@ -237,6 +275,19 @@ class eBayListing{
 
 	<Quantity> int </Quantity>
 
+	<ReturnPolicy> ReturnPolicyType 
+	    <Description> string </Description>
+	    <EAN> string </EAN>
+	    <RefundOption> token </RefundOption>
+	    <ReturnsAcceptedOption> token </ReturnsAcceptedOption>
+	    <ReturnsWithinOption> token </ReturnsWithinOption>
+	    <ShippingCostPaidByOption> token </ShippingCostPaidByOption>
+	    <WarrantyDurationOption> token </WarrantyDurationOption>
+	    <WarrantyOfferedOption> token </WarrantyOfferedOption>
+	    <WarrantyTypeOption> token </WarrantyTypeOption>
+	</ReturnPolicy>
+
+
 	<ScheduleTime> dateTime </ScheduleTime>
 	
 	<ShippingDetails>
@@ -258,6 +309,8 @@ class eBayListing{
 		<ShippingServicePriority> int </ShippingServicePriority>
 		<ShippingSurcharge currencyID="CurrencyCodeType"> AmountType (double) </ShippingSurcharge>
 	    </ShippingServiceOptions>
+	    
+	    <ShippingType> ShippingTypeCodeType </ShippingType>
 	</ShippingDetails>
 
 	<Site> SiteCodeType </Site>
