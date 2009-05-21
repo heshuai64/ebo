@@ -6,9 +6,12 @@ class eBayListing{
     private static $database_connect;
     const DATABASE_HOST = 'localhost';
     const DATABASE_USER = 'root';
-    const DATABASE_PASSWORD = '';
+    const DATABASE_PASSWORD = '5333533';
     const DATABASE_NAME = 'ebaylisting';
     const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
+    
+    const EBAY_BO_SERVICE = 'http://127.0.0.1:6666/tracmor/service.phpss';
+    const INVENTORY_SERVICE = 'http://127.0.0.1:6666/tracmor/service.php';
     private $startTime;
     private $endTime;
     private $session;
@@ -234,23 +237,107 @@ class eBayListing{
         }
     }
     
+    private function get($request){
+	$session = curl_init($request);
+		
+	curl_setopt($session, CURLOPT_HEADER, true);
+	curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+	
+	$response = curl_exec($session);
+	
+	curl_close($session);
+	
+	$status_code = array();
+	preg_match('/\d\d\d/', $response, $status_code);
+	
+	switch( $status_code[0] ) {
+		case 200:
+		    if ($result = strstr($response, '{')) {
+			return $result;
+		    }
+		    break;
+		case 503:
+			die('Your call to Web Services failed and returned an HTTP status of 503. That means: Service unavailable. An internal problem prevented us from returning data to you.');
+			break;
+		case 403:
+			die('Your call to Web Services failed and returned an HTTP status of 403. That means: Forbidden. You do not have permission to access this resource, or are over your rate limit.');
+			break;
+		case 400:
+			die('Your call to Web Services failed and returned an HTTP status of 400. That means:  Bad request. The parameters passed to the service did not match as expected. The exact error is returned in the XML response.');
+			break;
+		default:
+			die('Your call to Web Services returned an unexpected HTTP status of:' . $status_code[0]);
+			return false;
+	}
+    }
+    
+    private function post($postargs){
+	
+	$postargs = 'appid='.$appid.'&context='.urlencode($context).'&query='.urlencode($query);
+	
+	// Get the curl session object
+	$session = curl_init($request);
+	
+	// Set the POST options.
+	curl_setopt ($session, CURLOPT_POST, true);
+	curl_setopt ($session, CURLOPT_POSTFIELDS, $postargs);
+	curl_setopt($session, CURLOPT_HEADER, true);
+	curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+	
+	// Do the POST and then close the session
+	$response = curl_exec($session);
+	curl_close($session);
+	
+	// Get HTTP Status code from the response
+	$status_code = array();
+	preg_match('/\d\d\d/', $response, $status_code);
+	
+	// Check for errors
+	switch( $status_code[0] ) {
+		case 200:
+			if ($result = strstr($response, '{')) {
+			    return $result;
+			}
+			break;
+		case 503:
+			die('Your call to Web Services failed and returned an HTTP status of 503. That means: Service unavailable. An internal problem prevented us from returning data to you.');
+			break;
+		case 403:
+			die('Your call to Web Services failed and returned an HTTP status of 403. That means: Forbidden. You do not have permission to access this resource, or are over your rate limit.');
+			break;
+		case 400:
+			// You may want to fall through here and read the specific XML error
+			die('Your call to Web Services failed and returned an HTTP status of 400. That means:  Bad request. The parameters passed to the service did not match as expected. The exact error is returned in the XML response.');
+			break;
+		default:
+			die('Your call to Web Services returned an unexpected HTTP status of:' . $status_code[0]);
+	}
+
+    }
+    
+    public function getAllInventorySkus(){
+	$result = $this->get(self::INVENTORY_SERVICE."?action=getAllSkus");
+	echo $result;
+    }
+    
     public function addItems(){
 	/*
 	 
 	<BuyItNowPrice currencyID="CurrencyCodeType"> AmountType (double) </BuyItNowPrice>
  
+	<CategoryMappingAllowed> boolean </CategoryMappingAllowed>
+
 	<Country> CountryCodeType </Country>
 
 	<Currency> CurrencyCodeType </Currency>
 	<Description> string </Description>
 
+	<DispatchTimeMax> int </DispatchTimeMax>
 
 	<ListingDuration> token </ListingDuration>
 	
 	
 	<ListingType> ListingTypeCodeType </ListingType>
-	//Auction,Chinese,Dutch,FixedPriceItem,StoresFixedPrice
-	
 	<Location> string </Location>
 
 	<PaymentMethods> BuyerPaymentMethodCodeType </PaymentMethods>
@@ -267,6 +354,7 @@ class eBayListing{
 	    <!-- ... more PictureURL nodes here ... -->
 	</PictureDetails>
 
+	<PostalCode> string </PostalCode>
 
 	<PrimaryCategory> CategoryType 
 	    <CategoryID> string </CategoryID>
@@ -290,6 +378,11 @@ class eBayListing{
 
 	<ScheduleTime> dateTime </ScheduleTime>
 	
+	<SecondaryCategory> CategoryType 
+	    <CategoryID> string </CategoryID>
+	</SecondaryCategory>
+
+
 	<ShippingDetails>
 	
 	    <InternationalShippingServiceOption> InternationalShippingServiceOptionsType 
