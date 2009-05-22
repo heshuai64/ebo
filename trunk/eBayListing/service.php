@@ -6,12 +6,12 @@ class eBayListing{
     private static $database_connect;
     const DATABASE_HOST = 'localhost';
     const DATABASE_USER = 'root';
-    const DATABASE_PASSWORD = '5333533';
+    const DATABASE_PASSWORD = '';
     const DATABASE_NAME = 'ebaylisting';
     const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
     
-    const EBAY_BO_SERVICE = 'http://127.0.0.1:6666/tracmor/service.phpss';
-    const INVENTORY_SERVICE = 'http://127.0.0.1:6666/tracmor/service.php';
+    const EBAY_BO_SERVICE = 'http://127.0.0.1/eBayBO/service.phpss';
+    const INVENTORY_SERVICE = 'http://127.0.0.1/einv2/service.php';
     private $startTime;
     private $endTime;
     private $session;
