@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 2.11.8.1
+-- version 2.11.9.2
 -- http://www.phpmyadmin.net
 --
--- Host: localhost
--- Generation Time: May 21, 2009 at 06:01 下午
--- Server version: 5.0.45
--- PHP Version: 5.2.6
+-- 主机: localhost
+-- 生成日期: 2009 年 05 月 23 日 07:26
+-- 服务器版本: 5.0.67
+-- PHP 版本: 5.2.6
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
@@ -16,13 +16,13 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 /*!40101 SET NAMES utf8 */;
 
 --
--- Database: `ebaylisting`
+-- 数据库: `ebaylisting`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `account`
+-- 表的结构 `account`
 --
 
 CREATE TABLE IF NOT EXISTS `account` (
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `account` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
--- Dumping data for table `account`
+-- 导出表中的数据 `account`
 --
 
 INSERT INTO `account` (`id`, `name`, `token`, `tokenExpiry`, `status`) VALUES
@@ -44,7 +44,7 @@ INSERT INTO `account` (`id`, `name`, `token`, `tokenExpiry`, `status`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `account_categories`
+-- 表的结构 `account_categories`
 --
 
 CREATE TABLE IF NOT EXISTS `account_categories` (
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS `account_categories` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `account_categories`
+-- 导出表中的数据 `account_categories`
 --
 
 INSERT INTO `account_categories` (`CategoryID`, `CategoryLevel`, `Name`, `Order`, `UserID`) VALUES
@@ -122,7 +122,7 @@ INSERT INTO `account_categories` (`CategoryID`, `CategoryLevel`, `Name`, `Order`
 -- --------------------------------------------------------
 
 --
--- Table structure for table `account_to_proxy`
+-- 表的结构 `account_to_proxy`
 --
 
 CREATE TABLE IF NOT EXISTS `account_to_proxy` (
@@ -132,7 +132,7 @@ CREATE TABLE IF NOT EXISTS `account_to_proxy` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `account_to_proxy`
+-- 导出表中的数据 `account_to_proxy`
 --
 
 INSERT INTO `account_to_proxy` (`account_id`, `proxy_id`) VALUES
@@ -141,7 +141,7 @@ INSERT INTO `account_to_proxy` (`account_id`, `proxy_id`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `categories`
+-- 表的结构 `categories`
 --
 
 CREATE TABLE IF NOT EXISTS `categories` (
@@ -158,7 +158,7 @@ CREATE TABLE IF NOT EXISTS `categories` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `categories`
+-- 导出表中的数据 `categories`
 --
 
 INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `CategoryParentID`, `LeafCategory`, `BestOfferEnabled`, `AutoPayEnabled`, `CategorySiteID`) VALUES
@@ -26015,7 +26015,49 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 -- --------------------------------------------------------
 
 --
--- Table structure for table `listing_duration`
+-- 表的结构 `items`
+--
+
+CREATE TABLE IF NOT EXISTS `items` (
+  `ItemID` varchar(20) NOT NULL,
+  `BuyItNowPrice` decimal(10,2) NOT NULL,
+  `CategoryMappingAllowed` int(1) NOT NULL default '0',
+  `Country` varchar(20) NOT NULL,
+  `Currency` varchar(5) NOT NULL,
+  `Description` text NOT NULL,
+  `DispatchTimeMax` int(11) NOT NULL,
+  `ListingDuration` varchar(10) NOT NULL,
+  `ListingType` varchar(10) NOT NULL,
+  `Location` varchar(15) NOT NULL,
+  `PaymentMethods` varchar(20) NOT NULL,
+  `PayPalEmailAddress` varchar(50) NOT NULL,
+  `GalleryURL` varchar(100) NOT NULL,
+  `PictureURL` varchar(100) NOT NULL,
+  `PostalCode` varchar(10) NOT NULL,
+  `PrimaryCategory` int(11) NOT NULL,
+  `Quantity` int(11) NOT NULL,
+  `ScheduleTime` datetime NOT NULL,
+  `SecondaryCategory` int(11) NOT NULL,
+  `Site` varchar(20) NOT NULL,
+  `SKU` varchar(20) NOT NULL,
+  `StartPrice` decimal(10,2) NOT NULL,
+  `StoreCategory2ID` int(11) NOT NULL,
+  `StoreCategoryID` int(11) NOT NULL,
+  `SubTitle` varchar(55) NOT NULL,
+  `Title` varchar(55) NOT NULL,
+  `Status` int(1) NOT NULL,
+  KEY `ItemID` (`ItemID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- 导出表中的数据 `items`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `listing_duration`
 --
 
 CREATE TABLE IF NOT EXISTS `listing_duration` (
@@ -26026,7 +26068,7 @@ CREATE TABLE IF NOT EXISTS `listing_duration` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `listing_duration`
+-- 导出表中的数据 `listing_duration`
 --
 
 INSERT INTO `listing_duration` (`id`, `name`, `version`) VALUES
@@ -26056,7 +26098,7 @@ INSERT INTO `listing_duration` (`id`, `name`, `version`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `listing_duration_type`
+-- 表的结构 `listing_duration_type`
 --
 
 CREATE TABLE IF NOT EXISTS `listing_duration_type` (
@@ -26066,7 +26108,7 @@ CREATE TABLE IF NOT EXISTS `listing_duration_type` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `listing_duration_type`
+-- 导出表中的数据 `listing_duration_type`
 --
 
 INSERT INTO `listing_duration_type` (`id`, `name`) VALUES
@@ -26079,7 +26121,7 @@ INSERT INTO `listing_duration_type` (`id`, `name`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `proxy`
+-- 表的结构 `proxy`
 --
 
 CREATE TABLE IF NOT EXISTS `proxy` (
@@ -26090,7 +26132,7 @@ CREATE TABLE IF NOT EXISTS `proxy` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
--- Dumping data for table `proxy`
+-- 导出表中的数据 `proxy`
 --
 
 INSERT INTO `proxy` (`id`, `host`, `port`) VALUES
@@ -26099,7 +26141,7 @@ INSERT INTO `proxy` (`id`, `host`, `port`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `site`
+-- 表的结构 `site`
 --
 
 CREATE TABLE IF NOT EXISTS `site` (
@@ -26113,7 +26155,7 @@ CREATE TABLE IF NOT EXISTS `site` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `site`
+-- 导出表中的数据 `site`
 --
 
 INSERT INTO `site` (`id`, `abbreviation`, `name`, `categoryVersion`, `status`) VALUES
@@ -26139,3 +26181,20 @@ INSERT INTO `site` (`id`, `abbreviation`, `name`, `categoryVersion`, `status`) V
 (211, 'PH', 'Philippines', 0, 0),
 (212, 'PL', 'Poland', 0, 0),
 (216, 'SG', 'Singapore', 0, 0);
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `skus_to_items`
+--
+
+CREATE TABLE IF NOT EXISTS `skus_to_items` (
+  `skuId` varchar(50) NOT NULL,
+  `itemId` varchar(50) NOT NULL,
+  PRIMARY KEY  (`skuId`,`itemId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- 导出表中的数据 `skus_to_items`
+--
+
