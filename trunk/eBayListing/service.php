@@ -322,24 +322,28 @@ class eBayListing{
     
     public function addItems(){
 	/*
-	 
+	英,美,法,澳,
 	<BuyItNowPrice currencyID="CurrencyCodeType"> AmountType (double) </BuyItNowPrice>
  
 	<CategoryMappingAllowed> boolean </CategoryMappingAllowed>
 
 	<Country> CountryCodeType </Country>
-
+	//CN,HK
+	
 	<Currency> CurrencyCodeType </Currency>
+	//GBP,USD,EUR,AUD
+	
 	<Description> string </Description>
 
 	<DispatchTimeMax> int </DispatchTimeMax>
 
 	<ListingDuration> token </ListingDuration>
 	
-	
+	//AdType,Chinese,CustomCode,Dutch,Express(Germany),FixedPriceItem,LeadGeneration,StoresFixedPrice
 	<ListingType> ListingTypeCodeType </ListingType>
 	<Location> string </Location>
-
+	//China
+	
 	<PaymentMethods> BuyerPaymentMethodCodeType </PaymentMethods>
 	<!-- ... more PaymentMethods nodes here ... -->
 	<PayPalEmailAddress> string </PayPalEmailAddress>
@@ -404,6 +408,7 @@ class eBayListing{
 	    </ShippingServiceOptions>
 	    
 	    <ShippingType> ShippingTypeCodeType </ShippingType>
+	    //Calculated,CalculatedDomesticFlatInternational,CustomCode,Flat,FlatDomesticCalculatedInternational,FreightFlat,NotSpecified
 	</ShippingDetails>
 
 	<Site> SiteCodeType </Site>

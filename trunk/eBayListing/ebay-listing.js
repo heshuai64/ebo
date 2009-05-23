@@ -113,7 +113,139 @@ Ext.onReady(function(){
      
      inventory_grid.on("rowdblclick", function(oGrid){
           var oRecord = oGrid.getSelectionModel().getSelected();
-          var form = 
+          var form = {
+               xtype:"form",
+               labelAlign:"top",
+               items:[{
+                   layout:"column",
+                   items:[{
+                       columnWidth:0.7,
+                       layout:"form",
+                       items:[{
+                           xtype:"panel",
+                           title:"Title and Category",
+                           layout:"form",
+                           items:[{
+                               xtype:"textfield",
+                               fieldLabel:"Title",
+                               name:"textvalue"
+                             },{
+                               xtype:"textfield",
+                               fieldLabel:"Subtitle",
+                               name:"textvalue"
+                             },{
+                               xtype:"combo",
+                               fieldLabel:"Category",
+                               name:"combovalue",
+                               hiddenName:"combovalue"
+                             },{
+                               xtype:"combo",
+                               fieldLabel:"2nd Category",
+                               name:"combovalue",
+                               hiddenName:"combovalue"
+                             },{
+                               xtype:"combo",
+                               fieldLabel:"Store Category",
+                               name:"combovalue",
+                               hiddenName:"combovalue"
+                             },{
+                               xtype:"combo",
+                               fieldLabel:"2nd Store Category",
+                               name:"combovalue",
+                               hiddenName:"combovalue"
+                             }]
+                         },{
+                           xtype:"panel",
+                           title:"Pictures and Description",
+                           layout:"form",
+                           items:[{
+                               xtype:"panel",
+                               title:"Pictures"
+                             },{
+                               xtype:"textfield",
+                               fieldLabel:"Descritpion",
+                               name:"textvalue"
+                             }]
+                         },{
+                           xtype:"panel",
+                           title:"Inventory Information",
+                           layout:"form",
+                           items:[{
+                               xtype:"textfield",
+                               fieldLabel:"SKU",
+                               name:"textvalue"
+                             }]
+                         }]
+                     },{
+                       columnWidth:0.3,
+                       layout:"form",
+                       items:[{
+                           xtype:"panel",
+                           title:"Selling Format"
+                         },{
+                           xtype:"panel",
+                           title:"Shipping Options"
+                         },{
+                           xtype:"panel",
+                           title:"Payment Method",
+                           layout:"form",
+                           items:[{
+                               xtype:"fieldset",
+                               title:"PayPal",
+                               autoHeight:true,
+                               items:[{
+                                   xtype:"checkbox",
+                                   fieldLabel:"Label",
+                                   boxLabel:"Credit crads via PayPal",
+                                   name:"checkbox",
+                                   inputValue:"cbvalue"
+                                 },{
+                                   xtype:"textfield",
+                                   fieldLabel:"PayPal Account Email",
+                                   name:"textvalue"
+                                 }]
+                             },{
+                               xtype:"checkbox",
+                               fieldLabel:"Label",
+                               boxLabel:"Box label",
+                               name:"checkbox",
+                               inputValue:"cbvalue"
+                             },{
+                               xtype:"checkbox",
+                               fieldLabel:"Label",
+                               boxLabel:"Box label",
+                               name:"checkbox",
+                               inputValue:"cbvalue"
+                             },{
+                               xtype:"checkbox",
+                               fieldLabel:"Label",
+                               boxLabel:"Box label",
+                               name:"checkbox",
+                               inputValue:"cbvalue"
+                             },{
+                               xtype:"checkbox",
+                               fieldLabel:"Label",
+                               boxLabel:"Box label",
+                               name:"checkbox",
+                               inputValue:"cbvalue"
+                             }]
+                         }]
+                     }]
+                 }]
+          }
+          
+          var add_task_window = new Ext.Window({
+               title: 'XXX' ,
+               closable:true,
+               width: 500,
+               height: 610,
+               plain:true,
+               layout: 'fit',
+               items: form
+          });
+          
+          add_task_window.show();
+                                       
           console.log(oRecord);
      })
      
@@ -172,11 +304,11 @@ Ext.onReady(function(){
                        autoScroll:true
                    },{
                        contentEl:'center2',
-                       title: 'Listed Success Sku',
+                       title: 'Listing Success Sku',
                        autoScroll:true
                    },{
                        contentEl:'center2',
-                       title: 'Listed Failure Sku',
+                       title: 'Listing Failure Sku',
                        autoScroll:true
                    }]
                })
