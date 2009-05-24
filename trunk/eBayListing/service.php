@@ -6,7 +6,7 @@ class eBayListing{
     private static $database_connect;
     const DATABASE_HOST = 'localhost';
     const DATABASE_USER = 'root';
-    const DATABASE_PASSWORD = '';
+    const DATABASE_PASSWORD = '5333533';
     const DATABASE_NAME = 'ebaylisting';
     const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
     
@@ -318,6 +318,41 @@ class eBayListing{
     public function getAllInventorySkus(){
 	$result = $this->get(self::INVENTORY_SERVICE."?action=getAllSkus");
 	echo $result;
+    }
+    
+    
+    
+    public function getCategoriesTree(){
+	if($_POST['node'] == "0"){
+	    $sql = "select CategoryID,CategoryName,LeafCategory from categories where CategoryID = CategoryParentID";
+	}else{
+	    $sql = "select CategoryID,CategoryName,LeafCategory from categories where CategoryParentID = '".$_POST['node']."'";
+	}
+	//echo $sql;
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$array = array();
+	$i = 0;
+	while($row = mysql_fetch_assoc($result)){
+	    $array[$i]['id'] = $row['CategoryID'];
+	    $array[$i]['text'] = $row['CategoryName'];
+	    if($row['LeafCategory'] == 1){
+		$array[$i]['leaf'] = true;
+	    }
+	    $i++;
+	}
+	echo json_encode($array);
+	mysql_free_result($result);
+    }
+    
+    public function getListingDurationType(){
+	$sql = "select id,name from listing_duration_type";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$array = array();
+	while($row = mysql_fetch_assoc($result)){
+	    $array[] = $row;
+	}
+	echo json_encode($array);
+	mysql_free_result($result);
     }
     
     public function addItems(){
