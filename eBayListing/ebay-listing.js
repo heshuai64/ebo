@@ -1,5 +1,5 @@
 Ext.onReady(function(){
-     var inventory_service_address = "/tracmor/service.php";
+     var inventory_service_address = "/einv2/service.php";
      Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
      
      var inventory_search_form = new Ext.FormPanel({
@@ -252,6 +252,22 @@ Ext.onReady(function(){
           console.log(oRecord);
      })
      
+     var inventoryTree = new Ext.tree.TreePanel({
+          useArrows:true,
+          autoScroll:true,
+          animate:true,
+          
+          // auto create TreeLoader
+          dataUrl: inventory_service_address+'?action=getCategoriesTree',
+  
+          root: {
+              nodeType: 'async',
+              text: 'SKU Categories',
+              draggable:false,
+              id: '0'
+          }
+     });
+     
      
      var viewport = new Ext.Viewport({
           layout:'border',
@@ -285,16 +301,22 @@ Ext.onReady(function(){
                        animate:true
                    },
                    items: [{
-                       contentEl: 'west',
-                       title:'Navigation',
+                       title:'Inventory',
                        border:false,
-                       iconCls:'nav'
+                       items: inventoryTree,
+                       iconCls:'inventory'
                    },{
-                       title:'Settings',
-                       html:'<p>Some settings in here.</p>',
+                       title:'Waiting To Upload',
+                       html:'xxx',
                        border:false,
-                       iconCls:'settings'
-                   }]
+                       iconCls:'waiting-to-upload'
+                   },{
+                       title:'Listing Activity',
+                       html:'xxx',
+                       border:false,
+                       iconCls:'listing-activity'
+                   }
+                   ]
                },
                new Ext.TabPanel({
                    region:'center',
@@ -317,11 +339,5 @@ Ext.onReady(function(){
                })
             ]
        });
-   
-       Ext.get("hideit").on('click', function() {
-          var w = Ext.getCmp('west-panel');
-          w.collapsed ? w.expand() : w.collapse(); 
-       });
-       
        
 });
