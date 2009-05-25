@@ -116,7 +116,7 @@ class PackingList{
         
         $i = 0;
         while($row = mysql_fetch_assoc($result)){
-            /*
+            
             if(in_array($row['shippingMethod'], array('B', 'R', 'S'))){
                 switch($row['shippingMethod']){
                     case "B":
@@ -132,7 +132,7 @@ class PackingList{
                     break;
                 }
             }
-            */
+            
             
             $this->shipment[$i] = $row;
             $sql_1 = "select sd.skuId,sd.itemId,sd.quantity,i.galleryURL from qo_shipments_detail as sd left join qo_items as i on sd.itemId=i.id where sd.shipmentsId='".$row['id']."'";
