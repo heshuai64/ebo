@@ -116,6 +116,7 @@ class PackingList{
         
         $i = 0;
         while($row = mysql_fetch_assoc($result)){
+            /*
             if(in_array($row['shippingMethod'], array('B', 'R', 'S'))){
                 switch($row['shippingMethod']){
                     case "B":
@@ -131,6 +132,7 @@ class PackingList{
                     break;
                 }
             }
+            */
             
             $this->shipment[$i] = $row;
             $sql_1 = "select sd.skuId,sd.itemId,sd.quantity,i.galleryURL from qo_shipments_detail as sd left join qo_items as i on sd.itemId=i.id where sd.shipmentsId='".$row['id']."'";
@@ -147,11 +149,15 @@ class PackingList{
     }
     
     private function generateFile($fileName, $content){
-        if(!file_exists(self::FILE_PATH.date("Ymd"))){
-            mkdir(self::FILE_PATH.date("Ymd"), 0777);
+        if(!file_exists(self::FILE_PATH.date("Ym"))){
+            mkdir(self::FILE_PATH.date("Ym"), 0777);
         }
         
-        $fileName = self::FILE_PATH.date("Ymd").'/'.$fileName.'.html';
+        if(!file_exists(self::FILE_PATH.date("Ym")."/".date("d"))){
+            mkdir(self::FILE_PATH.date("Ym")."/".date("d"), 0777);
+        }
+        
+        $fileName = self::FILE_PATH.date("Ym")."/".date("d").'/'.$fileName.'.html';
         
         if (!$handle = fopen($fileName, 'w')) {
             echo "not open file $fileName";
@@ -188,7 +194,7 @@ class PackingList{
             require("template.php");
             $content = ob_get_contents();
             ob_end_clean();
-            $this->generateFile($sellerId.'-packinglist', $content);
+            $this->generateFile($sellerId, $content);
         }
     }
     

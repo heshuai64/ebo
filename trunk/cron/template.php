@@ -10,34 +10,63 @@
         
 </head>
 <body>
-        <div style="width:900px;margin:auto;">
+        <!--style="width:900px;margin:auto;"-->
+        <div> 
                 <table align="center" cellpadding="0" cellspacing="0" border="1" width="100%">
                         <tr align="center" class="header">
-                                <th>No</th><th>Shipment Id</th><th>Address</th><th>Sku</th><th>Images</th><th>Shipping</th>
+                                <th>No</th><th>Shipment Id</th><th>Address</th><th>Sku</th><th>No</th><th>Shipment Id</th><th>Address</th><th>Sku</th><!--<th>Images</th><th>Shipping</th>-->
                         </tr>
                         <?php
                         $i = 1;
-                        foreach($this->shipment as $shipment){
+                        for($i=0; $i< count($this->shipment); $i++){
+                        //foreach($this->shipment as $shipment){
                                 echo '<tr>';
                                         echo '<td>';
                                                 echo $i;
                                         echo '</td>';
                                         echo '<td>';
                                                 //image.php?code=code128&o=1&t=30&r=2&text='.$shipment['id'].'&f1=Arial.ttf&f2=8&a1=&a2=B&a3=
-                                                echo '<img src="'.PackingList::BAR_CODE_URL.'?code=code128&o=1&t=30&r=1&text='.$shipment['id'].'&f1=Arial.ttf&f2=8&a1=&a2=B&a3=">';
+                                                echo '<img src="'.PackingList::BAR_CODE_URL.'?code=code128&o=1&t=30&r=1&text='.$this->shipment[$i]['id'].'&f1=Arial.ttf&f2=8&a1=&a2=B&a3=">';
                                         echo '</td>';
                                         echo '<td style="padding-left:10px"><font size="5">';
-                                                echo "Attn: ".$shipment['shipToName'].'<br>'.
-                                                $shipment['shipToAddressLine1']." ".(!empty($shipment['shipToAddressLine2'])?$shipment['shipToAddressLine2'].'<br>':'').
-                                                $shipment['shipToCity']. '<br>'.
-                                                $shipment['shipToStateOrProvince']. ", ". $shipment['shipToPostalCode'].'<br>'.
-                                                $shipment['shipToCountry'].'<br>';
+                                                echo "Attn: ".$this->shipment[$i]['shipToName'].'<br>'.
+                                                $this->shipment[$i]['shipToAddressLine1']." ".(!empty($this->shipment[$i]['shipToAddressLine2'])?$this->shipment[$i]['shipToAddressLine2'].'<br>':'').
+                                                $this->shipment[$i]['shipToCity']. '<br>'.
+                                                $this->shipment[$i]['shipToStateOrProvince']. ", ". $this->shipment[$i]['shipToPostalCode'].'<br>'.
+                                                $this->shipment[$i]['shipToCountry'].'<br>';
                                         echo '</font></td>';
                                         echo '<td>';
-                                                foreach($shipment['shipmentDetail'] as $shipmentDetail){
+                                                foreach($this->shipment[$i]['shipmentDetail'] as $shipmentDetail){
                                                         echo $shipmentDetail['skuId'].' X '.$shipmentDetail['quantity'].'<br>';
                                                 }
                                         echo '</td>';
+                                        
+                                        $i++;
+                                        if($i < count($this->shipment)){
+                                                //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                                                echo '<td>';
+                                                        echo $i;
+                                                echo '</td>';
+                                                echo '<td>';
+                                                        //image.php?code=code128&o=1&t=30&r=2&text='.$shipment['id'].'&f1=Arial.ttf&f2=8&a1=&a2=B&a3=
+                                                        echo '<img src="'.PackingList::BAR_CODE_URL.'?code=code128&o=1&t=30&r=1&text='.$this->shipment[$i]['id'].'&f1=Arial.ttf&f2=8&a1=&a2=B&a3=">';
+                                                echo '</td>';
+                                                echo '<td style="padding-left:10px"><font size="5">';
+                                                        echo "Attn: ".$this->shipment[$i]['shipToName'].'<br>'.
+                                                        $this->shipment[$i]['shipToAddressLine1']." ".(!empty($this->shipment[$i]['shipToAddressLine2'])?$this->shipment[$i]['shipToAddressLine2'].'<br>':'').
+                                                        $this->shipment[$i]['shipToCity']. '<br>'.
+                                                        $this->shipment[$i]['shipToStateOrProvince']. ", ". $this->shipment[$i]['shipToPostalCode'].'<br>'.
+                                                        $this->shipment[$i]['shipToCountry'].'<br>';
+                                                echo '</font></td>';
+                                                echo '<td>';
+                                                        foreach($this->shipment[$i]['shipmentDetail'] as $shipmentDetail){
+                                                                echo $shipmentDetail['skuId'].' X '.$shipmentDetail['quantity'].'<br>';
+                                                        }
+                                                echo '</td>';
+                                                
+                                                $i++;
+                                        }
+                                        /*
                                         echo '<td>';
                                                 //var_dump($shipment['shipmentDetail']);
                                                 if(count($shipment['shipmentDetail']) == 1){
@@ -53,8 +82,9 @@
                                         echo '<td>';
                                                 echo $shipment['shippingMethod'];
                                         echo '</td>';
+                                        */
                                 echo '</tr>';
-                                $i++;
+                                
                         }
                         ?>
                 </table>
