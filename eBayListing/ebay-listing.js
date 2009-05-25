@@ -74,7 +74,7 @@ Ext.onReady(function(){
                               category_id: inventory_search_form.getForm().findField("category_id").getValue(),
                               manufacturer_id: inventory_search_form.getForm().findField("manufacturer_id").getValue()
                          };
-                         inventory_store.load({params:{start:0, limit:10}});
+                         inventory_store.load({params:{start:0, limit:20}});
                     }
           }]
      })
@@ -91,7 +91,7 @@ Ext.onReady(function(){
      
      
      var inventory_grid = new Ext.grid.GridPanel({
-          title: 'List',
+          title: 'Inventory SKU List',
           store: inventory_store,
           autoHeight: true,
           selModel: new Ext.grid.RowSelectionModel({}),
@@ -105,7 +105,7 @@ Ext.onReady(function(){
               {header: "Cost", width: 60, align: 'center', sortable: true, dataIndex: 'Cost'}
           ],
           bbar: new Ext.PagingToolbar({
-              pageSize: 10,
+              pageSize: 20,
               store: inventory_store,
               displayInfo: true
           })
@@ -256,18 +256,44 @@ Ext.onReady(function(){
           useArrows:true,
           autoScroll:true,
           animate:true,
-          
+          height: 500,
           // auto create TreeLoader
           dataUrl: inventory_service_address+'?action=getCategoriesTree',
-  
           root: {
               nodeType: 'async',
               text: 'SKU Categories',
               draggable:false,
+              expanded: true,
               id: '0'
+          },
+          listeners:{
+               click: function(n, e){
+                    //console.log(n);
+                    inventory_store.baseParams = {
+                         category_id: n.id
+                    };
+                    inventory_store.load({params:{start:0, limit:20}});
+               }
+               
           }
      });
      
+     var tabPanel = new Ext.TabPanel({
+                         region:'center',
+                         deferredRender:false,
+                         activeTab:0,
+                         items:[{
+                              id:'inventory-tab',
+                              title: 'Inventory',
+                              iconCls: 'inventory',
+                              items: [inventory_search_form, inventory_grid],
+                              closable: true,
+                              autoScroll:true
+                         }]
+     })
+     
+     var waitOpen = false;
+     var activityOpen = false;
      
      var viewport = new Ext.Viewport({
           layout:'border',
@@ -276,7 +302,7 @@ Ext.onReady(function(){
                    region:'north',
                    el: 'north',
                    height:32
-               }),{
+               }),/*{
                    region:'south',
                    contentEl: 'south',
                    split:true,
@@ -286,7 +312,7 @@ Ext.onReady(function(){
                    collapsible: true,
                    title:'South',
                    margins:'0 0 0 0'
-               },{
+               },*/{
                    region:'west',
                    id:'west-panel',
                    title:'West',
@@ -301,42 +327,154 @@ Ext.onReady(function(){
                        animate:true
                    },
                    items: [{
-                       title:'Inventory',
-                       border:false,
-                       items: inventoryTree,
-                       iconCls:'inventory'
+                         title:'Inventory',
+                         border:false,
+                         items: inventoryTree,
+                         iconCls:'inventory',
+                         listeners:{
+                              expand: function(p){
+                                   tabPanel.activate('inventory-tab');
+                              }
+                         }
                    },{
                        title:'Waiting To Upload',
                        html:'xxx',
                        border:false,
-                       iconCls:'waiting-to-upload'
+                       iconCls:'waiting-to-upload',
+                       listeners:{
+                         expand: function(p){
+                              var wait_store =new Ext.data.JsonStore({
+                                   root: 'records',
+                                   totalProperty: 'totalCount',
+                                   idProperty: 'id',
+                                   //autoLoad:true,
+                                   fields: ['inventory_model_code', 'short_description', 'long_description', 'category', 'manufacturer', 'Weight', 'Cost'],
+                                   //url: 'service.php?action=getWait'
+                                   url: inventory_service_address + '?action=getAllSkus'
+                              })
+                              
+                              var wait_grid = new Ext.grid.GridPanel({
+                                   title: 'Waiting To Upload SKU List',
+                                   store: wait_store,
+                                   autoHeight: true,
+                                   selModel: new Ext.grid.RowSelectionModel({}),
+                                   columns:[
+                                       {header: "Sku", width: 120, align: 'center', sortable: true, dataIndex: 'inventory_model_code'},
+                                       {header: "Model", width: 120, align: 'center', sortable: true, dataIndex: 'short_description'},
+                                       {header: "Description", width: 180, align: 'center', sortable: true, dataIndex: 'long_description'},
+                                       {header: "Categpru", width: 100, align: 'center', sortable: true, dataIndex: 'category'},
+                                       {header: "Supplier", width: 120, align: 'center', sortable: true, dataIndex: 'manufacturer'},
+                                       {header: "Weight", width: 60, align: 'center', sortable: true, dataIndex: 'Weight'},
+                                       {header: "Cost", width: 60, align: 'center', sortable: true, dataIndex: 'Cost'}
+                                   ],
+                                   bbar: new Ext.PagingToolbar({
+                                       pageSize: 20,
+                                       store: wait_store,
+                                       displayInfo: true
+                                   })
+                              })
+                              
+                              if(waitOpen == true){
+                                   tabPanel.activate('waiting-to-upload-tab');
+                              }else{
+                                   wait_store.load();
+                                   tabPanel.add({
+                                        id:'waiting-to-upload-tab',
+                                        iconCls: 'waiting-to-upload',
+                                        title: "Waiting To Upload",
+                                        items: wait_grid,
+                                        autoScroll:true
+                                   })
+                                   tabPanel.doLayout();
+                                   tabPanel.activate('waiting-to-upload-tab');
+                              }
+                              
+                              /*
+                              //if(tabPanel.isVisible('waiting-to-upload-tab'))
+                                   //tabPanel.remove('waiting-to-upload-tab');
+                              
+                              console.log(tabPanel.find('waiting-to-upload-tab'));
+                              
+                              if(tabPanel.find('waiting-to-upload-tab')){
+                                   tabPanel.activate('waiting-to-upload-tab');
+                              }
+                              */
+                              
+                              
+                              waitOpen = true;
+                         }
+                       }
                    },{
                        title:'Listing Activity',
                        html:'xxx',
                        border:false,
-                       iconCls:'listing-activity'
+                       iconCls:'listing-activity',
+                       listeners:{
+                              expand: function(p){
+                                   var activity_store =new Ext.data.JsonStore({
+                                        root: 'records',
+                                        totalProperty: 'totalCount',
+                                        idProperty: 'id',
+                                        //autoLoad:true,
+                                        fields: ['inventory_model_code', 'short_description', 'long_description', 'category', 'manufacturer', 'Weight', 'Cost'],
+                                        //url: 'service.php?action=getWait'
+                                        url: inventory_service_address + '?action=getAllSkus'
+                                   })
+                                   
+                                   var activity_grid = new Ext.grid.GridPanel({
+                                        title: 'Waiting To Upload SKU List',
+                                        store: activity_store,
+                                        autoHeight: true,
+                                        selModel: new Ext.grid.RowSelectionModel({}),
+                                        columns:[
+                                            {header: "Sku", width: 120, align: 'center', sortable: true, dataIndex: 'inventory_model_code'},
+                                            {header: "Model", width: 120, align: 'center', sortable: true, dataIndex: 'short_description'},
+                                            {header: "Description", width: 180, align: 'center', sortable: true, dataIndex: 'long_description'},
+                                            {header: "Categpru", width: 100, align: 'center', sortable: true, dataIndex: 'category'},
+                                            {header: "Supplier", width: 120, align: 'center', sortable: true, dataIndex: 'manufacturer'},
+                                            {header: "Weight", width: 60, align: 'center', sortable: true, dataIndex: 'Weight'},
+                                            {header: "Cost", width: 60, align: 'center', sortable: true, dataIndex: 'Cost'}
+                                        ],
+                                        bbar: new Ext.PagingToolbar({
+                                            pageSize: 20,
+                                            store: activity_store,
+                                            displayInfo: true
+                                        })
+                                   })
+                                   
+                                   if(activityOpen == true){
+                                        tabPanel.activate('activity-tab');
+                                   }else{
+                                        activity_store.load();
+                                        tabPanel.add({
+                                             id:'activity-tab',
+                                             iconCls: 'listing-activity',
+                                             title: "Waiting To Upload",
+                                             items: activity_grid,
+                                             autoScroll:true
+                                        })
+                                        tabPanel.doLayout();
+                                        tabPanel.activate('activity-tab');
+                                   }
+                                   
+                                   /*
+                                   //if(tabPanel.isVisible('waiting-to-upload-tab'))
+                                        //tabPanel.remove('waiting-to-upload-tab');
+                                   
+                                   console.log(tabPanel.find('waiting-to-upload-tab'));
+                                   
+                                   if(tabPanel.find('waiting-to-upload-tab')){
+                                        tabPanel.activate('waiting-to-upload-tab');
+                                   }
+                                   */
+                                   
+                                   
+                                   activityOpen = true;
+                              }
+                         }
                    }
                    ]
-               },
-               new Ext.TabPanel({
-                   region:'center',
-                   deferredRender:false,
-                   activeTab:0,
-                   items:[{
-                       contentEl:'center1',
-                       title: 'Inventory Sku',
-                       items: [inventory_search_form, inventory_grid],
-                       autoScroll:true
-                   },{
-                       contentEl:'center2',
-                       title: 'Listing Success Sku',
-                       autoScroll:true
-                   },{
-                       contentEl:'center2',
-                       title: 'Listing Failure Sku',
-                       autoScroll:true
-                   }]
-               })
+               },tabPanel
             ]
        });
        
