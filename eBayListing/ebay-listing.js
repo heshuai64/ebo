@@ -1,5 +1,6 @@
 Ext.onReady(function(){
      var inventory_service_address = "/einv2/service.php";
+     Ext.QuickTips.init();
      Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
      
      var inventory_search_form = new Ext.FormPanel({
@@ -81,12 +82,18 @@ Ext.onReady(function(){
                
      
      var inventory_store = new Ext.data.JsonStore({
-                         root: 'records',
-                         totalProperty: 'totalCount',
-                         idProperty: 'id',
-                         autoLoad:true,
-                         fields: ['inventory_model_code', 'short_description', 'long_description', 'category', 'manufacturer', 'Weight', 'Cost'],
-                         url: inventory_service_address + '?action=getAllSkus'
+          root: 'records',
+          totalProperty: 'totalCount',
+          idProperty: 'id',
+          autoLoad:true,
+          fields: ['inventory_model_code', 'short_description', 'long_description', 'category', 'manufacturer', 'Weight', 'Cost'],
+          url: inventory_service_address + '?action=getAllSkus',
+          listeners: {
+               load: function(t, r){
+                    //console.log(t.totalLength);
+                    Ext.getCmp('inventory-accordion').setTitle('Inventory ('+t.totalLength+')');
+               }
+          }
      });
      
      
@@ -113,146 +120,11 @@ Ext.onReady(function(){
      
      inventory_grid.on("rowdblclick", function(oGrid){
           var oRecord = oGrid.getSelectionModel().getSelected();
-          /*
-          var form = {
-               xtype:"form",
-               labelAlign:"top",
-               items:[{
-                   layout:"column",
-                   items:[{
-                       columnWidth:0.7,
-                       layout:"form",
-                       items:[{
-                           xtype:"panel",
-                           title:"Title and Category",
-                           layout:"form",
-                           items:[{
-                               xtype:"textfield",
-                               fieldLabel:"Title",
-                               name:"textvalue"
-                             },{
-                               xtype:"textfield",
-                               fieldLabel:"Subtitle",
-                               name:"textvalue"
-                             },{
-                               xtype:"combo",
-                               fieldLabel:"Category",
-                               name:"combovalue",
-                               hiddenName:"combovalue"
-                             },{
-                               xtype:"combo",
-                               fieldLabel:"2nd Category",
-                               name:"combovalue",
-                               hiddenName:"combovalue"
-                             },{
-                               xtype:"combo",
-                               fieldLabel:"Store Category",
-                               name:"combovalue",
-                               hiddenName:"combovalue"
-                             },{
-                               xtype:"combo",
-                               fieldLabel:"2nd Store Category",
-                               name:"combovalue",
-                               hiddenName:"combovalue"
-                             }]
-                         },{
-                           xtype:"panel",
-                           title:"Pictures and Description",
-                           layout:"form",
-                           items:[{
-                               xtype:"panel",
-                               title:"Pictures"
-                             },{
-                               xtype:"textfield",
-                               fieldLabel:"Descritpion",
-                               name:"textvalue"
-                             }]
-                         },{
-                           xtype:"panel",
-                           title:"Inventory Information",
-                           layout:"form",
-                           items:[{
-                               xtype:"textfield",
-                               fieldLabel:"SKU",
-                               name:"textvalue"
-                             }]
-                         }]
-                     },{
-                       columnWidth:0.3,
-                       layout:"form",
-                       items:[{
-                           xtype:"panel",
-                           title:"Selling Format"
-                         },{
-                           xtype:"panel",
-                           title:"Shipping Options"
-                         },{
-                           xtype:"panel",
-                           title:"Payment Method",
-                           layout:"form",
-                           items:[{
-                               xtype:"fieldset",
-                               title:"PayPal",
-                               autoHeight:true,
-                               items:[{
-                                   xtype:"checkbox",
-                                   fieldLabel:"Label",
-                                   boxLabel:"Credit crads via PayPal",
-                                   name:"checkbox",
-                                   inputValue:"cbvalue"
-                                 },{
-                                   xtype:"textfield",
-                                   fieldLabel:"PayPal Account Email",
-                                   name:"textvalue"
-                                 }]
-                             },{
-                               xtype:"checkbox",
-                               fieldLabel:"Label",
-                               boxLabel:"Box label",
-                               name:"checkbox",
-                               inputValue:"cbvalue"
-                             },{
-                               xtype:"checkbox",
-                               fieldLabel:"Label",
-                               boxLabel:"Box label",
-                               name:"checkbox",
-                               inputValue:"cbvalue"
-                             },{
-                               xtype:"checkbox",
-                               fieldLabel:"Label",
-                               boxLabel:"Box label",
-                               name:"checkbox",
-                               inputValue:"cbvalue"
-                             },{
-                               xtype:"checkbox",
-                               fieldLabel:"Label",
-                               boxLabel:"Box label",
-                               name:"checkbox",
-                               inputValue:"cbvalue"
-                             }]
-                         }]
-                     }]
-                 }]
-          }
-          
-          var add_task_window = new Ext.Window({
-               title: 'XXX' ,
-               closable:true,
-               width: 500,
-               height: 610,
-               plain:true,
-               layout: 'fit',
-               items: form
-          });
-          
-          add_task_window.show();
-          */
-          
-          window.open("/eBayBO/eBaylisting/create_new_item.php?id="+oRecord.data['id'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");
           console.log(oRecord);
+          //window.open("/eBayBO/eBaylisting/create_new_item.php?id="+oRecord.data['inventory_model_code'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");
      })
      
-     var inventoryTree = new Ext.tree.TreePanel({
+     var inventory_categories_tree = new Ext.tree.TreePanel({
           useArrows:true,
           autoScroll:true,
           animate:true,
@@ -260,11 +132,11 @@ Ext.onReady(function(){
           // auto create TreeLoader
           dataUrl: inventory_service_address+'?action=getCategoriesTree',
           root: {
-              nodeType: 'async',
-              text: 'SKU Categories',
-              draggable:false,
-              expanded: true,
-              id: '0'
+               id: '0',
+               nodeType: 'async',
+               text: 'All Categories',
+               draggable:false,
+               expanded: true
           },
           listeners:{
                click: function(n, e){
@@ -277,6 +149,34 @@ Ext.onReady(function(){
                
           }
      });
+     
+     var listing_cctivity_tree = new Ext.tree.TreePanel({
+          useArrows:true,
+          autoScroll:true,
+          animate:true,
+          height: 500,
+          root: {
+               id: '0',
+               text: 'All Listing',
+               draggable:false,
+               expanded: true,
+               rootVisible: false,
+               children:[ 
+                    {"text" : "Scheduled Listings", "id" : 1, "leaf" : true},
+                    {"text" : "Active Listings", "id" : 2, "leaf" : true},
+                    {"text" : "Ended Listings", "id" : 3, "leaf" : true}
+               ]
+ 
+ 
+          },
+          listeners:{
+               click: function(n, e){
+                    //console.log(n);
+               }
+               
+          }
+     });
+     
      
      var tabPanel = new Ext.TabPanel({
                          region:'center',
@@ -292,8 +192,6 @@ Ext.onReady(function(){
                          }]
      })
      
-     var waitOpen = false;
-     var activityOpen = false;
      
      var viewport = new Ext.Viewport({
           layout:'border',
@@ -327,9 +225,10 @@ Ext.onReady(function(){
                        animate:true
                    },
                    items: [{
+                         id: 'inventory-accordion',
                          title:'Inventory',
                          border:false,
-                         items: inventoryTree,
+                         items: inventory_categories_tree,
                          iconCls:'inventory',
                          listeners:{
                               expand: function(p){
@@ -374,20 +273,24 @@ Ext.onReady(function(){
                                    })
                               })
                               
-                              if(waitOpen == true){
-                                   tabPanel.activate('waiting-to-upload-tab');
-                              }else{
+                              if(tabPanel.isVisible('waiting-to-upload-tab'))
+                                   tabPanel.remove('waiting-to-upload-tab');
+                                   
+                              //if(waitOpen == true){
+                                   //tabPanel.activate('waiting-to-upload-tab');
+                              //}else{
                                    wait_store.load();
                                    tabPanel.add({
                                         id:'waiting-to-upload-tab',
                                         iconCls: 'waiting-to-upload',
                                         title: "Waiting To Upload",
                                         items: wait_grid,
+                                        closable: true,
                                         autoScroll:true
                                    })
                                    tabPanel.doLayout();
                                    tabPanel.activate('waiting-to-upload-tab');
-                              }
+                              //}
                               
                               /*
                               //if(tabPanel.isVisible('waiting-to-upload-tab'))
@@ -400,13 +303,11 @@ Ext.onReady(function(){
                               }
                               */
                               
-                              
-                              waitOpen = true;
                          }
                        }
                    },{
                        title:'Listing Activity',
-                       html:'xxx',
+                       items:listing_cctivity_tree,
                        border:false,
                        iconCls:'listing-activity',
                        listeners:{
@@ -442,34 +343,21 @@ Ext.onReady(function(){
                                         })
                                    })
                                    
-                                   if(activityOpen == true){
-                                        tabPanel.activate('activity-tab');
-                                   }else{
-                                        activity_store.load();
-                                        tabPanel.add({
-                                             id:'activity-tab',
-                                             iconCls: 'listing-activity',
-                                             title: "Waiting To Upload",
-                                             items: activity_grid,
-                                             autoScroll:true
-                                        })
-                                        tabPanel.doLayout();
-                                        tabPanel.activate('activity-tab');
-                                   }
+                                   if(tabPanel.isVisible('activity-tab'))
+                                        tabPanel.remove('activity-tab');
+
+                                   activity_store.load();
+                                   tabPanel.add({
+                                        id:'activity-tab',
+                                        iconCls: 'listing-activity',
+                                        title: "Listing Activity",
+                                        items: activity_grid,
+                                        closable: true,
+                                        autoScroll:true
+                                   })
+                                   tabPanel.doLayout();
+                                   tabPanel.activate('activity-tab');
                                    
-                                   /*
-                                   //if(tabPanel.isVisible('waiting-to-upload-tab'))
-                                        //tabPanel.remove('waiting-to-upload-tab');
-                                   
-                                   console.log(tabPanel.find('waiting-to-upload-tab'));
-                                   
-                                   if(tabPanel.find('waiting-to-upload-tab')){
-                                        tabPanel.activate('waiting-to-upload-tab');
-                                   }
-                                   */
-                                   
-                                   
-                                   activityOpen = true;
                               }
                          }
                    }
