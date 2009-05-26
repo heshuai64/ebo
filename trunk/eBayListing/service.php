@@ -355,6 +355,11 @@ class eBayListing{
 	mysql_free_result($result);
     }
     
+    
+    public function synchronize(){
+	
+    }
+    
     public function addItems(){
 	/*
 	英,美,法,澳,
