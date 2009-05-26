@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- 主机: localhost
--- 生成日期: 2009 年 05 月 23 日 07:26
+-- 生成日期: 2009 年 05 月 27 日 01:38
 -- 服务器版本: 5.0.67
 -- PHP 版本: 5.2.6
 
@@ -44,80 +44,136 @@ INSERT INTO `account` (`id`, `name`, `token`, `tokenExpiry`, `status`) VALUES
 -- --------------------------------------------------------
 
 --
--- 表的结构 `account_categories`
+-- 表的结构 `account_store_categories`
 --
 
-CREATE TABLE IF NOT EXISTS `account_categories` (
+CREATE TABLE IF NOT EXISTS `account_store_categories` (
   `CategoryID` int(11) NOT NULL,
-  `CategoryLevel` int(11) NOT NULL,
-  `Name` varchar(200) NOT NULL,
+  `CategoryParentID` int(11) NOT NULL,
+  `Name` varchar(50) NOT NULL,
   `Order` int(11) NOT NULL,
-  `UserID` varchar(200) NOT NULL,
-  KEY `CategoryID` (`CategoryID`,`UserID`)
+  `AccountId` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- 导出表中的数据 `account_categories`
+-- 导出表中的数据 `account_store_categories`
 --
 
-INSERT INTO `account_categories` (`CategoryID`, `CategoryLevel`, `Name`, `Order`, `UserID`) VALUES
-(1, 1, 'Other', 0, 'ymca200808'),
-(790441013, 1, 'Accessoires Jeu', 50, 'ymca200808'),
-(790443013, 2, 'Pour Sony', 1, 'ymca200808'),
-(790444013, 2, 'Play Station', 2, 'ymca200808'),
-(790445013, 2, 'PSP', 3, 'ymca200808'),
-(790446013, 2, 'Pour Nintendo', 4, 'ymca200808'),
-(790447013, 2, 'Pour Xbox/Xbox 360', 5, 'ymca200808'),
-(790458013, 2, 'Les Autres', 6, 'ymca200808'),
-(790524013, 2, 'Les Marchandises Nouvellement', 7, 'ymca200808'),
-(790470013, 1, 'Accessoires Mobile', 51, 'ymca200808'),
-(790475013, 2, 'Pour Nokia', 1, 'ymca200808'),
-(790476013, 2, 'Pour LG', 2, 'ymca200808'),
-(790477013, 2, 'Pour Sumsung', 3, 'ymca200808'),
-(790478013, 2, 'Pour Sony Ericsson', 4, 'ymca200808'),
-(790479013, 2, 'Pour HTC', 5, 'ymca200808'),
-(790482013, 2, 'Pour Motorola', 6, 'ymca200808'),
-(790483013, 2, 'Pour Apple', 7, 'ymca200808'),
-(790471013, 1, 'Accessoires Ordinateur', 52, 'ymca200808'),
-(790499013, 2, 'Adapteur Alimentation', 1, 'ymca200808'),
-(790500013, 2, 'Clavier', 2, 'ymca200808'),
-(790501013, 2, 'Chargeur Allume-Cigare', 3, 'ymca200808'),
-(790502013, 2, 'Sac Portable', 4, 'ymca200808'),
-(790503013, 2, 'Les Câbles', 5, 'ymca200808'),
-(790504013, 2, 'Les Autres', 6, 'ymca200808'),
-(790472013, 1, 'Accessoires Mp3/Mp4', 53, 'ymca200808'),
-(790505013, 2, 'Zen', 1, 'ymca200808'),
-(790506013, 2, 'Ipod', 2, 'ymca200808'),
-(790507013, 2, 'Les Autres', 3, 'ymca200808'),
-(790473013, 1, 'Accessoires Voiture', 54, 'ymca200808'),
-(790508013, 2, 'Lampe/LED', 1, 'ymca200808'),
-(790509013, 2, 'GPS', 2, 'ymca200808'),
-(790510013, 2, 'Chargeur Allume-Cigare', 3, 'ymca200808'),
-(790474013, 1, 'Accessoires Photo', 55, 'ymca200808'),
-(790511013, 2, 'Protection/Housse/Film.etc', 1, 'ymca200808'),
-(790512013, 2, 'Chargeur&Batterie', 2, 'ymca200808'),
-(790513013, 2, 'Flash Trigger&Câble Extension&', 3, 'ymca200808'),
-(790514013, 2, 'Date Câble', 4, 'ymca200808'),
-(790515013, 2, 'Filtre', 5, 'ymca200808'),
-(790516013, 2, 'Les Autres', 6, 'ymca200808'),
-(662521013, 1, 'Video Games Accessories', 46, 'ymca200808'),
-(662522013, 2, 'Nintendo series', 1, 'ymca200808'),
-(662526013, 3, 'DSi', 1, 'ymca200808'),
-(662527013, 3, 'DS/NDS', 2, 'ymca200808'),
-(662528013, 3, 'Wii', 3, 'ymca200808'),
-(662533013, 3, 'GameCube/GC', 4, 'ymca200808'),
-(662534013, 3, 'GameBoy/GBA SP', 5, 'ymca200808'),
-(662523013, 2, 'Microsoft Xbox series', 2, 'ymca200808'),
-(662537013, 3, 'Xbox', 1, 'ymca200808'),
-(662538013, 3, 'Xbox 360', 2, 'ymca200808'),
-(662524013, 2, 'Sony playstation series', 3, 'ymca200808'),
-(662539013, 3, 'PlayStation 2/PS2', 1, 'ymca200808'),
-(662540013, 3, 'PlayStation 3/PS3', 2, 'ymca200808'),
-(662541013, 3, 'PSP 1000/Fat', 3, 'ymca200808'),
-(662542013, 3, 'PSP 2000', 4, 'ymca200808'),
-(662546013, 3, 'PSP 3000', 5, 'ymca200808'),
-(662547013, 2, 'Other', 4, 'ymca200808'),
-(668907013, 1, 'Cell Phone Accessories', 47, 'ymca200808');
+INSERT INTO `account_store_categories` (`CategoryID`, `CategoryParentID`, `Name`, `Order`, `AccountId`) VALUES
+(1, 0, 'Other', 0, 1),
+(790441013, 0, 'Accessoires Jeu', 50, 1),
+(790443013, 790441013, 'Pour Sony', 1, 1),
+(790444013, 790441013, 'Play Station', 2, 1),
+(790445013, 790441013, 'PSP', 3, 1),
+(790446013, 790441013, 'Pour Nintendo', 4, 1),
+(790447013, 790441013, 'Pour Xbox/Xbox 360', 5, 1),
+(790458013, 790441013, 'Les Autres', 6, 1),
+(790524013, 790441013, 'Les Marchandises Nouvellement', 7, 1),
+(790470013, 0, 'Accessoires Mobile', 51, 1),
+(790475013, 790470013, 'Pour Nokia', 1, 1),
+(790476013, 790470013, 'Pour LG', 2, 1),
+(790477013, 790470013, 'Pour Sumsung', 3, 1),
+(790478013, 790470013, 'Pour Sony Ericsson', 4, 1),
+(790479013, 790470013, 'Pour HTC', 5, 1),
+(790482013, 790470013, 'Pour Motorola', 6, 1),
+(790483013, 790470013, 'Pour Apple', 7, 1),
+(790471013, 0, 'Accessoires Ordinateur', 52, 1),
+(790499013, 790471013, 'Adapteur Alimentation', 1, 1),
+(790500013, 790471013, 'Clavier', 2, 1),
+(790501013, 790471013, 'Chargeur Allume-Cigare', 3, 1),
+(790502013, 790471013, 'Sac Portable', 4, 1),
+(790503013, 790471013, 'Les Câbles', 5, 1),
+(790504013, 790471013, 'Les Autres', 6, 1),
+(790472013, 0, 'Accessoires Mp3/Mp4', 53, 1),
+(790505013, 790472013, 'Zen', 1, 1),
+(790506013, 790472013, 'Ipod', 2, 1),
+(790507013, 790472013, 'Les Autres', 3, 1),
+(790473013, 0, 'Accessoires Voiture', 54, 1),
+(790508013, 790473013, 'Lampe/LED', 1, 1),
+(790509013, 790473013, 'GPS', 2, 1),
+(790510013, 790473013, 'Chargeur Allume-Cigare', 3, 1),
+(790474013, 0, 'Accessoires Photo', 55, 1),
+(790511013, 790474013, 'Protection/Housse/Film.etc', 1, 1),
+(790512013, 790474013, 'Chargeur&Batterie', 2, 1),
+(790513013, 790474013, 'Flash Trigger&Câble Extension&', 3, 1),
+(790514013, 790474013, 'Date Câble', 4, 1),
+(790515013, 790474013, 'Filtre', 5, 1),
+(790516013, 790474013, 'Les Autres', 6, 1),
+(662521013, 0, 'Video Games Accessories', 46, 1),
+(662522013, 662521013, 'Nintendo series', 1, 1),
+(662526013, 662522013, 'DSi', 1, 1),
+(662527013, 662522013, 'DS/NDS', 2, 1),
+(662528013, 662522013, 'Wii', 3, 1),
+(662533013, 662522013, 'GameCube/GC', 4, 1),
+(662534013, 662522013, 'GameBoy/GBA SP', 5, 1),
+(662523013, 662521013, 'Microsoft Xbox series', 2, 1),
+(662537013, 662523013, 'Xbox', 1, 1),
+(662538013, 662523013, 'Xbox 360', 2, 1),
+(662524013, 662521013, 'Sony playstation series', 3, 1),
+(662539013, 662524013, 'PlayStation 2/PS2', 1, 1),
+(662540013, 662524013, 'PlayStation 3/PS3', 2, 1),
+(662541013, 662524013, 'PSP 1000/Fat', 3, 1),
+(662542013, 662524013, 'PSP 2000', 4, 1),
+(662546013, 662524013, 'PSP 3000', 5, 1),
+(662547013, 662521013, 'Other', 4, 1),
+(668907013, 0, 'Cell Phone Accessories', 47, 1),
+(1, 0, 'Other', 0, 1),
+(790441013, 0, 'Accessoires Jeu', 50, 1),
+(790443013, 790441013, 'Pour Sony', 1, 1),
+(790444013, 790441013, 'Play Station', 2, 1),
+(790445013, 790441013, 'PSP', 3, 1),
+(790446013, 790441013, 'Pour Nintendo', 4, 1),
+(790447013, 790441013, 'Pour Xbox/Xbox 360', 5, 1),
+(790458013, 790441013, 'Les Autres', 6, 1),
+(790524013, 790441013, 'Les Marchandises Nouvellement', 7, 1),
+(790470013, 0, 'Accessoires Mobile', 51, 1),
+(790475013, 790470013, 'Pour Nokia', 1, 1),
+(790476013, 790470013, 'Pour LG', 2, 1),
+(790477013, 790470013, 'Pour Sumsung', 3, 1),
+(790478013, 790470013, 'Pour Sony Ericsson', 4, 1),
+(790479013, 790470013, 'Pour HTC', 5, 1),
+(790482013, 790470013, 'Pour Motorola', 6, 1),
+(790483013, 790470013, 'Pour Apple', 7, 1),
+(790471013, 0, 'Accessoires Ordinateur', 52, 1),
+(790499013, 790471013, 'Adapteur Alimentation', 1, 1),
+(790500013, 790471013, 'Clavier', 2, 1),
+(790501013, 790471013, 'Chargeur Allume-Cigare', 3, 1),
+(790502013, 790471013, 'Sac Portable', 4, 1),
+(790503013, 790471013, 'Les Câbles', 5, 1),
+(790504013, 790471013, 'Les Autres', 6, 1),
+(790472013, 0, 'Accessoires Mp3/Mp4', 53, 1),
+(790505013, 790472013, 'Zen', 1, 1),
+(790506013, 790472013, 'Ipod', 2, 1),
+(790507013, 790472013, 'Les Autres', 3, 1),
+(790473013, 0, 'Accessoires Voiture', 54, 1),
+(790508013, 790473013, 'Lampe/LED', 1, 1),
+(790509013, 790473013, 'GPS', 2, 1),
+(790510013, 790473013, 'Chargeur Allume-Cigare', 3, 1),
+(790474013, 0, 'Accessoires Photo', 55, 1),
+(790511013, 790474013, 'Protection/Housse/Film.etc', 1, 1),
+(790512013, 790474013, 'Chargeur&Batterie', 2, 1),
+(790513013, 790474013, 'Flash Trigger&Câble Extension&', 3, 1),
+(790514013, 790474013, 'Date Câble', 4, 1),
+(790515013, 790474013, 'Filtre', 5, 1),
+(790516013, 790474013, 'Les Autres', 6, 1),
+(662521013, 0, 'Video Games Accessories', 46, 1),
+(662522013, 662521013, 'Nintendo series', 1, 1),
+(662526013, 662522013, 'DSi', 1, 1),
+(662527013, 662522013, 'DS/NDS', 2, 1),
+(662528013, 662522013, 'Wii', 3, 1),
+(662533013, 662522013, 'GameCube/GC', 4, 1),
+(662534013, 662522013, 'GameBoy/GBA SP', 5, 1),
+(662523013, 662521013, 'Microsoft Xbox series', 2, 1),
+(662537013, 662523013, 'Xbox', 1, 1),
+(662538013, 662523013, 'Xbox 360', 2, 1),
+(662524013, 662521013, 'Sony playstation series', 3, 1),
+(662539013, 662524013, 'PlayStation 2/PS2', 1, 1),
+(662540013, 662524013, 'PlayStation 3/PS3', 2, 1),
+(662541013, 662524013, 'PSP 1000/Fat', 3, 1),
+(662542013, 662524013, 'PSP 2000', 4, 1),
+(662546013, 662524013, 'PSP 3000', 5, 1),
+(662547013, 662521013, 'Other', 4, 1),
+(668907013, 0, 'Cell Phone Accessories', 47, 1);
 
 -- --------------------------------------------------------
 
@@ -26019,6 +26075,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 --
 
 CREATE TABLE IF NOT EXISTS `items` (
+  `Id` int(11) NOT NULL auto_increment,
   `ItemID` varchar(20) NOT NULL,
   `BuyItNowPrice` decimal(10,2) NOT NULL,
   `CategoryMappingAllowed` int(1) NOT NULL default '0',
@@ -26046,8 +26103,9 @@ CREATE TABLE IF NOT EXISTS `items` (
   `SubTitle` varchar(55) NOT NULL,
   `Title` varchar(55) NOT NULL,
   `Status` int(1) NOT NULL,
+  PRIMARY KEY  (`Id`),
   KEY `ItemID` (`ItemID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 --
 -- 导出表中的数据 `items`
