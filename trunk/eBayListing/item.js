@@ -1,4 +1,5 @@
 Ext.onReady(function(){
+    //var categoryPath = "";
     var itemForm = new Ext.form.FormPanel({
         labelAlign:"top",
         autoScroll:true,
@@ -71,26 +72,29 @@ Ext.onReady(function(){
                                         listeners:{
                                             click: function(n, e){
                                                 if(n.leaf){
-                                                    selectCategoryWindow.close();
-                                                    itemForm.getForm().findField("category").setValue(n.text);
-                                                    //console.log(n.text);
+                                                    //console.log(n);
+                                                    var categoryPath = "";
                                                     var categoryPath = n.text;
                                                     var parentNode = n.parentNode;
                                                     while(parentNode.id != "0"){
-                                                        console.log(parentNode);
-                                                        categoryPath += parentNode.text;
+                                                        //console.log(parentNode);
+                                                        categoryPath = parentNode.text + " --> " + categoryPath;
                                                         parentNode = parentNode.parentNode;
                                                     }
-                                                }else{
-                                                    categoryPath = categoryPath + " --> " + n.text;
+                                                    
+                                                    itemForm.getForm().findField("category").setValue(categoryPath);
+                                                    selectCategoryWindow.close();
                                                 }
+                                                //else{
+                                                //    categoryPath = categoryPath + " --> " + n.text;
+                                                //}
                                                 //console.log(n);
                                             },
                                             expandnode: function(n){
                                                 //console.log(n);
                                             }
                                         }
-                                    });
+                                    })
                                     
                                     var selectCategoryWindow = new Ext.Window({
                                         title:"Select Category",
@@ -115,6 +119,7 @@ Ext.onReady(function(){
                             columnWidth:0.9,
                             layout:"form",
                             items:[{
+                                id:"SCategory",
                                 xtype:"combo",
                                 fieldLabel:"2nd Category",
                                 name:"combovalue",
@@ -128,7 +133,62 @@ Ext.onReady(function(){
                             items:[{
                                 xtype:"button",
                                 text:"Select",
-                                style:"padding-top:18px;"
+                                style:"padding-top:18px;",
+                                handler: function(){
+                                    
+                                    var categoryTree = new Ext.tree.TreePanel({
+                                        useArrows:true,
+                                        autoScroll:true,
+                                        animate:true,
+                                        //containerScroll:true,
+                                        height:600,
+                                        width:300,
+                                        // auto create TreeLoader
+                                        dataUrl: 'service.php?action=getCategoriesTree',
+                                
+                                        root: {
+                                            nodeType: 'async',
+                                            draggable:false,
+                                            id: "0"
+                                        },
+                                        rootVisible: false,
+                                        listeners:{
+                                            click: function(n, e){
+                                                if(n.leaf){
+                                                    //console.log(n);
+                                                    var categoryPath = "";
+                                                    var categoryPath = n.text;
+                                                    var parentNode = n.parentNode;
+                                                    while(parentNode.id != "0"){
+                                                        //console.log(parentNode);
+                                                        categoryPath = parentNode.text + " --> " + categoryPath;
+                                                        parentNode = parentNode.parentNode;
+                                                    }
+                                                    
+                                                    itemForm.getForm().findField("SCategory").setValue(categoryPath);
+                                                    selectCategoryWindow.close();
+                                                }
+                                                //else{
+                                                //    categoryPath = categoryPath + " --> " + n.text;
+                                                //}
+                                                //console.log(n);
+                                            },
+                                            expandnode: function(n){
+                                                //console.log(n);
+                                            }
+                                        }
+                                    })
+                                    
+                                    var selectCategoryWindow = new Ext.Window({
+                                        title:"Select Category",
+                                        items: [{
+                                            xtype:"label",
+                                            text:"Select a category for you item."
+                                        },categoryTree]
+                                    })
+                                    
+                                    selectCategoryWindow.show();
+                                }
                             }]
                         }]
                       },{
@@ -142,6 +202,7 @@ Ext.onReady(function(){
                             columnWidth:0.9,
                             layout:"form",
                             items:[{
+                                id:"storeCategory",
                                 xtype:"combo",
                                 fieldLabel:"Store Category",
                                 name:"combovalue",
@@ -158,6 +219,58 @@ Ext.onReady(function(){
                                 style:"padding-top:18px;",
                                 handler: function(){
                                     
+                                    var storeCategoriesTree = new Ext.tree.TreePanel({
+                                        useArrows:true,
+                                        autoScroll:true,
+                                        animate:true,
+                                        //containerScroll:true,
+                                        height:600,
+                                        width:300,
+                                        // auto create TreeLoader
+                                        dataUrl: 'service.php?action=getStoreCategoriesTree',
+                                
+                                        root: {
+                                            nodeType: 'async',
+                                            draggable:false,
+                                            id: "0"
+                                        },
+                                        rootVisible: false,
+                                        listeners:{
+                                            click: function(n, e){
+                                                if(n.leaf){
+                                                    //console.log(n);
+                                                    var categoryPath = "";
+                                                    var categoryPath = n.text;
+                                                    var parentNode = n.parentNode;
+                                                    while(parentNode.id != "0"){
+                                                        //console.log(parentNode);
+                                                        categoryPath = parentNode.text + " --> " + categoryPath;
+                                                        parentNode = parentNode.parentNode;
+                                                    }
+                                                    
+                                                    itemForm.getForm().findField("storeCategory").setValue(categoryPath);
+                                                    selectStoreCategoryWindow.close();
+                                                }
+                                                //else{
+                                                //    categoryPath = categoryPath + " --> " + n.text;
+                                                //}
+                                                //console.log(n);
+                                            },
+                                            expandnode: function(n){
+                                                //console.log(n);
+                                            }
+                                        }
+                                    })
+                                    
+                                    var selectStoreCategoryWindow = new Ext.Window({
+                                        title:"Select Store Category",
+                                        items: [{
+                                            xtype:"label",
+                                            text:"Select a store category for you item."
+                                        },storeCategoriesTree]
+                                    })
+                                    
+                                    selectStoreCategoryWindow.show();
                                 }
                             }]
                           }]
@@ -172,6 +285,7 @@ Ext.onReady(function(){
                             columnWidth:0.9,
                             layout:"form",
                             items:[{
+                                id:"SStoreCategory",
                                 xtype:"combo",
                                 fieldLabel:"2nd Store Category",
                                 name:"combovalue",
@@ -185,7 +299,61 @@ Ext.onReady(function(){
                             items:[{
                                 xtype:"button",
                                 text:"Select",
-                                style:"padding-top:18px;"
+                                style:"padding-top:18px;",
+                                handler: function(){
+                                    var storeCategoriesTree = new Ext.tree.TreePanel({
+                                        useArrows:true,
+                                        autoScroll:true,
+                                        animate:true,
+                                        //containerScroll:true,
+                                        height:600,
+                                        width:300,
+                                        // auto create TreeLoader
+                                        dataUrl: 'service.php?action=getStoreCategoriesTree',
+                                
+                                        root: {
+                                            nodeType: 'async',
+                                            draggable:false,
+                                            id: "0"
+                                        },
+                                        rootVisible: false,
+                                        listeners:{
+                                            click: function(n, e){
+                                                if(n.leaf){
+                                                    //console.log(n);
+                                                    var categoryPath = "";
+                                                    var categoryPath = n.text;
+                                                    var parentNode = n.parentNode;
+                                                    while(parentNode.id != "0"){
+                                                        //console.log(parentNode);
+                                                        categoryPath = parentNode.text + " --> " + categoryPath;
+                                                        parentNode = parentNode.parentNode;
+                                                    }
+                                                    
+                                                    itemForm.getForm().findField("SStoreCategory").setValue(categoryPath);
+                                                    selectStoreCategoryWindow.close();
+                                                }
+                                                //else{
+                                                //    categoryPath = categoryPath + " --> " + n.text;
+                                                //}
+                                                //console.log(n);
+                                            },
+                                            expandnode: function(n){
+                                                //console.log(n);
+                                            }
+                                        }
+                                    })
+                                    
+                                    var selectStoreCategoryWindow = new Ext.Window({
+                                        title:"Select Store Category",
+                                        items: [{
+                                            xtype:"label",
+                                            text:"Select a store category for you item."
+                                        },storeCategoriesTree]
+                                    })
+                                    
+                                    selectStoreCategoryWindow.show();
+                                }
                             }]
                         }]
                       }]
@@ -193,48 +361,7 @@ Ext.onReady(function(){
                     xtype:"panel",
                     title:"Pictures and Description",
                     layout:"form",
-                    items:[/*{
-                        xtype:"panel",
-                        title:"Pictures",
-                        //html: 'test<br>test<br>test<br>test<br>test<br>test<br>test<br>test<br>test<br>test<br>',
-                        items: [/*{
-                            xtype:"panel",
-                            style:"font-size:10px;",
-                            bodyStyle:"padding:6px;cursor:pointer;",
-                            html: "Click to insert into a picture",
-                            width: 60,
-                            height: 60
-                        },{
-                            xtype:"panel",
-                            style:"font-size:10px;",
-                            bodyStyle:"padding:6px;cursor:pointer;",
-                            html: "Click to insert into a picture",
-                            width: 60,
-                            height: 60
-                        },{
-                            xtype:"panel",
-                            style:"font-size:10px;",
-                            bodyStyle:"padding:6px;cursor:pointer;",
-                            html: "Click to insert into a picture",
-                            width: 60,
-                            height: 60
-                        },{
-                            xtype:"panel",
-                            style:"font-size:10px;",
-                            bodyStyle:"padding:6px;cursor:pointer;",
-                            html: "Click to insert into a picture",
-                            width: 60,
-                            height: 60
-                        },{
-                            xtype:"panel",
-                            style:"font-size:10px;",
-                            bodyStyle:"padding:6px;cursor:pointer;",
-                            html: "Click to insert into a picture",
-                            width: 60,
-                            height: 60
-                        }]
-                        
-                      }*/{
+                    items:[{
                         layout:"column",
                         title:"Picture",
                         items:[{
@@ -245,7 +372,22 @@ Ext.onReady(function(){
                                 bodyStyle:"padding:6px;cursor:pointer;",
                                 html: "Click to insert into a picture",
                                 width:60,
-                                height:60
+                                height:60,
+                                listeners: {
+                                    click: function(){
+                                        console.log("test");
+                                        var selectPictureWindow = new Ext.Window({
+                                            title:"Insert Picture URLs - Self Hosted",
+                                            items: [{
+                                                xtype:"label",
+                                                text:"Please enter URLs for you pictures.(e.g. http://www.yourdomain.com/picture.gjf)<br>\
+                                                Optimal image size for use with layouts is 400x300pixels."
+                                            }]
+                                        })
+                                        
+                                        selectPictureWindow.show();
+                                    }
+                                }
                             }]
                           },{
                             columnWidth:0.1,

@@ -42,7 +42,7 @@ class eBayListing{
 	$sql_1 = "select p.host,p.port from proxy as p left join account_to_proxy as atp on p.id = atp.proxy_id where atp.account_id = '".$_SESSION['account_id']."'";
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$row_1 = mysql_fetch_assoc($result_1);
-	
+
 	$this->session = $this->configEbay($row['token'], $row_1['host'], $row_1['port']);
     }
     
@@ -70,7 +70,7 @@ class eBayListing{
     }
     
     private function saveFetchData($file_name, $data){
-	file_put_contents("/export/eBayBO/eBayListing/log".$file_name, $data);
+	//file_put_contents("/export/eBayBO/eBayListing/log".$file_name, $data);
     }
     
     private function checkCategoriesVersion($siteId, $categoryVersion){
@@ -84,7 +84,7 @@ class eBayListing{
                 //----------   debug --------------------------------
                 //print "Request: \n".$client->__getLastRequest() ."\n";
                 //print "Response: \n".$client->__getLastResponse()."\n";
-		$this->saveFetchData("/checkCategoriesVersion-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		$this->saveFetchData("checkCategoriesVersion-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 		
 		if($categoryVersion < $results->CategoryVersion){
 		    $sql = "update site set categoryVersion = '".$results->CategoryVersion."' where id = '".$siteId."'";
@@ -114,7 +114,7 @@ class eBayListing{
                 //----------   debug --------------------------------
                 //print "Request: \n".$client->__getLastRequest() ."\n";
                 //print "Response: \n".$client->__getLastResponse()."\n";
-                $this->saveFetchData("/getCategories-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+                $this->saveFetchData("getCategories-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 		foreach($results->CategoryArray->Category as $category){
 		    $sql = "insert into categories (CategoryID,CategoryLevel,CategoryName,CategoryParentID,LeafCategory,BestOfferEnabled,AutoPayEnabled,CategorySiteID) values 
 		    ('".$category->CategoryID."','".$category->CategoryLevel."','".$category->CategoryName."','".$category->CategoryParentID."',
@@ -142,6 +142,11 @@ class eBayListing{
     }
     
     private function getStoreCategories($userID){
+	$sql = "select id from account where name = '".$userID."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	$account_id = $row['id'];
+	
 	try {
                 $client = new eBaySOAP($this->session);
 
@@ -151,32 +156,37 @@ class eBayListing{
 		
                 $params = array('Version' => $Version, 'CategoryStructureOnly' => $CategoryStructureOnly, 'UserID' => $UserID);
                 $results = $client->GetStore($params);
+		//print_r($results);
                 //----------   debug --------------------------------
                 //print "Request: \n".$client->__getLastRequest() ."\n";
                 //print "Response: \n".$client->__getLastResponse()."\n";
-                $this->saveFetchData("/getStoreCategories-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+                $this->saveFetchData("getStoreCategories-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 		foreach($results->Store->CustomCategories->CustomCategory as $customCategory){
 		    $level = 1;
-		    $sql = "INSERT INTO `account_categories` (`CategoryID` ,`CategoryLevel` ,`Name` ,`Order` ,`UserID`) VALUES ('".$customCategory->CategoryID."','".$level."','".$customCategory->Name."','".$customCategory->Order."','".$userID."')";
-		    echo $sql."<br>\n";
+		    $sql = "INSERT INTO `account_store_categories` (`CategoryID` , `CategoryParentID` ,`Name` ,`Order` ,`AccountId`) VALUES ('".$customCategory->CategoryID."','0','".$customCategory->Name."','".$customCategory->Order."','".$account_id."')";
+		    //echo $sql."<br>\n";
 		    $result = mysql_query($sql, eBayListing::$database_connect);
 		    
+		    //two level
 		    if(is_array($customCategory->ChildCategory)){
+			$twoCategoryParentID = $customCategory->CategoryID;
 			$twoChildCategories = $customCategory->ChildCategory;
-			//two level
-			foreach($twoChildCategories as $twoChildCategory){
+			
+			foreach($twoChildCategories as $twoChildCategory){ 
 			    $level = 2;
-			    $sql = "INSERT INTO `account_categories` (`CategoryID` ,`CategoryLevel` ,`Name` ,`Order` ,`UserID`) VALUES ('".$twoChildCategory->CategoryID."','".$level."','".$twoChildCategory->Name."','".$twoChildCategory->Order."','".$userID."')";
-			    echo $sql."<br>\n";
+			    $sql = "INSERT INTO `account_store_categories` (`CategoryID` , `CategoryParentID` ,`Name` ,`Order` ,`AccountId`) VALUES ('".$twoChildCategory->CategoryID."','".$twoCategoryParentID."','".$twoChildCategory->Name."','".$twoChildCategory->Order."','".$account_id."')";
+			    //echo $sql."<br>\n";
 			    $result = mysql_query($sql, eBayListing::$database_connect);
 			    
 			    //three leve
 			    if(is_array($twoChildCategory->ChildCategory)){
+				$threeCategoryParentID = $twoChildCategory->CategoryID;
 				$threeChildCategories = $twoChildCategory->ChildCategory;
+				
 				foreach($threeChildCategories as $threeChildCategory){
 				    $level = 3;
-				    $sql = "INSERT INTO `account_categories` (`CategoryID` ,`CategoryLevel` ,`Name` ,`Order` ,`UserID`) VALUES ('".$threeChildCategory->CategoryID."','".$level."','".$threeChildCategory->Name."','".$threeChildCategory->Order."','".$userID."')";
-				    echo $sql."<br>\n";
+				    $sql = "INSERT INTO `account_store_categories` (`CategoryID` , `CategoryParentID` ,`Name` ,`Order` ,`AccountId`) VALUES ('".$threeChildCategory->CategoryID."','".$threeCategoryParentID."','".$threeChildCategory->Name."','".$threeChildCategory->Order."','".$account_id."')";
+				    //echo $sql."<br>\n";
 				    $result = mysql_query($sql, eBayListing::$database_connect);
 				}
 			    }
@@ -231,7 +241,7 @@ class eBayListing{
 	    //----------   debug --------------------------------
 	    //print "Request: \n".$client->__getLastRequest() ."\n";
 	    //print "Response: \n".$client->__getLastResponse()."\n";
-	    $this->saveFetchData("/getCategoryFeatures-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+	    $this->saveFetchData("getCategoryFeatures-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 	 } catch (SOAPFault $f) {
                 print $f; // error handling
         }
@@ -326,7 +336,7 @@ class eBayListing{
 	if($_POST['node'] == "0"){
 	    $sql = "select CategoryID,CategoryName,LeafCategory from categories where CategoryID = CategoryParentID";
 	}else{
-	    $sql = "select CategoryID,CategoryName,LeafCategory from categories where CategoryParentID = '".$_POST['node']."'";
+	    $sql = "select CategoryID,CategoryName,LeafCategory from categories where CategoryParentID = '".$_POST['node']."' and CategoryID != CategoryParentID";
 	}
 	//echo $sql;
 	$result = mysql_query($sql, eBayListing::$database_connect);
@@ -336,6 +346,30 @@ class eBayListing{
 	    $array[$i]['id'] = $row['CategoryID'];
 	    $array[$i]['text'] = $row['CategoryName'];
 	    if($row['LeafCategory'] == 1){
+		$array[$i]['leaf'] = true;
+	    }
+	    $i++;
+	}
+	echo json_encode($array);
+	mysql_free_result($result);
+    }
+    
+    public function getStoreCategoriesTree(){
+	session_start();
+	$sql = "select CategoryID,Name from account_store_categories where AccountId = '".$_SESSION['account_id']."' and CategoryParentID ='".$_POST['node']."' order by `Order`";
+	
+	//echo $sql;
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$array = array();
+	$i = 0;
+	while($row = mysql_fetch_assoc($result)){
+	    $array[$i]['id'] = $row['CategoryID'];
+	    $array[$i]['text'] = $row['Name'];
+	    $sql_1 = "select count(*) as count from account_store_categories where CategoryParentID = '".$row['CategoryID']."'";
+	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	    $row_1 = mysql_fetch_assoc($result_1);
+	    
+	    if($row_1['count'] == 0){
 		$array[$i]['leaf'] = true;
 	    }
 	    $i++;

@@ -28,7 +28,7 @@ class eBaySession {
 		$this->cert = $cert;
 	
 		#$this->wsdl = 'http://developer.ebay.com/webservices/latest/eBaySvc.wsdl';
-		$this->wsdl = '/export/eBayBO/cron/eBaySvc.wsdl';
+		$this->wsdl = './eBaySvc.wsdl';
 		$this->options = array('trace' => true, 
 		                       'exceptions' => false,
 		                       'classmap' => array(/* 'UserType' => 'eBayUserType', */
