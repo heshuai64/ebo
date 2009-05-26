@@ -7,14 +7,25 @@
         <meta http-equiv="EXPIRES" content="-1">
         
         <title>Packing List</title>
-        
+        <style>
+                .address{
+                        font-size:22px;
+                        line-height:120%;
+                        padding-left:6px;
+                        padding-right:0px;
+                }
+                
+                .sku{
+                        padding:0px;
+                }
+        </style>
 </head>
 <body>
         <!--style="width:900px;margin:auto;"-->
         <div style="width:900px;margin:auto;"> 
                 <table align="center" cellpadding="0" cellspacing="0" border="1" width="100%">
                         <tr align="center" class="header">
-                                <th>No</th><th>Shipment Id</th><th>Address</th><th>Sku</th><!--<th>Images</th>--><th>Shipping</th>
+                                <th>No</th><th>Shipment Id</th><th>Address</th><th>Sku</th><!--<th>Images</th><th>Shipping</th>-->
                         </tr>
                         <?php
                         $i = 1;
@@ -27,20 +38,20 @@
                                         echo '<td>';
                                                 //image.php?code=code128&o=1&t=30&r=2&text='.$shipment['id'].'&f1=Arial.ttf&f2=8&a1=&a2=B&a3=
                                                 //image.php?code=code39&o=1&t=30&r=2&text=SHI20090500221&f1=Arial.ttf&f2=8&a1=&a2=&a3=
-                                                echo '<img src="'.PackingList::BAR_CODE_URL.'?code=code39&o=1&t=30&r=2&text='.$this->shipment[$i]['id'].'&f1=Arial.ttf&f2=8&a1=&a2=&a3=">';
+                                                echo '<img src="'.PackingList::BAR_CODE_URL.'?code=code39&o=1&t=30&r=1&text='.$this->shipment[$i]['id'].'&f1=Arial.ttf&f2=8&a1=&a2=&a3=">';
                                         echo '</td>';
-                                        echo '<td style="padding-left:10px"><font size="4">';
+                                        echo '<td><div class="address">';
                                                 echo "Attn: ".$this->shipment[$i]['shipToName'].'<br>'.
                                                 $this->shipment[$i]['shipToAddressLine1']." ".(!empty($this->shipment[$i]['shipToAddressLine2'])?$this->shipment[$i]['shipToAddressLine2'].'<br>':'').
                                                 $this->shipment[$i]['shipToCity']. '<br>'.
                                                 $this->shipment[$i]['shipToStateOrProvince']. ", ". $this->shipment[$i]['shipToPostalCode'].'<br>'.
                                                 $this->shipment[$i]['shipToCountry'].'<br>';
-                                        echo '</font></td>';
-                                        echo '<td style="width:10px">';
+                                        echo '</font></div></td>';
+                                        echo '<td><div class="sku">';
                                                 foreach($this->shipment[$i]['shipmentDetail'] as $shipmentDetail){
                                                         echo $shipmentDetail['skuId'].' X '.$shipmentDetail['quantity'].'<br>';
                                                 }
-                                        echo '</td>';
+                                        echo '</div></td>';
                                         
                                         
                                         /*
@@ -83,11 +94,11 @@
                                                         }
                                                 }
                                         echo '</td>';
-                                        */
+                                        
                                         echo '<td>';
                                                 echo $this->shipment[$i]['shippingMethod'];
                                         echo '</td>';
- 
+                                        */
                                 echo '</tr>';
                                 
                                 //$i++;
