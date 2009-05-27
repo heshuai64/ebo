@@ -41,7 +41,7 @@
                                                 echo '<img src="'.PackingList::BAR_CODE_URL.'?code=code39&o=1&t=30&r=1&text='.$this->shipment[$i]['id'].'&f1=Arial.ttf&f2=8&a1=&a2=&a3=">';
                                         echo '</td>';
                                         echo '<td><div class="address">';
-                                                echo "Attn: ".$this->shipment[$i]['shipToName'].'<br>'.
+                                                echo "Attn: ".$this->shipment[$i]['shipToName']."(".$this->shipment[$i]['buyerId'].")<br>".
                                                 $this->shipment[$i]['shipToAddressLine1']." ".(!empty($this->shipment[$i]['shipToAddressLine2'])?$this->shipment[$i]['shipToAddressLine2'].'<br>':'').
                                                 $this->shipment[$i]['shipToCity']. '<br>'.
                                                 $this->shipment[$i]['shipToStateOrProvince']. ", ". $this->shipment[$i]['shipToPostalCode'].'<br>'.
