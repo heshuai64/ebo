@@ -489,7 +489,7 @@ class eBay{
 		$sql = "update qo_orders set status = 'S' where id = '".$ordersId."'";
 	}else{
 		$sql = "update qo_orders set status = 'P' where id = '".$ordersId."'";
-		$this->createShipmentFromEbay($ordersId);
+		//$this->createShipmentFromEbay($ordersId);
 	}
 	echo $sql;
 	echo "<br>\n<font color='green'>updateOrderStatus in ".$ordersId."</font><br>\n<br>\n";
