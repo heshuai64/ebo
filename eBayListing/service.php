@@ -6,7 +6,7 @@ class eBayListing{
     private static $database_connect;
     const DATABASE_HOST = 'localhost';
     const DATABASE_USER = 'root';
-    const DATABASE_PASSWORD = '5333533';
+    const DATABASE_PASSWORD = '';
     const DATABASE_NAME = 'ebaylisting';
     const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
     
@@ -70,7 +70,7 @@ class eBayListing{
     }
     
     private function saveFetchData($file_name, $data){
-	//file_put_contents("/export/eBayBO/eBayListing/log".$file_name, $data);
+	file_put_contents("/export/eBayBO/eBayListing/log/".$file_name, $data);
     }
     
     private function checkCategoriesVersion($siteId, $categoryVersion){
@@ -355,7 +355,6 @@ class eBayListing{
     }
     
     public function getStoreCategoriesTree(){
-	session_start();
 	$sql = "select CategoryID,Name from account_store_categories where AccountId = '".$_SESSION['account_id']."' and CategoryParentID ='".$_POST['node']."' order by `Order`";
 	
 	//echo $sql;
@@ -389,14 +388,54 @@ class eBayListing{
 	mysql_free_result($result);
     }
     
+    public function getListingDuration(){
+	$sql = "select id,name from listing_duration where id = '".$_POST['id']."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$array = array();
+	$i = 0;
+	while($row = mysql_fetch_assoc($result)){
+	    $array[$i]['id'] = $row['name'];
+	    $array[$i]['name'] = $row['name'];
+	    $i++;
+	}
+	echo json_encode($array);
+	mysql_free_result($result);
+    }
     
     public function synchronize(){
 	
     }
     
+    public function geteBayDetails(){
+	try {
+                $client = new eBaySOAP($this->session);
+                $Version = '607';
+                $DetailName = "ShippingServiceDetails";
+             
+                $params = array('Version' => $Version, 'DetailName' => $DetailName);
+                $results = $client->GeteBayDetails($params);
+                //print_r($results);
+		//----------   debug --------------------------------
+                //print "Request: \n".$client->__getLastRequest() ."\n";
+                //print "Response: \n".$client->__getLastResponse()."\n";
+                $this->saveFetchData("geteBayDetails-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		
+                
+        } catch (SOAPFault $f) {
+                print $f; // error handling
+        }
+    }
+    
     public function addItems(){
 	/*
 	英,美,法,澳,
+	Europe/London       +0100
+	America/New_York    -0400
+	Europe/Paris        +0200
+	Australia/Canberra  +1000
+	
+	Asia/Shanghai       +0800
+	
 	<BuyItNowPrice currencyID="CurrencyCodeType"> AmountType (double) </BuyItNowPrice>
  
 	<CategoryMappingAllowed> boolean </CategoryMappingAllowed>

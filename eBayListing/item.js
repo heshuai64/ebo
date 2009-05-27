@@ -1,5 +1,103 @@
 Ext.onReady(function(){
     //var categoryPath = "";
+    
+    var pictureForm = new Ext.form.FormPanel({
+            labelAlign:"top",
+            border: false,
+            defaults:{
+                width:400
+            },
+            items:[{
+                id:"picture_value_1",
+                xtype:"textfield",
+                fieldLabel:"Picture 1  (used for Gallery)",
+                name:"picture_value_1"
+              },{
+                id:"picture_value_2",
+                xtype:"textfield",
+                fieldLabel:"Picture 2",
+                name:"picture_value_2"
+              },{
+                id:"picture_value_3",
+                xtype:"textfield",
+                fieldLabel:"Picture 3",
+                name:"picture_value_3"
+              },{
+                id:"picture_value_4",
+                xtype:"textfield",
+                fieldLabel:"Picture 4",
+                name:"picture_value_4"
+              },{
+                id:"picture_value_5",
+                xtype:"textfield",
+                fieldLabel:"Picture 5",
+                name:"picture_value_5"
+              },{
+                id:"picture_value_6",
+                xtype:"textfield",
+                fieldLabel:"Picture 6",
+                name:"picture_value_6"
+              },{
+                id:"picture_value_7",
+                xtype:"textfield",
+                fieldLabel:"Picture 7",
+                name:"picture_value_7"
+              },{
+                id:"picture_value_8",
+                xtype:"textfield",
+                fieldLabel:"Picture 8",
+                name:"picture_value_8"
+              },{
+                id:"picture_value_9",
+                xtype:"textfield",
+                fieldLabel:"Picture 9",
+                name:"picture_value_9"
+              },{
+                id:"picture_value_10",
+                xtype:"textfield",
+                fieldLabel:"Picture 10",
+                name:"picture_value_10"
+            }],
+            buttons:[{
+                text: 'OK',
+                handler: function(){
+                    for(var i=1; i<=10;i++){
+                        if(document.getElementById("picture_value_"+i).value != ""){
+                            Ext.getCmp("picture_"+i).body.dom.innerHTML = '<img width="60" height="60" src="' + document.getElementById("picture_value_"+i).value + '"/>';
+                            Ext.getCmp("picture_"+i).doLayout();
+                        }
+                    }
+                    selectPictureWindow.hide();
+                }
+                
+            },{
+                text: 'Cancel',
+                handler: function(){
+                    selectPictureWindow.hide();
+                }
+            }]
+    })
+    
+    var selectPictureWindow = new Ext.Window({
+        title:"Insert Picture URLs - Self Hosted",
+        width:450,
+        items: [{
+            xtype:"panel",
+            border: false,
+            html:"Please enter URLs for you pictures.(e.g. http://www.yourdomain.com/picture.gjf)<br>\
+            Optimal image size for use with layouts is 400x300pixels.<br>"
+        },pictureForm]
+    })
+                
+    var listingDurationStore =  new Ext.data.JsonStore({
+        //root: 'records',
+        //totalProperty: 'totalCount',
+        //idProperty: 'id',
+        fields: ['id', 'name'],
+        url:'service.php?action=getListingDuration'
+    })
+
+                                            
     var itemForm = new Ext.form.FormPanel({
         labelAlign:"top",
         autoScroll:true,
@@ -367,6 +465,7 @@ Ext.onReady(function(){
                         items:[{
                             columnWidth:0.1,
                             items:[{
+                                id: "picture_1",
                                 xtype:"panel",
                                 style:"font-size:10px;",
                                 bodyStyle:"padding:6px;cursor:pointer;",
@@ -374,110 +473,174 @@ Ext.onReady(function(){
                                 width:60,
                                 height:60,
                                 listeners: {
-                                    click: function(){
-                                        console.log("test");
-                                        var selectPictureWindow = new Ext.Window({
-                                            title:"Insert Picture URLs - Self Hosted",
-                                            items: [{
-                                                xtype:"label",
-                                                text:"Please enter URLs for you pictures.(e.g. http://www.yourdomain.com/picture.gjf)<br>\
-                                                Optimal image size for use with layouts is 400x300pixels."
-                                            }]
+                                    render: function(t){
+                                        t.body.on('click', function(){
+                                            selectPictureWindow.show();
                                         })
-                                        
-                                        selectPictureWindow.show();
                                     }
                                 }
                             }]
                           },{
                             columnWidth:0.1,
                             items:[{
+                                id: "picture_2",
                                 xtype:"panel",
                                 style:"font-size:10px;",
                                 bodyStyle:"padding:6px;cursor:pointer;",
                                 html: "Click to insert into a picture",
                                 width:60,
-                                height:60
+                                height:60,
+                                listeners: {
+                                    render: function(t){
+                                        t.body.on('click', function(){
+                                            selectPictureWindow.show();
+                                        })
+                                    }
+                                }
                             }]
                           },{
                             columnWidth:0.1,
                             items:[{
+                                id: "picture_3",
                                 xtype:"panel",
                                 style:"font-size:10px;",
                                 bodyStyle:"padding:6px;cursor:pointer;",
                                 html: "Click to insert into a picture",
                                 width:60,
-                                height:60
+                                height:60,
+                                listeners: {
+                                    render: function(t){
+                                        t.body.on('click', function(){
+                                            selectPictureWindow.show();
+                                        })
+                                    }
+                                }
                             }]
                           },{
                             columnWidth:0.1,
                             items:[{
+                                id: "picture_4",
                                 xtype:"panel",
                                 style:"font-size:10px;",
                                 bodyStyle:"padding:6px;cursor:pointer;",
                                 html: "Click to insert into a picture",
                                 width:60,
-                                height:60
+                                height:60,
+                                listeners: {
+                                    render: function(t){
+                                        t.body.on('click', function(){
+                                            selectPictureWindow.show();
+                                        })
+                                    }
+                                }
                             }]
                           },{
                             columnWidth:0.1,
                             items:[{
+                                id: "picture_5",
                                 xtype:"panel",
                                 style:"font-size:10px;",
                                 bodyStyle:"padding:6px;cursor:pointer;",
                                 html: "Click to insert into a picture",
                                 width:60,
-                                height:60
+                                height:60,
+                                listeners: {
+                                    render: function(t){
+                                        t.body.on('click', function(){
+                                            selectPictureWindow.show();
+                                        })
+                                    }
+                                }
                             }]
                           },{
                             columnWidth:0.1,
                             items:[{
+                                id: "picture_6",
                                 xtype:"panel",
                                 style:"font-size:10px;",
                                 bodyStyle:"padding:6px;cursor:pointer;",
                                 html: "Click to insert into a picture",
                                 width:60,
-                                height:60
+                                height:60,
+                                listeners: {
+                                    render: function(t){
+                                        t.body.on('click', function(){
+                                            selectPictureWindow.show();
+                                        })
+                                    }
+                                }
                             }]
                           },{
                             columnWidth:0.1,
                             items:[{
+                                id: "picture_7",
                                 xtype:"panel",
                                 style:"font-size:10px;",
                                 bodyStyle:"padding:6px;cursor:pointer;",
                                 html: "Click to insert into a picture",
                                 width:60,
-                                height:60
+                                height:60,
+                                listeners: {
+                                    render: function(t){
+                                        t.body.on('click', function(){
+                                            selectPictureWindow.show();
+                                        })
+                                    }
+                                }
                             }]
                           },{
                             columnWidth:0.1,
                             items:[{
+                                id: "picture_8",
                                 xtype:"panel",
                                 style:"font-size:10px;",
                                 bodyStyle:"padding:6px;cursor:pointer;",
                                 html: "Click to insert into a picture",
                                 width:60,
-                                height:60
+                                height:60,
+                                listeners: {
+                                    render: function(t){
+                                        t.body.on('click', function(){
+                                            selectPictureWindow.show();
+                                        })
+                                    }
+                                }
                             }]
                           },{
                             columnWidth:0.1,
                             items:[{
+                                id: "picture_9",
                                 xtype:"panel",
                                 style:"font-size:10px;",
                                 bodyStyle:"padding:6px;cursor:pointer;",
                                 html: "Click to insert into a picture",
                                 width:60,
-                                height:60
+                                height:60,
+                                listeners: {
+                                    render: function(t){
+                                        t.body.on('click', function(){
+                                            selectPictureWindow.show();
+                                        })
+                                    }
+                                }
                             }]
                           },{
                             columnWidth:0.1,
                             items:[{
+                                id: "picture_10",
                                 xtype:"panel",
                                 style:"font-size:10px;",
                                 bodyStyle:"padding:6px;cursor:pointer;",
                                 html: "Click to insert into a picture",
                                 width:60,
-                                height:60
+                                height:60,
+                                listeners: {
+                                    render: function(t){
+                                        t.body.on('click', function(){
+                                            selectPictureWindow.show();
+                                        })
+                                    }
+                                }
                             }]
                           }]
                     },{
@@ -552,8 +715,18 @@ Ext.onReady(function(){
                                   },{
                                     xtype:"combo",
                                     fieldLabel:"Duration",
-                                    name:"combovalue",
-                                    hiddenName:"combovalue"
+                                    mode: 'local',
+                                    store: listingDurationStore,
+                                    valueField:'id',
+                                    displayField:'name',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    selectOnFocus:true,
+                                    //listWidth: 156,
+                                    //width: 156,
+                                    name: 'combovalue',
+                                    allowBlank: false,
+                                    hiddenName:'combovalue' 
                                   }]
                               }]
                         }],
@@ -574,7 +747,12 @@ Ext.onReady(function(){
                                         selectOnFocus:true,
                                         //name: 'payeeId',
                                         //hiddenName:'payeeId',
-                                        width: 150
+                                        width: 150,
+                                        listeners: {
+                                            "select": function(c, r, i){
+                                                listingDurationStore.load({params: {id: r.data.id}});
+                                            }
+                                        }
                                 });
                                 combo.render(c.header, 1);
                                 c.on('destroy', function(){
