@@ -77,12 +77,17 @@ class PackingList{
     }
     
     private function getShipment(){
-        $sql = "select id,shipToName,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry 
+        $sql = "select id,ordersId,shipToName,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry 
         from qo_shipments where modifiedOn between '$this->startTime' and '$this->endTime' and status = 'N'";
         $result = mysql_query($sql, PackingList::$database_connect);
         
         $i = 0;
         while($row = mysql_fetch_assoc($result)){
+            $sql_2 = "select buyerId from qo_orders where id = '".$row['ordersId']."'";
+            $result_2 = mysql_query($sql_2, PackingList::$database_connect);
+            $row_2 = mysql_fetch_assoc($result_2);
+            $row['buyerId'] = $row_2['buyerId'];
+            
             $this->shipment[$i] = $row;
             $sql_1 = "select i.skuId,sd.itemId,sd.quantity,i.galleryURL from qo_shipments_detail as sd left join qo_items as i on sd.itemId=i.id where sd.shipmentsId='".$row['id']."'";
             $result_1 = mysql_query($sql_1, PackingList::$database_connect);
@@ -109,7 +114,7 @@ class PackingList{
     
     private function getShipmentBySellerId($sellerId){
         unset($this->shipment);
-        $sql = "select s.id,o.shippingMethod,s.shipToName,s.shipToAddressLine1,s.shipToAddressLine2,s.shipToCity,s.shipToStateOrProvince,s.shipToPostalCode,s.shipToCountry 
+        $sql = "select s.id,o.shippingMethod,o.buyerId,s.shipToName,s.shipToAddressLine1,s.shipToAddressLine2,s.shipToCity,s.shipToStateOrProvince,s.shipToPostalCode,s.shipToCountry 
         from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where o.sellerId='".$sellerId."' and s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N'";
         $result = mysql_query($sql, PackingList::$database_connect);
         //echo $sql;
