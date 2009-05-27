@@ -1,5 +1,5 @@
 Ext.onReady(function(){
-     var inventory_service_address = "/tracmor/service.php";
+     var inventory_service_address = "/einv2/service.php";
      Ext.QuickTips.init();
      Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
      
@@ -118,8 +118,8 @@ Ext.onReady(function(){
      
      inventory_grid.on("rowdblclick", function(oGrid){
           var oRecord = oGrid.getSelectionModel().getSelected();
-          console.log(oRecord);
-          window.open("/eBayBO/eBaylisting/create_new_item.php?id="+oRecord.data['inventory_model_code'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");
+          //console.log(oRecord);
+          window.open("/eBayBO/eBayListing/create_new_item.php?id="+oRecord.data['inventory_model_code'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");
      })
      
      var inventory_categories_tree = new Ext.tree.TreePanel({
