@@ -6,7 +6,7 @@ class eBayListing{
     private static $database_connect;
     const DATABASE_HOST = 'localhost';
     const DATABASE_USER = 'root';
-    const DATABASE_PASSWORD = '';
+    const DATABASE_PASSWORD = '5333533';
     const DATABASE_NAME = 'ebaylisting';
     const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
     
@@ -70,7 +70,7 @@ class eBayListing{
     }
     
     private function saveFetchData($file_name, $data){
-	file_put_contents("/export/eBayBO/eBayListing/log/".$file_name, $data);
+	//file_put_contents("/export/eBayBO/eBayListing/log/".$file_name, $data);
     }
     
     private function checkCategoriesVersion($siteId, $categoryVersion){
@@ -381,8 +381,11 @@ class eBayListing{
 	$sql = "select id,name from listing_duration_type";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$array = array();
+	$i = 0;
 	while($row = mysql_fetch_assoc($result)){
-	    $array[] = $row;
+	    $array[$i]['id'] = $row['id'];
+	    $array[$i]['name'] = $row['name'];
+	    $i++;
 	}
 	echo json_encode($array);
 	mysql_free_result($result);
@@ -402,11 +405,43 @@ class eBayListing{
 	mysql_free_result($result);
     }
     
+    public function getShippingService(){
+	$InternationalService = "";
+	if($_POST['InternationalService'] == "1"){
+	    $InternationalService = "and InternationalService = 1";
+	}else{
+	    $InternationalService = "and InternationalService = 0";
+	}
+	
+	//echo $InternationalService;
+	//echo "\n";
+	
+	if($_POST['serviceType'] == "Flat"){
+	    $sql = "select Description,ShippingService from shipping_service_details where  ServiceTypeFlat = 1 ".$InternationalService;
+	}elseif($_POST['serviceType'] == "Calculated"){
+	    $sql = "select Description,ShippingService from shipping_service_details where  ServiceTypeCalculated = 1 ".$InternationalService;
+	}
+	
+	//echo $sql;
+	//echo "\n";
+	
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$array = array();
+	$i = 0;
+	while($row = mysql_fetch_assoc($result)){
+	    $array[$i]['id'] = $row['ShippingService'];
+	    $array[$i]['name'] = $row['Description'];
+	    $i++;
+	}
+	echo json_encode($array);
+	mysql_free_result($result);
+    }
+    
     public function synchronize(){
 	
     }
     
-    public function geteBayDetails(){
+    public function geteBayDetailsByShippingServiceDetails(){
 	try {
                 $client = new eBaySOAP($this->session);
                 $Version = '607';
@@ -417,10 +452,57 @@ class eBayListing{
                 //print_r($results);
 		//----------   debug --------------------------------
                 //print "Request: \n".$client->__getLastRequest() ."\n";
-                //print "Response: \n".$client->__getLastResponse()."\n";
-                $this->saveFetchData("geteBayDetails-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+                print "Response: \n".$client->__getLastResponse()."\n";
+                //$this->saveFetchData("geteBayDetails-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 		
-                
+		$ServiceTypeFlat = false;
+		$ServiceTypeCalculated = false;
+                foreach($results->ShippingServiceDetails as $shippingServiceDetail){
+		    foreach($shippingServiceDetail->ServiceType as $serviceType){
+			if($serviceType == "Flat"){
+			    $ServiceTypeFlat = true;
+			}elseif($serviceType == "Calculated"){
+			    $ServiceTypeCalculated = true;
+			}
+		    }
+		    
+		    $ShippingPackageLetter = false;
+		    $ShippingPackageLargeEnvelope = false;
+		    $ShippingPackagePackageThickEnvelope = false;
+		    foreach($shippingServiceDetail->ShippingPackage as $shippingPackage){
+			switch($shippingPackage){
+			    case "Letter":
+				$ShippingPackageLetter = true;
+				break;
+			    
+			    case "LargeEnvelope":
+				$ShippingPackageLargeEnvelope = true;
+				break;
+			    
+			    case "PackageThickEnvelope":
+				$ShippingPackagePackageThickEnvelope = true;
+				break;
+			}
+		    }
+		    
+		    $sql = "insert into shipping_service_details (Description,InternationalService,ShippingService,
+		    ShippingServiceID,ShippingTimeMax,ShippingTimeMin,ServiceTypeFlat,ServiceTypeCalculated,
+		    ShippingPackageLetter,ShippingPackageLargeEnvelope,ShippingPackagePackageThickEnvelope,
+		    ShippingCarrier,DimensionsRequired,WeightRequired) values ('".mysql_escape_string($shippingServiceDetail->Description)."',
+		    '".$shippingServiceDetail->InternationalService."','".mysql_escape_string($shippingServiceDetail->ShippingService)."',
+		    '".$shippingServiceDetail->ShippingServiceID."','".$shippingServiceDetail->ShippingTimeMax."',
+		    '".$shippingServiceDetail->ShippingTimeMin."','".$ServiceTypeFlat."',
+		    '".$ServiceTypeCalculated."','".$ShippingPackageLetter."',
+		    '".$ShippingPackageLargeEnvelope."','".$ShippingPackagePackageThickEnvelope."',
+		    '".$shippingServiceDetail->ShippingCarrier."','".$shippingServiceDetail->DimensionsRequired."',
+		    '".$shippingServiceDetail->WeightRequired."')";
+		    
+		    echo $sql;
+		    echo "<be>";
+		    $result = mysql_query($sql, eBayListing::$database_connect);
+		}
+		
+		
         } catch (SOAPFault $f) {
                 print $f; // error handling
         }
