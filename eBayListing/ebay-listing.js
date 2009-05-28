@@ -1,5 +1,5 @@
 Ext.onReady(function(){
-     var inventory_service_address = "/einv2/service.php";
+     var inventory_service_address = "/tracmor/service.php";
      Ext.QuickTips.init();
      Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
      

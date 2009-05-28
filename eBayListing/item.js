@@ -63,8 +63,9 @@ Ext.onReady(function(){
                 handler: function(){
                     for(var i=1; i<=10;i++){
                         if(document.getElementById("picture_value_"+i).value != ""){
-                            Ext.getCmp("picture_"+i).body.dom.innerHTML = '<img width="60" height="60" src="' + document.getElementById("picture_value_"+i).value + '"/>';
-                            Ext.getCmp("picture_"+i).doLayout();
+                            Ext.getCmp("picture_panel_"+i).body.dom.innerHTML = '<img width="60" height="60" src="' + document.getElementById("picture_value_"+i).value + '"/>';
+                            Ext.getCmp("picture_panel_"+i).doLayout();
+                            document.getElementById("picture_"+i).value = document.getElementById("picture_value_"+i).value;
                         }
                     }
                     selectPictureWindow.hide();
@@ -84,8 +85,8 @@ Ext.onReady(function(){
         items: [{
             xtype:"panel",
             border: false,
-            html:"Please enter URLs for you pictures.(e.g. http://www.yourdomain.com/picture.gjf)<br>\
-            Optimal image size for use with layouts is 400x300pixels.<br>"
+            html:"<font color='green'>Please enter URLs for you pictures.(e.g. http://www.yourdomain.com/picture.gjf)<br>\
+            Optimal image size for use with layouts is 400x300pixels.</font><br>"
         },pictureForm]
     })
                 
@@ -97,7 +98,16 @@ Ext.onReady(function(){
         url:'service.php?action=getListingDuration'
     })
 
-                                            
+    var shippingServiceStore = new Ext.data.JsonStore({
+        //root: 'records',
+        //totalProperty: 'totalCount',
+        //idProperty: 'id',
+        fields: ['id', 'name'],
+        url:'service.php?action=getShippingService'
+    })
+    
+    
+    
     var itemForm = new Ext.form.FormPanel({
         labelAlign:"top",
         autoScroll:true,
@@ -116,13 +126,15 @@ Ext.onReady(function(){
                         listWidth: 600
                     },
                     items:[{
+                        id:"Title",
                         xtype:"textfield",
                         fieldLabel:"Title",
-                        name:"textvalue"
+                        name:"Title"
                       },{
+                        id:"SubTitle",
                         xtype:"textfield",
                         fieldLabel:"Subtitle",
-                        name:"textvalue"
+                        name:"SubTitle"
                       },{
                         layout:"column",
                         border: false,
@@ -181,6 +193,7 @@ Ext.onReady(function(){
                                                     }
                                                     
                                                     itemForm.getForm().findField("category").setValue(categoryPath);
+                                                    document.getElementById("PrimaryCategory").value = n.id;
                                                     selectCategoryWindow.close();
                                                 }
                                                 //else{
@@ -205,6 +218,10 @@ Ext.onReady(function(){
                                     selectCategoryWindow.show();
                                 }
                             }]
+                        },{
+                            xtype:"hidden",
+                            id:"PrimaryCategory",
+                            name:"PrimaryCategory"
                         }]
                       },{
                         layout:"column",
@@ -264,6 +281,7 @@ Ext.onReady(function(){
                                                     }
                                                     
                                                     itemForm.getForm().findField("SCategory").setValue(categoryPath);
+                                                    document.getElementById("SecondaryCategory").value = n.id;
                                                     selectCategoryWindow.close();
                                                 }
                                                 //else{
@@ -288,6 +306,10 @@ Ext.onReady(function(){
                                     selectCategoryWindow.show();
                                 }
                             }]
+                        },{
+                            xtype:"hidden",
+                            id:"SecondaryCategory",
+                            name:"SecondaryCategory"
                         }]
                       },{
                         layout:"column",
@@ -347,6 +369,7 @@ Ext.onReady(function(){
                                                     }
                                                     
                                                     itemForm.getForm().findField("storeCategory").setValue(categoryPath);
+                                                    document.getElementById("StoreCategoryID").value = n.id;
                                                     selectStoreCategoryWindow.close();
                                                 }
                                                 //else{
@@ -371,7 +394,11 @@ Ext.onReady(function(){
                                     selectStoreCategoryWindow.show();
                                 }
                             }]
-                          }]
+                          },{
+                            xtype:"hidden",
+                            id:"StoreCategoryID",
+                            name:"StoreCategoryID"
+                        }]
                       },{
                         layout:"column",
                         border: false,
@@ -429,6 +456,7 @@ Ext.onReady(function(){
                                                     }
                                                     
                                                     itemForm.getForm().findField("SStoreCategory").setValue(categoryPath);
+                                                    document.getElementById("StoreCategory2ID").value = n.id;
                                                     selectStoreCategoryWindow.close();
                                                 }
                                                 //else{
@@ -453,6 +481,10 @@ Ext.onReady(function(){
                                     selectStoreCategoryWindow.show();
                                 }
                             }]
+                        },{
+                            xtype:"hidden",
+                            id:"StoreCategory2ID",
+                            name:"StoreCategory2ID"
                         }]
                       }]
                   },{
@@ -465,7 +497,7 @@ Ext.onReady(function(){
                         items:[{
                             columnWidth:0.1,
                             items:[{
-                                id: "picture_1",
+                                id: "picture_panel_1",
                                 xtype:"panel",
                                 style:"font-size:10px;",
                                 bodyStyle:"padding:6px;cursor:pointer;",
@@ -479,11 +511,15 @@ Ext.onReady(function(){
                                         })
                                     }
                                 }
+                            },{
+                                xtype:"hidden",
+                                id:"picture_1",
+                                name:"picture_1"
                             }]
                           },{
                             columnWidth:0.1,
                             items:[{
-                                id: "picture_2",
+                                id: "picture_panel_2",
                                 xtype:"panel",
                                 style:"font-size:10px;",
                                 bodyStyle:"padding:6px;cursor:pointer;",
@@ -497,11 +533,15 @@ Ext.onReady(function(){
                                         })
                                     }
                                 }
+                            },{
+                                xtype:"hidden",
+                                id:"picture_2",
+                                name:"picture_2"
                             }]
                           },{
                             columnWidth:0.1,
                             items:[{
-                                id: "picture_3",
+                                id: "picture_panel_3",
                                 xtype:"panel",
                                 style:"font-size:10px;",
                                 bodyStyle:"padding:6px;cursor:pointer;",
@@ -515,11 +555,15 @@ Ext.onReady(function(){
                                         })
                                     }
                                 }
+                            },{
+                                xtype:"hidden",
+                                id:"picture_3",
+                                name:"picture_3"
                             }]
                           },{
                             columnWidth:0.1,
                             items:[{
-                                id: "picture_4",
+                                id: "picture_panel_4",
                                 xtype:"panel",
                                 style:"font-size:10px;",
                                 bodyStyle:"padding:6px;cursor:pointer;",
@@ -533,11 +577,15 @@ Ext.onReady(function(){
                                         })
                                     }
                                 }
+                            },{
+                                xtype:"hidden",
+                                id:"picture_4",
+                                name:"picture_4"
                             }]
                           },{
                             columnWidth:0.1,
                             items:[{
-                                id: "picture_5",
+                                id: "picture_panel_5",
                                 xtype:"panel",
                                 style:"font-size:10px;",
                                 bodyStyle:"padding:6px;cursor:pointer;",
@@ -551,11 +599,15 @@ Ext.onReady(function(){
                                         })
                                     }
                                 }
+                            },{
+                                xtype:"hidden",
+                                id:"picture_5",
+                                name:"picture_5"
                             }]
                           },{
                             columnWidth:0.1,
                             items:[{
-                                id: "picture_6",
+                                id: "picture_panel_6",
                                 xtype:"panel",
                                 style:"font-size:10px;",
                                 bodyStyle:"padding:6px;cursor:pointer;",
@@ -569,11 +621,15 @@ Ext.onReady(function(){
                                         })
                                     }
                                 }
+                            },{
+                                xtype:"hidden",
+                                id:"picture_6",
+                                name:"picture_6"
                             }]
                           },{
                             columnWidth:0.1,
                             items:[{
-                                id: "picture_7",
+                                id: "picture_panel_7",
                                 xtype:"panel",
                                 style:"font-size:10px;",
                                 bodyStyle:"padding:6px;cursor:pointer;",
@@ -587,11 +643,15 @@ Ext.onReady(function(){
                                         })
                                     }
                                 }
+                            },{
+                                xtype:"hidden",
+                                id:"picture_7",
+                                name:"picture_7"
                             }]
                           },{
                             columnWidth:0.1,
                             items:[{
-                                id: "picture_8",
+                                id: "picture_panel_8",
                                 xtype:"panel",
                                 style:"font-size:10px;",
                                 bodyStyle:"padding:6px;cursor:pointer;",
@@ -605,11 +665,15 @@ Ext.onReady(function(){
                                         })
                                     }
                                 }
+                            },{
+                                xtype:"hidden",
+                                id:"picture_8",
+                                name:"picture_8"
                             }]
                           },{
                             columnWidth:0.1,
                             items:[{
-                                id: "picture_9",
+                                id: "picture_panel_9",
                                 xtype:"panel",
                                 style:"font-size:10px;",
                                 bodyStyle:"padding:6px;cursor:pointer;",
@@ -623,11 +687,15 @@ Ext.onReady(function(){
                                         })
                                     }
                                 }
+                            },{
+                                xtype:"hidden",
+                                id:"picture_9",
+                                name:"picture_9"
                             }]
                           },{
                             columnWidth:0.1,
                             items:[{
-                                id: "picture_10",
+                                id: "picture_panel_10",
                                 xtype:"panel",
                                 style:"font-size:10px;",
                                 bodyStyle:"padding:6px;cursor:pointer;",
@@ -641,14 +709,19 @@ Ext.onReady(function(){
                                         })
                                     }
                                 }
+                            },{
+                                xtype:"hidden",
+                                id:"picture_10",
+                                name:"picture_10"
                             }]
                           }]
                     },{
                         //autoScroll: true,
+                        id:"Description",
                         width: 600,
                         xtype:"htmleditor",
                         fieldLabel:"Descritpion",
-                        name:"textvalue"
+                        name:"Description"
                       }]
                   },{
                     xtype:"panel",
@@ -657,7 +730,7 @@ Ext.onReady(function(){
                     items:[{
                         xtype:"textfield",
                         fieldLabel:"SKU",
-                        name:"textvalue"
+                        name:"SKU"
                       }]
                   }]
               },{
@@ -686,15 +759,15 @@ Ext.onReady(function(){
                                 items:[{
                                     xtype:"numberfield",
                                     fieldLabel:"Start Price",
-                                    name:"textvalue"
+                                    name:"StartPrice"
                                   },{
                                     xtype:"numberfield",
                                     fieldLabel:"Buy It Now Price",
-                                    name:"textvalue"
+                                    name:"BuyItNowPrice"
                                   },{
                                     xtype:"numberfield",
                                     fieldLabel:"Quantity",
-                                    name:"textvalue"
+                                    name:"Quantity"
                                   }]
                               },{
                                 columnWidth:0.5,
@@ -724,9 +797,9 @@ Ext.onReady(function(){
                                     selectOnFocus:true,
                                     //listWidth: 156,
                                     //width: 156,
-                                    name: 'combovalue',
-                                    allowBlank: false,
-                                    hiddenName:'combovalue' 
+                                    name: 'ListingDuration',
+                                    //allowBlank: false,
+                                    hiddenName:'ListingDuration' 
                                   }]
                               }]
                         }],
@@ -745,11 +818,12 @@ Ext.onReady(function(){
                                         triggerAction: 'all',
                                         editable: false,
                                         selectOnFocus:true,
-                                        //name: 'payeeId',
-                                        //hiddenName:'payeeId',
+                                        //name: 'ListingTypeCombo',
+                                        //hiddenName:'ListingTypeCombo',
                                         width: 150,
                                         listeners: {
                                             "select": function(c, r, i){
+                                                document.getElementById("ListingType").value = r.data.name;
                                                 listingDurationStore.load({params: {id: r.data.id}});
                                             }
                                         }
@@ -760,6 +834,10 @@ Ext.onReady(function(){
                                 }, c, {single: true});
                             }
                         }
+                    },{
+                        xtype:"hidden",
+                        id:"ListingType",
+                        name:"ListingType"
                     }]
                   },{
                     xtype:"panel",
@@ -791,10 +869,20 @@ Ext.onReady(function(){
                                 items:[{
                                     xtype:"combo",
                                     fieldLabel:"Domestic Services",
-                                    name:"combovalue",
-                                    hiddenName:"combovalue",
-                                    width:120,
-                                    listWidth:120
+                                    mode: 'local',
+                                    store: shippingServiceStore,
+                                    valueField:'id',
+                                    displayField:'name',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    selectOnFocus:true,
+                                    //listWidth: 156,
+                                    //width: 156,
+                                    //name: 'ListingDuration',
+                                    //allowBlank: false,
+                                    //hiddenName:'ListingDuration',
+                                    width:150,
+                                    listWidth:260
                                   }]
                               },{
                                 layout:"form",
@@ -827,10 +915,17 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
-                                    name:"combovalue",
-                                    hiddenName:"combovalue",
-                                    width:120,
-                                    listWidth:120
+                                    //name:"combovalue",
+                                    //hiddenName:"combovalue",
+                                    mode: 'local',
+                                    store: shippingServiceStore,
+                                    valueField:'id',
+                                    displayField:'name',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    selectOnFocus:true,
+                                    width:150,
+                                    listWidth:260
                                   }]
                               },{
                                 layout:"form",
@@ -855,10 +950,17 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
-                                    name:"combovalue",
-                                    hiddenName:"combovalue",
-                                    width:120,
-                                    listWidth:120
+                                    //name:"combovalue",
+                                    //hiddenName:"combovalue",
+                                    mode: 'local',
+                                    store: shippingServiceStore,
+                                    valueField:'id',
+                                    displayField:'name',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    selectOnFocus:true,
+                                    width:150,
+                                    listWidth:260
                                   }]
                               },{
                                 layout:"form",
@@ -880,10 +982,17 @@ Ext.onReady(function(){
                         listeners: {
                             render: function(c){
                                 var combo = new Ext.form.ComboBox({
-                                        store: ['One', 'Two', 'Three'],
+                                        store: ['Flat', 'Calculated'],
                                         triggerAction: 'all',
                                         editable: false,
-                                        width: 200
+                                        width: 150,
+                                        listWidth: 150,
+                                        listeners: {
+                                            "select": function(c, r, i){
+                                                //console.log(r);
+                                                shippingServiceStore.load({params: {InternationalService: 0, serviceType: r.data.text}});
+                                            }
+                                        }
                                 });
                                 combo.render(c.header, 1);
                                 c.on('destroy', function(){
@@ -916,10 +1025,17 @@ Ext.onReady(function(){
                                 items:[{
                                     xtype:"combo",
                                     fieldLabel:"International Services",
-                                    name:"combovalue",
-                                    hiddenName:"combovalue",
-                                    width:120,
-                                    listWidth:120
+                                    //name:"combovalue",
+                                    //hiddenName:"combovalue",
+                                    mode: 'local',
+                                    store: shippingServiceStore,
+                                    valueField:'id',
+                                    displayField:'name',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    selectOnFocus:true,
+                                    width:150,
+                                    listWidth:260
                                   }]
                               },{
                                 layout:"form",
@@ -931,18 +1047,7 @@ Ext.onReady(function(){
                                     width:60
                                   }]
                               },{
-                                layout:"form",
-                                border:false,
-                                bodyStyle:'padding-left:10px;',
-                                items:[{
-                                    xtype:"checkbox",
-                                    labelWidth: 0,
-                                    labelSeparator: '',
-                                    fieldLabel:"",
-                                    boxLabel:"Free",
-                                    name:"checkbox",
-                                    inputValue:"cbvalue"
-                                  }]
+                                border:false
                               },{
                                 layout:"form",
                                 border:false,
@@ -952,10 +1057,17 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
-                                    name:"combovalue",
-                                    hiddenName:"combovalue",
-                                    width:120,
-                                    listWidth:120
+                                    //name:"combovalue",
+                                    //hiddenName:"combovalue",
+                                    mode: 'local',
+                                    store: shippingServiceStore,
+                                    valueField:'id',
+                                    displayField:'name',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    selectOnFocus:true,
+                                    width:150,
+                                    listWidth:260
                                   }]
                               },{
                                 layout:"form",
@@ -980,10 +1092,17 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
-                                    name:"combovalue",
-                                    hiddenName:"combovalue",
-                                    width:120,
-                                    listWidth:120
+                                    //name:"combovalue",
+                                    //hiddenName:"combovalue",
+                                    mode: 'local',
+                                    store: shippingServiceStore,
+                                    valueField:'id',
+                                    displayField:'name',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    selectOnFocus:true,
+                                    width:150,
+                                    listWidth:260
                                   }]
                               },{
                                 layout:"form",
@@ -1005,10 +1124,17 @@ Ext.onReady(function(){
                         listeners: {
                             render: function(c){
                                 var combo = new Ext.form.ComboBox({
-                                        store: ['One', 'Two', 'Three'],
+                                        store: ['Flat', 'Calculated'],
                                         triggerAction: 'all',
                                         editable: false,
-                                        width: 200
+                                        width: 150,
+                                        listWidth: 150,
+                                        listeners: {
+                                            "select": function(c, r, i){
+                                                //console.log(r);
+                                                shippingServiceStore.load({params: {InternationalService: 1, serviceType: r.data.text}});
+                                            }
+                                        }
                                 });
                                 combo.render(c.header, 1);
                                 c.on('destroy', function(){
@@ -1037,7 +1163,7 @@ Ext.onReady(function(){
                           },{
                             xtype:"textfield",
                             fieldLabel:"PayPal Account Email",
-                            name:"textvalue",
+                            name:"PayPalEmailAddress",
                             width: 250
                           }]
                       },{
@@ -1075,6 +1201,36 @@ Ext.onReady(function(){
                       }]
                     }]
                 }]
+            }],
+            buttons: [{
+                text: "Save",
+                handler: function(){
+                    itemForm.getForm().submit({
+                        clientValidation: true,
+                        url: 'service.php',
+                        success: function(form, action) {
+                            Ext.Msg.alert("Success", action.result.msg);
+                        },
+                        failure: function(form, action) {
+                            switch (action.failureType) {
+                                case Ext.form.Action.CLIENT_INVALID:
+                                    Ext.Msg.alert("Failure", "Form fields may not be submitted with invalid values");
+                                    break;
+                                case Ext.form.Action.CONNECT_FAILURE:
+                                    Ext.Msg.alert("Failure", "Ajax communication failed");
+                                    break;
+                                case Ext.form.Action.SERVER_INVALID:
+                                    Ext.Msg.alert("Failure", action.result.msg);
+                            }
+                        }
+
+                    })
+                }
+            },{
+                text: "Canel",
+                handler: function(){
+                    
+                }
             }]
     })
     
