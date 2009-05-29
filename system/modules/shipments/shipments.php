@@ -343,7 +343,7 @@ class QoShipments {
 			$result_4 = mysql_query($sql_4);
 			while($row_4 = mysql_fetch_assoc($result_4)){
 				//send stock to inventory system
-				//$service_result_1 = $this->inventoryTakeOut($row_4['skuId'], $row_4['quantity'], $row_4['shipmentsId'], $row['shipmentMethod']);
+				$service_result_1 = $this->inventoryTakeOut($row_4['skuId'], $row_4['quantity'], $row_4['shipmentsId'], $row['shipmentMethod']);
 				if($service_result_1){
 					$info .= $row_4['skuId']." take out success!<br>";
 				}else{
@@ -352,7 +352,7 @@ class QoShipments {
 			}
 			
 		
-			//$service_result_2 = $this->sendEmailToBuyer($_POST['id'], $itemId, $sellerId, $row['shipmentMethod'], $row['postalReferenceNo'], $row['shipToName'], $row['shipToEmail'], $row['shipToAddressLine1'], $row['shipToAddressLine2'], $row['shipToCity'], $row['shipToStateOrProvince'], $row['shipToPostalCode'], $row['shipToCountry']);
+			$service_result_2 = $this->sendEmailToBuyer($_POST['id'], $itemId, $sellerId, $row['shipmentMethod'], $row['postalReferenceNo'], $row['shipToName'], $row['shipToEmail'], $row['shipToAddressLine1'], $row['shipToAddressLine2'], $row['shipToCity'], $row['shipToStateOrProvince'], $row['shipToPostalCode'], $row['shipToCountry']);
 			if($service_result_2){
 				$info .= "send email to customer success!<br>";
 			}else{
@@ -360,15 +360,15 @@ class QoShipments {
 			}
 			
 			//print_r($service_result_2);
-			$service_result_1 = true;
-			$service_result_2 = true;
+			//$service_result_1 = true;
+			//$service_result_2 = true;
 			if($service_result_1 && $service_result_2){
 				echo "{success: true,info:'\'<font color=\'green\'>".$info."</font>'}"; 
 			}else{
-				echo "{success: false, errors: { reason: 'Saving failed. Try again.' }}";
+				echo "{success: false, errors: { reason: '".$info."' }}";
 			}
 		}else{
-			echo "{success: false, errors: { reason: '\'<font color=\'red\'>Can\'t Ship This Shipment.</font>'}}";
+			echo "{success: false, errors: { reason: '<font color=\'red\'>Can\'t Ship This Shipment.</font>'}}";
 		}
 	}
 }

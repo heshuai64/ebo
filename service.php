@@ -144,7 +144,7 @@ class Service{
         $mail->MsgHTML($toContent);
         
         //$mail->AddAddress($_POST['shipToEmail'], $_POST['shipToName']);
-        $mail->AddAddress("meidgen_de_holy@126.com", "meidgen de");
+        $mail->AddAddress("karentina_86@sina.com", "meidgen de");
         
         $mail->IsHTML(true); // send as HTML
         
