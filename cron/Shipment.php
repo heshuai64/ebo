@@ -23,7 +23,7 @@ class Shipment{
             echo "Unable to select mydbname: " . mysql_error(Shipment::$database_connect);
             exit;
         }
-        $this->startTime = date("Y-m-d 14:00:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
+        $this->startTime = date("Y-m-d 13:30:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
         $this->endTime = date("Y-m-d 14:00:00");
     }
     
