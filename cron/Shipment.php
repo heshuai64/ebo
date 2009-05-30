@@ -101,7 +101,7 @@ class Shipment{
                 'N','".$orders['shippingFeeCurrency']."','".$orders['shippingFeeValue']."','".$orders['ebayName']."',
                 '".$orders['ebayEmail']."','".$orders['ebayAddress1']."','".$orders['ebayAddress2']."','".$orders['ebayCity']."',
                 '".$orders['ebayStateOrProvince']."','".$orders['ebayPostalCode']."','".$orders['ebayCountry']."','".$orders['ebayPhone']."',
-                'PayPal','".date("Y-m-d H:i:s")."','PayPal','".date("Y-m-d H:i:s")."')";
+                'System','".date("Y-m-d H:i:s")."','System','".date("Y-m-d H:i:s")."')";
                 $this->log($sql);
                 $result = mysql_query($sql, Shipment::$database_connect);
                 if($result){
