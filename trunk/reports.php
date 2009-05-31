@@ -91,6 +91,33 @@ class Reports{
         $xls->generateXML ("SKU Sell(".$start_date." -- ".$end_date.")");
     }
     
+    public function salesReport(){
+        //$fourWeekAgo = date("Y-m-d", strtotime("last Monday", strtotime(date("Y-m-d", strtotime("-4 week")))));
+        $fourWeekAgo = date("Y-m-d", strtotime(date("Y-m-d", strtotime("-4 week"))));
+        //echo $fourWeekAgo;
+        //echo "<br>";
+        $timestamp = strtotime($fourWeekAgo);
+	
+        $day_data = array();
+        for($i=0; $i<28; $i++){
+            $date = date("Y-m-d", $timestamp + ($i * 60 * 60 * 24));
+            //echo $date;
+            //echo "<br>";
+            $sql = "select o.id,od.skuId,sum(od.quantity) as quantity,o.createdOn from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn like '".$date."%' group by skuId";
+            //echo $sql;
+            //echo "<br>";
+            $result = mysql_query($sql, Reports::$database_connect);
+            $j = 0;
+            while($row = mysql_fetch_assoc($result)){
+                //print_r($row);
+                $day_data[$date][$j] = $row;
+                $j++;
+            }
+            flush();
+        }
+        var_dump($day_data);
+    }
+    
     public function __destruct(){
         mysql_close(Reports::$database_connect);
     }
@@ -102,6 +129,10 @@ $t = new Reports();
 switch($_GET['type']){
     case "skuSell":
         @$t->skuSellReport($_GET['seller_id'], $_GET['start_date'], $_GET['end_date']);
+    break;
+
+    case "salesReport":
+        $t->salesReport();
     break;
 }
 ?>

@@ -70,12 +70,70 @@ Ext.override(QoDesk.Reports, {
 			    }
 			}]
 		    }],
-		    taskbuttonTooltip: '<b>统计报告</b><br />各种不同的统计报告'
+		    taskbuttonTooltip: '<b>Statistical Reports</b><br>Sku sales statistical reports'
 		});
 		
 	    }
 	    
 	    skuSellReportWin.show();
+	}
+	
+	var salesReport = function(){
+	    var salesReportWin = desktop.getWindow('sales-report-win');
+	    if(!salesReportWin){
+		salesReportWin = desktop.createWindow({
+		    id: 'sales-report-win',
+		    title:lang.reports.search_sales_report_window_title,
+		    width:300,
+		    height:100,
+		    iconCls: 'sales-report-icon',
+		    shim:false,
+		    animCollapse:false,
+		    constrainHeader:true,
+		    layout: 'fit',
+		    //html:'test',
+		    items:[{
+			xtype:"form",
+			labelWidth:80,
+			items:[{
+			    //id:'sellerId',
+			    xtype: 'combo',
+			    fieldLabel:lang.reports.seller_id,
+			    mode: 'local',
+			    store: new Ext.data.JsonStore({
+				autoLoad: true,
+				fields: ['id', 'name'],
+				url: "connect.php?moduleId=qo-transactions&action=getSeller"
+			    }),
+			    valueField:'id',
+			    displayField:'name',
+			    triggerAction: 'all',
+			    editable: false,
+			    selectOnFocus:true,
+			    width:160,
+			    listWidth:160,
+			    name: 'sellerId',
+			    hiddenName:'sellerId'
+			}],
+			buttons: [{
+			    text: lang.reports.submit,
+			    handler: function(){
+				window.open("/eBayBO/reports.php?type=salesReport&seller_id="+document.getElementById("sellerId").value,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=500, height=400");
+				salesReportWin.close();
+			    }
+			},{
+			    text: lang.reports.close,
+			    handler: function(){
+				salesReportWin.close();
+			    }
+			}]
+		    }],
+		    taskbuttonTooltip: '<b>Statistical Reports</b><br>Sales statistical reports'
+		});
+		
+	    }
+	    
+	    salesReportWin.show();
 	}
 	
 	if(!win){
@@ -89,10 +147,12 @@ Ext.override(QoDesk.Reports, {
                 animCollapse:false,
                 constrainHeader:true,
 		layout: 'fit',
-		html: '<div class="manage-button"><div class="sku-sell"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">'+lang.reports.sell_sell+'</div></div>',
-                taskbuttonTooltip: '<b>统计报告</b><br />各种不同的统计报告'
+		html: '<div class="manage-button"><div class="sku-sell"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">'+lang.reports.sell_sell+'</div></div>\
+		       <div class="manage-button"><div class="sales-report"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">'+lang.reports.sales_report+'</div></div>',
+                taskbuttonTooltip: '<b>Statistical Reports</b><br>A variety of statistical reports'
             });
 	    Ext.EventManager.on(Ext.DomQuery.select("div[@class='sku-sell']")[0], "click", skuSellReport);
+	    Ext.EventManager.on(Ext.DomQuery.select("div[@class='sales-report']")[0], "click", salesReport);
         }
         
         win.show();

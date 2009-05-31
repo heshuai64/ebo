@@ -26,3 +26,13 @@
     height: 48px;
     cursor: pointer;
 }
+
+.sales-report-icon {
+    background-image:url(images/sales-16x16.gif) !important;
+}
+.sales-report img{
+    background-image:url(images/sales-48x48.gif);
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+}
