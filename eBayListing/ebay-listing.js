@@ -177,17 +177,17 @@ Ext.onReady(function(){
      
      
      var tabPanel = new Ext.TabPanel({
-                         region:'center',
-                         deferredRender:false,
-                         activeTab:0,
-                         items:[{
-                              id:'inventory-tab',
-                              title: 'Inventory',
-                              iconCls: 'inventory',
-                              items: [inventory_search_form, inventory_grid],
-                              closable: true,
-                              autoScroll:true
-                         }]
+          region:'center',
+          deferredRender:false,
+          activeTab:0,
+          items:[{
+               id:'inventory-tab',
+               title: 'Inventory',
+               iconCls: 'inventory',
+               items: [inventory_search_form, inventory_grid],
+               closable: true,
+               autoScroll:true
+          }]
      })
      
      
@@ -304,13 +304,13 @@ Ext.onReady(function(){
                          }
                        }
                    },{
-                       title:'Listing Activity',
-                       items:listing_cctivity_tree,
-                       border:false,
-                       iconCls:'listing-activity',
-                       listeners:{
+                         title:'Listing Activity',
+                         items:listing_cctivity_tree,
+                         border:false,
+                         iconCls:'listing-activity',
+                         listeners:{
                               expand: function(p){
-                                   var activity_store =new Ext.data.JsonStore({
+                                   var activity_store = new Ext.data.JsonStore({
                                         root: 'records',
                                         totalProperty: 'totalCount',
                                         idProperty: 'id',
@@ -358,8 +358,60 @@ Ext.onReady(function(){
                                    
                               }
                          }
-                   }
-                   ]
+                   },{
+                         title:'Sales Report',
+                         border:false,
+                         iconCls:'sales-report',
+                         listeners:{
+                              expand: function(p){
+                                   var sales_report_store = new Ext.data.JsonStore({
+                                        root: 'records',
+                                        totalProperty: 'totalCount',
+                                        idProperty: 'id',
+                                        //autoLoad:true,
+                                        fields: ['inventory_model_code', 'short_description', 'long_description', 'category', 'manufacturer', 'Weight', 'Cost'],
+                                        //url: 'service.php?action=getWait'
+                                        url: inventory_service_address + '?action=getSalesReport'
+                                   })
+                                   
+                                   var sales_report_grid = new Ext.grid.GridPanel({
+                                        title: 'Sales Report',
+                                        store: sales_report_store,
+                                        autoHeight: true,
+                                        selModel: new Ext.grid.RowSelectionModel({}),
+                                        columns:[
+                                            {header: "Sku", width: 120, align: 'center', sortable: true, dataIndex: 'inventory_model_code'},
+                                            {header: "Model", width: 120, align: 'center', sortable: true, dataIndex: 'short_description'},
+                                            {header: "Description", width: 180, align: 'center', sortable: true, dataIndex: 'long_description'},
+                                            {header: "Categpru", width: 100, align: 'center', sortable: true, dataIndex: 'category'},
+                                            {header: "Supplier", width: 120, align: 'center', sortable: true, dataIndex: 'manufacturer'},
+                                            {header: "Weight", width: 60, align: 'center', sortable: true, dataIndex: 'Weight'},
+                                            {header: "Cost", width: 60, align: 'center', sortable: true, dataIndex: 'Cost'}
+                                        ],
+                                        bbar: new Ext.PagingToolbar({
+                                            pageSize: 20,
+                                            store: sales_report_store,
+                                            displayInfo: true
+                                        })
+                                   })
+                                   
+                                   if(tabPanel.isVisible('sales-report-tab'))
+                                        tabPanel.remove('sales-report-tab');
+
+                                   sales_report_store.load();
+                                   tabPanel.add({
+                                        id:'sales-report-tab',
+                                        iconCls: 'sales-report',
+                                        title: "Sales Report",
+                                        items: sales_report_grid,
+                                        closable: true,
+                                        autoScroll:true
+                                   })
+                                   tabPanel.doLayout();
+                                   tabPanel.activate('sales-report-tab');
+                              }
+                         }
+                   }]
                },tabPanel
             ]
        });
