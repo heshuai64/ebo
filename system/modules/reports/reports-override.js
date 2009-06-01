@@ -79,9 +79,10 @@ Ext.override(QoDesk.Reports, {
 	}
 	
 	var salesReport = function(){
-	    var salesReportWin = desktop.getWindow('sales-report-win');
-	    if(!salesReportWin){
-		salesReportWin = desktop.createWindow({
+	    
+	    var salesReportSearchWin = desktop.getWindow('sales-report-win');
+	    if(!salesReportSearchWin){
+		salesReportSearchWin = desktop.createWindow({
 		    id: 'sales-report-win',
 		    title:lang.reports.search_sales_report_window_title,
 		    width:300,
@@ -118,13 +119,13 @@ Ext.override(QoDesk.Reports, {
 			buttons: [{
 			    text: lang.reports.submit,
 			    handler: function(){
-				window.open("/eBayBO/reports.php?type=salesReport&seller_id="+document.getElementById("sellerId").value,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=500, height=400");
-				salesReportWin.close();
+				salesReportSearchWin.close();
+				window.open("/eBayBO/salesReport.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=600, height=400");
 			    }
 			},{
 			    text: lang.reports.close,
 			    handler: function(){
-				salesReportWin.close();
+				salesReportSearchWin.close();
 			    }
 			}]
 		    }],
@@ -133,7 +134,7 @@ Ext.override(QoDesk.Reports, {
 		
 	    }
 	    
-	    salesReportWin.show();
+	    salesReportSearchWin.show();
 	}
 	
 	if(!win){
