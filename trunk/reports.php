@@ -132,7 +132,7 @@ class Reports{
             $index = $date ."|".$day;
             //echo $date;
             //echo "<br>";
-            $sql = "select o.id,od.skuId,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='libra.studio' and o.createdOn like '".$date."%' group by skuId order by createdOn";
+            $sql = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='libra.studio' and o.createdOn like '".$date."%' group by skuId order by createdOn";
             //echo $sql;
             //echo "<br>";
             $result = mysql_query($sql, Reports::$database_connect);
@@ -144,6 +144,7 @@ class Reports{
                 if($row['date1'] >= $fourWeekAgoMon && $row['date1'] < $threeWeekAgoMon){
                     if(empty($sku_array[$row['skuId']]['sku_id'])){
                         $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
+                        $sku_array[$row['skuId']]['item_title'] = $row['itemTitle'];
                     }
                     
                     if(empty($sku_array[$row['skuId']]['1_'.$row['date2'].'_quantity'])){
@@ -162,6 +163,7 @@ class Reports{
                 }elseif($row['date1'] >= $threeWeekAgoMon && $row['date1'] < $twoWeekAgoMon){
                     if(empty($sku_array[$row['skuId']]['sku_id'])){
                         $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
+                        $sku_array[$row['skuId']]['item_title'] = $row['itemTitle'];
                     }
                     
                     if(empty($sku_array[$row['skuId']]['2_'.$row['date2'].'_quantity'])){
@@ -180,6 +182,7 @@ class Reports{
                 }elseif($row['date1'] >= $twoWeekAgoMon && $row['date1'] < $oneWeekAgoMon){
                     if(empty($sku_array[$row['skuId']]['sku_id'])){
                         $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
+                        $sku_array[$row['skuId']]['item_title'] = $row['itemTitle'];
                     }
                     
                     if(empty($sku_array[$row['skuId']]['3_'.$row['date2'].'_quantity'])){
@@ -198,6 +201,7 @@ class Reports{
                 }elseif($row['date1'] >= $oneWeekAgoMon){
                     if(empty($sku_array[$row['skuId']]['sku_id'])){
                         $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
+                        $sku_array[$row['skuId']]['item_title'] = $row['itemTitle'];
                     }
                     
                     if(empty($sku_array[$row['skuId']]['4_'.$row['date2'].'_quantity'])){

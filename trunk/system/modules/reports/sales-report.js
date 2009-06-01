@@ -4,49 +4,121 @@ Ext.onReady(function(){
         totalProperty: 'totalCount',
         idProperty: 'sku_id',
         autoLoad:true,
-        fields: ['sku_id', '1_Mon_quantity', '1_Tue_quantity', '1_Wed_quantity', '1_Thu_quantity', '1_Fri_quantity', '1_Sat_quantity', '1_Sun_quantity', '1_total_num', '2_Mon_quantity', '2_Tue_quantity', '2_Wed_quantity', '2_Thu_quantity', '2_Fri_quantity', '2_Sat_quantity', '2_Sun_quantity', '2_total_num', '3_Mon_quantity', '3_Tue_quantity', '3_Wed_quantity', '3_Thu_quantity', '3_Fri_quantity', '3_Sat_quantity', '3_Sun_quantity', '3_total_num', '4_Mon_quantity', '4_Tue_quantity', '4_Wed_quantity', '4_Thu_quantity', '4_Fri_quantity', '4_Sat_quantity', '4_Sun_quantity', '4_total_num',],
+        fields: ['item_title', 'sku_id', '1_Mon_quantity', '1_Tue_quantity', '1_Wed_quantity', '1_Thu_quantity', '1_Fri_quantity', '1_Sat_quantity', '1_Sun_quantity', '1_total_num', '2_Mon_quantity', '2_Tue_quantity', '2_Wed_quantity', '2_Thu_quantity', '2_Fri_quantity', '2_Sat_quantity', '2_Sun_quantity', '2_total_num', '3_Mon_quantity', '3_Tue_quantity', '3_Wed_quantity', '3_Thu_quantity', '3_Fri_quantity', '3_Sat_quantity', '3_Sun_quantity', '3_total_num', '4_Mon_quantity', '4_Tue_quantity', '4_Wed_quantity', '4_Thu_quantity', '4_Fri_quantity', '4_Sat_quantity', '4_Sun_quantity', '4_total_num',],
         url:'reports.php?type=salesReport'
     });
+    
+    var renderStar = function(){
+        return "<font color='red'>*</font>";
+    }
+    
+    var renderGrowthRate2 = function(v, m, r){
+        if(Ext.isEmpty(r.data['1_total_num'])){
+            return String.format('<font color="green">{0}%</font>', r.data['2_total_num'] * 100);
+        }
+        
+        if(Ext.isEmpty(r.data['2_total_num'])){
+            return String.format('<font color="red">-{0}%</font>', r.data['1_total_num'] * 100);
+        }
+        
+        var grow_rate = (((r.data['2_total_num'] - r.data['1_total_num']) / r.data['1_total_num']) * 100).toFixed(4);
+        if(grow_rate > 0){
+            return String.format('<font color="green">{0}%</font>', grow_rate);
+        }else{
+            return String.format('<font color="red">{0}%</font>', grow_rate);
+        }
+    }
+    
+    var renderGrowthRate3 = function(v, m, r){
+        if(Ext.isEmpty(r.data['2_total_num'])){
+            return String.format('<font color="green">{0}%</font>', r.data['3_total_num'] * 100);
+        }
+        
+        if(Ext.isEmpty(r.data['3_total_num'])){
+            return String.format('<font color="red">-{0}%</font>', r.data['2_total_num'] * 100);
+        }
+        
+        var grow_rate = (((r.data['3_total_num'] - r.data['2_total_num']) / r.data['2_total_num']) * 100).toFixed(2);
+        
+        if(grow_rate > 0){
+            return String.format('<font color="green">{0}%</font>', grow_rate);
+        }else{
+            return String.format('<font color="red">{0}%</font>', grow_rate);
+        }
+    }
+    
+    var renderGrowthRate4 = function(v, m, r){
+        if(Ext.isEmpty(r.data['3_total_num'])){
+            return String.format('<font color="green">{0}%</font>', r.data['4_total_num'] * 100);
+        }
+        
+        if(Ext.isEmpty(r.data['4_total_num'])){
+            return String.format('<font color="red">-{0}%</font>', r.data['3_total_num'] * 100);
+        }
+        
+        var grow_rate = (((r.data['4_total_num'] - r.data['3_total_num']) / r.data['3_total_num']) * 100).toFixed(2);
+        
+        if(grow_rate > 0){
+            return String.format('<font color="green">{0}%</font>', grow_rate);
+        }else{
+            return String.format('<font color="red">{0}%</font>', grow_rate);
+        }
+    }
     
     var salesReportGrid = new Ext.grid.GridPanel({
         //id:'button-grid',
         store: salesReportStore,
         //autoHeight: true,
-        width: 999,
-        height: 720,
+        width: 980,
+        height: 620,
         frame:true,
         //autoScroll: true,
         selModel: new Ext.grid.RowSelectionModel({}),
         columns:[
-            {header: "SKU", width: 100, align: 'center', sortable: true, dataIndex: 'sku_id'},
-            {header: "11", width: 50, align: 'center', sortable: true, dataIndex: '1_Mon_quantity'},
-            {header: "12", width: 50, align: 'center', sortable: true, dataIndex: '1_Tue_quantity'},
-            {header: "13", width: 50, align: 'center', sortable: true, dataIndex: '1_Wed_quantity'},
-            {header: "14", width: 50, align: 'center', sortable: true, dataIndex: '1_Thu_quantity'},
-            {header: "15", width: 50, align: 'center', sortable: true, dataIndex: '1_Fri_quantity'},
-            {header: "16", width: 50, align: 'center', sortable: true, dataIndex: '1_Sat_quantity'},
-            {header: "17", width: 50, align: 'center', sortable: true, dataIndex: '1_Sun_quantity'},
-            {header: "21", width: 50, align: 'center', sortable: true, dataIndex: '2_Mon_quantity'},
-            {header: "22", width: 50, align: 'center', sortable: true, dataIndex: '2_Tue_quantity'},
-            {header: "23", width: 50, align: 'center', sortable: true, dataIndex: '2_Wed_quantity'},
-            {header: "24", width: 50, align: 'center', sortable: true, dataIndex: '2_Thu_quantity'},
-            {header: "25", width: 50, align: 'center', sortable: true, dataIndex: '2_Fri_quantity'},
-            {header: "26", width: 50, align: 'center', sortable: true, dataIndex: '2_Sat_quantity'},
-            {header: "27", width: 50, align: 'center', sortable: true, dataIndex: '2_Sun_quantity'},
-            {header: "31", width: 50, align: 'center', sortable: true, dataIndex: '3_Mon_quantity'},
-            {header: "32", width: 50, align: 'center', sortable: true, dataIndex: '3_Tue_quantity'},
-            {header: "33", width: 50, align: 'center', sortable: true, dataIndex: '3_Wed_quantity'},
-            {header: "34", width: 50, align: 'center', sortable: true, dataIndex: '3_Thu_quantity'},
-            {header: "35", width: 50, align: 'center', sortable: true, dataIndex: '3_Fri_quantity'},
-            {header: "36", width: 50, align: 'center', sortable: true, dataIndex: '3_Sat_quantity'},
-            {header: "37", width: 50, align: 'center', sortable: true, dataIndex: '3_Sun_quantity'},
-            {header: "41", width: 50, align: 'center', sortable: true, dataIndex: '4_Mon_quantity'},
-            {header: "42", width: 50, align: 'center', sortable: true, dataIndex: '4_Tue_quantity'},
-            {header: "43", width: 50, align: 'center', sortable: true, dataIndex: '4_Wed_quantity'},
-            {header: "44", width: 50, align: 'center', sortable: true, dataIndex: '4_Thu_quantity'},
-            {header: "45", width: 50, align: 'center', sortable: true, dataIndex: '4_Fri_quantity'},
-            {header: "46", width: 50, align: 'center', sortable: true, dataIndex: '4_Sat_quantity'},
-            {header: "47", width: 50, align: 'center', sortable: true, dataIndex: '4_Sun_quantity'}
+            {header: "Title", width: 380, align: 'center', sortable: true, dataIndex: 'item_title'},
+            {header: "SKU", width: 150, align: 'center', sortable: true, dataIndex: 'sku_id'},
+            
+            {header: "1st Mon", width: 80, align: 'center', sortable: true, dataIndex: '1_Mon_quantity'},
+            {header: "1st Tue", width: 80, align: 'center', sortable: true, dataIndex: '1_Tue_quantity'},
+            {header: "1st Wed", width: 80, align: 'center', sortable: true, dataIndex: '1_Wed_quantity'},
+            {header: "1st Thu", width: 80, align: 'center', sortable: true, dataIndex: '1_Thu_quantity'},
+            {header: "1st Fri", width: 80, align: 'center', sortable: true, dataIndex: '1_Fri_quantity'},
+            {header: "1st Sat", width: 80, align: 'center', sortable: true, dataIndex: '1_Sat_quantity'},
+            {header: "1st Sun", width: 80, align: 'center', sortable: true, dataIndex: '1_Sun_quantity'},
+            {header: "1st Week Total", width: 100, align: 'center', sortable: true, dataIndex: '1_total_num'},
+            {header: "1st End", width: 50, align: 'center', sortable: true, dataIndex: 'sku_id', renderer: renderStar},
+              
+            {header: "2nd Mon", width: 80, align: 'center', sortable: true, dataIndex: '2_Mon_quantity'},
+            {header: "2nd Tue", width: 80, align: 'center', sortable: true, dataIndex: '2_Tue_quantity'},
+            {header: "2nd Wed", width: 80, align: 'center', sortable: true, dataIndex: '2_Wed_quantity'},
+            {header: "2nd Thu", width: 80, align: 'center', sortable: true, dataIndex: '2_Thu_quantity'},
+            {header: "2nd Fri", width: 80, align: 'center', sortable: true, dataIndex: '2_Fri_quantity'},
+            {header: "2nd Sat", width: 80, align: 'center', sortable: true, dataIndex: '2_Sat_quantity'},
+            {header: "2nd Sun", width: 80, align: 'center', sortable: true, dataIndex: '2_Sun_quantity'},
+            {header: "2nd Week Total", width: 100, align: 'center', sortable: true, dataIndex: '2_total_num'},
+            {header: "Growth Rate", width: 90, align: 'center', sortable: true, dataIndex: 'sku_id', renderer: renderGrowthRate2},
+            {header: "2nd End", width: 50, align: 'center', sortable: true, dataIndex: 'sku_id', renderer: renderStar},
+            
+            {header: "3rd Mon", width: 80, align: 'center', sortable: true, dataIndex: '3_Mon_quantity'},
+            {header: "3rd Tue", width: 80, align: 'center', sortable: true, dataIndex: '3_Tue_quantity'},
+            {header: "3rd Wed", width: 80, align: 'center', sortable: true, dataIndex: '3_Wed_quantity'},
+            {header: "3rd Thu", width: 80, align: 'center', sortable: true, dataIndex: '3_Thu_quantity'},
+            {header: "3rd Fri", width: 80, align: 'center', sortable: true, dataIndex: '3_Fri_quantity'},
+            {header: "3rd Sat", width: 80, align: 'center', sortable: true, dataIndex: '3_Sat_quantity'},
+            {header: "3rd Sun", width: 80, align: 'center', sortable: true, dataIndex: '3_Sun_quantity'},
+            {header: "3rd Week Total", width: 100, align: 'center', sortable: true, dataIndex: '3_total_num'},
+            {header: "Growth Rate", width: 90, align: 'center', sortable: true, dataIndex: 'sku_id', renderer: renderGrowthRate3},
+            {header: "3rd End", width: 50, align: 'center', sortable: true, dataIndex: 'sku_id', renderer: renderStar},
+            
+            {header: "4th Mon", width: 80, align: 'center', sortable: true, dataIndex: '4_Mon_quantity'},
+            {header: "4th Tue", width: 80, align: 'center', sortable: true, dataIndex: '4_Tue_quantity'},
+            {header: "4th Wed", width: 80, align: 'center', sortable: true, dataIndex: '4_Wed_quantity'},
+            {header: "4th Thu", width: 80, align: 'center', sortable: true, dataIndex: '4_Thu_quantity'},
+            {header: "4th Fri", width: 80, align: 'center', sortable: true, dataIndex: '4_Fri_quantity'},
+            {header: "4th Sat", width: 80, align: 'center', sortable: true, dataIndex: '4_Sat_quantity'},
+            {header: "4th Sun", width: 80, align: 'center', sortable: true, dataIndex: '4_Sun_quantity'},
+            {header: "4th Week Total", width: 100, align: 'center', sortable: true, dataIndex: '4_total_num'},
+            {header: "Growth Rate", width: 90, align: 'center', sortable: true, dataIndex: 'sku_id', renderer: renderGrowthRate4}
         ]
     })
     
