@@ -120,7 +120,7 @@ Ext.override(QoDesk.Reports, {
 			    text: lang.reports.submit,
 			    handler: function(){
 				salesReportSearchWin.close();
-				window.open("/eBayBO/salesReport.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=600, height=400");
+				window.open("/eBayBO/salesReport.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=999, height=720");
 			    }
 			},{
 			    text: lang.reports.close,
