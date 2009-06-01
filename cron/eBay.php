@@ -484,11 +484,11 @@ class eBay{
     
     private function updateOrderStatus($ordersId, $grandTotalValue, $amountValue){
 	if($amountValue > ($grandTotalValue + ($grandTotalValue * 0.02))){
-		$sql = "update qo_orders set status = 'C' where id = '".$ordersId."'";
+		$sql = "update qo_orders set status = 'C',modifiedBy='eBay',modifiedOn='".date("Y-m-d H:i:s")."' where id = '".$ordersId."'";
 	}elseif($amountValue < ($grandTotalValue - ($grandTotalValue * 0.02))){
-		$sql = "update qo_orders set status = 'S' where id = '".$ordersId."'";
+		$sql = "update qo_orders set status = 'S',modifiedBy='eBay',modifiedOn='".date("Y-m-d H:i:s")."' where id = '".$ordersId."'";
 	}else{
-		$sql = "update qo_orders set status = 'P' where id = '".$ordersId."'";
+		$sql = "update qo_orders set status = 'P',modifiedBy='eBay',modifiedOn='".date("Y-m-d H:i:s")."' where id = '".$ordersId."'";
 		//$this->createShipmentFromEbay($ordersId);
 	}
 	echo $sql;
@@ -501,7 +501,7 @@ class eBay{
 	$result = mysql_query($sql, eBay::$database_connect);
 	$row = mysql_fetch_assoc($result);
 	$sql = "update qo_orders set paypalName='".mysql_real_escape_string($row['payerName'])."',paypalEmail='".$row['payerEmail']."',paypalAddress1='".mysql_real_escape_string($row['payerAddressLine1'])."',paypalAddress2='".mysql_real_escape_string($row['payerAddressLine2'])."',
-	paypalCity='".mysql_real_escape_string($row['payerCity'])."',paypalStateOrProvince='".mysql_real_escape_string($row['payerStateOrProvince'])."',paypalPostalCode='".$row['payerPostalCode']."',paypalCountry='".$row['payerCountry']."',modifiedBy='PayPal',modifiedOn='".$row['transactionTime']."' where id = '".$ordersId."'";
+	paypalCity='".mysql_real_escape_string($row['payerCity'])."',paypalStateOrProvince='".mysql_real_escape_string($row['payerStateOrProvince'])."',paypalPostalCode='".$row['payerPostalCode']."',paypalCountry='".$row['payerCountry']."',modifiedBy='eBay',modifiedOn='".date("Y-m-d H:i:s")."' where id = '".$ordersId."'";
 	echo $sql;
 	echo "<br>\n<font color='green'>updateOrderPayPalAddress ".$ordersId." and ".$transactionsId."</font><br>\n<br>\n";
 	$result = mysql_query($sql, eBay::$database_connect);
