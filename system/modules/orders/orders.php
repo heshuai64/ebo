@@ -1,10 +1,15 @@
 <?php
 class QoOrders {
+	private static $memcache_connect;
+	const MEMCACHE_HOST = '127.0.0.1';
+	const MEMCACHE_PORT = 11211;
 	
 	private $os;
 
 	public function __construct($os){
 		$this->os = $os;
+		QoOrders::$memcache_connect = new Memcache;
+		QoOrders::$memcache_connect->connect(self::MEMCACHE_HOST, self::MEMCACHE_PORT);
 	}
         
 	public function log($file_name, $content){
@@ -445,22 +450,30 @@ class QoOrders {
 	}
 	
 	public function getConfigure(){
-		$sql = "select countries_name as id,countries_name as name from qo_countries";
-		$result = mysql_query($sql);
-		$countries_array = array();
-		while($row = mysql_fetch_assoc($result)){
-			$countries_array[] = array($row['id'], $row['name']);
+		$data = QoOrders::$memcache_connect->get("ordersConfigure");
+		if($data == false){
+			$sql = "select countries_name as id,countries_name as name from qo_countries";
+			$result = mysql_query($sql);
+			$countries_array = array();
+			while($row = mysql_fetch_assoc($result)){
+				$countries_array[] = array($row['id'], $row['name']);
+			}
+			
+			$sql = "select id as id,id as name from qo_ebay_seller";
+			$result = mysql_query($sql);
+			$seller_array = array();
+			while($row = mysql_fetch_assoc($result)){
+				$seller_array[] = array($row['id'], $row['name']);
+			}
+			$data = array('countries'=>$countries_array, 'seller'=>$seller_array);
+			QoOrders::$memcache_connect->set("ordersConfigure", $data);
+			mysql_free_result($result);
 		}
-		
-		$sql = "select id as id,id as name from qo_ebay_seller";
-		$result = mysql_query($sql);
-		$seller_array = array();
-		while($row = mysql_fetch_assoc($result)){
-			$seller_array[] = array($row['id'], $row['name']);
-		}
-		
-		echo json_encode(array('countries'=>$countries_array, 'seller'=>$seller_array));
-		mysql_free_result($result);
+		echo json_encode($data);
+	}
+	
+	public function __destruct(){
+		QoOrders::$memcache_connect->close();
 	}
 	
 }

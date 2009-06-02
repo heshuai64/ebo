@@ -1,10 +1,15 @@
 <?php
 class QoTransactions {
-	
+	private static $memcache_connect;
+	const MEMCACHE_HOST = '127.0.0.1';
+	const MEMCACHE_PORT = 11211;
+    
 	private $os;
 
 	public function __construct($os){
 		$this->os = $os;
+		QoTransactions::$memcache_connect = new Memcache;
+		QoTransactions::$memcache_connect->connect(self::MEMCACHE_HOST, self::MEMCACHE_PORT);
 	}
         
 	public function getTransactionId(){
@@ -221,24 +226,37 @@ class QoTransactions {
 	}
 	
 	public function getSeller(){
-		$sql = "select id as id, id as name from qo_ebay_seller";
-		$result = mysql_query($sql);
-		$seller_array = array();
-		while($row = mysql_fetch_assoc($result)){
-			$seller_array[] = $row;
+		$seller_array = QoTransactions::$memcache_connect->get("seller");
+		if($seller_array == false){
+			$sql = "select id as id, id as name from qo_ebay_seller";
+			$result = mysql_query($sql);
+			$seller_array = array();
+			while($row = mysql_fetch_assoc($result)){
+				$seller_array[] = $row;
+			}
+			QoTransactions::$memcache_connect->set("seller", $seller_array);
+			mysql_free_result($result);
 		}
 		echo json_encode($seller_array);
-		mysql_free_result($result);
 	}
 	
 	public function getCountries(){
-		$sql = "select countries_name as id, countries_name as name from qo_countries";
-		$result = mysql_query($sql);
-		$countries_array = array();
-		while($row = mysql_fetch_assoc($result)){
-			$countries_array[] = $row;
+		$countries_array = QoTransactions::$memcache_connect->get("countries");
+		if($countries_array == false){
+			$sql = "select countries_name as id, countries_name as name from qo_countries";
+			$result = mysql_query($sql);
+			$countries_array = array();
+			while($row = mysql_fetch_assoc($result)){
+				$countries_array[] = $row;
+			}
+			mysql_free_result($result);
+			QoTransactions::$memcache_connect->set("countries", $countries_array);
 		}
 		echo json_encode($countries_array);
-		mysql_free_result($result);
+	}
+	
+	
+	public function __destruct(){
+		QoTransactions::$memcache_connect->close();
 	}
 }
