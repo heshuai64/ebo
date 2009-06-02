@@ -13,9 +13,6 @@ if(!class_exists('os')){
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="PRAGMA" content="NO-CACHE">
-<meta http-equiv="CACHE-CONTROL" content="NO-CACHE">
-<meta http-equiv="EXPIRES" content="-1">
 
 <title>eBay BackOffice</title>
 
@@ -23,7 +20,9 @@ if(!class_exists('os')){
 <link rel="stylesheet" type="text/css" href="../Ext/2.2/resources/css/ext-all.css" />
 <script src="../Ext/2.2/adapter/ext/ext-base.js"></script>
 <script src="../Ext/2.2/ext-all.js"></script> 
-
+<script type="text/javascript">
+	Ext.BLANK_IMAGE_URL = "../Ext/2.2/resources/images/default/s.gif";
+</script>
 <!-- DESKTOP CSS -->
 <link rel="stylesheet" type="text/css" href="resources/css/desktop.css" />
 <link rel="stylesheet" type="text/css" href="system/dialogs/colorpicker/colorpicker.css" />
