@@ -13,6 +13,10 @@
         <script src="../Ext/2.2/adapter/ext/ext-base.js"></script>
         <script src="../Ext/2.2/ext-all.js"></script>
         <script src="system/modules/reports/sales-report.js"></script>
+        <script type="text/javascript">
+            var week = "<?=$_GET['week']?>";
+            var sellerId = "<?=$_GET['sellerId']?>";
+        </script>
 </head>
 <body>
     

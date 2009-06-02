@@ -119,8 +119,12 @@ Ext.override(QoDesk.Reports, {
 			buttons: [{
 			    text: lang.reports.submit,
 			    handler: function(){
+				var sellerId = document.getElementById("sellerId").value;
+				//window.open("/eBayBO/salesReport.php?week=1&sellerId=" + sellerId, "_blank", "toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=700");
+				window.open("/eBayBO/salesReport.php?week=2&sellerId=" + sellerId, "_blank", "toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=700");
+				//window.open("/eBayBO/salesReport.php?week=3&sellerId=" + sellerId, "_blank", "toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=700");
+				//window.open("/eBayBO/salesReport.php?week=4&sellerId=" + sellerId, "_blank", "toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=700");
 				salesReportSearchWin.close();
-				window.open("/eBayBO/salesReport.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=999, height=720");
 			    }
 			},{
 			    text: lang.reports.close,

@@ -5,7 +5,7 @@ Ext.onReady(function(){
         idProperty: 'sku_id',
         autoLoad:true,
         fields: ['item_title', 'sku_id', '1_Mon_quantity', '1_Tue_quantity', '1_Wed_quantity', '1_Thu_quantity', '1_Fri_quantity', '1_Sat_quantity', '1_Sun_quantity', '1_total_num', '2_Mon_quantity', '2_Tue_quantity', '2_Wed_quantity', '2_Thu_quantity', '2_Fri_quantity', '2_Sat_quantity', '2_Sun_quantity', '2_total_num', '3_Mon_quantity', '3_Tue_quantity', '3_Wed_quantity', '3_Thu_quantity', '3_Fri_quantity', '3_Sat_quantity', '3_Sun_quantity', '3_total_num', '4_Mon_quantity', '4_Tue_quantity', '4_Wed_quantity', '4_Thu_quantity', '4_Fri_quantity', '4_Sat_quantity', '4_Sun_quantity', '4_total_num',],
-        url:'reports.php?type=salesReport'
+        url:'reports.php?type=salesReport&sellerId=' + sellerId
     });
     
     var renderStar = function(){
@@ -21,7 +21,7 @@ Ext.onReady(function(){
             return String.format('<font color="red">-{0}%</font>', r.data['1_total_num'] * 100);
         }
         
-        var grow_rate = (((r.data['2_total_num'] - r.data['1_total_num']) / r.data['1_total_num']) * 100).toFixed(4);
+        var grow_rate = (((r.data['2_total_num'] - r.data['1_total_num']) / r.data['1_total_num']) * 100).toFixed(2);
         if(grow_rate > 0){
             return String.format('<font color="green">{0}%</font>', grow_rate);
         }else{
@@ -65,6 +65,92 @@ Ext.onReady(function(){
         }
     }
     
+    switch(week){
+        case "1":
+            var windowTitle = "1st Week Sales Report";
+            var colModel = new Ext.grid.ColumnModel([
+                {header: "Title", width: 335, align: 'center', sortable: true, dataIndex: 'item_title'},
+                {header: "SKU", width: 110, align: 'center', sortable: true, dataIndex: 'sku_id'},
+                
+                {header: "Mon", width: 55, align: 'center', sortable: true, dataIndex: '1_Mon_quantity'},
+                {header: "Tue", width: 55, align: 'center', sortable: true, dataIndex: '1_Tue_quantity'},
+                {header: "Wed", width: 55, align: 'center', sortable: true, dataIndex: '1_Wed_quantity'},
+                {header: "Thu", width: 55, align: 'center', sortable: true, dataIndex: '1_Thu_quantity'},
+                {header: "Fri", width: 55, align: 'center', sortable: true, dataIndex: '1_Fri_quantity'},
+                {header: "Sat", width: 55, align: 'center', sortable: true, dataIndex: '1_Sat_quantity'},
+                {header: "Sun", width: 55, align: 'center', sortable: true, dataIndex: '1_Sun_quantity'},
+                {header: "Total", width: 60, align: 'center', sortable: true, dataIndex: '1_total_num'}
+            ]);
+        break;
+    
+        case "2":
+            var windowTitle = "2nd Week Sales Report";
+            var colModel = new Ext.grid.ColumnModel([
+                {header: "Title", width: 335, align: 'center', sortable: true, dataIndex: 'item_title'},
+                {header: "SKU", width: 110, align: 'center', sortable: true, dataIndex: 'sku_id'},
+                
+                {header: "Mon", width: 55, align: 'center', sortable: true, dataIndex: '2_Mon_quantity'},
+                {header: "Tue", width: 55, align: 'center', sortable: true, dataIndex: '2_Tue_quantity'},
+                {header: "Wed", width: 55, align: 'center', sortable: true, dataIndex: '2_Wed_quantity'},
+                {header: "Thu", width: 55, align: 'center', sortable: true, dataIndex: '2_Thu_quantity'},
+                {header: "Fri", width: 55, align: 'center', sortable: true, dataIndex: '2_Fri_quantity'},
+                {header: "Sat", width: 55, align: 'center', sortable: true, dataIndex: '2_Sat_quantity'},
+                {header: "Sun", width: 55, align: 'center', sortable: true, dataIndex: '2_Sun_quantity'},
+                {header: "Total", width: 60, align: 'center', sortable: true, dataIndex: '2_total_num'},
+                {header: "Growth", width: 60, align: 'center', sortable: true, dataIndex: '2_total_num', renderer: renderGrowthRate2}
+            ]);
+        break;
+    
+        case "3":
+            var windowTitle = "3rd Week Sales Report";
+            var colModel = new Ext.grid.ColumnModel([
+                {header: "Title", width: 335, align: 'center', sortable: true, dataIndex: 'item_title'},
+                {header: "SKU", width: 110, align: 'center', sortable: true, dataIndex: 'sku_id'},
+                
+                {header: "Mon", width: 55, align: 'center', sortable: true, dataIndex: '3_Mon_quantity'},
+                {header: "Tue", width: 55, align: 'center', sortable: true, dataIndex: '3_Tue_quantity'},
+                {header: "Wed", width: 55, align: 'center', sortable: true, dataIndex: '3_Wed_quantity'},
+                {header: "Thu", width: 55, align: 'center', sortable: true, dataIndex: '3_Thu_quantity'},
+                {header: "Fri", width: 55, align: 'center', sortable: true, dataIndex: '3_Fri_quantity'},
+                {header: "Sat", width: 55, align: 'center', sortable: true, dataIndex: '3_Sat_quantity'},
+                {header: "Sun", width: 55, align: 'center', sortable: true, dataIndex: '3_Sun_quantity'},
+                {header: "Total", width: 60, align: 'center', sortable: true, dataIndex: '3_total_num'},
+                {header: "Growth", width: 60, align: 'center', sortable: true, dataIndex: '3_total_num', renderer: renderGrowthRate3}
+            ]);
+        break;
+    
+        case "4":
+            var windowTitle = "4th Week Sales Report";
+            var colModel = new Ext.grid.ColumnModel([
+                {header: "Title", width: 335, align: 'center', sortable: true, dataIndex: 'item_title'},
+                {header: "SKU", width: 110, align: 'center', sortable: true, dataIndex: 'sku_id'},
+                
+                {header: "Mon", width: 55, align: 'center', sortable: true, dataIndex: '4_Mon_quantity'},
+                {header: "Tue", width: 55, align: 'center', sortable: true, dataIndex: '4_Tue_quantity'},
+                {header: "Wed", width: 55, align: 'center', sortable: true, dataIndex: '4_Wed_quantity'},
+                {header: "Thu", width: 55, align: 'center', sortable: true, dataIndex: '4_Thu_quantity'},
+                {header: "Fri", width: 55, align: 'center', sortable: true, dataIndex: '4_Fri_quantity'},
+                {header: "Sat", width: 55, align: 'center', sortable: true, dataIndex: '4_Sat_quantity'},
+                {header: "Sun", width: 55, align: 'center', sortable: true, dataIndex: '4_Sun_quantity'},
+                {header: "Total", width: 60, align: 'center', sortable: true, dataIndex: '4_total_num'},
+                {header: "Growth", width: 60, align: 'center', sortable: true, dataIndex: '4_total_num', renderer: renderGrowthRate4}
+            ]);
+        break;
+    }
+    
+    var salesReportGrid = new Ext.grid.GridPanel({
+        //id:'button-grid',
+        store: salesReportStore,
+        //autoHeight: true,
+        width: 995,
+        height: 670,
+        frame:true,
+        //autoScroll: true,
+        selModel: new Ext.grid.RowSelectionModel({}),
+        colModel: colModel
+    })
+    
+    /*
     var salesReportGrid = new Ext.grid.GridPanel({
         //id:'button-grid',
         store: salesReportStore,
@@ -122,6 +208,7 @@ Ext.onReady(function(){
         ]
     })
     
+    */
     //salesReportGrid.render();
     /*
     var p = Ext.Panel({
@@ -140,7 +227,7 @@ Ext.onReady(function(){
         layout:'border',
         items:[{
                 xtype: 'panel',
-                title:'Sales Report',
+                title: windowTitle,
                 region:'center',
                 autoScroll: true,
                 //width: 800,
