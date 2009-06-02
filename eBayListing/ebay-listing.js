@@ -1,4 +1,6 @@
 Ext.onReady(function(){
+     Ext.BLANK_IMAGE_URL = "../../Ext/2.2/resources/images/default/s.gif";
+     
      var inventory_service_address = "/tracmor/service.php";
      Ext.QuickTips.init();
      Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
@@ -170,6 +172,71 @@ Ext.onReady(function(){
           listeners:{
                click: function(n, e){
                     //console.log(n);
+                    switch(n.id){
+                         case 1:
+                              
+                         break;
+                    
+                         case 2:
+                              var activity_store = new Ext.data.JsonStore({
+                                   root: 'records',
+                                   totalProperty: 'totalCount',
+                                   idProperty: 'id',
+                                   //autoLoad:true,
+                                   fields: ['SKU', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'StartPrice', 'BuyItNowPrice', 'Description', 'SubTitle', 'CategoryID', 'SecondaryCategory', 'StoreCategoryID', 'StoreCategory2ID'],
+                                   //url: 'service.php?action=getWait'
+                                   url: 'service.php?action=getActiveItem'
+                              })
+                              
+                              var activity_grid = new Ext.grid.GridPanel({
+                                   //title: 'Waiting To Upload SKU List',
+                                   store: activity_store,
+                                   //autoHeight: true,
+                                   autoScroll: true,
+                                   //width: 600,
+                                   selModel: new Ext.grid.RowSelectionModel({}),
+                                   columns:[
+                                       {header: "SKU", width: 120, align: 'center', sortable: true, dataIndex: 'SKU'},
+                                       {header: "Item Title", width: 120, align: 'center', sortable: true, dataIndex: 'Title'},
+                                       {header: "Site", width: 50, align: 'center', sortable: true, dataIndex: 'Site'},
+                                       {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
+                                       {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
+                                       {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
+                                       {header: "Start Price", width: 60, align: 'center', sortable: true, dataIndex: 'StartPrice'},
+                                       {header: "Buy It Now Price", width: 120, align: 'center', sortable: true, dataIndex: 'BuyItNowPrice'},
+                                       {header: "Sub Title", width: 120, align: 'center', sortable: true, dataIndex: 'SubTitle'},
+                                       {header: "Category 1", width: 120, align: 'center', sortable: true, dataIndex: 'CategoryID'},
+                                       {header: "Category 2", width: 120, align: 'center', sortable: true, dataIndex: 'SecondaryCategory'},
+                                       {header: "Store Category 1", width: 120, align: 'center', sortable: true, dataIndex: 'StoreCategoryID'},
+                                       {header: "Store Category 2", width: 120, align: 'center', sortable: true, dataIndex: 'StoreCategory2ID'}
+                                   ],
+                                   bbar: new Ext.PagingToolbar({
+                                       pageSize: 20,
+                                       store: activity_store,
+                                       displayInfo: true
+                                   })
+                              })
+                              
+                              if(tabPanel.isVisible('activity-tab'))
+                                   tabPanel.remove('activity-tab');
+
+                              activity_store.load();
+                              tabPanel.add({
+                                   id:'activity-tab',
+                                   iconCls: 'listing-activity',
+                                   title: "Listing Activity",
+                                   items: activity_grid,
+                                   closable: true,
+                                   autoScroll:true
+                              })
+                              tabPanel.doLayout();
+                              tabPanel.activate('activity-tab');
+                         break;
+                    
+                         case 3:
+                              
+                         break;
+                    }
                }
                
           }
@@ -310,51 +377,7 @@ Ext.onReady(function(){
                          iconCls:'listing-activity',
                          listeners:{
                               expand: function(p){
-                                   var activity_store = new Ext.data.JsonStore({
-                                        root: 'records',
-                                        totalProperty: 'totalCount',
-                                        idProperty: 'id',
-                                        //autoLoad:true,
-                                        fields: ['inventory_model_code', 'short_description', 'long_description', 'category', 'manufacturer', 'Weight', 'Cost'],
-                                        //url: 'service.php?action=getWait'
-                                        url: inventory_service_address + '?action=getAllSkus'
-                                   })
                                    
-                                   var activity_grid = new Ext.grid.GridPanel({
-                                        title: 'Waiting To Upload SKU List',
-                                        store: activity_store,
-                                        autoHeight: true,
-                                        selModel: new Ext.grid.RowSelectionModel({}),
-                                        columns:[
-                                            {header: "Sku", width: 120, align: 'center', sortable: true, dataIndex: 'inventory_model_code'},
-                                            {header: "Model", width: 120, align: 'center', sortable: true, dataIndex: 'short_description'},
-                                            {header: "Description", width: 180, align: 'center', sortable: true, dataIndex: 'long_description'},
-                                            {header: "Categpru", width: 100, align: 'center', sortable: true, dataIndex: 'category'},
-                                            {header: "Supplier", width: 120, align: 'center', sortable: true, dataIndex: 'manufacturer'},
-                                            {header: "Weight", width: 60, align: 'center', sortable: true, dataIndex: 'Weight'},
-                                            {header: "Cost", width: 60, align: 'center', sortable: true, dataIndex: 'Cost'}
-                                        ],
-                                        bbar: new Ext.PagingToolbar({
-                                            pageSize: 20,
-                                            store: activity_store,
-                                            displayInfo: true
-                                        })
-                                   })
-                                   
-                                   if(tabPanel.isVisible('activity-tab'))
-                                        tabPanel.remove('activity-tab');
-
-                                   activity_store.load();
-                                   tabPanel.add({
-                                        id:'activity-tab',
-                                        iconCls: 'listing-activity',
-                                        title: "Listing Activity",
-                                        items: activity_grid,
-                                        closable: true,
-                                        autoScroll:true
-                                   })
-                                   tabPanel.doLayout();
-                                   tabPanel.activate('activity-tab');
                                    
                               }
                          }

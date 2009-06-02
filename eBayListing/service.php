@@ -330,7 +330,53 @@ class eBayListing{
 	echo $result;
     }
     
+    public function getActiveItem(){
+	if(empty($_POST['start']) && empty($_POST['limit'])){
+	       $_POST['start'] = 0;
+	       $_POST['limit'] = 20;
+	}
+
+	//Active Completed Ended
+	$sql = "select count(*) as count from items";// where ListingStatus = 'Active' and EndTime > NOW()";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	$totalCount = $row['count'];
+	
+	$sql_1 = "select * from items limit ".$_POST['start'].",".$_POST['limit'];// where ListingStatus = 'Active' and EndTime > NOW() limit ".$_POST['start'].",".$_POST['limit'];
+	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	$data = array();
+	while($row_1 = mysql_fetch_assoc($result_1)){
+	    $data[] = $row_1;
+	}
+	
+	echo json_encode(array('totalCount'=>$totalCount, 'records'=>$data));
+	mysql_free_result($result);
+	mysql_free_result($result_1);
+    }
     
+    public function getEndItem(){
+	if(empty($_POST['start']) && empty($_POST['limit'])){
+	       $_POST['start'] = 0;
+	       $_POST['limit'] = 20;
+	}
+
+	//Active Completed Ended
+	$sql = "select count(*) as count from items where (ListingStatus = 'Completed' or ListingStatus = 'Ended') or EndTime < NOW()";
+	$result = mysql_query($sql, Service::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	$totalCount = $row['count'];
+	
+	$sql_1 = "select count(*) as count from items where (ListingStatus = 'Completed' or ListingStatus = 'Ended') or EndTime < NOW() limit ".$_POST['start'].",".$_POST['limit'];
+	$result_1 = mysql_query($sql_1, Service::$database_connect);
+	$data = array();
+	while($row_1 = mysql_fetch_assoc($result_1)){
+	    $data[] = $row_1;
+	}
+	
+	echo json_encode(array('totalCount'=>$totalCount, 'records'=>$data));
+	mysql_free_result($result);
+	mysql_free_result($result_1);
+    }
     
     public function getCategoriesTree(){
 	if($_POST['node'] == "0"){
@@ -715,7 +761,10 @@ class eBayListing{
 	    $EndTimeFrom = $_GET['EndTimeFrom'];
 	    $EndTimeTo = $_GET['EndTimeTo'];
 	    
-	    $params = array('Version' => $Version, 'DetailLevel' => $DetailLevel, 'Pagination' => $Pagination, 'EndTimeFrom' => $EndTimeFrom, 'EndTimeTo' => $EndTimeTo);
+	    $StartTimeFrom = $_GET['StartTimeFrom'];
+	    $StartTimeTo = $_GET['StartTimeTo'];
+	    
+	    $params = array('Version' => $Version, 'DetailLevel' => $DetailLevel, 'Pagination' => $Pagination, 'StartTimeFrom' => $StartTimeFrom, 'StartTimeTo' => $StartTimeTo/*'EndTimeFrom' => $EndTimeFrom, 'EndTimeTo' => $EndTimeTo*/);
 	    //$results = $client->GetSellerList($params);
 	    
 	    //----------   debug --------------------------------
