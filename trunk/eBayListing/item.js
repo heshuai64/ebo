@@ -1,4 +1,5 @@
 Ext.onReady(function(){
+    Ext.BLANK_IMAGE_URL = "../../Ext/2.2/resources/images/default/s.gif";
     //var categoryPath = "";
     
     var pictureForm = new Ext.form.FormPanel({
