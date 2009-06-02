@@ -98,16 +98,16 @@ class Shipment{
                 $sql = "insert into qo_shipments (id,ordersId,status,shippingFeeCurrency,shippingFeeValue,shipToName,
                 shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,
                 shipToCountry,shipToPhoneNo,createdBy,createdOn,modifiedBy,modifiedOn) values ('".$shipmentId."','".$orders['id']."',
-                'N','".$orders['shippingFeeCurrency']."','".$orders['shippingFeeValue']."','".$orders['ebayName']."',
-                '".$orders['ebayEmail']."','".$orders['ebayAddress1']."','".$orders['ebayAddress2']."','".$orders['ebayCity']."',
-                '".$orders['ebayStateOrProvince']."','".$orders['ebayPostalCode']."','".$orders['ebayCountry']."','".$orders['ebayPhone']."',
+                'N','".$orders['shippingFeeCurrency']."','".$orders['shippingFeeValue']."','".mysql_escape_string($orders['ebayName'])."',
+                '".mysql_escape_string($orders['ebayEmail'])."','".mysql_escape_string($orders['ebayAddress1'])."','".mysql_escape_string($orders['ebayAddress2'])."','".$orders['ebayCity']."',
+                '".mysql_escape_string($orders['ebayStateOrProvince'])."','".$orders['ebayPostalCode']."','".$orders['ebayCountry']."','".$orders['ebayPhone']."',
                 'System','".date("Y-m-d H:i:s")."','System','".date("Y-m-d H:i:s")."')";
                 $this->log($sql);
                 $result = mysql_query($sql, Shipment::$database_connect);
                 if($result){
                     foreach($orders['detail'] as $datail){
                         $sql_1 = "insert into qo_shipments_detail (shipmentsId,skuId,skuTitle,itemId,itemTitle,quantity,barCode) values
-                        ('".$shipmentId."','".$datail['skuId']."','".$datail['skuTitle']."','".$datail['itemId']."','".$datail['itemTitle']."',
+                        ('".$shipmentId."','".$datail['skuId']."','".mysql_escape_string($datail['skuTitle'])."','".$datail['itemId']."','".mysql_escape_string($datail['itemTitle'])."',
                         '".$datail['quantity']."','".$datail['barCode']."')";
                         $this->log($sql_1);
                         $result_1 = mysql_query($sql_1, Shipment::$database_connect);
