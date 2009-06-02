@@ -132,7 +132,11 @@ class Reports{
             $index = $date ."|".$day;
             //echo $date;
             //echo "<br>";
-            $sql = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='libra.studio' and o.createdOn like '".$date."%' group by skuId order by createdOn";
+            if(!empty($_GET['sellerId'])){
+                $sql = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn like '".$date."%' group by skuId order by createdOn";
+            }else{
+                $sql = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn like '".$date."%' group by skuId order by createdOn";    
+            }
             //echo $sql;
             //echo "<br>";
             $result = mysql_query($sql, Reports::$database_connect);
