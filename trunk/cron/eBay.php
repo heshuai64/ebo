@@ -554,7 +554,9 @@ class eBay{
     }
     
     private function mapEbayTransaction($ordersId, $transaction){
-	$sql = "select id,itemId,amountValue from qo_transactions where payerId ='".$transaction->Buyer->UserID."' order by transactionTime desc";
+	$sevenDayAgo = date("Y-m-d H:i:s", time() - (7 * 24 * 60 * 60));
+	
+	$sql = "select id,itemId,amountValue from qo_transactions where payerId = '".$transaction->Buyer->UserID."' and createdOn > '".$sevenDayAgo."' order by transactionTime desc";
 	$result = mysql_query($sql, eBay::$database_connect);
 	while($row = mysql_fetch_assoc($result)){
 		//$itemNumber = explode(" ", $row['itemId']);
