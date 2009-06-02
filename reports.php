@@ -1,11 +1,15 @@
 <?php
 class Reports{
     private static $database_connect;
+    private static $memcache_connect;
+    
     const DATABASE_HOST = 'localhost';
     const DATABASE_USER = 'root';
     const DATABASE_PASSWORD = '5333533';
     const DATABASE_NAME = 'ebaybo';
     const INVENTORY_SERVICE = 'http://192.168.1.169:8080/inventory/service.php';
+    const MEMCACHE_HOST = '127.0.0.1';
+    const MEMCACHE_PORT = 11211;
     
     public function __construct(){
         Reports::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
@@ -20,6 +24,8 @@ class Reports{
             exit;
         }
         
+        Reports::$memcache_connect = new Memcache;
+        Reports::$memcache_connect->connect(self::MEMCACHE_HOST, self::MEMCACHE_PORT);
     }
     
     private function log($file_name, $data){
@@ -92,6 +98,7 @@ class Reports{
     }
     
     public function salesReport(){
+        
         //$fourWeekAgo = date("Y-m-d", strtotime("last Monday", strtotime(date("Y-m-d", strtotime("-4 week")))));
         //$fourWeekAgo = date("Y-m-d", strtotime("-4 week"));
         $today = date("D");
@@ -121,128 +128,135 @@ class Reports{
         //echo "<br>";
         
         $timestamp = strtotime($fourWeekAgoMon);
-	
-        $day_data = array();
-        $sku_array = array();
-
-        for($i=0; $i<28; $i++){
-            $date = date("Y-m-d", $timestamp + ($i * 60 * 60 * 24));
-            
-            $day = date("D", strtotime($date));
-            $index = $date ."|".$day;
-            //echo $date;
-            //echo "<br>";
-            if(!empty($_GET['sellerId'])){
-                $sql = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn like '".$date."%' group by skuId order by createdOn";
-            }else{
-                $sql = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn like '".$date."%' group by skuId order by createdOn";    
-            }
-            //echo $sql;
-            //echo "<br>";
-            $result = mysql_query($sql, Reports::$database_connect);
-            $j = 0;
-            while($row = mysql_fetch_assoc($result)){
-                //print_r($row);
-                $day_data[$index][$j] = $row;
-
-                if($row['date1'] >= $fourWeekAgoMon && $row['date1'] < $threeWeekAgoMon){
-                    if(empty($sku_array[$row['skuId']]['sku_id'])){
-                        $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
-                        $sku_array[$row['skuId']]['item_title'] = $row['itemTitle'];
-                    }
-                    
-                    if(empty($sku_array[$row['skuId']]['1_'.$row['date2'].'_quantity'])){
-                        $sku_array[$row['skuId']]['1_'.$row['date2'].'_quantity'] = $row['quantity'];
+        
+        $data_array = Reports::$memcache_connect->get($timestamp);
+        if($data_array == false){
+            $day_data = array();
+            $sku_array = array();
+    
+            for($i=0; $i<28; $i++){
+                $date = date("Y-m-d", $timestamp + ($i * 60 * 60 * 24));
+                
+                $day = date("D", strtotime($date));
+                $index = $date ."|".$day;
+                //echo $date;
+                //echo "<br>";
+                if(!empty($_GET['sellerId'])){
+                    $sql = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn like '".$date."%' group by skuId order by createdOn";
+                }else{
+                    $sql = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn like '".$date."%' group by skuId order by createdOn";    
+                }
+                //echo $sql;
+                //echo "<br>";
+                $result = mysql_query($sql, Reports::$database_connect);
+                $j = 0;
+                while($row = mysql_fetch_assoc($result)){
+                    //print_r($row);
+                    $day_data[$index][$j] = $row;
+    
+                    if($row['date1'] >= $fourWeekAgoMon && $row['date1'] < $threeWeekAgoMon){
+                        if(empty($sku_array[$row['skuId']]['sku_id'])){
+                            $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
+                            $sku_array[$row['skuId']]['item_title'] = $row['itemTitle'];
+                        }
                         
-                        if(empty($sku_array[$row['skuId']]['1_total_num'])){
-                            $sku_array[$row['skuId']]['1_total_num'] = $row['quantity'];
+                        if(empty($sku_array[$row['skuId']]['1_'.$row['date2'].'_quantity'])){
+                            $sku_array[$row['skuId']]['1_'.$row['date2'].'_quantity'] = $row['quantity'];
+                            
+                            if(empty($sku_array[$row['skuId']]['1_total_num'])){
+                                $sku_array[$row['skuId']]['1_total_num'] = $row['quantity'];
+                            }else{
+                                $sku_array[$row['skuId']]['1_total_num'] += $row['quantity'];
+                            }
+                            
                         }else{
+                            $sku_array[$row['skuId']]['1_'.$row['date2'].'_quantity'] += $row['quantity'];
                             $sku_array[$row['skuId']]['1_total_num'] += $row['quantity'];
                         }
+                    }elseif($row['date1'] >= $threeWeekAgoMon && $row['date1'] < $twoWeekAgoMon){
+                        if(empty($sku_array[$row['skuId']]['sku_id'])){
+                            $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
+                            $sku_array[$row['skuId']]['item_title'] = $row['itemTitle'];
+                        }
                         
-                    }else{
-                        $sku_array[$row['skuId']]['1_'.$row['date2'].'_quantity'] += $row['quantity'];
-                        $sku_array[$row['skuId']]['1_total_num'] += $row['quantity'];
-                    }
-                }elseif($row['date1'] >= $threeWeekAgoMon && $row['date1'] < $twoWeekAgoMon){
-                    if(empty($sku_array[$row['skuId']]['sku_id'])){
-                        $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
-                        $sku_array[$row['skuId']]['item_title'] = $row['itemTitle'];
-                    }
-                    
-                    if(empty($sku_array[$row['skuId']]['2_'.$row['date2'].'_quantity'])){
-                        $sku_array[$row['skuId']]['2_'.$row['date2'].'_quantity'] = $row['quantity'];
-                        
-                        if(empty($sku_array[$row['skuId']]['2_total_num'])){
-                            $sku_array[$row['skuId']]['2_total_num'] = $row['quantity'];
+                        if(empty($sku_array[$row['skuId']]['2_'.$row['date2'].'_quantity'])){
+                            $sku_array[$row['skuId']]['2_'.$row['date2'].'_quantity'] = $row['quantity'];
+                            
+                            if(empty($sku_array[$row['skuId']]['2_total_num'])){
+                                $sku_array[$row['skuId']]['2_total_num'] = $row['quantity'];
+                            }else{
+                                $sku_array[$row['skuId']]['2_total_num'] += $row['quantity'];
+                            }
+                            
                         }else{
+                            $sku_array[$row['skuId']]['2_'.$row['date2'].'_quantity'] += $row['quantity'];
                             $sku_array[$row['skuId']]['2_total_num'] += $row['quantity'];
                         }
+                    }elseif($row['date1'] >= $twoWeekAgoMon && $row['date1'] < $oneWeekAgoMon){
+                        if(empty($sku_array[$row['skuId']]['sku_id'])){
+                            $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
+                            $sku_array[$row['skuId']]['item_title'] = $row['itemTitle'];
+                        }
                         
-                    }else{
-                        $sku_array[$row['skuId']]['2_'.$row['date2'].'_quantity'] += $row['quantity'];
-                        $sku_array[$row['skuId']]['2_total_num'] += $row['quantity'];
-                    }
-                }elseif($row['date1'] >= $twoWeekAgoMon && $row['date1'] < $oneWeekAgoMon){
-                    if(empty($sku_array[$row['skuId']]['sku_id'])){
-                        $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
-                        $sku_array[$row['skuId']]['item_title'] = $row['itemTitle'];
-                    }
-                    
-                    if(empty($sku_array[$row['skuId']]['3_'.$row['date2'].'_quantity'])){
-                        $sku_array[$row['skuId']]['3_'.$row['date2'].'_quantity']= $row['quantity'];
-                        
-                        if(empty($sku_array[$row['skuId']]['3_total_num'])){
-                            $sku_array[$row['skuId']]['3_total_num'] = $row['quantity'];
-                        }else{
+                        if(empty($sku_array[$row['skuId']]['3_'.$row['date2'].'_quantity'])){
+                            $sku_array[$row['skuId']]['3_'.$row['date2'].'_quantity']= $row['quantity'];
+                            
+                            if(empty($sku_array[$row['skuId']]['3_total_num'])){
+                                $sku_array[$row['skuId']]['3_total_num'] = $row['quantity'];
+                            }else{
+                                $sku_array[$row['skuId']]['3_total_num'] += $row['quantity'];
+                            }
+                            
+                        }else{ 
+                            $sku_array[$row['skuId']]['3_'.$row['date2'].'_quantity'] += $row['quantity'];
                             $sku_array[$row['skuId']]['3_total_num'] += $row['quantity'];
                         }
-                        
-                    }else{ 
-                        $sku_array[$row['skuId']]['3_'.$row['date2'].'_quantity'] += $row['quantity'];
-                        $sku_array[$row['skuId']]['3_total_num'] += $row['quantity'];
-                    }
-                }elseif($row['date1'] >= $oneWeekAgoMon){
-                    if(empty($sku_array[$row['skuId']]['sku_id'])){
-                        $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
-                        $sku_array[$row['skuId']]['item_title'] = $row['itemTitle'];
-                    }
-                    
-                    if(empty($sku_array[$row['skuId']]['4_'.$row['date2'].'_quantity'])){
-                        $sku_array[$row['skuId']]['4_'.$row['date2'].'_quantity'] = $row['quantity'];
-                        
-                        if(empty($sku_array[$row['skuId']]['4_total_num'])){
-                            $sku_array[$row['skuId']]['4_total_num'] = $row['quantity'];
-                        }else{
-                            $sku_array[$row['skuId']]['4_total_num'] += $row['quantity'];
+                    }elseif($row['date1'] >= $oneWeekAgoMon){
+                        if(empty($sku_array[$row['skuId']]['sku_id'])){
+                            $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
+                            $sku_array[$row['skuId']]['item_title'] = $row['itemTitle'];
                         }
                         
-                    }else{
-                        $sku_array[$row['skuId']]['4_'.$row['date2'].'_quantity'] += $row['quantity'];
-                        $sku_array[$row['skuId']]['4_total_num'] += $row['quantity'];
+                        if(empty($sku_array[$row['skuId']]['4_'.$row['date2'].'_quantity'])){
+                            $sku_array[$row['skuId']]['4_'.$row['date2'].'_quantity'] = $row['quantity'];
+                            
+                            if(empty($sku_array[$row['skuId']]['4_total_num'])){
+                                $sku_array[$row['skuId']]['4_total_num'] = $row['quantity'];
+                            }else{
+                                $sku_array[$row['skuId']]['4_total_num'] += $row['quantity'];
+                            }
+                            
+                        }else{
+                            $sku_array[$row['skuId']]['4_'.$row['date2'].'_quantity'] += $row['quantity'];
+                            $sku_array[$row['skuId']]['4_total_num'] += $row['quantity'];
+                        }
                     }
+                    
+                    $j++;
+                   
                 }
-                
-                $j++;
-               
+                //flush();
             }
-            //flush();
-        }
-        //print_r($sku_array);
-        $temp = array();
-        $totalCount = 0;
-        foreach($sku_array as $sku){
-            $temp[] = $sku;
-            $totalCount++;
+            //print_r($sku_array);
+            $temp = array();
+            $totalCount = 0;
+            foreach($sku_array as $sku){
+                $temp[] = $sku;
+                $totalCount++;
+            }
+            
+            $data_array = array('totalCount'=>$totalCount, 'records'=>$temp);
+            Reports::$memcache_connect->set($timestamp, $data_array, MEMCACHE_COMPRESSED, 604800);
+            mysql_free_result($result);
         }
         //print_r($temp);
-        echo json_encode(array('totalCount'=>$totalCount, 'records'=>$temp));
-	mysql_free_result($result);
+        echo json_encode($data_array);
         //print_r($day_data);
     }
     
     public function __destruct(){
         mysql_close(Reports::$database_connect);
+        Reports::$memcache_connect->close();
     }
 
 }
