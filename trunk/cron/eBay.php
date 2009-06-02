@@ -112,6 +112,10 @@ class eBay{
        
     }
     
+    public function api_error_log($file_name, $content){
+	file_put_contents("/export/eBayBO/log/ApiError/".$file_name."-".date("Y-m-d").".log", date("Y-m-d H:i:s")."   ".$content."\n", FILE_APPEND);
+    }
+    
     public function setStartTime($startTime){
 	$this->startTime = $startTime;
     }
@@ -178,7 +182,7 @@ class eBay{
 		return $results;
                 
         } catch (SOAPFault $f) {
-                print $f; // error handling
+		$this->api_error_log("GetSellerTransactions", print_r($f, true));
         }
         
     }
@@ -774,7 +778,8 @@ class eBay{
 		echo "-------------------------------------------------------------- ".$sellerId." end -----------------------------------------------------------------";
                 echo "<br>\n<br>\n";
         } catch (SOAPFault $f) {
-                print $f; // error handling
+		$this->api_error_log("getSellerList", print_r($f, true));
+                //print $f; // error handling
         }
     }
     
