@@ -7,6 +7,10 @@ class QoOrders {
 		$this->os = $os;
 	}
         
+	public function log($file_name, $content){
+		file_put_contents("/export/eBayBO/log/System/".$file_name."-".date("Y-m-d").".html", date("Y-m-d H:i:s")."   ".$content."<br>", FILE_APPEND);
+	}
+	
 	public function getOrderId(){
             $type = 'ORM';
             $today = date("Ym");
@@ -341,11 +345,12 @@ class QoOrders {
 		$sql = "insert into qo_shipments (id,ordersId,shipmentMethod,status,shippingFeeCurrency,shippingFeeValue,shipToName,
 		shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,
 		shipToCountry,shipToPhoneNo,createdBy,createdOn,modifiedBy,modifiedOn) values ('".$shipmentId."','".$row['id']."','".$row['shippingMethod']."',
-		'N','".$row['shippingFeeCurrency']."','".$row['shippingFeeValue']."','".$row['ebayName']."',
-		'".$row['ebayEmail']."','".$row['ebayAddress1']."','".$row['ebayAddress2']."','".$row['ebayCity']."',
-		'".$row['ebayStateOrProvince']."','".$row['ebayPostalCode']."','".$row['ebayCountry']."','".$row['ebayPhone']."',
+		'N','".mysql_escape_string($row['shippingFeeCurrency'])."','".$row['shippingFeeValue']."','".mysql_escape_string($row['ebayName'])."',
+		'".$row['ebayEmail']."','".mysql_escape_string($row['ebayAddress1'])."','".mysql_escape_string($row['ebayAddress2'])."','".mysql_escape_string($row['ebayCity'])."',
+		'".mysql_escape_string($row['ebayStateOrProvince'])."','".$row['ebayPostalCode']."','".$row['ebayCountry']."','".$row['ebayPhone']."',
 		'".$this->os->session->get_member_name()."','".date("Y-m-d H:i:s")."','".$this->os->session->get_member_name()."','".date("Y-m-d H:i:s")."')";
 		//echo $sql;
+		//$this->log("addOrderShipment", "insert qo_shipments: ".$sql);
 		$result = mysql_query($sql);
 		
 		if($result){
@@ -353,9 +358,10 @@ class QoOrders {
 			$result_1 = mysql_query($sql_1);
 			while($row_1 = mysql_fetch_assoc($result_1)){
 				$sql_1 = "insert into qo_shipments_detail (shipmentsId,skuId,skuTitle,itemId,itemTitle,quantity,barCode) values
-				('".$shipmentId."','".$row_1['skuId']."','".$row_1['skuTitle']."','".$row_1['itemId']."','".$row_1['itemTitle']."',
+				('".$shipmentId."','".$row_1['skuId']."','".mysql_escape_string($row_1['skuTitle'])."','".$row_1['itemId']."','".mysql_escape_string($row_1['itemTitle'])."',
 				'".$row_1['quantity']."','".$row_1['barCode']."')";
 				$result_1 = mysql_query($sql_1);
+				//$this->log("addOrderShipment", "insert qo_shipments_detail: ".$sql_1);
 			}
 		}
 		echo $result;
