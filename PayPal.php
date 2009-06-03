@@ -257,7 +257,7 @@
                             $this->updateOrderStatus($ordersId, "S");
                     }else{
                             $this->updateOrderStatus($ordersId, "P");
-                            $this->createShipmentFromPayPal($ordersId);
+                            //$this->createShipmentFromPayPal($ordersId);
                     }
                 break;
                         
@@ -295,7 +295,7 @@
                         
                 case "Canceled_Reversal":
                     $this->updateOrderStatus($ordersId, "P");
-                    $this->createShipmentFromPayPal($ordersId);
+                    //$this->createShipmentFromPayPal($ordersId);
                 break;	   		
             }
 
