@@ -57,10 +57,11 @@
         }
     
         private function getEbayOrderId($buyerId, $item_number_string){
+	    $sevenDayAgo = date("Y-m-d H:i:s", time() - (7 * 24 * 60 * 60));
 	    $itemNumber = $item_number_string;
 	    $oitemNumber = $item_number_string;
                 
-            $sql = "select id from qo_orders where buyerId='".$buyerId."' and status = 'W' order by createdOn desc";
+            $sql = "select id from qo_orders where buyerId='".$buyerId."' and status = 'W' and createdOn > '".$sevenDayAgo."' order by createdOn desc";
             $this->log('ipn_deal', "getEbayOrderId id: ".$sql);
             $result = mysql_query($sql, PayPal::$database_connect);
             while ($row = mysql_fetch_assoc($result)) {
