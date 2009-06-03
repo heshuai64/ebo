@@ -130,9 +130,9 @@
             $paypalPostalCode = $ipn_data['address_zip'];
             $paypalCountry = $ipn_data['address_country'];
             
-            $sql = "update qo_orders set paypalName='$paypalName',paypalEmail='$paypalEmail',paypalAddress1='$paypalAddress1',
-            paypalAddress2='$paypalAddress2',paypalCity='$paypalCity',paypalStateOrProvince='$paypalStateOrProvince',
-            paypalPostalCode='$paypalPostalCode',paypalCountry='$paypalCountry' where id='$ordersId'";
+            $sql = "update qo_orders set paypalName='".mysql_real_escape_string($paypalName)."',paypalEmail='".$paypalEmail."',paypalAddress1='".mysql_real_escape_string($paypalAddress1)."',
+            paypalAddress2='".mysql_real_escape_string($paypalAddress2)."',paypalCity='".mysql_real_escape_string($paypalCity)."',paypalStateOrProvince='".mysql_real_escape_string($paypalStateOrProvince)."',
+            paypalPostalCode='".mysql_real_escape_string($paypalPostalCode)."',paypalCountry='".$paypalCountry."' where id='".$ordersId."'";
             $this->log('ipn_deal',"updateEbayOrderAddressInfo: ".$sql);
             $result = mysql_query($sql, PayPal::$database_connect);
         }
