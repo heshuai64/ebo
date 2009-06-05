@@ -468,10 +468,12 @@ class eBay{
 		//$modifiedOn = date("Y-m-d H:i:s",strtotime(substr($transaction->CreatedDate, 0 ,-5)) + (8 * 60 * 60));
 		$modifiedOn = date("Y-m-d H:i:s",strtotime($transaction->CreatedDate));
 		
+		//shippingFeeCurrency='".$shippingFeeCurrency."',
+		//shippingFeeValue='".$shippingFeeValue."',insuranceCurrency='".$insuranceCurrency."',insuranceValue='".$insuranceValue."',
+		//grandTotalCurrency='".$grandTotalCurrency."',grandTotalValue='".$grandTotalValue."',
+		
 		$sql = "update qo_orders set shippingMethod='".$shippingMethod."',
-		paymentMethod='".$paymentMethod."',sellerId='".$sellerId."',buyerId='".$buyerId."',shippingFeeCurrency='".$shippingFeeCurrency."',
-		shippingFeeValue='".$shippingFeeValue."',insuranceCurrency='".$insuranceCurrency."',insuranceValue='".$insuranceValue."',
-		grandTotalCurrency='".$grandTotalCurrency."',grandTotalValue='".$grandTotalValue."',ebayName='".mysql_real_escape_string($ebayName)."',
+		paymentMethod='".$paymentMethod."',sellerId='".$sellerId."',buyerId='".$buyerId."',ebayName='".mysql_real_escape_string($ebayName)."',
 		ebayEmail='".$ebayEmail."',ebayAddress1='".mysql_real_escape_string($ebayAddress1)."',ebayAddress2='".mysql_real_escape_string($ebayAddress2)."',
 		ebayCity='".mysql_real_escape_string($ebayCity)."',ebayStateOrProvince='".mysql_real_escape_string($ebayStateOrProvince)."',
 		ebayPostalCode='".$ebayPostalCode."',ebayCountry='".mysql_real_escape_string($ebayCountry)."',ebayPhone='".$ebayPhone."',
