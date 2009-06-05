@@ -358,9 +358,9 @@
             }
 	    
 	    //if items only one, cut off ","
-	    if($i == 2){
+	    //if($i == 2){
 		$item_number_string = substr($item_number_string, 1);
-	    }
+	    //}
 	    
             $address = split("\n",$ipn_data['address_street']);
   	    $payerAddressLine1 = $address[0];
