@@ -102,39 +102,108 @@ class Reports{
         //$fourWeekAgo = date("Y-m-d", strtotime("last Monday", strtotime(date("Y-m-d", strtotime("-4 week")))));
         //$fourWeekAgo = date("Y-m-d", strtotime("-4 week"));
         $today = date("D");
-        if($today == "Mon"){
-            $lastMon = date("Y-m-d");
+        if($today == "Sun"){
+            $lastSun = date("Y-m-d");
         }else{
-            $lastMon = date("Y-m-d", strtotime("last Monday"));
+            $lastSun = date("Y-m-d", strtotime("next Sunday"));
         }
         
-        //echo $lastMon;
-        //echo "<br>";
+        $eightWeekAgoMon = date("Y-m-d", strtotime("-8 week", strtotime($lastSun)));
+        $fiveWeekAgoMon = date("Y-m-d", strtotime("-5 week", strtotime($lastSun)));
+        $fourWeekAgoMon = date("Y-m-d", strtotime("-4 week", strtotime($lastSun)));
+        $threeWeekAgoMon = date("Y-m-d", strtotime("-3 week", strtotime($lastSun)));
+        $twoWeekAgoMon = date("Y-m-d", strtotime("-2 week", strtotime($lastSun)));
+        $oneWeekAgoMon = date("Y-m-d", strtotime("-1 week", strtotime($lastSun)));
         
-        $fourWeekAgoMon = date("Y-m-d", strtotime("-4 week", strtotime($lastMon)));
-        //echo $fourWeekAgoMon;
-        //echo "<br>";
+        /*
+        echo $lastSun;
+        echo "<br>";
+        echo $eightWeekAgoMon;
+        echo "<br>";
+        echo $fiveWeekAgoMon;
+        echo "<br>";
+        echo $fourWeekAgoMon;
+        echo "<br>";
+        echo $threeWeekAgoMon;
+        echo "<br>";
+        echo $twoWeekAgoMon;
+        echo "<br>";
+        echo $oneWeekAgoMon;
+        echo "<br>";
+        exit;
+        */
         
-        $threeWeekAgoMon = date("Y-m-d", strtotime("-3 week", strtotime($lastMon)));
-        //echo $threeWeekAgoMon;
-        //echo "<br>";
-        
-        $twoWeekAgoMon = date("Y-m-d", strtotime("-2 week", strtotime($lastMon)));
-        //echo $twoWeekAgoMon;
-        //echo "<br>";
-        
-        $oneWeekAgoMon = date("Y-m-d", strtotime("-1 week", strtotime($lastMon)));
-        //echo $oneWeekAgoMon;
-        //echo "<br>";
-        
-        $timestamp = strtotime($fourWeekAgoMon);
-        
+        $timestamp = strtotime($fiveWeekAgoMon);
         $data_array = Reports::$memcache_connect->get($timestamp);
         if($data_array == false){
             $day_data = array();
             $sku_array = array();
-    
-            for($i=0; $i<28; $i++){
+            
+            //******************************************  Last 4 Week  *******************************************
+            if(!empty($_GET['sellerId'])){
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn between '".$eightWeekAgoMon."' and '".$fourWeekAgoMon."' group by date2,skuId order by createdOn";
+            }else{
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn between '".$eightWeekAgoMon."' and '".$fourWeekAgoMon."' group by date2,skuId order by createdOn";
+            }
+            
+            $result_1 = mysql_query($sql_1, Reports::$database_connect);
+            while($row_1 = mysql_fetch_assoc($result_1)){
+                if(empty($sku_array[$row_1['skuId']]['sku_id'])){
+                    $sku_array[$row_1['skuId']]['sku_id'] = $row_1['skuId'];
+                    $sku_array[$row_1['skuId']]['item_title'] = $row_1['itemTitle'];
+                }
+                
+                if(empty($sku_array[$row_1['skuId']]['5_'.$row_1['date2'].'_quantity'])){
+                    $sku_array[$row_1['skuId']]['5_'.$row_1['date2'].'_quantity'] = $row_1['quantity'];
+                    
+                    if(empty($sku_array[$row_1['skuId']]['5_total_num'])){
+                        $sku_array[$row_1['skuId']]['5_total_num'] = $row_1['quantity'];
+                    }else{
+                        $sku_array[$row_1['skuId']]['5_total_num'] += $row_1['quantity'];
+                    }
+                    
+                }else{
+                    $sku_array[$row_1['skuId']]['5_'.$row_1['date2'].'_quantity'] += $row_1['quantity'];
+                    $sku_array[$row_1['skuId']]['5_total_num'] += $row_1['quantity'];
+                }
+            }         
+            
+            //******************************************  This 4 Week  *******************************************
+            
+            if(!empty($_GET['sellerId'])){
+                $sql_2 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn between '".$fourWeekAgoMon."' and '".$lastSun."' group by date2,skuId order by createdOn";
+            }else{
+                $sql_2 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn between '".$fourWeekAgoMon."' and '".$lastSun."' group by date2,skuId order by createdOn";
+            }
+            
+            //echo $sql_2;
+            //echo "<br>";
+            
+            $result_2 = mysql_query($sql_2, Reports::$database_connect);
+            while($row_2 = mysql_fetch_assoc($result_2)){
+                if(empty($sku_array[$row_2['skuId']]['sku_id'])){
+                    $sku_array[$row_2['skuId']]['sku_id'] = $row_2['skuId'];
+                    $sku_array[$row_2['skuId']]['item_title'] = $row_2['itemTitle'];
+                }
+                
+                if(empty($sku_array[$row_2['skuId']]['6_'.$row_2['date2'].'_quantity'])){
+                    $sku_array[$row_2['skuId']]['6_'.$row_2['date2'].'_quantity'] = $row_2['quantity'];
+                    
+                    if(empty($sku_array[$row_2['skuId']]['6_total_num'])){
+                        $sku_array[$row_2['skuId']]['6_total_num'] = $row_2['quantity'];
+                    }else{
+                        $sku_array[$row_2['skuId']]['6_total_num'] += $row_2['quantity'];
+                    }
+                    
+                }else{
+                    $sku_array[$row_2['skuId']]['6_'.$row_2['date2'].'_quantity'] += $row_2['quantity'];
+                    $sku_array[$row_2['skuId']]['6_total_num'] += $row_2['quantity'];
+                }
+            }         
+        
+            //************************************************************************************************
+            
+            for($i=0; $i<35; $i++){
                 $date = date("Y-m-d", $timestamp + ($i * 60 * 60 * 24));
                 
                 $day = date("D", strtotime($date));
@@ -153,8 +222,29 @@ class Reports{
                 while($row = mysql_fetch_assoc($result)){
                     //print_r($row);
                     $day_data[$index][$j] = $row;
-    
-                    if($row['date1'] >= $fourWeekAgoMon && $row['date1'] < $threeWeekAgoMon){
+                    
+                    //before 5 week age
+                    if($row['date1'] >= $$fiveWeekAgoMon && $row['date1'] < $fourWeekAgoMon){
+                        if(empty($sku_array[$row['skuId']]['sku_id'])){
+                            $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
+                            $sku_array[$row['skuId']]['item_title'] = $row['itemTitle'];
+                        }
+                        
+                        if(empty($sku_array[$row['skuId']]['0_'.$row['date2'].'_quantity'])){
+                            $sku_array[$row['skuId']]['0_'.$row['date2'].'_quantity'] = $row['quantity'];
+                            
+                            if(empty($sku_array[$row['skuId']]['0_total_num'])){
+                                $sku_array[$row['skuId']]['0_total_num'] = $row['quantity'];
+                            }else{
+                                $sku_array[$row['skuId']]['0_total_num'] += $row['quantity'];
+                            }
+                            
+                        }else{
+                            $sku_array[$row['skuId']]['0_'.$row['date2'].'_quantity'] += $row['quantity'];
+                            $sku_array[$row['skuId']]['0_total_num'] += $row['quantity'];
+                        }
+                    //before 4 week age
+                    }elseif($row['date1'] >= $fourWeekAgoMon && $row['date1'] < $threeWeekAgoMon){
                         if(empty($sku_array[$row['skuId']]['sku_id'])){
                             $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
                             $sku_array[$row['skuId']]['item_title'] = $row['itemTitle'];
@@ -173,6 +263,7 @@ class Reports{
                             $sku_array[$row['skuId']]['1_'.$row['date2'].'_quantity'] += $row['quantity'];
                             $sku_array[$row['skuId']]['1_total_num'] += $row['quantity'];
                         }
+                    //before 3 week age
                     }elseif($row['date1'] >= $threeWeekAgoMon && $row['date1'] < $twoWeekAgoMon){
                         if(empty($sku_array[$row['skuId']]['sku_id'])){
                             $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
@@ -192,6 +283,7 @@ class Reports{
                             $sku_array[$row['skuId']]['2_'.$row['date2'].'_quantity'] += $row['quantity'];
                             $sku_array[$row['skuId']]['2_total_num'] += $row['quantity'];
                         }
+                    //before 2 week age
                     }elseif($row['date1'] >= $twoWeekAgoMon && $row['date1'] < $oneWeekAgoMon){
                         if(empty($sku_array[$row['skuId']]['sku_id'])){
                             $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
@@ -211,6 +303,7 @@ class Reports{
                             $sku_array[$row['skuId']]['3_'.$row['date2'].'_quantity'] += $row['quantity'];
                             $sku_array[$row['skuId']]['3_total_num'] += $row['quantity'];
                         }
+                    //before 1 week age
                     }elseif($row['date1'] >= $oneWeekAgoMon){
                         if(empty($sku_array[$row['skuId']]['sku_id'])){
                             $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
@@ -251,7 +344,7 @@ class Reports{
         }
         //print_r($temp);
         echo json_encode($data_array);
-        //print_r($day_data);
+        //print_r($data_array);
     }
     
     public function __destruct(){
