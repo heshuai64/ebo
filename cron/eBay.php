@@ -323,7 +323,7 @@ class eBay{
         $quantity = $transaction->QuantityPurchased;
         
         $sql = "insert into qo_orders_detail (ordersId,skuId,itemId,itemTitle,quantity,unitPriceCurrency,unitPriceValue,ebayTranctionId) values 
-        ('".$orderId."','".$transaction->Item->SKU."','".$transaction->Item->ItemID."','".$transaction->Item->Title."','".$quantity."','".$unitPriceCurrency."','".$unitPriceValue."','".$transaction->TransactionID."')";
+        ('".$orderId."','".$transaction->Item->SKU."','".$transaction->Item->ItemID."','".mysql_real_escape_string($transaction->Item->Title)."','".$quantity."','".$unitPriceCurrency."','".$unitPriceValue."','".$transaction->TransactionID."')";
         $result = mysql_query($sql, eBay::$database_connect);
         if (!$result) {
             $this->errorLog("createOrderDetailFromEbayTransaction: sql error ($sql) from DB: " . mysql_error(eBay::$database_connect));
@@ -344,10 +344,10 @@ class eBay{
         //consider order status
         if(empty($transaction->ContainingOrder)){
             $sql = "insert into qo_orders_detail (ordersId,skuId,itemId,itemTitle,quantity,unitPriceCurrency,unitPriceValue,ebayTranctionId) values 
-            ('".$orderId."','".$transaction->Item->SKU."','".$transaction->Item->ItemID."','".$transaction->Item->Title."','".$quantity."','".$unitPriceCurrency."','".$unitPriceValue."','".$transaction->TransactionID."')";
+            ('".$orderId."','".$transaction->Item->SKU."','".$transaction->Item->ItemID."','".mysql_real_escape_string($transaction->Item->Title)."','".$quantity."','".$unitPriceCurrency."','".$unitPriceValue."','".$transaction->TransactionID."')";
         }else{
             $sql = "insert into qo_orders_detail (ordersId,skuId,itemId,itemTitle,quantity,unitPriceCurrency,unitPriceValue,ebayTranctionId,ebayOrderId) values 
-            ('".$orderId."','".$transaction->Item->SKU."','".$transaction->Item->ItemID."','".$transaction->Item->Title."','".$quantity."','".$unitPriceCurrency."','".$unitPriceValue."','".$transaction->TransactionID."','".$transaction->ContainingOrder->OrderID."')";
+            ('".$orderId."','".$transaction->Item->SKU."','".$transaction->Item->ItemID."','".mysql_real_escape_string($transaction->Item->Title)."','".$quantity."','".$unitPriceCurrency."','".$unitPriceValue."','".$transaction->TransactionID."','".$transaction->ContainingOrder->OrderID."')";
         }
         
         $result = mysql_query($sql, eBay::$database_connect);
