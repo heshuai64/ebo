@@ -13,8 +13,9 @@ Ext.override(QoDesk.Shipments, {
                     idProperty: 'id',
                     //remoteSort: true,
                     baseParams:{id:searchShipmentForm.findField('shipmentsId').getValue(), ordersId:searchShipmentForm.findField('ordersId').getValue(),
-                                shippingMethod:searchShipmentForm.findField('shippingMethod').getValue(),sellerId:searchShipmentForm.findField('sellerId').getValue(),
-                                shipToName:searchShipmentForm.findField('shipToName').getValue(),shipToAddressLine:searchShipmentForm.findField('shipToAddressLine').getValue(),
+                                shippingMethod:searchShipmentForm.findField('shippingMethod').getValue(),shipmentReason:searchShipmentForm.findField('shipmentReason').getValue(),
+                                sellerId:searchShipmentForm.findField('sellerId').getValue(),shipToName:searchShipmentForm.findField('shipToName').getValue(),
+                                shipToEmail:searchShipmentForm.findField('shipToEmail').getValue(),shipToAddressLine:searchShipmentForm.findField('shipToAddressLine').getValue(),
                                 postalReferenceNo:searchShipmentForm.findField('postalReferenceNo').getValue(),status:searchShipmentForm.findField('status').getValue(),
                                 itemId:searchShipmentForm.findField('itemId').getValue(),itemTitle:searchShipmentForm.findField('itemTitle').getValue(),
                                 skuId:searchShipmentForm.findField('skuId').getValue(),skuTitle:searchShipmentForm.findField('skuTitle').getValue(),
@@ -116,7 +117,7 @@ Ext.override(QoDesk.Shipments, {
                 id: 'shipment-win',
                 title:'Search Shipment',
                 width:600,
-                height:560,
+                height:500,
                 iconCls: 'shipments-icon',
                 shim:false,
                 animCollapse:false,
@@ -143,7 +144,7 @@ Ext.override(QoDesk.Shipments, {
                                     name:"ordersId"
                                 },{
                                     xtype:'combo',
-                                    fieldLabel: "Shipment Method",
+                                    fieldLabel: "Method",
                                     store: new Ext.data.SimpleStore({
                                         fields: ["id", "name"],
                                         data: lang.shipments.shipment_method
@@ -155,6 +156,20 @@ Ext.override(QoDesk.Shipments, {
                                     editable: false,
                                     name: 'shippingMethod',
                                     hiddenName:'shippingMethod'
+                                },{
+                                    xtype:'combo',
+                                    fieldLabel: "Reason",
+                                    store: new Ext.data.SimpleStore({
+                                        fields: ["id", "name"],
+                                        data: lang.shipments.shipment_reason
+                                    }),		  
+                                    mode: 'local',
+                                    valueField: 'id',
+                                    displayField: 'name',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    name: 'shipmentReason',
+                                    hiddenName:'shipmentReason'
                                 },{
                                     xtype: 'combo',
                                     fieldLabel:"Seller Id",
@@ -180,19 +195,23 @@ Ext.override(QoDesk.Shipments, {
                             },
                             items:[{
                                 xtype:"textfield",
-                                fieldLabel:"Shipment Name",
+                                fieldLabel:"Name",
                                 name:"shipToName"
                               },{
                                 xtype:"textfield",
-                                fieldLabel:"Shipment Address",
+                                fieldLabel:"Address",
                                 name:"shipToAddressLine"
+                              },{
+                                xtype:"textfield",
+                                fieldLabel:"Email",
+                                name:"shipToEmail"
                               },{
                                 xtype:"textfield",
                                 fieldLabel:"Postal Reference",
                                 name:"postalReferenceNo"
                               },{
                                 xtype:'combo',
-                                fieldLabel: "Shipment Status",
+                                fieldLabel: "Status",
                                 store: new Ext.data.SimpleStore({
                                     fields: ["id", "name"],
                                     data: lang.shipments.shipments_status
@@ -219,7 +238,7 @@ Ext.override(QoDesk.Shipments, {
                                 xtype:"textarea",
                                 name:"itemId",
                                 width:250,
-				height:50
+				height:20
                               }]
                               },{
                             title:"Title",
@@ -228,7 +247,7 @@ Ext.override(QoDesk.Shipments, {
                                 xtype:"textarea",
                                 name:"itemTitle",
                                 width:250,
-				height:50
+				height:20
                               }]
                               }]
                           }]
@@ -245,7 +264,7 @@ Ext.override(QoDesk.Shipments, {
                                 xtype:"textarea",
                                 name:"skuId",
                                 width:250,
-				height:50
+				height:20
                               }]
                               },{
                             title:"Title",
@@ -254,7 +273,7 @@ Ext.override(QoDesk.Shipments, {
                                 xtype:"textarea",
                                 name:"skuTitle",
                                 width:250,
-				height:50
+				height:20
                               }]
                               }]
                           }]

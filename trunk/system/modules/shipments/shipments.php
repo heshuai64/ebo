@@ -24,6 +24,10 @@ class QoShipments {
                     $where .= " and s.shippingMethod = '".$_POST['shippingMethod']."'";
             }
             
+	    if(!empty($_POST['shipmentReason'])){
+		$where .= " and s.shipmentReason = '".$_POST['shipmentReason']."'";
+	    }
+	    
             if(!empty($_POST['sellerId'])){
                     $where .= " and o.sellerId = '".$_POST['sellerId']."'";
             }
@@ -31,6 +35,10 @@ class QoShipments {
             if(!empty($_POST['shipToName'])){
                     $where .= " and s.shipToName like '%".$_POST['shipToName']."%'";
             }
+	    
+	    if(!empty($_POST['shipToEmail'])){
+		    $where .= " and s.shipToEmail = '".$_POST['shipToEmail']."'";
+	    }
             
             if(!empty($_POST['shipToAddressLine'])){
                     $where .= " and (s.shipToAddressLine1 like '%".$_POST['shipToAddressLine']."%' or s.shipToAddressLine2 like '%".$_POST['shipToAddressLine']."%')";

@@ -72,6 +72,7 @@ var lang = {
         shipments_status_json: {"N": "Ready", "H": "Hold", "W": "Await", "K": "Packed", "S": "Shipped", "X": "Cancel"},
         send_to_name: "Name",
         send_to_email: "Email",
-        send_to_content: "Content"
+        send_to_content: "Content",
+        shipment_reason: [['1', 'Normal'],['L', 'Lost in transit'],['D', 'Damaged item returned'],['F', 'Defective item returned'],['W', 'Wrong item returned'],['N', 'Normal item returned'],['B', 'Bounced back'],['M', 'Missing item']]
     }
 };

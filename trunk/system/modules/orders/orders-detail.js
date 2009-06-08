@@ -741,6 +741,20 @@ Ext.onReady(function(){
                     sortable: true
                 }],
                 bbar: [{
+                                    xtype: 'combo',
+                                    //fieldLabel: "Reason",
+                                    store: new Ext.data.SimpleStore({
+                                        fields: ["id", "name"],
+                                        data: lang.orders.shipment_reason
+                                    }),		  
+                                    mode: 'local',
+                                    valueField: 'id',
+                                    displayField: 'name',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    name: 'shipmentReason',
+                                    hiddenName:'shipmentReason'
+                        },{
                         text: 'Create Shipment',
                         //tooltip: 'Great tooltips...',
                         handler: function(){
@@ -754,7 +768,8 @@ Ext.onReady(function(){
                                             waitMsg: 'Please wait...',
                                             url: 'connect.php?moduleId=qo-orders&action=addOrderShipment',
                                             params: { 
-                                                id: ordersId
+                                                id: ordersId,
+                                                shipmentReason: document.getElementById("shipmentReason").value
                                             }, 
                                             success: function(response){
                                                 var result = eval(response.responseText);
