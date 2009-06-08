@@ -343,13 +343,15 @@ class QoOrders {
 	}
 	
 	public function addOrderShipment(){
+		//print_r($_POST);
+		//exit;
 		$shipmentId = $this->getShipmentId();
 		$sql = "select id,shippingMethod,shippingFeeCurrency,shippingFeeValue,ebayName,ebayEmail,ebayAddress1,ebayAddress2,ebayCity,ebayStateOrProvince,ebayPostalCode,ebayCountry,ebayPhone from qo_orders where id='".$_POST['id']."'";
 		$result = mysql_query($sql);
 		$row = mysql_fetch_assoc($result);
-		$sql = "insert into qo_shipments (id,ordersId,shipmentMethod,status,shippingFeeCurrency,shippingFeeValue,shipToName,
+		$sql = "insert into qo_shipments (id,ordersId,shipmentMethod,shipmentReason,status,shippingFeeCurrency,shippingFeeValue,shipToName,
 		shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,
-		shipToCountry,shipToPhoneNo,createdBy,createdOn,modifiedBy,modifiedOn) values ('".$shipmentId."','".$row['id']."','".$row['shippingMethod']."',
+		shipToCountry,shipToPhoneNo,createdBy,createdOn,modifiedBy,modifiedOn) values ('".$shipmentId."','".$row['id']."','".$row['shippingMethod']."','".$_POST['shipmentReason']."',
 		'N','".mysql_escape_string($row['shippingFeeCurrency'])."','".$row['shippingFeeValue']."','".mysql_escape_string($row['ebayName'])."',
 		'".$row['ebayEmail']."','".mysql_escape_string($row['ebayAddress1'])."','".mysql_escape_string($row['ebayAddress2'])."','".mysql_escape_string($row['ebayCity'])."',
 		'".mysql_escape_string($row['ebayStateOrProvince'])."','".$row['ebayPostalCode']."','".$row['ebayCountry']."','".$row['ebayPhone']."',
