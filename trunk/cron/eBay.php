@@ -562,7 +562,7 @@ class eBay{
     private function mapEbayTransaction($ordersId, $transaction){
 	$sevenDayAgo = date("Y-m-d H:i:s", time() - (7 * 24 * 60 * 60));
 	
-	$sql = "select id,itemId,amountValue from qo_transactions where payerId = '".$transaction->Buyer->UserID."' and createdOn > '".$sevenDayAgo."' order by transactionTime desc";
+	$sql = "select id,itemId,amountValue,status from qo_transactions where payerId = '".$transaction->Buyer->UserID."' and createdOn > '".$sevenDayAgo."' order by transactionTime desc";
 	$result = mysql_query($sql, eBay::$database_connect);
 	while($row = mysql_fetch_assoc($result)){
 		//$itemNumber = explode(" ", $row['itemId']);
@@ -588,11 +588,14 @@ class eBay{
 				'".$transaction->AmountPaid->_."','eBay','".date("Y-m-d H:i:s")."','eBay','".date("Y-m-d H:i:s")."')";
 				echo "map ebay transaction: ",$sql_3."<br>\n";
 				$result_3 = mysql_query($sql_3, eBay::$database_connect);
-				$this->updateOrderStatus($ordersId, $transaction->AmountPaid->_, $row['amountValue']);
 				$this->updateOrderPayPalAddress($ordersId, $row['id']);
-				
+				if($row['status'] == 'P'){
+					$this->updateOrderStatus($ordersId, $transaction->AmountPaid->_, $row['amountValue']);
+				}
 			}else{
-				$this->updateOrderStatus($ordersId, $transaction->AmountPaid->_, $row['amountValue']);
+				if($row['status'] == 'P'){
+					$this->updateOrderStatus($ordersId, $transaction->AmountPaid->_, $row['amountValue']);
+				}
 			}
 			break;	
 		}

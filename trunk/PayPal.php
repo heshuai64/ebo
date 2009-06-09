@@ -333,6 +333,11 @@
 	
         private function addEbayTransaction($ipn_data){
             switch($ipn_data['payment_status']){
+		
+		case "Pending":
+		    $status = "N";
+		break;
+		
                 case "Completed":
                     $status = "P";
                 break;
