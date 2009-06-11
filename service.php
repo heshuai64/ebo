@@ -244,6 +244,26 @@ class Service{
         
     }
     
+    public function updateSkuCost(){
+        $sql = "select id,skuId from qo_orders_detail where skuCostStatus = 0";
+        $result = mysql_query($sql, Service::$database_connect);
+        while($row = mysql_fetch_assoc($result)){
+            $json_result = $this->getService(self::INVENTORY_SERVICE."?action=getSkuCost&data=".urlencode($row['skuId']));
+            echo $json_result;
+            echo "<br>";
+            $service_result = json_decode($json_result);
+            $skuCost = $service_result->skuCost;
+            if(!empty($skuCost)){
+                $sql_1 = "update qo_orders_detail set skuCost = '$skuCost',skuCostStatus = '1' where id = '".$row['id']."'";
+                $result_1 = mysql_query($sql_1, Service::$database_connect);
+            }else{
+                $this->log("updateSkuCost", "ordersDetailId: ".$row['id']."<br> sku: ".$row['skuId']." no in inventory system<br>");
+            }
+            //exit;
+        }
+        
+    }
+    
     public function __destruct(){
         mysql_close(Service::$database_connect);
     }
@@ -260,4 +280,5 @@ $service->$action();
 
 //http://127.0.0.1:6666/eBayBO/service.php?action=updateShippingMethod
 //http://heshuai64.3322.org/eBayBO/service.php?action=updateShippingMethod
+//http://heshuai64.3322.org/eBayBO/service.php?action=updateSkuCost
 ?>
