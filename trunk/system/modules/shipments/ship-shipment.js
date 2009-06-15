@@ -10,7 +10,7 @@ Ext.onReady(function(){
                 fieldLabel:"Shipment Id",
                 name:"id",
                 listeners:{specialkey: function(t, e){
-                                    if(e.getKey() == 13){
+                                    if(e.getKey() == 13 && Ext.getCmp("postalReferenceNo").disabled == true){
                                         Ext.getCmp('ship-shipment-form').form.submit({ 
                                             method:'POST', 
                                             waitTitle:'Connecting', 
@@ -75,12 +75,12 @@ Ext.onReady(function(){
                         success:function(form,action){ 
                                 var obj = Ext.util.JSON.decode(action.response.responseText);
                                 document.getElementById("message").innerHTML = obj.info;
-                             
+                                Ext.getCmp('ship-shipment-form').form.findField('id').focus(true);
                         },
                         failure:function(form1, action){
-                            var obj = Ext.util.JSON.decode(action.response.responseText);
-                            document.getElementById("message").innerHTML = obj.errors.reason;
-                         
+                                var obj = Ext.util.JSON.decode(action.response.responseText);
+                                document.getElementById("message").innerHTML = obj.errors.reason;
+                                Ext.getCmp('ship-shipment-form').form.findField('id').focus(true);
                         }
                     })
                 }
