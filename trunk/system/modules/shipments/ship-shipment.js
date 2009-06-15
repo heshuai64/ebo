@@ -10,25 +10,27 @@ Ext.onReady(function(){
                 fieldLabel:"Shipment Id",
                 name:"id",
                 listeners:{specialkey: function(t, e){
-                                    if(e.getKey() == 13 && Ext.getCmp("postalReferenceNo").disabled == true){
-                                        Ext.getCmp('ship-shipment-form').form.submit({ 
-                                            method:'POST', 
-                                            waitTitle:'Connecting', 
-                                            waitMsg:'Sending data...',
-                                            success:function(form,action){ 
+                                        if(e.getKey() == 13){
+                                                Ext.getCmp('ship-shipment-form').form.findField('postalReferenceNo').focus(true);
+                                        }else if(e.getKey() == 13 && Ext.getCmp("postalReferenceNo").disabled == true){
+                                            Ext.getCmp('ship-shipment-form').form.submit({ 
+                                                method:'POST', 
+                                                waitTitle:'Connecting', 
+                                                waitMsg:'Sending data...',
+                                                success:function(form,action){ 
+                                                        var obj = Ext.util.JSON.decode(action.response.responseText);
+                                                        document.getElementById("message").innerHTML = obj.info;
+                                                        Ext.getCmp('ship-shipment-form').form.findField('id').focus(true);
+                                                       
+                                                },
+                                                failure:function(form1, action){
                                                     var obj = Ext.util.JSON.decode(action.response.responseText);
-                                                    document.getElementById("message").innerHTML = obj.info;
+                                                    document.getElementById("message").innerHTML = obj.errors.reason;
                                                     Ext.getCmp('ship-shipment-form').form.findField('id').focus(true);
-                                                   
-                                            },
-                                            failure:function(form1, action){
-                                                var obj = Ext.util.JSON.decode(action.response.responseText);
-                                                document.getElementById("message").innerHTML = obj.errors.reason;
-                                                Ext.getCmp('ship-shipment-form').form.findField('id').focus(true);
-              
-                                            }
-                                        })
-                                    }
+                  
+                                                }
+                                            })
+                                        }
                                 }
                         }
               },{
@@ -41,7 +43,29 @@ Ext.onReady(function(){
                         id:"postalReferenceNo",
                         xtype:"textfield",
                         fieldLabel:"Postal Referece",
-                        name:"postalReferenceNo"
+                        name:"postalReferenceNo",
+                        listeners:{specialkey: function(t, e){
+                                if(e.getKey() == 13){
+                                        Ext.getCmp('ship-shipment-form').form.submit({ 
+                                                method:'POST', 
+                                                waitTitle:'Connecting', 
+                                                waitMsg:'Sending data...',
+                                                success:function(form,action){ 
+                                                        var obj = Ext.util.JSON.decode(action.response.responseText);
+                                                        document.getElementById("message").innerHTML = obj.info;
+                                                        Ext.getCmp('ship-shipment-form').form.findField('id').focus(true);
+                                                       
+                                                },
+                                                failure:function(form1, action){
+                                                    var obj = Ext.util.JSON.decode(action.response.responseText);
+                                                    document.getElementById("message").innerHTML = obj.errors.reason;
+                                                    Ext.getCmp('ship-shipment-form').form.findField('id').focus(true);
+                  
+                                                }
+                                        })
+                                }
+                        }
+                        }
                       }]
                   },{
                     columnWidth:0.4,
