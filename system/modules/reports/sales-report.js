@@ -4,7 +4,7 @@ Ext.onReady(function(){
         totalProperty: 'totalCount',
         idProperty: 'sku_id',
         autoLoad:true,
-        fields: ['item_title', 'sku_id', '1_Mon_quantity', '1_Tue_quantity', '1_Wed_quantity', '1_Thu_quantity', '1_Fri_quantity', '1_Sat_quantity', '1_Sun_quantity', '1_total_num', '2_Mon_quantity', '2_Tue_quantity', '2_Wed_quantity', '2_Thu_quantity', '2_Fri_quantity', '2_Sat_quantity', '2_Sun_quantity', '2_total_num', '3_Mon_quantity', '3_Tue_quantity', '3_Wed_quantity', '3_Thu_quantity', '3_Fri_quantity', '3_Sat_quantity', '3_Sun_quantity', '3_total_num', '4_Mon_quantity', '4_Tue_quantity', '4_Wed_quantity', '4_Thu_quantity', '4_Fri_quantity', '4_Sat_quantity', '4_Sun_quantity', '4_total_num', '5_Mon_quantity', '5_Tue_quantity', '5_Wed_quantity', '5_Thu_quantity', '5_Fri_quantity', '5_Sat_quantity', '5_Sun_quantity', '5_total_num', '6_Mon_quantity', '6_Tue_quantity', '6_Wed_quantity', '6_Thu_quantity', '6_Fri_quantity', '6_Sat_quantity', '6_Sun_quantity', '6_total_num'],
+        fields: ['item_title', 'sku_id', '1_Mon_quantity', '1_Tue_quantity', '1_Wed_quantity', '1_Thu_quantity', '1_Fri_quantity', '1_Sat_quantity', '1_Sun_quantity', '1_total_num', '1_growth_rate', '2_Mon_quantity', '2_Tue_quantity', '2_Wed_quantity', '2_Thu_quantity', '2_Fri_quantity', '2_Sat_quantity', '2_Sun_quantity', '2_total_num', '2_growth_rate', '3_Mon_quantity', '3_Tue_quantity', '3_Wed_quantity', '3_Thu_quantity', '3_Fri_quantity', '3_Sat_quantity', '3_Sun_quantity', '3_total_num', '3_growth_rate', '4_Mon_quantity', '4_Tue_quantity', '4_Wed_quantity', '4_Thu_quantity', '4_Fri_quantity', '4_Sat_quantity', '4_Sun_quantity', '4_total_num', '4_growth_rate', '5_Mon_quantity', '5_Tue_quantity', '5_Wed_quantity', '5_Thu_quantity', '5_Fri_quantity', '5_Sat_quantity', '5_Sun_quantity', '5_total_num', '5_growth_rate', '6_Mon_quantity', '6_Tue_quantity', '6_Wed_quantity', '6_Thu_quantity', '6_Fri_quantity', '6_Sat_quantity', '6_Sun_quantity', '6_total_num'],
         url:'reports.php?type=salesReport&sellerId=' + sellerId
     });
     
@@ -104,152 +104,160 @@ Ext.onReady(function(){
         }
     }
     
+    var renderGrowthRate = function(v, m, r){
+        if(v > 0){
+            return String.format('<font color="green">{0}%</font>', v);
+        }else{
+            return String.format('<font color="red">{0}%</font>', v);
+        }
+    }
+    
     switch(week){
         case "1":
             var windowTitle = "1st Week Sales Report";
             var colModel = new Ext.grid.ColumnModel([
-                {header: "Title", width: 335, align: 'center', sortable: true, dataIndex: 'item_title'},
+                //{header: "Title", width: 335, align: 'center', sortable: true, dataIndex: 'item_title'},
                 {header: "SKU", width: 110, align: 'center', sortable: true, dataIndex: 'sku_id'},
                 
-                {header: "Last Mon", width: 70, align: 'center', sortable: true, dataIndex: '0_Mon_quantity'},
-                {header: "Last Tue", width: 70, align: 'center', sortable: true, dataIndex: '0_Tue_quantity'},
-                {header: "Last Wed", width: 70, align: 'center', sortable: true, dataIndex: '0_Wed_quantity'},
-                {header: "Last Thu", width: 70, align: 'center', sortable: true, dataIndex: '0_Thu_quantity'},
-                {header: "Last Fri", width: 70, align: 'center', sortable: true, dataIndex: '0_Fri_quantity'},
-                {header: "Last Sat", width: 70, align: 'center', sortable: true, dataIndex: '0_Sat_quantity'},
-                {header: "Last Sun", width: 70, align: 'center', sortable: true, dataIndex: '0_Sun_quantity'},
+                {header: "Mon", width: 45, align: 'center', sortable: true, dataIndex: '0_Mon_quantity'},
+                {header: "Tue", width: 45, align: 'center', sortable: true, dataIndex: '0_Tue_quantity'},
+                {header: "Wed", width: 45, align: 'center', sortable: true, dataIndex: '0_Wed_quantity'},
+                {header: "Thu", width: 45, align: 'center', sortable: true, dataIndex: '0_Thu_quantity'},
+                {header: "Fri", width: 45, align: 'center', sortable: true, dataIndex: '0_Fri_quantity'},
+                {header: "Sat", width: 45, align: 'center', sortable: true, dataIndex: '0_Sat_quantity'},
+                {header: "Sun", width: 45, align: 'center', sortable: true, dataIndex: '0_Sun_quantity'},
                 {header: "Last Total", width: 70, align: 'center', sortable: true, dataIndex: '0_total_num'},
                 
-                {header: "Line", width: 60, align: 'center', dataIndex: '0_total_num', renderer: renderVerticalLine},
+                {header: "|", width: 10, dataIndex: '0_total_num', renderer: renderVerticalLine},
                 
-                {header: "This Mon", width: 70, align: 'center', sortable: true, dataIndex: '1_Mon_quantity'},
-                {header: "This Tue", width: 70, align: 'center', sortable: true, dataIndex: '1_Tue_quantity'},
-                {header: "This Wed", width: 70, align: 'center', sortable: true, dataIndex: '1_Wed_quantity'},
-                {header: "This Thu", width: 70, align: 'center', sortable: true, dataIndex: '1_Thu_quantity'},
-                {header: "This Fri", width: 70, align: 'center', sortable: true, dataIndex: '1_Fri_quantity'},
-                {header: "This Sat", width: 70, align: 'center', sortable: true, dataIndex: '1_Sat_quantity'},
-                {header: "This Sun", width: 70, align: 'center', sortable: true, dataIndex: '1_Sun_quantity'},
-                {header: "This Total", width: 70, align: 'center', sortable: true, dataIndex: '1_total_num'},
-                {header: "This Growth", width: 80, align: 'center', sortable: true, dataIndex: '1_total_num', renderer: renderGrowthRate1}
+                {header: "Mon", width: 45, align: 'center', sortable: true, dataIndex: '1_Mon_quantity'},
+                {header: "Tue", width: 45, align: 'center', sortable: true, dataIndex: '1_Tue_quantity'},
+                {header: "Wed", width: 45, align: 'center', sortable: true, dataIndex: '1_Wed_quantity'},
+                {header: "Thu", width: 45, align: 'center', sortable: true, dataIndex: '1_Thu_quantity'},
+                {header: "Fri", width: 45, align: 'center', sortable: true, dataIndex: '1_Fri_quantity'},
+                {header: "Sat", width: 45, align: 'center', sortable: true, dataIndex: '1_Sat_quantity'},
+                {header: "Sun", width: 45, align: 'center', sortable: true, dataIndex: '1_Sun_quantity'},
+                {header: "This Total", width: 65, align: 'center', sortable: true, dataIndex: '1_total_num'},
+                {header: "This Growth", width: 75, align: 'center', sortable: true, dataIndex: '1_growth_rate', renderer: renderGrowthRate}
             ]);
         break;
     
         case "2":
             var windowTitle = "2nd Week Sales Report";
             var colModel = new Ext.grid.ColumnModel([
-                {header: "Title", width: 335, align: 'center', sortable: true, dataIndex: 'item_title'},
+                //{header: "Title", width: 335, align: 'center', sortable: true, dataIndex: 'item_title'},
                 {header: "SKU", width: 110, align: 'center', sortable: true, dataIndex: 'sku_id'},
                 
-                {header: "Last Mon", width: 70, align: 'center', sortable: true, dataIndex: '1_Mon_quantity'},
-                {header: "Last Tue", width: 70, align: 'center', sortable: true, dataIndex: '1_Tue_quantity'},
-                {header: "Last Wed", width: 70, align: 'center', sortable: true, dataIndex: '1_Wed_quantity'},
-                {header: "Last Thu", width: 70, align: 'center', sortable: true, dataIndex: '1_Thu_quantity'},
-                {header: "Last Fri", width: 70, align: 'center', sortable: true, dataIndex: '1_Fri_quantity'},
-                {header: "Last Sat", width: 70, align: 'center', sortable: true, dataIndex: '1_Sat_quantity'},
-                {header: "Last Sun", width: 70, align: 'center', sortable: true, dataIndex: '1_Sun_quantity'},
-                {header: "Last Total", width: 70, align: 'center', sortable: true, dataIndex: '1_total_num'},
-                {header: "Last Growth", width: 80, align: 'center', sortable: true, dataIndex: '1_total_num', renderer: renderGrowthRate1},
+                {header: "Mon", width: 45, align: 'center', sortable: true, dataIndex: '1_Mon_quantity'},
+                {header: "Tue", width: 45, align: 'center', sortable: true, dataIndex: '1_Tue_quantity'},
+                {header: "Wed", width: 45, align: 'center', sortable: true, dataIndex: '1_Wed_quantity'},
+                {header: "Thu", width: 45, align: 'center', sortable: true, dataIndex: '1_Thu_quantity'},
+                {header: "Fri", width: 45, align: 'center', sortable: true, dataIndex: '1_Fri_quantity'},
+                {header: "Sat", width: 45, align: 'center', sortable: true, dataIndex: '1_Sat_quantity'},
+                {header: "Sun", width: 45, align: 'center', sortable: true, dataIndex: '1_Sun_quantity'},
+                {header: "Last Total", width: 65, align: 'center', sortable: true, dataIndex: '1_total_num'},
+                {header: "Last Growth", width: 70, align: 'center', sortable: true, dataIndex: '1_growth_rate', renderer: renderGrowthRate},
                 
-                {header: "Line", width: 60, align: 'center', dataIndex: '1_total_num', renderer: renderVerticalLine},
+                {header: "|", width: 10, align: 'center', dataIndex: '1_total_num', renderer: renderVerticalLine},
                 
-                {header: "This Mon", width: 70, align: 'center', sortable: true, dataIndex: '2_Mon_quantity'},
-                {header: "This Tue", width: 70, align: 'center', sortable: true, dataIndex: '2_Tue_quantity'},
-                {header: "This Wed", width: 70, align: 'center', sortable: true, dataIndex: '2_Wed_quantity'},
-                {header: "This Thu", width: 70, align: 'center', sortable: true, dataIndex: '2_Thu_quantity'},
-                {header: "This Fri", width: 70, align: 'center', sortable: true, dataIndex: '2_Fri_quantity'},
-                {header: "This Sat", width: 70, align: 'center', sortable: true, dataIndex: '2_Sat_quantity'},
-                {header: "This Sun", width: 70, align: 'center', sortable: true, dataIndex: '2_Sun_quantity'},
-                {header: "This Total", width: 70, align: 'center', sortable: true, dataIndex: '2_total_num'},
-                {header: "This Growth", width: 80, align: 'center', sortable: true, dataIndex: '2_total_num', renderer: renderGrowthRate2}
+                {header: "Mon", width: 45, align: 'center', sortable: true, dataIndex: '2_Mon_quantity'},
+                {header: "Tue", width: 45, align: 'center', sortable: true, dataIndex: '2_Tue_quantity'},
+                {header: "Wed", width: 45, align: 'center', sortable: true, dataIndex: '2_Wed_quantity'},
+                {header: "Thu", width: 45, align: 'center', sortable: true, dataIndex: '2_Thu_quantity'},
+                {header: "Fri", width: 45, align: 'center', sortable: true, dataIndex: '2_Fri_quantity'},
+                {header: "Sat", width: 45, align: 'center', sortable: true, dataIndex: '2_Sat_quantity'},
+                {header: "Sun", width: 45, align: 'center', sortable: true, dataIndex: '2_Sun_quantity'},
+                {header: "This Total", width: 65, align: 'center', sortable: true, dataIndex: '2_total_num'},
+                {header: "This Growth", width: 70, align: 'center', sortable: true, dataIndex: '2_growth_rate', renderer: renderGrowthRate}
             ]);
         break;
     
         case "3":
             var windowTitle = "3rd Week Sales Report";
             var colModel = new Ext.grid.ColumnModel([
-                {header: "Title", width: 335, align: 'center', sortable: true, dataIndex: 'item_title'},
+                //{header: "Title", width: 335, align: 'center', sortable: true, dataIndex: 'item_title'},
                 {header: "SKU", width: 110, align: 'center', sortable: true, dataIndex: 'sku_id'},
                 
-                {header: "Last Mon", width: 70, align: 'center', sortable: true, dataIndex: '2_Mon_quantity'},
-                {header: "Last Tue", width: 70, align: 'center', sortable: true, dataIndex: '2_Tue_quantity'},
-                {header: "Last Wed", width: 70, align: 'center', sortable: true, dataIndex: '2_Wed_quantity'},
-                {header: "Last Thu", width: 70, align: 'center', sortable: true, dataIndex: '2_Thu_quantity'},
-                {header: "Last Fri", width: 70, align: 'center', sortable: true, dataIndex: '2_Fri_quantity'},
-                {header: "Last Sat", width: 70, align: 'center', sortable: true, dataIndex: '2_Sat_quantity'},
-                {header: "Last Sun", width: 70, align: 'center', sortable: true, dataIndex: '2_Sun_quantity'},
-                {header: "Last Total", width: 70, align: 'center', sortable: true, dataIndex: '2_total_num'},
-                {header: "Last Growth", width: 80, align: 'center', sortable: true, dataIndex: '2_total_num', renderer: renderGrowthRate2},
+                {header: "Mon", width: 45, align: 'center', sortable: true, dataIndex: '2_Mon_quantity'},
+                {header: "Tue", width: 45, align: 'center', sortable: true, dataIndex: '2_Tue_quantity'},
+                {header: "Wed", width: 45, align: 'center', sortable: true, dataIndex: '2_Wed_quantity'},
+                {header: "Thu", width: 45, align: 'center', sortable: true, dataIndex: '2_Thu_quantity'},
+                {header: "Fri", width: 45, align: 'center', sortable: true, dataIndex: '2_Fri_quantity'},
+                {header: "Sat", width: 45, align: 'center', sortable: true, dataIndex: '2_Sat_quantity'},
+                {header: "Sun", width: 45, align: 'center', sortable: true, dataIndex: '2_Sun_quantity'},
+                {header: "Last Total", width: 65, align: 'center', sortable: true, dataIndex: '2_total_num'},
+                {header: "Last Growth", width: 70, align: 'center', sortable: true, dataIndex: '2_growth_rate', renderer: renderGrowthRate},
                 
-                {header: "Line", width: 60, align: 'center', dataIndex: '2_total_num', renderer: renderVerticalLine},
+                {header: "|", width: 10, align: 'center', dataIndex: '2_total_num', renderer: renderVerticalLine},
                 
-                {header: "This Mon", width: 70, align: 'center', sortable: true, dataIndex: '3_Mon_quantity'},
-                {header: "This Tue", width: 70, align: 'center', sortable: true, dataIndex: '3_Tue_quantity'},
-                {header: "This Wed", width: 70, align: 'center', sortable: true, dataIndex: '3_Wed_quantity'},
-                {header: "This Thu", width: 70, align: 'center', sortable: true, dataIndex: '3_Thu_quantity'},
-                {header: "This Fri", width: 70, align: 'center', sortable: true, dataIndex: '3_Fri_quantity'},
-                {header: "This Sat", width: 70, align: 'center', sortable: true, dataIndex: '3_Sat_quantity'},
-                {header: "This Sun", width: 70, align: 'center', sortable: true, dataIndex: '3_Sun_quantity'},
-                {header: "This Total", width: 70, align: 'center', sortable: true, dataIndex: '3_total_num'},
-                {header: "This Growth", width: 80, align: 'center', sortable: true, dataIndex: '3_total_num', renderer: renderGrowthRate3}
+                {header: "Mon", width: 45, align: 'center', sortable: true, dataIndex: '3_Mon_quantity'},
+                {header: "Tue", width: 45, align: 'center', sortable: true, dataIndex: '3_Tue_quantity'},
+                {header: "Wed", width: 45, align: 'center', sortable: true, dataIndex: '3_Wed_quantity'},
+                {header: "Thu", width: 45, align: 'center', sortable: true, dataIndex: '3_Thu_quantity'},
+                {header: "Fri", width: 45, align: 'center', sortable: true, dataIndex: '3_Fri_quantity'},
+                {header: "Sat", width: 45, align: 'center', sortable: true, dataIndex: '3_Sat_quantity'},
+                {header: "Sun", width: 45, align: 'center', sortable: true, dataIndex: '3_Sun_quantity'},
+                {header: "This Total", width: 65, align: 'center', sortable: true, dataIndex: '3_total_num'},
+                {header: "This Growth", width: 70, align: 'center', sortable: true, dataIndex: '3_growth_rate', renderer: renderGrowthRate}
             ]);
         break;
     
         case "4":
             var windowTitle = "4th Week Sales Report";
             var colModel = new Ext.grid.ColumnModel([
-                {header: "Title", width: 335, align: 'center', sortable: true, dataIndex: 'item_title'},
+                //{header: "Title", width: 335, align: 'center', sortable: true, dataIndex: 'item_title'},
                 {header: "SKU", width: 110, align: 'center', sortable: true, dataIndex: 'sku_id'},
                 
-                {header: "Last Mon", width: 70, align: 'center', sortable: true, dataIndex: '3_Mon_quantity'},
-                {header: "Last Tue", width: 70, align: 'center', sortable: true, dataIndex: '3_Tue_quantity'},
-                {header: "Last Wed", width: 70, align: 'center', sortable: true, dataIndex: '3_Wed_quantity'},
-                {header: "Last Thu", width: 70, align: 'center', sortable: true, dataIndex: '3_Thu_quantity'},
-                {header: "Last Fri", width: 70, align: 'center', sortable: true, dataIndex: '3_Fri_quantity'},
-                {header: "Last Sat", width: 70, align: 'center', sortable: true, dataIndex: '3_Sat_quantity'},
-                {header: "Last Sun", width: 70, align: 'center', sortable: true, dataIndex: '3_Sun_quantity'},
-                {header: "Last Total", width: 70, align: 'center', sortable: true, dataIndex: '3_total_num'},
-                {header: "Last Growth", width: 80, align: 'center', sortable: true, dataIndex: '3_total_num', renderer: renderGrowthRate3},
+                {header: "Mon", width: 45, align: 'center', sortable: true, dataIndex: '3_Mon_quantity'},
+                {header: "Tue", width: 45, align: 'center', sortable: true, dataIndex: '3_Tue_quantity'},
+                {header: "Wed", width: 45, align: 'center', sortable: true, dataIndex: '3_Wed_quantity'},
+                {header: "Thu", width: 45, align: 'center', sortable: true, dataIndex: '3_Thu_quantity'},
+                {header: "Fri", width: 45, align: 'center', sortable: true, dataIndex: '3_Fri_quantity'},
+                {header: "Sat", width: 45, align: 'center', sortable: true, dataIndex: '3_Sat_quantity'},
+                {header: "Sun", width: 45, align: 'center', sortable: true, dataIndex: '3_Sun_quantity'},
+                {header: "Last Total", width: 65, align: 'center', sortable: true, dataIndex: '3_total_num'},
+                {header: "Last Growth", width: 70, align: 'center', sortable: true, dataIndex: '3_growth_rate', renderer: renderGrowthRate},
                 
-                {header: "Line", width: 60, align: 'center', dataIndex: '3_total_num', renderer: renderVerticalLine},
+                {header: "|", width: 10, align: 'center', dataIndex: '3_total_num', renderer: renderVerticalLine},
                 
-                {header: "This Mon", width: 70, align: 'center', sortable: true, dataIndex: '4_Mon_quantity'},
-                {header: "This Tue", width: 70, align: 'center', sortable: true, dataIndex: '4_Tue_quantity'},
-                {header: "This Wed", width: 70, align: 'center', sortable: true, dataIndex: '4_Wed_quantity'},
-                {header: "This Thu", width: 70, align: 'center', sortable: true, dataIndex: '4_Thu_quantity'},
-                {header: "This Fri", width: 70, align: 'center', sortable: true, dataIndex: '4_Fri_quantity'},
-                {header: "This Sat", width: 70, align: 'center', sortable: true, dataIndex: '4_Sat_quantity'},
-                {header: "This Sun", width: 70, align: 'center', sortable: true, dataIndex: '4_Sun_quantity'},
-                {header: "This Total", width: 70, align: 'center', sortable: true, dataIndex: '4_total_num'},
-                {header: "This Growth", width: 80, align: 'center', sortable: true, dataIndex: '4_total_num', renderer: renderGrowthRate4}
+                {header: "Mon", width: 45, align: 'center', sortable: true, dataIndex: '4_Mon_quantity'},
+                {header: "Tue", width: 45, align: 'center', sortable: true, dataIndex: '4_Tue_quantity'},
+                {header: "Wed", width: 45, align: 'center', sortable: true, dataIndex: '4_Wed_quantity'},
+                {header: "Thu", width: 45, align: 'center', sortable: true, dataIndex: '4_Thu_quantity'},
+                {header: "Fri", width: 45, align: 'center', sortable: true, dataIndex: '4_Fri_quantity'},
+                {header: "Sat", width: 45, align: 'center', sortable: true, dataIndex: '4_Sat_quantity'},
+                {header: "Sun", width: 45, align: 'center', sortable: true, dataIndex: '4_Sun_quantity'},
+                {header: "This Total", width: 65, align: 'center', sortable: true, dataIndex: '4_total_num'},
+                {header: "This Growth", width: 70, align: 'center', sortable: true, dataIndex: '4_growth_rate', renderer: renderGrowthRate}
             ]);
         break;
     
         case "5":
             var windowTitle = "Month";
             var colModel = new Ext.grid.ColumnModel([
-                {header: "Title", width: 335, align: 'center', sortable: true, dataIndex: 'item_title'},
+                //{header: "Title", width: 335, align: 'center', sortable: true, dataIndex: 'item_title'},
                 {header: "SKU", width: 110, align: 'center', sortable: true, dataIndex: 'sku_id'},
                 
-                {header: "Last Month Mon", width: 90, align: 'center', sortable: true, dataIndex: '5_Mon_quantity'},
-                {header: "Last Month Tue", width: 90, align: 'center', sortable: true, dataIndex: '5_Tue_quantity'},
-                {header: "Last Month Wed", width: 90, align: 'center', sortable: true, dataIndex: '5_Wed_quantity'},
-                {header: "Last Month Thu", width: 90, align: 'center', sortable: true, dataIndex: '5_Thu_quantity'},
-                {header: "Last Month Fri", width: 90, align: 'center', sortable: true, dataIndex: '5_Fri_quantity'},
-                {header: "Last Month Sat", width: 90, align: 'center', sortable: true, dataIndex: '5_Sat_quantity'},
-                {header: "Last Month Sun", width: 90, align: 'center', sortable: true, dataIndex: '5_Sun_quantity'},
+                {header: "Mon", width: 45, align: 'center', sortable: true, dataIndex: '5_Mon_quantity'},
+                {header: "Tue", width: 45, align: 'center', sortable: true, dataIndex: '5_Tue_quantity'},
+                {header: "Wed", width: 45, align: 'center', sortable: true, dataIndex: '5_Wed_quantity'},
+                {header: "Thu", width: 45, align: 'center', sortable: true, dataIndex: '5_Thu_quantity'},
+                {header: "Fri", width: 45, align: 'center', sortable: true, dataIndex: '5_Fri_quantity'},
+                {header: "Sat", width: 45, align: 'center', sortable: true, dataIndex: '5_Sat_quantity'},
+                {header: "Sun", width: 45, align: 'center', sortable: true, dataIndex: '5_Sun_quantity'},
                 {header: "Last Month Total", width: 90, align: 'center', sortable: true, dataIndex: '5_total_num'},
                 
-                {header: "Line", width: 60, align: 'center', dataIndex: '5_total_num', renderer: renderVerticalLine},
+                {header: "|", width: 10, align: 'center', dataIndex: '5_total_num', renderer: renderVerticalLine},
                 
-                {header: "This Month Mon", width: 90, align: 'center', sortable: true, dataIndex: '6_Mon_quantity'},
-                {header: "This Month Tue", width: 90, align: 'center', sortable: true, dataIndex: '6_Tue_quantity'},
-                {header: "This Month Wed", width: 90, align: 'center', sortable: true, dataIndex: '6_Wed_quantity'},
-                {header: "This Month Thu", width: 90, align: 'center', sortable: true, dataIndex: '6_Thu_quantity'},
-                {header: "This Month Fri", width: 90, align: 'center', sortable: true, dataIndex: '6_Fri_quantity'},
-                {header: "This Month Sat", width: 90, align: 'center', sortable: true, dataIndex: '6_Sat_quantity'},
-                {header: "This Month Sun", width: 90, align: 'center', sortable: true, dataIndex: '6_Sun_quantity'},
+                {header: "Mon", width: 45, align: 'center', sortable: true, dataIndex: '6_Mon_quantity'},
+                {header: "Tue", width: 45, align: 'center', sortable: true, dataIndex: '6_Tue_quantity'},
+                {header: "Wed", width: 45, align: 'center', sortable: true, dataIndex: '6_Wed_quantity'},
+                {header: "Thu", width: 45, align: 'center', sortable: true, dataIndex: '6_Thu_quantity'},
+                {header: "Fri", width: 45, align: 'center', sortable: true, dataIndex: '6_Fri_quantity'},
+                {header: "Sat", width: 45, align: 'center', sortable: true, dataIndex: '6_Sat_quantity'},
+                {header: "Sun", width: 45, align: 'center', sortable: true, dataIndex: '6_Sun_quantity'},
                 {header: "This Month Total", width: 90, align: 'center', sortable: true, dataIndex: '6_total_num'},
-                {header: "This Month Growth", width: 100, align: 'center', sortable: true, dataIndex: '6_total_num', renderer: renderGrowthRate5}
+                {header: "This Month Growth", width: 100, align: 'center', sortable: true, dataIndex: '5_growth_rate', renderer: renderGrowthRate}
             ]);
         break;
     }
