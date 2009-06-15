@@ -103,20 +103,20 @@ class Reports{
         //$fourWeekAgo = date("Y-m-d", strtotime("-4 week"));
         $today = date("D");
         if($today == "Sun"){
-            $lastSun = date("Y-m-d");
+            $nextSun = date("Y-m-d");
         }else{
-            $lastSun = date("Y-m-d", strtotime("next Sunday"));
+            $nextSun = date("Y-m-d", strtotime("next Sunday"));
         }
         
-        $eightWeekAgoMon = date("Y-m-d", strtotime("-8 week", strtotime($lastSun)));
-        $fiveWeekAgoMon = date("Y-m-d", strtotime("-5 week", strtotime($lastSun)));
-        $fourWeekAgoMon = date("Y-m-d", strtotime("-4 week", strtotime($lastSun)));
-        $threeWeekAgoMon = date("Y-m-d", strtotime("-3 week", strtotime($lastSun)));
-        $twoWeekAgoMon = date("Y-m-d", strtotime("-2 week", strtotime($lastSun)));
-        $oneWeekAgoMon = date("Y-m-d", strtotime("-1 week", strtotime($lastSun)));
+        $eightWeekAgoMon = date("Y-m-d", strtotime("-8 week", strtotime($nextSun)));
+        $fiveWeekAgoMon = date("Y-m-d", strtotime("-5 week", strtotime($nextSun)));
+        $fourWeekAgoMon = date("Y-m-d", strtotime("-4 week", strtotime($nextSun)));
+        $threeWeekAgoMon = date("Y-m-d", strtotime("-3 week", strtotime($nextSun)));
+        $twoWeekAgoMon = date("Y-m-d", strtotime("-2 week", strtotime($nextSun)));
+        $oneWeekAgoMon = date("Y-m-d", strtotime("-1 week", strtotime($nextSun)));
         
         /*
-        echo $lastSun;
+        echo $nextSun;
         echo "<br>";
         echo $eightWeekAgoMon;
         echo "<br>";
@@ -134,17 +134,21 @@ class Reports{
         */
         
         $timestamp = strtotime($fiveWeekAgoMon);
-        $data_array = Reports::$memcache_connect->get($timestamp);
+        //$data_array = Reports::$memcache_connect->get($timestamp);
+        $data_array = false;
         if($data_array == false){
             $day_data = array();
             $sku_array = array();
             
             //******************************************  Last 4 Week  *******************************************
             if(!empty($_GET['sellerId'])){
-                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn between '".$eightWeekAgoMon."' and '".$fourWeekAgoMon."' group by date2,skuId order by createdOn";
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,od.quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn between '".$eightWeekAgoMon."' and '".$fourWeekAgoMon."' order by createdOn";
             }else{
-                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn between '".$eightWeekAgoMon."' and '".$fourWeekAgoMon."' group by date2,skuId order by createdOn";
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,od.quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn between '".$eightWeekAgoMon."' and '".$fourWeekAgoMon."' order by createdOn";
             }
+            
+            //echo $sql_1;
+            //echo "<br>";
             
             $result_1 = mysql_query($sql_1, Reports::$database_connect);
             while($row_1 = mysql_fetch_assoc($result_1)){
@@ -171,14 +175,15 @@ class Reports{
             //******************************************  This 4 Week  *******************************************
             
             if(!empty($_GET['sellerId'])){
-                $sql_2 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn between '".$fourWeekAgoMon."' and '".$lastSun."' group by date2,skuId order by createdOn";
+                $sql_2 = "select o.id,od.skuId,od.itemTitle,od.quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn between '".$fourWeekAgoMon."' and '".$nextSun."' order by createdOn";
             }else{
-                $sql_2 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn between '".$fourWeekAgoMon."' and '".$lastSun."' group by date2,skuId order by createdOn";
+                $sql_2 = "select o.id,od.skuId,od.itemTitle,od.quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn between '".$fourWeekAgoMon."' and '".$nextSun."' order by createdOn";
             }
             
             //echo $sql_2;
             //echo "<br>";
             
+            //exit;
             $result_2 = mysql_query($sql_2, Reports::$database_connect);
             while($row_2 = mysql_fetch_assoc($result_2)){
                 if(empty($sku_array[$row_2['skuId']]['sku_id'])){
@@ -334,12 +339,17 @@ class Reports{
             $temp = array();
             $totalCount = 0;
             foreach($sku_array as $sku){
+                $sku['1_growth_rate'] = ($sku['0_total_num'] == 0)?($sku['1_total_num'] * 100):(($sku['1_total_num'] == 0)?-($sku['0_total_num'] * 100):round((($sku['1_total_num'] - $sku['0_total_num']) / $sku['0_total_num']) * 100));
+                $sku['2_growth_rate'] = ($sku['1_total_num'] == 0)?($sku['2_total_num'] * 100):(($sku['2_total_num'] == 0)?-($sku['1_total_num'] * 100):round((($sku['2_total_num'] - $sku['1_total_num']) / $sku['1_total_num']) * 100));
+                $sku['3_growth_rate'] = ($sku['2_total_num'] == 0)?($sku['3_total_num'] * 100):(($sku['3_total_num'] == 0)?-($sku['2_total_num'] * 100):round((($sku['3_total_num'] - $sku['2_total_num']) / $sku['2_total_num']) * 100));
+                $sku['4_growth_rate'] = ($sku['3_total_num'] == 0)?($sku['4_total_num'] * 100):(($sku['4_total_num'] == 0)?-($sku['3_total_num'] * 100):round((($sku['4_total_num'] - $sku['3_total_num']) / $sku['3_total_num']) * 100));
+                $sku['5_growth_rate'] = ($sku['5_total_num'] == 0)?($sku['6_total_num'] * 100):(($sku['6_total_num'] == 0)?-($sku['5_total_num'] * 100):round((($sku['6_total_num'] - $sku['5_total_num']) / $sku['5_total_num']) * 100));
                 $temp[] = $sku;
                 $totalCount++;
             }
             
             $data_array = array('totalCount'=>$totalCount, 'records'=>$temp);
-            Reports::$memcache_connect->set($timestamp, $data_array, MEMCACHE_COMPRESSED, 604800);
+            Reports::$memcache_connect->set($timestamp, $data_array, MEMCACHE_COMPRESSED, 86400);
             mysql_free_result($result);
         }
         //print_r($temp);
