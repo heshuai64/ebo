@@ -371,7 +371,7 @@ class QoShipments {
 			//$service_result_1 = true;
 			//$service_result_2 = true;
 			if($service_result_1 && $service_result_2){
-				echo "{success: true,info:'\'<font color=\'green\'>".$info."</font>'}"; 
+				echo "{success: true, info:'<font color=\'green\'>".$info."</font>'}"; 
 			}else{
 				echo "{success: false, errors: { reason: '".$info."' }}";
 			}
