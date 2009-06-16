@@ -3,16 +3,16 @@ Ext.onReady(function(){
             root: 'records',
             totalProperty: 'totalCount',
             idProperty: 'id',
-            fields: ['id', 'skuId', 'skuTitle', 'itemId', 'itemTitle', 'quantity'],
+            fields: ['id', 'skuId', 'skuTitle', 'itemId', 'itemTitle', 'quantity', 'galleryURL'],
             url:'connect.php?moduleId=qo-shipments&action=verifyShipment'
         });
         
         function renderSkuImage(v, p, r){
-            return String.format('<img src="http://m2.sourcingmap.com/smap/images/item/medium/ux_{0}_ux_m.jpg"', v);
+            return String.format('<img src="{0}"', v);
         }
         
         function renderShipmentInfo(v, p, r){
-            return String.format(' X {0} <br><br> {1} <br><br> {2}', r.data.quantity , r.data.skuId , r.data.skuTitle);
+            return String.format(' {0} X {1} <br> {2}', r.data.skuId , r.data.quantity, r.data.itemTitle);
         }
         
         var verifyshipmentGrid = new Ext.grid.EditorGridPanel({
@@ -21,15 +21,15 @@ Ext.onReady(function(){
                 selModel: new Ext.grid.RowSelectionModel({}),
                 columns:[{
                     header: "Image",
-                    dataIndex: 'skuId',
+                    dataIndex: 'galleryURL',
                     renderer: renderSkuImage,
-                    width: 105,
+                    width: 450,
                     align: 'center'
                 },{
                     header: "Info",
                     dataIndex: 'skuId',
                     renderer: renderShipmentInfo,
-                    width: 500,
+                    width: 450,
                     align: 'center'
                 }]
         });

@@ -197,7 +197,7 @@ class QoShipments {
 	}
 	
 	public function verifyShipment(){
-		$sql = "select * from qo_shipments_detail where shipmentsId ='".$_POST['id']."'";
+		$sql = "select sd.id,sd.skuId,sd.skuTitle,sd.itemId,sd.itemTitle,sd.quantity,i.galleryURL from qo_shipments_detail as sd left join qo_items as i on sd.itemId = i.id where sd.shipmentsId ='".$_POST['id']."'";
 		$result = mysql_query($sql);
 		$shipment_detail_array = array();
 		while($row = mysql_fetch_assoc($result)){
