@@ -232,8 +232,9 @@ class Reports{
                     if($row['date1'] >= $$fiveWeekAgoMon && $row['date1'] < $fourWeekAgoMon){
                         if(empty($sku_array[$row['skuId']]['sku_id'])){
                             $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
-                            $sku_array[$row['skuId']]['item_title'] = $row['itemTitle'];
                         }
+                        
+                        $sku_array[$row['skuId']]['0_title'] = $row['itemTitle'];
                         
                         if(empty($sku_array[$row['skuId']]['0_'.$row['date2'].'_quantity'])){
                             $sku_array[$row['skuId']]['0_'.$row['date2'].'_quantity'] = $row['quantity'];
@@ -252,8 +253,9 @@ class Reports{
                     }elseif($row['date1'] >= $fourWeekAgoMon && $row['date1'] < $threeWeekAgoMon){
                         if(empty($sku_array[$row['skuId']]['sku_id'])){
                             $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
-                            $sku_array[$row['skuId']]['item_title'] = $row['itemTitle'];
                         }
+                        
+                        $sku_array[$row['skuId']]['1_title'] = $row['itemTitle'];
                         
                         if(empty($sku_array[$row['skuId']]['1_'.$row['date2'].'_quantity'])){
                             $sku_array[$row['skuId']]['1_'.$row['date2'].'_quantity'] = $row['quantity'];
@@ -272,9 +274,10 @@ class Reports{
                     }elseif($row['date1'] >= $threeWeekAgoMon && $row['date1'] < $twoWeekAgoMon){
                         if(empty($sku_array[$row['skuId']]['sku_id'])){
                             $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
-                            $sku_array[$row['skuId']]['item_title'] = $row['itemTitle'];
                         }
                         
+                        $sku_array[$row['skuId']]['2_title'] = $row['itemTitle'];
+                         
                         if(empty($sku_array[$row['skuId']]['2_'.$row['date2'].'_quantity'])){
                             $sku_array[$row['skuId']]['2_'.$row['date2'].'_quantity'] = $row['quantity'];
                             
@@ -292,8 +295,9 @@ class Reports{
                     }elseif($row['date1'] >= $twoWeekAgoMon && $row['date1'] < $oneWeekAgoMon){
                         if(empty($sku_array[$row['skuId']]['sku_id'])){
                             $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
-                            $sku_array[$row['skuId']]['item_title'] = $row['itemTitle'];
                         }
+                        
+                        $sku_array[$row['skuId']]['3_title'] = $row['itemTitle'];
                         
                         if(empty($sku_array[$row['skuId']]['3_'.$row['date2'].'_quantity'])){
                             $sku_array[$row['skuId']]['3_'.$row['date2'].'_quantity']= $row['quantity'];
@@ -312,8 +316,9 @@ class Reports{
                     }elseif($row['date1'] >= $oneWeekAgoMon){
                         if(empty($sku_array[$row['skuId']]['sku_id'])){
                             $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
-                            $sku_array[$row['skuId']]['item_title'] = $row['itemTitle'];
                         }
+                        
+                        $sku_array[$row['skuId']]['4_title'] = $row['itemTitle'];
                         
                         if(empty($sku_array[$row['skuId']]['4_'.$row['date2'].'_quantity'])){
                             $sku_array[$row['skuId']]['4_'.$row['date2'].'_quantity'] = $row['quantity'];
@@ -339,11 +344,11 @@ class Reports{
             $temp = array();
             $totalCount = 0;
             foreach($sku_array as $sku){
-                $sku['1_growth_rate'] = ($sku['0_total_num'] == 0)?($sku['1_total_num'] * 100):(($sku['1_total_num'] == 0)?-($sku['0_total_num'] * 100):round((($sku['1_total_num'] - $sku['0_total_num']) / $sku['0_total_num']) * 100));
-                $sku['2_growth_rate'] = ($sku['1_total_num'] == 0)?($sku['2_total_num'] * 100):(($sku['2_total_num'] == 0)?-($sku['1_total_num'] * 100):round((($sku['2_total_num'] - $sku['1_total_num']) / $sku['1_total_num']) * 100));
-                $sku['3_growth_rate'] = ($sku['2_total_num'] == 0)?($sku['3_total_num'] * 100):(($sku['3_total_num'] == 0)?-($sku['2_total_num'] * 100):round((($sku['3_total_num'] - $sku['2_total_num']) / $sku['2_total_num']) * 100));
-                $sku['4_growth_rate'] = ($sku['3_total_num'] == 0)?($sku['4_total_num'] * 100):(($sku['4_total_num'] == 0)?-($sku['3_total_num'] * 100):round((($sku['4_total_num'] - $sku['3_total_num']) / $sku['3_total_num']) * 100));
-                $sku['5_growth_rate'] = ($sku['5_total_num'] == 0)?($sku['6_total_num'] * 100):(($sku['6_total_num'] == 0)?-($sku['5_total_num'] * 100):round((($sku['6_total_num'] - $sku['5_total_num']) / $sku['5_total_num']) * 100));
+                $sku['1_growth_rate'] = (empty($sku['0_total_num']) || $sku['0_total_num'] == 0)?($sku['1_total_num'] * 100):((empty($sku['1_total_num']) || $sku['1_total_num'] == 0)?-($sku['0_total_num'] * 100):round((($sku['1_total_num'] - $sku['0_total_num']) / $sku['0_total_num']) * 100));
+                $sku['2_growth_rate'] = (empty($sku['1_total_num']) || $sku['1_total_num'] == 0)?($sku['2_total_num'] * 100):((empty($sku['2_total_num']) || $sku['2_total_num'] == 0)?-($sku['1_total_num'] * 100):round((($sku['2_total_num'] - $sku['1_total_num']) / $sku['1_total_num']) * 100));
+                $sku['3_growth_rate'] = (empty($sku['2_total_num']) || $sku['2_total_num'] == 0)?($sku['3_total_num'] * 100):((empty($sku['3_total_num']) || $sku['3_total_num'] == 0)?-($sku['2_total_num'] * 100):round((($sku['3_total_num'] - $sku['2_total_num']) / $sku['2_total_num']) * 100));
+                $sku['4_growth_rate'] = (empty($sku['3_total_num']) || $sku['3_total_num'] == 0)?($sku['4_total_num'] * 100):((empty($sku['4_total_num']) || $sku['4_total_num'] == 0)?-($sku['3_total_num'] * 100):round((($sku['4_total_num'] - $sku['3_total_num']) / $sku['3_total_num']) * 100));
+                $sku['5_growth_rate'] = (empty($sku['5_total_num']) || $sku['5_total_num'] == 0)?($sku['6_total_num'] * 100):((empty($sku['6_total_num']) || $sku['6_total_num'] == 0)?-($sku['5_total_num'] * 100):round((($sku['6_total_num'] - $sku['5_total_num']) / $sku['5_total_num']) * 100));
                 $temp[] = $sku;
                 $totalCount++;
             }
