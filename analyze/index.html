@@ -1,33 +1,18 @@
 <!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
 <html xmlns='http://www.w3.org/1999/xhtml'>
 <head>
-<title>Analyze</title>			
-<script TYPE='text/javascript' SRC='http://w-1.ebay.com/js/607/min/Shopping.js'></script>	
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Analyze</title>			
+    <script TYPE='text/javascript' SRC='http://w-1.ebay.com/js/607/min/Shopping.js'></script>
+    <link rel="stylesheet" type="text/css" href="../../Ext/2.2/resources/css/ext-all.css" />
+    <script src="../../Ext/2.2/adapter/ext/ext-base.js"></script>
+    <script src="../../Ext/2.2/ext-all-debug.js"></script>
+    <script src="ebay-analyze.js"></script>
 </head>
 <body>
 
 <script TYPE='text/javascript'>
-    function onSuccess(/*com.ebay.shoppingservice.FindItemsResponseType*/ data) {
-        console.log(data);
-    }
-
-    function onFailure(/*[com.ebay.shoppingservice.ErrorType]*/ errors) {
-        console.log(errors);
-    }
-
-    com.ebay.widgets.needs(/*com.ebay.widgets.util.Resource*/ {
-        baseUrl: 'http://w-1.ebay.com/js/607/min/',
-        files: ['FindItems.js'],
-        resources: com.ebay.shoppingservice.Shopping.findItems,
-        callback: function() {
-            var config = new com.ebay.shoppingservice.ShoppingConfig({appId: 'eBayAPID-73f4-45f2-b9a3-c8f6388b38d8'});
-            var shopping = new com.ebay.shoppingservice.Shopping(config);
-            var request = new com.ebay.shoppingservice.FindItemsRequestType({QueryKeywords: 'ipod'});
-            var callback = new com.ebay.shoppingservice.ShoppingCallback({success: onSuccess, failure: onFailure});
-            shopping.findItems(request, callback);
-        }
-    });
-
+    
 </script>
 
 </body>
