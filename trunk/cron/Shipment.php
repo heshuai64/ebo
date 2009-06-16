@@ -99,8 +99,8 @@ class Shipment{
                 shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,
                 shipToCountry,shipToPhoneNo,createdBy,createdOn,modifiedBy,modifiedOn) values ('".$shipmentId."','".$orders['id']."',
                 'N','".$orders['shippingFeeCurrency']."','".$orders['shippingFeeValue']."','".mysql_escape_string($orders['ebayName'])."',
-                '".mysql_escape_string($orders['ebayEmail'])."','".mysql_escape_string($orders['ebayAddress1'])."','".mysql_escape_string($orders['ebayAddress2'])."','".$orders['ebayCity']."',
-                '".mysql_escape_string($orders['ebayStateOrProvince'])."','".$orders['ebayPostalCode']."','".$orders['ebayCountry']."','".$orders['ebayPhone']."',
+                '".mysql_escape_string($orders['ebayEmail'])."','".mysql_escape_string($orders['ebayAddress1'])."','".mysql_escape_string($orders['ebayAddress2'])."','".mysql_escape_string($orders['ebayCity'])."',
+                '".mysql_escape_string($orders['ebayStateOrProvince'])."','".mysql_escape_string($orders['ebayPostalCode'])."','".mysql_escape_string($orders['ebayCountry'])."','".$orders['ebayPhone']."',
                 'System','".date("Y-m-d H:i:s")."','System','".date("Y-m-d H:i:s")."')";
                 $this->log($sql);
                 $result = mysql_query($sql, Shipment::$database_connect);
