@@ -244,6 +244,29 @@ class Service{
         
     }
     
+    public function updateShpmentEnvelope(){
+        $sql = "select id from qo_shipments where envelopeStatus = 0";
+        $result = mysql_query($sql, Service::$database_connect);
+        while($row = mysql_fetch_assoc($result)){
+            $sql_1 = "select skuId,quantity from qo_shipments_detail where shipmentsId = '".$row['id']."'";
+            $result_1 = mysql_query($sql_1, Service::$database_connect);
+            $skuArray = array();
+            while($row_1 = mysql_fetch_assoc($result_1)){
+                $skuArray[] = $row_1;
+            }
+            
+            $json_result = $this->getService(self::INVENTORY_SERVICE."?action=getEnvelopeBySku&data=".urlencode(json_encode($skuArray)));
+            echo $json_result;
+            echo "<br>";
+            $service_result = json_decode($json_result);
+            $envelope = $service_result->envelope;
+            if(!empty($envelope)){
+                $sql_2 = "update qo_shipments set envelope = '$envelope' where id = '".$row['id']."'";
+                //$result_2 = mysql_query($sql_2, Service::$database_connect);
+            }
+        }
+    }
+    
     public function updateSkuCost(){
         $sql = "select id,skuId from qo_orders_detail where skuCostStatus = 0";
         $result = mysql_query($sql, Service::$database_connect);
