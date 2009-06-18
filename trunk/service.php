@@ -262,8 +262,10 @@ class Service{
             $envelope = $service_result->envelope;
             if(!empty($envelope)){
                 $sql_2 = "update qo_shipments set envelope = '$envelope' where id = '".$row['id']."'";
+                echo $sql_2;
                 //$result_2 = mysql_query($sql_2, Service::$database_connect);
             }
+            exit;
         }
     }
     
