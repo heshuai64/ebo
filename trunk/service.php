@@ -244,9 +244,11 @@ class Service{
         
     }
     
-    public function updateShpmentEnvelope(){
-        $sql = "select id from qo_shipments where envelopeStatus = 0";
+    public function updateShipmentEnvelope(){
+        //$sql = "select id from qo_shipments where id = 'SHA200906A0746'";
+        $sql = "select id from qo_shipments where envelopeStatus = 0 order by id desc";
         $result = mysql_query($sql, Service::$database_connect);
+        //$i = 0;
         while($row = mysql_fetch_assoc($result)){
             $sql_1 = "select skuId,quantity from qo_shipments_detail where shipmentsId = '".$row['id']."'";
             $result_1 = mysql_query($sql_1, Service::$database_connect);
@@ -255,17 +257,33 @@ class Service{
                 $skuArray[] = $row_1;
             }
             
-            $json_result = $this->getService(self::INVENTORY_SERVICE."?action=getEnvelopeBySku&data=".urlencode(json_encode($skuArray)));
+            print_r($skuArray);
+            flush();
+            //if(count($skuArray) > 2){
+            //    exit;   
+            //}
+            //print_r($skuArray);
+            $data_json = json_encode($skuArray);
+            
+            $json_result = $this->getService(self::INVENTORY_SERVICE."?action=getEnvelopeBySku&data=".urlencode($data_json));
             echo $json_result;
             echo "<br>";
             $service_result = json_decode($json_result);
             $envelope = $service_result->envelope;
             if(!empty($envelope)){
-                $sql_2 = "update qo_shipments set envelope = '$envelope' where id = '".$row['id']."'";
-                echo $sql_2;
-                //$result_2 = mysql_query($sql_2, Service::$database_connect);
+                $sql_2 = "update qo_shipments set envelope = '$envelope',envelopeStatus = 1 where id = '".$row['id']."'";
+                //echo $sql_2;
+                $this->log("updateShipmentEnvelope", $sql_2."<br>");
+                $result_2 = mysql_query($sql_2, Service::$database_connect);
+            }else{
+                $this->log("updateShipmentEnvelope", "shipmentsId: ".$row['id'].", sku: ".print_r($skuArray, true)." no in inventory system<br>\n");
             }
-            exit;
+            
+            //if($i > 3){
+            //    exit;
+            //}
+            //$i++;
+            //sleep(1);
         }
     }
     
