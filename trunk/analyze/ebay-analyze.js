@@ -46,7 +46,7 @@ Ext.onReady(function(){
             }
             
             var grid = new Ext.grid.GridPanel({
-                title: 'eBay Item Analyze',
+                title: 'eBay Item Analyze (<font color="red">Seller:you want to specify multiple values, use a comma.</font>)',
                 autoHeight: true,
                 store: store,
                 autoScroll: true,
@@ -68,6 +68,23 @@ Ext.onReady(function(){
                 ],
                 tbar:[{
                         xtype: 'tbtext',
+                        text: 'Store Name:'
+                    },{
+                        id: 'storeName',
+                        name: 'storeName',
+                        xtype: 'textfield',
+                        width: 120,
+                        listeners:{change: function(t, n, o){
+                                        //console.log(t);
+                                        if(n.length > 0){
+                                            Ext.getCmp('seller').disable();
+                                        }else{
+                                            Ext.getCmp('seller').enable();
+                                        }
+                                    }
+                        }
+                    },'-',{
+                        xtype: 'tbtext',
                         text: 'Seller:'
                     },{
                         id: 'seller',
@@ -81,7 +98,7 @@ Ext.onReady(function(){
                         id: 'keyword',
                         name: 'keyword',
                         xtype: 'textfield',
-                        width: 200
+                        width: 150
                     },'-',{
 			xtype: 'tbtext',
                         text: 'End time from:'
@@ -161,7 +178,8 @@ Ext.onReady(function(){
                                 
                                 //---------------------------------  getSingleItemFailure  -----------------------------------------------------
                                 var getSingleItemFailure = function(errors){
-                                    console.log(errors);
+                                    //console.log(errors);
+                                    Ext.Msg.alert('Warn', errors.longMessage);
                                 }
                         
                                 if(Ext.isArray(data.searchResult[0].itemArray.item)){
@@ -192,12 +210,14 @@ Ext.onReady(function(){
                             }
                         
                             function findItemsAdvancedFailure(errors) {
-                                console.log(errors);
+                                //console.log(errors);
+                                Ext.Msg.alert(errors[0].severityCode.value, errors[0].longMessage);
                             }
                             
+                            //console.log({QueryKeywords: Ext.getCmp('keyword').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 10, EndTimeFrom: Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.getCmp('to').getValue().format('Y-m-d')});
                             var config = new com.ebay.shoppingservice.ShoppingConfig({appId: 'eBayAPID-73f4-45f2-b9a3-c8f6388b38d8'});
                             var shopping = new com.ebay.shoppingservice.Shopping(config);
-                            var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType({QueryKeywords: Ext.getCmp('keyword').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 10, EndTimeFrom: Date.parseDate(Ext.getCmp('from').getValue(), "Y-m-d"), EndTimeTo: Date.parseDate(Ext.getCmp('to').getValue(), "Y-m-d")});
+                            var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType({QueryKeywords: Ext.getCmp('keyword').getValue(), StoreName: Ext.getCmp('storeName').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 10, EndTimeFrom: Ext.isEmpty(Ext.getCmp('from').getValue())?null:Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.isEmpty(Ext.getCmp('to').getValue())?null:Ext.getCmp('to').getValue().format('Y-m-d')});
                             var callback = new com.ebay.shoppingservice.ShoppingCallback({success: findItemsAdvancedSuccess, failure: findItemsAdvancedFailure});
                             shopping.findItemsAdvanced(request, callback);
                                 
