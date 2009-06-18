@@ -53,7 +53,7 @@ Ext.onReady(function(){
             }
             
             var grid = new Ext.grid.GridPanel({
-                title: 'eBay Item Analyze (<font color="red">Seller:you want to specify multiple values, use a comma.</font>)',
+                title: 'eBay Item Analyze (<font color="red">you want to specify multiple Seller, use a comma.</font>)',
                 autoHeight: true,
                 store: store,
                 autoScroll: true,
@@ -136,7 +136,7 @@ Ext.onReady(function(){
                         width: 150
                     },'-',{
 			xtype: 'tbtext',
-                        text: 'End time from:'
+                        text: 'End date from:'
 		    },{
 			id: 'from',
 			name: 'from',
@@ -144,7 +144,7 @@ Ext.onReady(function(){
 			format : 'Y-m-d'
 		    },'-',{
 			xtype: 'tbtext',
-                        text: 'End time to:'
+                        text: 'End date to:'
 		    },{
 			id: 'to',
 			name: 'to',
