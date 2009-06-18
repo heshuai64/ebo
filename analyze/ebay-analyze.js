@@ -1,6 +1,13 @@
 Ext.onReady(function(){
     Ext.BLANK_IMAGE_URL = "../../Ext/2.2/resources/images/default/s.gif";
     
+    var cp = new Ext.state.CookieProvider({
+       //path: "/eBayBO/analyze/",
+       expires: new Date(new Date().getTime()+(1000*60*60*24*365)) //365 days
+       //domain: "127.0.0.1"
+    });
+    Ext.state.Manager.setProvider(cp);
+   
     //http://open.api.ebay.com/shopping?callname=FindItems&callbackname=com.ebay.shoppingservice.Shopping.findItemsClosure0&responseencoding=JSON&callback=true&version=607&appId=eBayAPID-73f4-45f2-b9a3-c8f6388b38d8&QueryKeywords=ipod&MaxEntries=1&client=js
     //http://open.api.ebay.com/shopping?callname=GetSingleItem&callbackname=com.ebay.shoppingservice.Shopping.getSingleItemClosure1&responseencoding=JSON&callback=true&version=607&appId=eBayAPID-73f4-45f2-b9a3-c8f6388b38d8&ItemID=390059143734&IncludeSelector=Details%2CShippingCosts&client=js
     //http://open.api.ebay.com/shopping?callname=FindItemsAdvanced&callbackname=com.ebay.shoppingservice.Shopping.findItemsAdvancedClosure0&responseencoding=JSON&callback=true&version=607&appId=eBayAPID-73f4-45f2-b9a3-c8f6388b38d8&QueryKeywords=Battery&ItemSort=CurrentBid&SellerID(0)=%20libra.studio&SellerID(1)=easybattery&MaxEntries=10&client=js
@@ -90,8 +97,36 @@ Ext.onReady(function(){
                         id: 'seller',
                         name: 'seller',
                         xtype: 'textfield',
+                        stateful: true,
                         width: 300
-                    },'-',{
+                    }/*,{ text: 'Manage',
+                        handler: function(){
+
+                            var sellerForm = Ext.FormPanel({
+                                items:[{
+                                    xtype: 'textfield' 
+                                }]
+                            })
+                            
+                            
+                            var sellerWindow = Ext.Window({
+                                title: 'Manage Seller',
+                                width: 400,
+                                height: 300,
+                                items: sellerForm,
+                                plain:true,
+                                layout: 'fit',
+                                buttons: [{
+                                    text:'Close',
+                                    handler: function (){
+                                       sellerWindow.close(); 
+                                    }
+                                }]
+                            })
+                            
+                            sellerWindow.show();
+                        }
+                    }*/,'-',{
                         xtype: 'tbtext',
                         text: 'Keyword:'
                     },{
@@ -118,6 +153,7 @@ Ext.onReady(function(){
 		    },{
                         text: 'Submit',
                         handler: function(){
+                            
                             function findItemsAdvancedSuccess(data) {
                                 //console.log("findItemsAdvancedSuccess");
                                 //console.log(data);
