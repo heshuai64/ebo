@@ -62,7 +62,7 @@
                                                 echo '<img src="'.PackingList::BAR_CODE_URL.'?code=code39&o=1&t=30&r=1&text='.$this->shipment[$i]['id'].'&f1=Arial.ttf&f2=8&a1=&a2=&a3=">';
                                         echo '</td>';
                                         */
-                                        echo '<td><div class="address"><div class="shipment-id">'.$this->shipment[$i]['id'].'</div>';
+                                        echo '<td><div class="address"><div class="shipment-id">'.$this->shipment[$i]['id'].'(<font color="red">'.$this->shipment[$i]['envelope'].'</font>)</div>';
                                                 echo "Attn: ".$this->shipment[$i]['shipToName']."(".$this->shipment[$i]['buyerId'].")<br>".
                                                 $this->shipment[$i]['shipToAddressLine1']." ".(!empty($this->shipment[$i]['shipToAddressLine2'])?$this->shipment[$i]['shipToAddressLine2'].'<br>':'').
                                                 $this->shipment[$i]['shipToCity']. '<br>'.
@@ -72,10 +72,10 @@
                                                         echo '<img src="'.PackingList::BAR_CODE_URL.'?code=code39&o=1&t=30&r=1&text='.$this->shipment[$i]['id'].'&f1=-1&f2=8&a1=&a2=&a3=">';
                                                 echo '</div>
                                                 </div></td>';
-                                         
-                                        if($i< count($this->shipment)){
-                                                $i++;
-                                                echo '<td><div class="address"><div class="shipment-id">'.$this->shipment[$i]['id'].'</div>';
+                                        $i++;
+                                        
+                                        if($i < count($this->shipment)){
+                                                echo '<td><div class="address"><div class="shipment-id">'.$this->shipment[$i]['id'].'(<font color="red">'.$this->shipment[$i]['envelope'].'</font>)</div>';
                                                 echo "Attn: ".$this->shipment[$i]['shipToName']."(".$this->shipment[$i]['buyerId'].")<br>".
                                                 $this->shipment[$i]['shipToAddressLine1']." ".(!empty($this->shipment[$i]['shipToAddressLine2'])?$this->shipment[$i]['shipToAddressLine2'].'<br>':'').
                                                 $this->shipment[$i]['shipToCity']. '<br>'.
