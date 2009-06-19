@@ -108,13 +108,15 @@ class Reports{
             $nextSun = date("Y-m-d", strtotime("next Sunday"));
         }
         
-        $eightWeekAgoMon = date("Y-m-d", strtotime("-8 week", strtotime($nextSun)));
-        $fiveWeekAgoMon = date("Y-m-d", strtotime("-5 week", strtotime($nextSun)));
-        $fourWeekAgoMon = date("Y-m-d", strtotime("-4 week", strtotime($nextSun)));
-        $threeWeekAgoMon = date("Y-m-d", strtotime("-3 week", strtotime($nextSun)));
-        $twoWeekAgoMon = date("Y-m-d", strtotime("-2 week", strtotime($nextSun)));
-        $oneWeekAgoMon = date("Y-m-d", strtotime("-1 week", strtotime($nextSun)));
+        $eightWeekAgoMon = date("Y-m-d 23:59:59", strtotime("-8 week", strtotime($nextSun)));
+        $fiveWeekAgoMon = date("Y-m-d 23:59:59", strtotime("-5 week", strtotime($nextSun)));
+        $fourWeekAgoMon = date("Y-m-d 23:59:59", strtotime("-4 week", strtotime($nextSun)));
+        $threeWeekAgoMon = date("Y-m-d 23:59:59", strtotime("-3 week", strtotime($nextSun)));
+        $twoWeekAgoMon = date("Y-m-d 23:59:59", strtotime("-2 week", strtotime($nextSun)));
+        $oneWeekAgoMon = date("Y-m-d 23:59:59", strtotime("-1 week", strtotime($nextSun)));
         
+        $lastWeekToday = date("Y-m-d", strtotime("-1 week", strtotime(date("Y-m-d"))));
+        $today = date("Y-m-d");
         /*
         echo $nextSun;
         echo "<br>";
@@ -139,6 +141,63 @@ class Reports{
         if($data_array == false){
             $day_data = array();
             $sku_array = array();
+            
+            //********************************************* Today  ***********************************************
+            if(!empty($_GET['sellerId'])){
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,od.quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn like '".$today."%' order by createdOn";
+            }else{
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,od.quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn like '".$today."%' order by createdOn";
+            }
+            
+            $result_1 = mysql_query($sql_1, Reports::$database_connect);
+            while($row_1 = mysql_fetch_assoc($result_1)){
+                if(empty($sku_array[$row_1['skuId']]['sku_id'])){
+                    $sku_array[$row_1['skuId']]['sku_id'] = $row_1['skuId'];
+                    $sku_array[$row_1['skuId']]['item_title'] = $row_1['itemTitle'];
+                }
+                
+                if(empty($sku_array[$row_1['skuId']]['7_'.$row_1['date2'].'_quantity'])){
+                    $sku_array[$row_1['skuId']]['7_'.$row_1['date2'].'_quantity'] = $row_1['quantity'];
+                    
+                    if(empty($sku_array[$row_1['skuId']]['7_total_num'])){
+                        $sku_array[$row_1['skuId']]['7_total_num'] = $row_1['quantity'];
+                    }else{
+                        $sku_array[$row_1['skuId']]['7_total_num'] += $row_1['quantity'];
+                    }
+                    
+                }else{
+                    $sku_array[$row_1['skuId']]['7_'.$row_1['date2'].'_quantity'] += $row_1['quantity'];
+                    $sku_array[$row_1['skuId']]['7_total_num'] += $row_1['quantity'];
+                }
+            }
+            
+            //****************************************************************************************************
+            
+            
+            //********************************************* Last Week Today  *************************************
+            if(!empty($_GET['sellerId'])){
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,od.quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn like '".$lastWeekToday."%' order by createdOn";
+            }else{
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,od.quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn like '".$lastWeekToday."%' order by createdOn";
+            }
+            
+            if(empty($sku_array[$row_1['skuId']]['8_'.$row_1['date2'].'_quantity'])){
+                $sku_array[$row_1['skuId']]['8_'.$row_1['date2'].'_quantity'] = $row_1['quantity'];
+                
+                if(empty($sku_array[$row_1['skuId']]['8_total_num'])){
+                    $sku_array[$row_1['skuId']]['8_total_num'] = $row_1['quantity'];
+                }else{
+                    $sku_array[$row_1['skuId']]['8_total_num'] += $row_1['quantity'];
+                }
+                
+            }else{
+                $sku_array[$row_1['skuId']]['8_'.$row_1['date2'].'_quantity'] += $row_1['quantity'];
+                $sku_array[$row_1['skuId']]['8_total_num'] += $row_1['quantity'];
+            }
+                
+            //****************************************************************************************************
+            
+            $sku_array[$row_1['skuId']]['today_growth_rate'] = (empty($sku_array[$row_1['skuId']]['8_total_num'])?-($sku_array[$row_1['skuId']]['7_total_num'] * 100):((empty($sku_array[$row_1['skuId']]['7_total_num']))?($row_1['skuId']]['7_total_num'] * 100):(($sku_array[$row_1['skuId']]['8_total_num'] - $sku_array[$row_1['skuId']]['7_total_num']) / $sku_array[$row_1['skuId']]['7_total_num'])));
             
             //******************************************  Last 4 Week  *******************************************
             if(!empty($_GET['sellerId'])){
