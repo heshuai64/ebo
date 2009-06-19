@@ -2,7 +2,7 @@ Ext.onReady(function(){
     Ext.BLANK_IMAGE_URL = "../../Ext/2.2/resources/images/default/s.gif";
     
     var cp = new Ext.state.CookieProvider({
-       //path: "/eBayBO/analyze/",
+       path: "/eBayBO/analyze/",
        expires: new Date(new Date().getTime()+(1000*60*60*24*365)) //365 days
        //domain: "127.0.0.1"
     });
@@ -99,24 +99,93 @@ Ext.onReady(function(){
                         xtype: 'textfield',
                         stateful: true,
                         width: 300
-                    }/*,{ text: 'Manage',
+                    },{ text: 'Select',
                         handler: function(){
-
-                            var sellerForm = Ext.FormPanel({
-                                items:[{
-                                    xtype: 'textfield' 
-                                }]
+                            
+                            
+                            var sellerForm = new Ext.FormPanel({
+                                width:280,
+                                defaultType: 'checkbox',
+                                autoHeight: true
                             })
                             
+                            var a = ['easybattery','libra.studio'];
+                            cp.set("sellerArray", a);
+                            //console.log(cp.get("sellerArray"));
                             
-                            var sellerWindow = Ext.Window({
-                                title: 'Manage Seller',
-                                width: 400,
-                                height: 300,
+                            var sellerArray = cp.get("sellerArray");
+                            //console.log(sellerArray);
+
+                            for(i in sellerArray){
+                                if(Ext.type(sellerArray[i]) == "string"){
+                                    var c = new Ext.form.Checkbox({
+                                        fieldLabel: (i==0)?'Seller':'',
+                                        labelSeparator: (i==0)?':':'',
+                                        boxLabel: sellerArray[i],
+                                        name: sellerArray[i]
+                                    })
+                                    sellerForm.add(c);
+                                }
+                            }
+                            
+                            
+                            var sellerWindow = new Ext.Window({
+                                autoScroll: true,
+                                title: 'Select Seller',
+                                width: 300,
+                                height: 400,
                                 items: sellerForm,
                                 plain:true,
                                 layout: 'fit',
                                 buttons: [{
+                                    text:'OK',
+                                    handler: function (){
+                                       console.log(sellerForm.items);
+                                    }
+                                },{
+                                    text:'Add Seller',
+                                    handler: function (){
+                                        var addSellerForm = new Ext.FormPanel({
+                                            autoHeight: true,
+                                            items: [{
+                                                xtype: 'textfield',
+                                                fieldLabel: 'seller',
+                                                name: 'seller'
+                                            }]
+                                        })
+                                        
+                                        var addSellerWindow = new Ext.Window({
+                                            title: 'Add Seller',
+                                            width: 300,
+                                            height: 100,
+                                            items: addSellerForm,
+                                            plain:true,
+                                            layout: 'fit',
+                                            buttons: [{
+                                                text:'OK',
+                                                handler: function (){
+                                                    var seller = addSellerForm.getForm().findField('seller').getValue();
+                                                    var c = new Ext.form.Checkbox({
+                                                        fieldLabel: '',
+                                                        labelSeparator: '',
+                                                        boxLabel: seller,
+                                                        name: seller
+                                                    })
+                                                    sellerForm.add(c);
+                                                    sellerWindow.doLayout();
+                                                    addSellerWindow.close();
+                                                }
+                                            },{
+                                                text:'Close',
+                                                handler: function (){
+                                                   addSellerWindow.close();
+                                                }
+                                            }]
+                                        })
+                                        
+                                        addSellerWindow.show();
+                                    }
+                                },{
                                     text:'Close',
                                     handler: function (){
                                        sellerWindow.close(); 
@@ -126,7 +195,7 @@ Ext.onReady(function(){
                             
                             sellerWindow.show();
                         }
-                    }*/,'-',{
+                    },'-',{
                         xtype: 'tbtext',
                         text: 'Keyword:'
                     },{
