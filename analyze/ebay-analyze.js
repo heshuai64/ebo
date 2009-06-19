@@ -52,6 +52,12 @@ Ext.onReady(function(){
                 }
             }
             
+            function renderListingDays(v, p, r){
+                //console.log(r);
+                //console.log(r.data.endTime.getElapsed(r.data.startTime));
+                return r.data.endTime.getElapsed(r.data.startTime) / (24 * 60 * 60 *1000);
+            }
+            
             var grid = new Ext.grid.GridPanel({
                 title: 'eBay Item Analyze (<font color="red">you want to specify multiple Seller, use a comma.</font>)',
                 autoHeight: true,
@@ -65,11 +71,12 @@ Ext.onReady(function(){
                     {header: "Title", width: 320, align: 'center', sortable: true, dataIndex: 'title'},
                     {header: "Buy It Now", width: 70, align: 'center', sortable: true, dataIndex: 'buyItNowAvailable'},
                     {header: "Price", width: 55, align: 'center', sortable: true, dataIndex: 'currentPrice'},
-                    {header: "shipping Cost", width: 100, align: 'center', sortable: true, dataIndex: 'shippingServiceCost', renderer: renderShippingServiceCost},
-                    {header: "Quantity", width: 60, align: 'center', sortable: true, dataIndex: 'quantity'},
-                    {header: "Sold Quantity", width: 80, align: 'center', sortable: true, dataIndex: 'quantitySold'},
+                    {header: "Shipping Cost", width: 100, align: 'center', sortable: true, dataIndex: 'shippingServiceCost', renderer: renderShippingServiceCost},
+                    {header: "Listing Q", width: 60, align: 'center', sortable: true, dataIndex: 'quantity'},
+                    {header: "Sold Q", width: 60, align: 'center', sortable: true, dataIndex: 'quantitySold'},
                     {header: "Start Time", width: 130, align: 'center', sortable: true, dataIndex: 'startTime'},
                     {header: "End Time", width: 130, align: 'center', sortable: true, dataIndex: 'endTime'},
+                    {header: "Listing Days", width: 80, align: 'center', sortable: true, dataIndex: 'startTime', renderer: renderListingDays},
                     {header: "Type", width: 60, align: 'center', sortable: true, dataIndex: 'listingType'},
                     {header: "Status", width: 60, align: 'center', sortable: true, dataIndex: 'listingStatus'}
                 ],
@@ -109,14 +116,14 @@ Ext.onReady(function(){
                                 autoHeight: true
                             })
                             
-                            var a = ['easybattery','libra.studio'];
-                            cp.set("sellerArray", a);
+                            //var a = ['easybattery','libra.studio'];
+                            //cp.set("sellerArray", a);
                             //console.log(cp.get("sellerArray"));
                             
                             var sellerArray = cp.get("sellerArray");
                             //console.log(sellerArray);
 
-                            for(i in sellerArray){
+                            for(var i in sellerArray){
                                 if(Ext.type(sellerArray[i]) == "string"){
                                     var c = new Ext.form.Checkbox({
                                         fieldLabel: (i==0)?'Seller':'',
@@ -132,15 +139,28 @@ Ext.onReady(function(){
                             var sellerWindow = new Ext.Window({
                                 autoScroll: true,
                                 title: 'Select Seller',
-                                width: 300,
-                                height: 400,
+                                buttonAlign: 'center',
+                                width: 400,
+                                height: 500,
                                 items: sellerForm,
                                 plain:true,
                                 layout: 'fit',
                                 buttons: [{
                                     text:'OK',
                                     handler: function (){
-                                       console.log(sellerForm.items);
+                                        var selectSeller = "";
+                                        for(var i in sellerForm.items.items){
+                                            if(!Ext.isEmpty(sellerForm.items.items[i].name)){
+                                                if(sellerForm.items.items[i].checked == true){
+                                                    selectSeller = selectSeller + sellerForm.items.items[i].name + ",";
+                                                }
+                                                //console.log([sellerForm.items.items[i].name, sellerForm.items.items[i].checked]);
+                                            }
+                                        }
+                                        //console.log(selectSeller);
+                                        selectSeller = selectSeller.substr(0, selectSeller.length-1);
+                                        Ext.getCmp("seller").setValue(selectSeller);
+                                        sellerWindow.close();
                                     }
                                 },{
                                     text:'Add Seller',
@@ -149,7 +169,7 @@ Ext.onReady(function(){
                                             autoHeight: true,
                                             items: [{
                                                 xtype: 'textfield',
-                                                fieldLabel: 'seller',
+                                                fieldLabel: 'Seller',
                                                 name: 'seller'
                                             }]
                                         })
@@ -172,6 +192,16 @@ Ext.onReady(function(){
                                                         name: seller
                                                     })
                                                     sellerForm.add(c);
+              
+                                                    var sellerArray = cp.get("sellerArray");
+                                                    if(Ext.isEmpty(sellerArray)){
+                                                        sellerArray = new Array();
+                                                        sellerArray.push(seller);
+                                                        cp.set("sellerArray", sellerArray);
+                                                    }else{
+                                                        sellerArray.push(seller);
+                                                        cp.set("sellerArray", sellerArray);
+                                                    }
                                                     sellerWindow.doLayout();
                                                     addSellerWindow.close();
                                                 }
@@ -185,6 +215,30 @@ Ext.onReady(function(){
                                         
                                         addSellerWindow.show();
                                     }
+                                },{
+                                    text:'Delete Selected',
+                                    handler: function (){
+                                        for(var i in sellerForm.items.items){
+                                            if(!Ext.isEmpty(sellerForm.items.items[i].name)){
+                                                if(sellerForm.items.items[i].checked == true){
+                                                    var sellerArray = cp.get("sellerArray");
+                                                    for(var j in sellerArray){
+                                                        console.log([sellerForm.items.items[i].name, sellerArray[j]]);
+                                                        if(sellerForm.items.items[i].name == sellerArray[j]){
+                                                            sellerArray[j] = sellerArray[0];
+                                                            sellerArray.shift();
+                                                            sellerForm.items.items[i].destroy();
+                                                        }
+                                                    }
+                                                }
+                                                //console.log([sellerForm.items.items[i].name, sellerForm.items.items[i].checked]);
+                                            }
+                                        }
+                                        console.log(sellerArray);
+                                        cp.set("sellerArray", sellerArray);
+                                        sellerForm.doLayout();
+                                        sellerWindow.doLayout();
+                                    }    
                                 },{
                                     text:'Close',
                                     handler: function (){
@@ -203,6 +257,145 @@ Ext.onReady(function(){
                         name: 'keyword',
                         xtype: 'textfield',
                         width: 150
+                    },{ text: 'Select',
+                        handler: function(){
+                            
+                            var keywordForm = new Ext.FormPanel({
+                                width:280,
+                                defaultType: 'checkbox',
+                                autoHeight: true
+                            })
+                    
+                            
+                            var keywordArray = cp.get("keywordArray");
+                            //console.log(keywordArray);
+
+                            for(var i in keywordArray){
+                                if(Ext.type(keywordArray[i]) == "string"){
+                                    var c = new Ext.form.Checkbox({
+                                        fieldLabel: (i==0)?'KeyWord':'',
+                                        labelSeparator: (i==0)?':':'',
+                                        boxLabel: keywordArray[i],
+                                        name: keywordArray[i]
+                                    })
+                                    keywordForm.add(c);
+                                }
+                            }
+                            
+                            
+                            var keywordWindow = new Ext.Window({
+                                autoScroll: true,
+                                title: 'Select Keyword',
+                                buttonAlign: 'center',
+                                width: 400,
+                                height: 500,
+                                items: keywordForm,
+                                plain:true,
+                                layout: 'fit',
+                                buttons: [{
+                                    text:'OK',
+                                    handler: function (){
+                                        var selectSeller = "";
+                                        for(var i in keywordForm.items.items){
+                                            if(!Ext.isEmpty(keywordForm.items.items[i].name)){
+                                                if(keywordForm.items.items[i].checked == true){
+                                                    selectSeller = selectSeller + keywordForm.items.items[i].name + "%20";
+                                                }
+                                                //console.log([keywordForm.items.items[i].name, keywordForm.items.items[i].checked]);
+                                            }
+                                        }
+                                        //console.log(selectSeller);
+                                        selectSeller = selectSeller.substr(0, selectSeller.length-3);
+                                        Ext.getCmp("keyword").setValue(selectSeller);
+                                        keywordWindow.close();
+                                    }
+                                },{
+                                    text:'Add Keyword',
+                                    handler: function (){
+                                        var addSellerForm = new Ext.FormPanel({
+                                            autoHeight: true,
+                                            items: [{
+                                                xtype: 'textfield',
+                                                fieldLabel: 'Keyword',
+                                                name: 'keyword'
+                                            }]
+                                        })
+                                        
+                                        var addSellerWindow = new Ext.Window({
+                                            title: 'Add Keyword',
+                                            width: 300,
+                                            height: 100,
+                                            items: addSellerForm,
+                                            plain:true,
+                                            layout: 'fit',
+                                            buttons: [{
+                                                text:'OK',
+                                                handler: function (){
+                                                    var keyword = addSellerForm.getForm().findField('keyword').getValue();
+                                                    var c = new Ext.form.Checkbox({
+                                                        fieldLabel: '',
+                                                        labelSeparator: '',
+                                                        boxLabel: keyword,
+                                                        name: keyword
+                                                    })
+                                                    keywordForm.add(c);
+              
+                                                    var keywordArray = cp.get("keywordArray");
+                                                    if(Ext.isEmpty(keywordArray)){
+                                                        keywordArray = new Array();
+                                                        keywordArray.push(keyword);
+                                                        cp.set("keywordArray", keywordArray);
+                                                    }else{
+                                                        keywordArray.push(keyword);
+                                                        cp.set("keywordArray", keywordArray);
+                                                    }
+                                                    keywordWindow.doLayout();
+                                                    addSellerWindow.close();
+                                                }
+                                            },{
+                                                text:'Close',
+                                                handler: function (){
+                                                   addSellerWindow.close();
+                                                }
+                                            }]
+                                        })
+                                        
+                                        addSellerWindow.show();
+                                    }
+                                },{
+                                    text:'Delete Selected',
+                                    handler: function (){
+                                        for(var i in keywordForm.items.items){
+                                            if(!Ext.isEmpty(keywordForm.items.items[i].name)){
+                                                if(keywordForm.items.items[i].checked == true){
+                                                    var keywordArray = cp.get("keywordArray");
+                                                    for(var j in keywordArray){
+                                                        console.log([keywordForm.items.items[i].name, keywordArray[j]]);
+                                                        if(keywordForm.items.items[i].name == keywordArray[j]){
+                                                            keywordArray[j] = keywordArray[0];
+                                                            keywordArray.shift();
+                                                            keywordForm.items.items[i].destroy();
+                                                        }
+                                                    }
+                                                }
+                                                //console.log([keywordForm.items.items[i].name, keywordForm.items.items[i].checked]);
+                                            }
+                                        }
+                                        console.log(keywordArray);
+                                        cp.set("keywordArray", keywordArray);
+                                        keywordForm.doLayout();
+                                        keywordWindow.doLayout();
+                                    }    
+                                },{
+                                    text:'Close',
+                                    handler: function (){
+                                       keywordWindow.close(); 
+                                    }
+                                }]
+                            })
+                            
+                            keywordWindow.show();
+                        }
                     },'-',{
 			xtype: 'tbtext',
                         text: 'End date from:'
