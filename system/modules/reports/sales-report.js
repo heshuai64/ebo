@@ -114,7 +114,7 @@ Ext.onReady(function(){
     
     switch(week){
         case "1":
-            var windowTitle = "1st Week Sales Report";
+            var windowTitle = "Sales report 3rd Week(past)";
             var colModel = new Ext.grid.ColumnModel([
                 //{header: "Title", width: 335, align: 'center', sortable: true, dataIndex: 'item_title'},
                 {header: "SKU", width: 110, align: 'center', sortable: true, dataIndex: 'sku_id'},
@@ -143,7 +143,7 @@ Ext.onReady(function(){
         break;
     
         case "2":
-            var windowTitle = "2nd Week Sales Report";
+            var windowTitle = "Sales report 2nd Week(past)";
             var colModel = new Ext.grid.ColumnModel([
                 //{header: "Title", width: 335, align: 'center', sortable: true, dataIndex: 'item_title'},
                 {header: "SKU", width: 110, align: 'center', sortable: true, dataIndex: 'sku_id'},
@@ -173,7 +173,7 @@ Ext.onReady(function(){
         break;
     
         case "3":
-            var windowTitle = "3rd Week Sales Report";
+            var windowTitle = "Sales report 1st week(past)";
             var colModel = new Ext.grid.ColumnModel([
                 //{header: "Title", width: 335, align: 'center', sortable: true, dataIndex: 'item_title'},
                 {header: "SKU", width: 110, align: 'center', sortable: true, dataIndex: 'sku_id'},
@@ -203,7 +203,7 @@ Ext.onReady(function(){
         break;
     
         case "4":
-            var windowTitle = "4th Week Sales Report";
+            var windowTitle = "Sales report this week";
             var colModel = new Ext.grid.ColumnModel([
                 //{header: "Title", width: 335, align: 'center', sortable: true, dataIndex: 'item_title'},
                 {header: "SKU", width: 110, align: 'center', sortable: true, dataIndex: 'sku_id'},
