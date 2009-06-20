@@ -142,12 +142,42 @@ class Reports{
             $day_data = array();
             $sku_array = array();
             
+            //********************************************* Last Week Today  *************************************
+            if(!empty($_GET['sellerId'])){
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn like '".$lastWeekToday."%' group by od.skuId";
+            }else{
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn like '".$lastWeekToday."%' group by od.skuId";
+            }
+            
+            //echo $sql_1;
+            //echo "<br>";
+            
+            $result_1 = mysql_query($sql_1, Reports::$database_connect);
+            while($row_1 = mysql_fetch_assoc($result_1)){
+               if(empty($sku_array[$row_1['skuId']]['sku_id'])){
+                    $sku_array[$row_1['skuId']]['sku_id'] = $row_1['skuId'];
+                    $sku_array[$row_1['skuId']]['item_title'] = $row_1['itemTitle'];
+                }
+                
+                if(empty($sku_array[$row_1['skuId']]['7_total_num'])){
+                    $sku_array[$row_1['skuId']]['7_total_num'] = $row_1['quantity'];
+                }else{
+                    $sku_array[$row_1['skuId']]['7_total_num'] += $row_1['quantity'];
+                }
+            }
+            
+            //****************************************************************************************************
+            
+            
             //********************************************* Today  ***********************************************
             if(!empty($_GET['sellerId'])){
-                $sql_1 = "select o.id,od.skuId,od.itemTitle,od.quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn like '".$today."%' order by createdOn";
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn like '".$today."%' group by od.skuId";
             }else{
-                $sql_1 = "select o.id,od.skuId,od.itemTitle,od.quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn like '".$today."%' order by createdOn";
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn like '".$today."%' group by od.skuId";
             }
+            
+            //echo $sql_1;
+            //echo "<br>";
             
             $result_1 = mysql_query($sql_1, Reports::$database_connect);
             while($row_1 = mysql_fetch_assoc($result_1)){
@@ -156,48 +186,26 @@ class Reports{
                     $sku_array[$row_1['skuId']]['item_title'] = $row_1['itemTitle'];
                 }
                 
-                if(empty($sku_array[$row_1['skuId']]['7_'.$row_1['date2'].'_quantity'])){
-                    $sku_array[$row_1['skuId']]['7_'.$row_1['date2'].'_quantity'] = $row_1['quantity'];
-                    
-                    if(empty($sku_array[$row_1['skuId']]['7_total_num'])){
-                        $sku_array[$row_1['skuId']]['7_total_num'] = $row_1['quantity'];
-                    }else{
-                        $sku_array[$row_1['skuId']]['7_total_num'] += $row_1['quantity'];
-                    }
-                    
-                }else{
-                    $sku_array[$row_1['skuId']]['7_'.$row_1['date2'].'_quantity'] += $row_1['quantity'];
-                    $sku_array[$row_1['skuId']]['7_total_num'] += $row_1['quantity'];
-                }
-            }
-            
-            //****************************************************************************************************
-            
-            
-            //********************************************* Last Week Today  *************************************
-            if(!empty($_GET['sellerId'])){
-                $sql_1 = "select o.id,od.skuId,od.itemTitle,od.quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn like '".$lastWeekToday."%' order by createdOn";
-            }else{
-                $sql_1 = "select o.id,od.skuId,od.itemTitle,od.quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn like '".$lastWeekToday."%' order by createdOn";
-            }
-            
-            if(empty($sku_array[$row_1['skuId']]['8_'.$row_1['date2'].'_quantity'])){
-                $sku_array[$row_1['skuId']]['8_'.$row_1['date2'].'_quantity'] = $row_1['quantity'];
-                
-                if(empty($sku_array[$row_1['skuId']]['8_total_num'])){
+                 if(empty($sku_array[$row_1['skuId']]['8_total_num'])){
                     $sku_array[$row_1['skuId']]['8_total_num'] = $row_1['quantity'];
                 }else{
                     $sku_array[$row_1['skuId']]['8_total_num'] += $row_1['quantity'];
-                }
+                }    
                 
-            }else{
-                $sku_array[$row_1['skuId']]['8_'.$row_1['date2'].'_quantity'] += $row_1['quantity'];
-                $sku_array[$row_1['skuId']]['8_total_num'] += $row_1['quantity'];
             }
-                
+            
             //****************************************************************************************************
             
-            $sku_array[$row_1['skuId']]['today_growth_rate'] = (empty($sku_array[$row_1['skuId']]['8_total_num'])?-($sku_array[$row_1['skuId']]['7_total_num'] * 100):((empty($sku_array[$row_1['skuId']]['7_total_num']))?($row_1['skuId']]['7_total_num'] * 100):(($sku_array[$row_1['skuId']]['8_total_num'] - $sku_array[$row_1['skuId']]['7_total_num']) / $sku_array[$row_1['skuId']]['7_total_num'])));
+            foreach($sku_array as $key=>$sku){
+                if($sku['8_total_num'] == 0){
+                    $sku_array[$key]['today_growth_rate'] = -($sku['7_total_num'] * 100);
+                }elseif($sku['7_total_num'] == 0){
+                    $sku_array[$key]['today_growth_rate'] = $sku['8_total_num'] * 100;
+                }else{
+                    $sku_array[$key]['today_growth_rate'] = ($sku['8_total_num'] - $sku['7_total_num']) / $sku['7_total_num'] * 100;
+                }
+            }
+            
             
             //******************************************  Last 4 Week  *******************************************
             if(!empty($_GET['sellerId'])){
@@ -421,6 +429,11 @@ class Reports{
         //print_r($data_array);
     }
     
+    public function skuSalesChart(){
+        $StartWeek = date("Y-m-d 23:59:59", strtotime("-8 week", strtotime($nextSun)));
+        $EndWeek = date("Y-m-d 23:59:59", strtotime("-8 week", strtotime($nextSun)));
+    }
+    
     public function __destruct(){
         mysql_close(Reports::$database_connect);
         Reports::$memcache_connect->close();
@@ -437,6 +450,10 @@ switch($_GET['type']){
 
     case "salesReport":
         $t->salesReport();
+    break;
+
+    case "skuSalesChart":
+        $t->skuSalesChart();
     break;
 }
 ?>

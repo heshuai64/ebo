@@ -1,4 +1,5 @@
 Ext.onReady(function(){
+    Ext.BLANK_IMAGE_URL = "../Ext/2.2/resources/images/default/s.gif";
     var salesReportStore = new Ext.data.JsonStore({
         root: 'records',
         totalProperty: 'totalCount',
@@ -8,14 +9,11 @@ Ext.onReady(function(){
         url:'reports.php?type=salesReport&sellerId=' + sellerId
     });
     
-    var renderStar = function(){
-        return "<font color='red'>*</font>";
-    }
-    
     var renderVerticalLine = function(){
         return "<font color='blue'>|</font>";
     }
     
+    /*
     var renderGrowthRate1 = function(v, m, r){
         if(Ext.isEmpty(r.data['0_total_num'])){
             return String.format('<font color="green">{0}%</font>', r.data['1_total_num'] * 100);
@@ -103,6 +101,7 @@ Ext.onReady(function(){
             return String.format('<font color="red">{0}%</font>', grow_rate);
         }
     }
+    */
     
     var renderGrowthRate = function(v, m, r){
         if(v > 0){
@@ -110,6 +109,10 @@ Ext.onReady(function(){
         }else{
             return String.format('<font color="red">{0}%</font>', v);
         }
+    }
+    
+    var renderQuantity = function(v, m, r){
+        
     }
     
     switch(week){
@@ -262,6 +265,8 @@ Ext.onReady(function(){
         break;
     }
     
+    //google.load('visualization', '1', {packages:['imagelinechart']});
+    
     var salesReportGrid = new Ext.grid.GridPanel({
         //id:'button-grid',
         store: salesReportStore,
@@ -280,7 +285,6 @@ Ext.onReady(function(){
                 if(this.showTitle){
                     switch(week){
                         case "1":
-                            
                             p.body = '<p><font color="' + ((record.data['0_growth_rate'] > 0)?'green':'red') + '">' + record.data['0_title'] + '</font><br><font color="' + ((record.data['0_growth_rate'] > 1)?'green':'red') + '">' + record.data['1_title'] +'</font></p>';
                         break;
                         
@@ -293,7 +297,7 @@ Ext.onReady(function(){
                         break;
                         
                         case "4":
-                            p.body = '<p><font color="' + ((record.data['3_growth_rate'] > 0)?'green':'red') + '">' + record.data['3_title'] + '</font><br><font color="' + ((record.data['4_growth_rate'] > 0)?'green':'red') + '">' + record.data['4_title'] +'</font></p>';
+                            p.body = '<p><font color="' + ((record.data['3_growth_rate'] > 0)?'green':'red') + '">' + record.data['3_title'] + '</font><br><font color="' + ((record.data['4_growth_rate'] > 0)?'green':'red') + '">' + record.data['4_title'] +'</font></p><div id="'+record.data['sku_id']+'-chart"></div>';
                         break;
                     }
                     return 'x-grid3-row-expanded';
@@ -311,6 +315,11 @@ Ext.onReady(function(){
                 view.refresh();
             }
         }]
+    })
+    
+    salesReportGrid.on("rowdblclick", function(oGrid){
+        var record = oGrid.getSelectionModel().getSelected();
+        window.open("/eBayBO/skuSalesChart.php?week=" + week + "&sellerId=" + sellerId, "_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=500, height=400");
     })
     
     /*
