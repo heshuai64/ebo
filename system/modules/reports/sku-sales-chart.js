@@ -2,7 +2,7 @@ Ext.onReady(function(){
     Ext.BLANK_IMAGE_URL = "../ext-3.0-rc2/resources/images/default/s.gif";
     var salesReportStore = new Ext.data.JsonStore({
         autoLoad:true,
-        fields: ['date', '1_name', '1_quantity', '1_growth', '2_name', '2_quantity'],
+        fields: ['date', '1_name', '1_quantity', '1_growth', '2_name', '2_quantity', '2_growth', '3_name', '3_quantity', '3_growth', '4_name', '4_quantity', '4_growth'],
         url:'reports.php?type=skuSalesChart&skuId='+skuId+'&week=' + week + '&sellerId=' + sellerId
     })
     

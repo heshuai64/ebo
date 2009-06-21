@@ -451,7 +451,7 @@ class Reports{
             $j = 0;
             $sku_array = array();
             
-            for($i=0; $i<=35; $i++){
+            for($i=35; $i>=0; $i--){
                 $date = date("Y-m-d", $timestamp + ($i * 60 * 60 * 24));
                 //echo $date;
                 //echo "<br>";
@@ -466,73 +466,62 @@ class Reports{
                 while($row = mysql_fetch_assoc($result)){
                     $match = false;
                     //print_r($row);
-                    /*
                     //before 5 week
                     if($row['date1'] >= $$fiveWeekAgoMon && $row['date1'] < $fourWeekAgoMon){
-                        if(empty($sku_array[$row['skuId']]['sku_id'])){
-                            $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
+                        foreach($sku_array as $index=>$sku){
+                            if($row['date2'] == $sku['date']){
+                                $sku_array[$index]['5_name'] = $row['itemTitle'];
+                                $sku_array[$index]['5_quantity'] = $row['quantity'];
+                                $match = true;
+                            }
                         }
                         
-                        $sku_array[$row['skuId']]['0_title'] = $row['itemTitle'];
-                        
-                        if(empty($sku_array[$row['skuId']]['0_'.$row['date2'].'_quantity'])){
-                            $sku_array[$row['skuId']]['0_'.$row['date2'].'_quantity'] = $row['quantity'];
-                            
-                            if(empty($sku_array[$row['skuId']]['0_total_num'])){
-                                $sku_array[$row['skuId']]['0_total_num'] = $row['quantity'];
-                            }else{
-                                $sku_array[$row['skuId']]['0_total_num'] += $row['quantity'];
-                            }
-                            
+                        if($match == true){
+                            continue;
                         }else{
-                            $sku_array[$row['skuId']]['0_'.$row['date2'].'_quantity'] += $row['quantity'];
-                            $sku_array[$row['skuId']]['0_total_num'] += $row['quantity'];
+                            $sku_array[$j]['date'] = $row['date2'];
+                            $sku_array[$j]['5_name'] = $row['itemTitle'];
+                            $sku_array[$j]['5_quantity'] = $row['quantity'];
+                            $j++;
                         }
                     //before 4 week
                     }elseif($row['date1'] >= $fourWeekAgoMon && $row['date1'] < $threeWeekAgoMon){
-                        if(empty($sku_array[$row['skuId']]['sku_id'])){
-                            $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
+                        foreach($sku_array as $index=>$sku){
+                            if($row['date2'] == $sku['date']){
+                                $sku_array[$index]['4_name'] = $row['itemTitle'];
+                                $sku_array[$index]['4_quantity'] = $row['quantity'];
+                                $match = true;
+                            }
                         }
                         
-                        $sku_array[$row['skuId']]['1_title'] = $row['itemTitle'];
-                        
-                        if(empty($sku_array[$row['skuId']]['1_'.$row['date2'].'_quantity'])){
-                            $sku_array[$row['skuId']]['1_'.$row['date2'].'_quantity'] = $row['quantity'];
-                            
-                            if(empty($sku_array[$row['skuId']]['1_total_num'])){
-                                $sku_array[$row['skuId']]['1_total_num'] = $row['quantity'];
-                            }else{
-                                $sku_array[$row['skuId']]['1_total_num'] += $row['quantity'];
-                            }
-                            
+                        if($match == true){
+                            continue;
                         }else{
-                            $sku_array[$row['skuId']]['1_'.$row['date2'].'_quantity'] += $row['quantity'];
-                            $sku_array[$row['skuId']]['1_total_num'] += $row['quantity'];
+                            $sku_array[$j]['date'] = $row['date2'];
+                            $sku_array[$j]['4_name'] = $row['itemTitle'];
+                            $sku_array[$j]['4_quantity'] = $row['quantity'];
+                            $j++;
                         }
                     //before 3 week
                     }elseif($row['date1'] >= $threeWeekAgoMon && $row['date1'] < $twoWeekAgoMon){
-                        if(empty($sku_array[$row['skuId']]['sku_id'])){
-                            $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
+                        foreach($sku_array as $index=>$sku){
+                            if($row['date2'] == $sku['date']){
+                                $sku_array[$index]['3_name'] = $row['itemTitle'];
+                                $sku_array[$index]['3_quantity'] = $row['quantity'];
+                                $match = true;
+                            }
                         }
                         
-                        $sku_array[$row['skuId']]['2_title'] = $row['itemTitle'];
-                         
-                        if(empty($sku_array[$row['skuId']]['2_'.$row['date2'].'_quantity'])){
-                            $sku_array[$row['skuId']]['2_'.$row['date2'].'_quantity'] = $row['quantity'];
-                            
-                            if(empty($sku_array[$row['skuId']]['2_total_num'])){
-                                $sku_array[$row['skuId']]['2_total_num'] = $row['quantity'];
-                            }else{
-                                $sku_array[$row['skuId']]['2_total_num'] += $row['quantity'];
-                            }
-                            
+                        if($match == true){
+                            continue;
                         }else{
-                            $sku_array[$row['skuId']]['2_'.$row['date2'].'_quantity'] += $row['quantity'];
-                            $sku_array[$row['skuId']]['2_total_num'] += $row['quantity'];
+                            $sku_array[$j]['date'] = $row['date2'];
+                            $sku_array[$j]['3_name'] = $row['itemTitle'];
+                            $sku_array[$j]['3_quantity'] = $row['quantity'];
+                            $j++;
                         }
                     //before 2 week
-                    }else*/
-                    if($row['date1'] >= $twoWeekAgoMon && $row['date1'] < $oneWeekAgoMon){
+                    }elseif($row['date1'] >= $twoWeekAgoMon && $row['date1'] < $oneWeekAgoMon){
                         foreach($sku_array as $index=>$sku){
                             if($row['date2'] == $sku['date']){
                                 $sku_array[$index]['2_name'] = $row['itemTitle'];
@@ -576,6 +565,9 @@ class Reports{
                 $temp = array();
                 foreach($sku_array as $sku){
                     $sku['1_growth'] = @(($sku['1_quantity'] - $sku['2_quantity']) / $sku['2_quantity']);
+                    $sku['2_growth'] = @(($sku['2_quantity'] - $sku['3_quantity']) / $sku['3_quantity']);
+                    $sku['3_growth'] = @(($sku['3_quantity'] - $sku['4_quantity']) / $sku['4_quantity']);
+                    $sku['4_growth'] = @(($sku['4_quantity'] - $sku['5_quantity']) / $sku['5_quantity']);
                     $temp[] = $sku;
                 }
             }else{
