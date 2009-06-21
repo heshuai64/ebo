@@ -136,7 +136,7 @@ class Reports{
         */
         
         $timestamp = strtotime($fiveWeekAgoMon);
-        //$data_array = Reports::$memcache_connect->get($timestamp);
+        //$data_array = Reports::$memcache_connect->get("salesReport");
         $data_array = false;
         if($data_array == false){
             $day_data = array();
@@ -196,6 +196,7 @@ class Reports{
             
             //****************************************************************************************************
             
+            //today growth
             foreach($sku_array as $key=>$sku){
                 if($sku['8_total_num'] == 0){
                     $sku_array[$key]['today_growth_rate'] = -($sku['7_total_num'] * 100);
@@ -421,7 +422,7 @@ class Reports{
             }
             
             $data_array = array('totalCount'=>$totalCount, 'records'=>$temp);
-            Reports::$memcache_connect->set($timestamp, $data_array, MEMCACHE_COMPRESSED, 86400);
+            Reports::$memcache_connect->set("salesReport", $data_array, MEMCACHE_COMPRESSED, 86400);
             mysql_free_result($result);
         }
         //print_r($temp);
@@ -430,8 +431,167 @@ class Reports{
     }
     
     public function skuSalesChart(){
-        $StartWeek = date("Y-m-d 23:59:59", strtotime("-8 week", strtotime($nextSun)));
-        $EndWeek = date("Y-m-d 23:59:59", strtotime("-8 week", strtotime($nextSun)));
+        $today = date("D");
+        if($today == "Sun"){
+            $nextSun = date("Y-m-d");
+        }else{
+            $nextSun = date("Y-m-d", strtotime("next Sunday"));
+        }
+        
+        $fiveWeekAgoMon = date("Y-m-d 23:59:59", strtotime("-5 week", strtotime($nextSun)));
+        $fourWeekAgoMon = date("Y-m-d 23:59:59", strtotime("-4 week", strtotime($nextSun)));
+        $threeWeekAgoMon = date("Y-m-d 23:59:59", strtotime("-3 week", strtotime($nextSun)));
+        $twoWeekAgoMon = date("Y-m-d 23:59:59", strtotime("-2 week", strtotime($nextSun)));
+        $oneWeekAgoMon = date("Y-m-d 23:59:59", strtotime("-1 week", strtotime($nextSun)));
+
+        $timestamp = strtotime($fiveWeekAgoMon);
+        //$data_array = Reports::$memcache_connect->get("skuSalesChart");
+        $data_array = false;
+        if($data_array == false){
+            $j = 0;
+            $sku_array = array();
+            
+            for($i=0; $i<=35; $i++){
+                $date = date("Y-m-d", $timestamp + ($i * 60 * 60 * 24));
+                //echo $date;
+                //echo "<br>";
+                if(!empty($_GET['sellerId'])){
+                    $sql = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where od.skuId = '".$_GET['skuId']."' and o.sellerId='".$_GET['sellerId']."' and o.createdOn like '".$date."%' group by skuId order by createdOn";
+                }else{
+                    $sql = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where od.skuId = '".$_GET['skuId']."' and o.createdOn like '".$date."%' group by skuId order by createdOn";    
+                }
+                //echo $sql;
+                //echo "<br>";
+                $result = mysql_query($sql, Reports::$database_connect);
+                while($row = mysql_fetch_assoc($result)){
+                    $match = false;
+                    //print_r($row);
+                    /*
+                    //before 5 week
+                    if($row['date1'] >= $$fiveWeekAgoMon && $row['date1'] < $fourWeekAgoMon){
+                        if(empty($sku_array[$row['skuId']]['sku_id'])){
+                            $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
+                        }
+                        
+                        $sku_array[$row['skuId']]['0_title'] = $row['itemTitle'];
+                        
+                        if(empty($sku_array[$row['skuId']]['0_'.$row['date2'].'_quantity'])){
+                            $sku_array[$row['skuId']]['0_'.$row['date2'].'_quantity'] = $row['quantity'];
+                            
+                            if(empty($sku_array[$row['skuId']]['0_total_num'])){
+                                $sku_array[$row['skuId']]['0_total_num'] = $row['quantity'];
+                            }else{
+                                $sku_array[$row['skuId']]['0_total_num'] += $row['quantity'];
+                            }
+                            
+                        }else{
+                            $sku_array[$row['skuId']]['0_'.$row['date2'].'_quantity'] += $row['quantity'];
+                            $sku_array[$row['skuId']]['0_total_num'] += $row['quantity'];
+                        }
+                    //before 4 week
+                    }elseif($row['date1'] >= $fourWeekAgoMon && $row['date1'] < $threeWeekAgoMon){
+                        if(empty($sku_array[$row['skuId']]['sku_id'])){
+                            $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
+                        }
+                        
+                        $sku_array[$row['skuId']]['1_title'] = $row['itemTitle'];
+                        
+                        if(empty($sku_array[$row['skuId']]['1_'.$row['date2'].'_quantity'])){
+                            $sku_array[$row['skuId']]['1_'.$row['date2'].'_quantity'] = $row['quantity'];
+                            
+                            if(empty($sku_array[$row['skuId']]['1_total_num'])){
+                                $sku_array[$row['skuId']]['1_total_num'] = $row['quantity'];
+                            }else{
+                                $sku_array[$row['skuId']]['1_total_num'] += $row['quantity'];
+                            }
+                            
+                        }else{
+                            $sku_array[$row['skuId']]['1_'.$row['date2'].'_quantity'] += $row['quantity'];
+                            $sku_array[$row['skuId']]['1_total_num'] += $row['quantity'];
+                        }
+                    //before 3 week
+                    }elseif($row['date1'] >= $threeWeekAgoMon && $row['date1'] < $twoWeekAgoMon){
+                        if(empty($sku_array[$row['skuId']]['sku_id'])){
+                            $sku_array[$row['skuId']]['sku_id'] = $row['skuId'];
+                        }
+                        
+                        $sku_array[$row['skuId']]['2_title'] = $row['itemTitle'];
+                         
+                        if(empty($sku_array[$row['skuId']]['2_'.$row['date2'].'_quantity'])){
+                            $sku_array[$row['skuId']]['2_'.$row['date2'].'_quantity'] = $row['quantity'];
+                            
+                            if(empty($sku_array[$row['skuId']]['2_total_num'])){
+                                $sku_array[$row['skuId']]['2_total_num'] = $row['quantity'];
+                            }else{
+                                $sku_array[$row['skuId']]['2_total_num'] += $row['quantity'];
+                            }
+                            
+                        }else{
+                            $sku_array[$row['skuId']]['2_'.$row['date2'].'_quantity'] += $row['quantity'];
+                            $sku_array[$row['skuId']]['2_total_num'] += $row['quantity'];
+                        }
+                    //before 2 week
+                    }else*/
+                    if($row['date1'] >= $twoWeekAgoMon && $row['date1'] < $oneWeekAgoMon){
+                        foreach($sku_array as $index=>$sku){
+                            if($row['date2'] == $sku['date']){
+                                $sku_array[$index]['2_name'] = $row['itemTitle'];
+                                $sku_array[$index]['2_quantity'] = $row['quantity'];
+                                $match = true;
+                            }
+                        }
+                        
+                        if($match == true){
+                            continue;
+                        }else{
+                            $sku_array[$j]['date'] = $row['date2'];
+                            $sku_array[$j]['2_name'] = $row['itemTitle'];
+                            $sku_array[$j]['2_quantity'] = $row['quantity'];
+                            $j++;
+                        }
+                    //before 1 week
+                    }elseif($row['date1'] >= $oneWeekAgoMon){
+                        foreach($sku_array as $index=>$sku){
+                            if($row['date2'] == $sku['date']){
+                                $sku_array[$index]['1_name'] = $row['itemTitle'];
+                                $sku_array[$index]['1_quantity'] = $row['quantity'];
+                                $match = true;
+                            }
+                        }
+                        
+                        if($match == true){
+                            continue;
+                        }else{
+                            $sku_array[$j]['date'] = $row['date2'];
+                            $sku_array[$j]['1_name'] = $row['itemTitle'];
+                            $sku_array[$j]['1_quantity'] = $row['quantity'];
+                            $j++;
+                        }
+                    }
+                }
+                //flush();
+            }
+        
+            if(count($sku_array) > 0){
+                $temp = array();
+                foreach($sku_array as $sku){
+                    $sku['1_growth'] = @(($sku['1_quantity'] - $sku['2_quantity']) / $sku['2_quantity']);
+                    $temp[] = $sku;
+                }
+            }else{
+                $temp = array();
+            }
+            
+            $data_array = $temp;
+            Reports::$memcache_connect->set("skuSalesChart", $data_array, MEMCACHE_COMPRESSED, 86400);
+            mysql_free_result($result);
+            
+            //print_r($temp);
+            
+        }
+        
+        echo json_encode($data_array);
+        
     }
     
     public function __destruct(){
