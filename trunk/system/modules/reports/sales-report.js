@@ -319,7 +319,7 @@ Ext.onReady(function(){
     
     salesReportGrid.on("rowdblclick", function(oGrid){
         var record = oGrid.getSelectionModel().getSelected();
-        window.open("/eBayBO/skuSalesChart.php?week=" + week + "&sellerId=" + sellerId, "_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=500, height=400");
+        window.open("/eBayBO/skuSalesChart.php?skuId="+record.data['sku_id']+"&week=" + week + "&sellerId=" + sellerId, "_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=500, height=400");
     })
     
     /*

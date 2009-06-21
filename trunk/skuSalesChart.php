@@ -9,13 +9,14 @@
         <title>Sku Sales Chart</title>
         
         <!-- EXT JS LIBRARY -->
-        <link rel="stylesheet" type="text/css" href="../Ext/2.2/resources/css/ext-all.css" />
-        <script src="../Ext/2.2/adapter/ext/ext-base.js"></script>
-        <script src="../Ext/2.2/ext-all.js"></script>
-        <script type='text/javascript' src='http://www.google.com/jsapi'></script>
+        <link rel="stylesheet" type="text/css" href="../ext-3.0-rc2/resources/css/ext-all.css" />
+        <script src="../ext-3.0-rc2/adapter/ext/ext-base.js"></script>
+        <script src="../ext-3.0-rc2/ext-all.js"></script>
+        <script src="system/modules/reports/sku-sales-chart.js"></script>
         <script type="text/javascript">
-            var week = "<?=$_GET['week']?>";
-            var sellerId = "<?=$_GET['sellerId']?>";
+                var skuId = "<?=$_GET['skuId']?>";
+                var week = "<?=$_GET['week']?>";
+                var sellerId = "<?=$_GET['sellerId']?>";
         </script>
 </head>
 
