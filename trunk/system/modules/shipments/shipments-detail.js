@@ -29,13 +29,13 @@ Ext.onReady(function(){
                     width: 110,
                     align: 'center',
                     sortable: true
-                },{
+                }/*,{
                     header: "Sku Title",
                     dataIndex: 'skuTitle',
                     width: 200,
                     align: 'center',
                     sortable: true
-                },{
+                }*/,{
                     header: "Item Id",
                     dataIndex: 'itemId',
                     width: 110,
@@ -44,7 +44,7 @@ Ext.onReady(function(){
                 },{
                     header: "Item Title",
                     dataIndex: 'itemTitle',
-                    width: 200,
+                    width: 350,
                     align: 'center',
                     sortable: true
                 },{
@@ -485,7 +485,23 @@ Ext.onReady(function(){
                         name:"shipToPhoneNo"
                       }]
                   }]
-              },{
+              }/*,{
+                        xtype: 'combo',
+                        fieldLabel:"Country",
+                        mode: 'local',
+                        store: new Ext.data.JsonStore({
+                            autoLoad: true,
+                            fields: ['id', 'name'],
+                            url: "connect.php?moduleId=qo-transactions&action=getCountries"
+                        }),
+                        valueField:'id',
+                        displayField:'name',
+                        triggerAction: 'all',
+                        editable: false,
+                        selectOnFocus:true,
+                        name: 'shipToCountry',
+                        hiddenName:'shipToCountry'
+                }*/,{
                         xtype:"textarea",
                         height:50,
                         width:250,
