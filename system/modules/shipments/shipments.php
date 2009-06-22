@@ -319,7 +319,7 @@ class QoShipments {
 		$sql = "select ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry,status from qo_shipments where id = '".$_POST['id']."'";
 		$result = mysql_query($sql);
 		$row = mysql_fetch_assoc($result);
-		$info = "ship shipment success!<br>";
+		$info = "";
 		
 		if($row['status'] == "N"){
 			//get item Id
@@ -346,6 +346,11 @@ class QoShipments {
 				$result_3 = mysql_query($sql_3);
 			}
 			
+			if($result_3){
+				$info .= "ship shipment success!<br>";
+			}else{
+				$info .= "ship shipment failure, please notice admin.<br>";
+			}
 			
 			$sql_4 = "select shipmentsId,skuId,quantity from qo_shipments_detail where shipmentsId = '".$_POST['id']."'";
 			$result_4 = mysql_query($sql_4);
@@ -359,18 +364,19 @@ class QoShipments {
 				}
 			}
 			
-		
+			/*
 			$service_result_2 = $this->sendEmailToBuyer($_POST['id'], $itemId, $sellerId, $row['shipmentMethod'], $row['postalReferenceNo'], $row['shipToName'], $row['shipToEmail'], $row['shipToAddressLine1'], $row['shipToAddressLine2'], $row['shipToCity'], $row['shipToStateOrProvince'], $row['shipToPostalCode'], $row['shipToCountry']);
 			if($service_result_2){
 				$info .= "send email to customer success!<br>";
 			}else{
 				$info .= "send email to customer failure, please notice admin.<br>";
 			}
+			*/
 			
 			//print_r($service_result_2);
 			//$service_result_1 = true;
 			//$service_result_2 = true;
-			if($service_result_1 && $service_result_2){
+			if($result_3 && $service_result_1){
 				echo "{success: true, info:'<font color=\'green\'>".$info."</font>'}"; 
 			}else{
 				echo "{success: false, errors: { reason: '".$info."' }}";
