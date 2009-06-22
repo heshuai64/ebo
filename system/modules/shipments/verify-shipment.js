@@ -3,7 +3,7 @@ Ext.onReady(function(){
             root: 'records',
             totalProperty: 'totalCount',
             idProperty: 'id',
-            fields: ['id', 'skuId', 'skuTitle', 'itemId', 'itemTitle', 'quantity', 'galleryURL'],
+            fields: ['id', 'shipmentMethod', 'skuId', 'skuTitle', 'itemId', 'itemTitle', 'quantity', 'galleryURL'],
             url:'connect.php?moduleId=qo-shipments&action=verifyShipment'
         });
         
@@ -13,6 +13,30 @@ Ext.onReady(function(){
         
         function renderShipmentInfo(v, p, r){
             return String.format(' {0} X {1} <br> {2}', r.data.skuId , r.data.quantity, r.data.itemTitle);
+        }
+        
+        function renderShipmentMethod(v, p, r){
+                switch(v){
+                        case "B":
+                             return "Bulk";   
+                        break;
+                
+                        case "S":
+                               return "SpeedPost";    
+                        break;
+                
+                        case "R":
+                                return "Registered";   
+                        break;
+                
+                        case "U":
+                                return "UPS";   
+                        break;
+                
+                        default:
+                                return "";
+                        break;
+                }
         }
         
         var verifyshipmentGrid = new Ext.grid.EditorGridPanel({
@@ -30,6 +54,12 @@ Ext.onReady(function(){
                     dataIndex: 'skuId',
                     renderer: renderShipmentInfo,
                     width: 450,
+                    align: 'center'
+                },{
+                    header: "Method",
+                    dataIndex: 'shipmentMethod',
+                    renderer: renderShipmentMethod,
+                    width: 100,
                     align: 'center'
                 }]
         });

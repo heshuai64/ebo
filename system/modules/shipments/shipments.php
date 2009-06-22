@@ -197,11 +197,23 @@ class QoShipments {
 	}
 	
 	public function verifyShipment(){
-		$sql = "select sd.id,sd.skuId,sd.skuTitle,sd.itemId,sd.itemTitle,sd.quantity,i.galleryURL from qo_shipments_detail as sd left join qo_items as i on sd.itemId = i.id where sd.shipmentsId ='".$_POST['id']."'";
+		$sql_1 = "select shipmentMethod from qo_shipments where id = '".$_POST['id']."'";
+		$result_1 = mysql_query($sql_1);
+		$row_1 = mysql_fetch_assoc($result_1);
+		
+		$sql = "select sd.id,sd.skuId,sd.skuTitle,sd.itemId,sd.itemTitle,sd.quantity,i.galleryURL from qo_shipments_detail as sd left join qo_items as i on sd.itemId = i.id where sd.shipmentsId = '".$_POST['id']."'";
 		$result = mysql_query($sql);
 		$shipment_detail_array = array();
+		$i = 0;
 		while($row = mysql_fetch_assoc($result)){
-			$shipment_detail_array[] = $row;
+			$shipment_detail_array[$i]['id'] = $row['id'];
+			$shipment_detail_array[$i]['skuId'] = $row['skuId'];
+			$shipment_detail_array[$i]['skuTitle'] = $row['skuTitle'];
+			$shipment_detail_array[$i]['itemId'] = $row['itemId'];
+			$shipment_detail_array[$i]['itemTitle'] = $row['itemTitle'];
+			$shipment_detail_array[$i]['quantity'] = $row['quantity'];
+			$shipment_detail_array[$i]['galleryURL'] = $row['galleryURL'];
+			$shipment_detail_array[$i]['shipmentMethod'] = $row_1['shipmentMethod'];
 			$i++;
 		}
 		echo json_encode(array('totalCount'=>$i, 'records'=>$shipment_detail_array));
