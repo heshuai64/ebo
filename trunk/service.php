@@ -85,75 +85,97 @@ class Service{
         return $array[$sellerId];
     }
     
-    public function sendEmail(){
+    public function sendShipShpmentEmail(){
         //file_put_contents("/tmp/1.log", print_r($_POST, true), FILE_APPEND);
-        $seller = $this->getSellerEmailAccountAndPassword($_REQUEST['sellerId']);
-        $this->log("sendEmail", print_r($seller, true)."<br>");
-        $address =  $_REQUEST['shipToName'].'<br>'.
-                    $_REQUEST['shipToAddressLine1'].'<br>'.
-                    (!empty($_POST['shipToAddressLine2'])?$_REQUEST['shipToAddressLine2'].'<br>':'').
-                    $_REQUEST['shipToCity'].'<br>'.
-                    $_REQUEST['shipToStateOrProvince'].'<br>'.
-                    $_REQUEST['shipToPostalCode'].'<br>'.
-                    $_REQUEST['shipToCountry'].'<br>';
-                                                
-        switch($_REQUEST['shipmentMethod']){
+        //$seller = $this->getSellerEmailAccountAndPassword($_REQUEST['sellerId']);
+        $sql = "select ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where emailStatus = 0 and status = 'S'";
+        $result = mysql_query($sql);
+        while($row = mysql_fetch_assoc($result)){
+            //get item Id
+            $sql_1 = "select itemId from qo_shipments_detail where shipmentsId = '".$_POST['id']."'";
+            $result_1 = mysql_query($sql_1);
+            $itemId = "";
+            while($row_1 = mysql_fetch_assoc($result_1)){
+                    $itemId .= $row_1['itemId'].",";
+            }
+            $itemId = substr($itemId, 0, -1);
             
-            case "B":
-                $toContent = sprintf(self::SHIPPED_BULK_TEMPLET, $_REQUEST['shipToName'], $_REQUEST['itemId'], $address, $seller['email'], $_REQUEST['sellerId']);
-                break;
             
-            case "R":
-                $toContent = sprintf(self::SHIPPED_REGISTERED_TEMPLET, $_REQUEST['shipToName'], $_REQUEST['itemId'], $_REQUEST['postalReferenceNo'], $address, $seller['email'], $_REQUEST['sellerId']);
-                break;
+            //get seller Id
+            $sql_2 = "select sellerId from qo_orders where id = '".$row['ordersId']."'";
+            $result_2 = mysql_query($sql_2);
+            $row_2 = mysql_fetch_assoc($result_2);
+            $sellerId = $row_2['sellerId'];
             
-            case "S":
-                $toContent = sprintf(self::SHIPPED_SPEEDPOST_TEMPLET, $_REQUEST['shipToName'], $_REQUEST['itemId'], $_REQUEST['postalReferenceNo'], $address, $seller['email'], $_REQUEST['sellerId']);
-                break;
             
-            case "U":
+            $this->log("sendEmail", print_r($seller, true)."<br>");
+            $address =  $row['shipToName'].'<br>'.
+                        $row['shipToAddressLine1'].'<br>'.
+                        (!empty($row['shipToAddressLine2'])?$row['shipToAddressLine2'].'<br>':'').
+                        $row['shipToCity'].'<br>'.
+                        $row['shipToStateOrProvince'].'<br>'.
+                        $row['shipToPostalCode'].'<br>'.
+                        $row['shipToCountry'].'<br>';
+                                                    
+            switch($row['shipmentMethod']){
                 
-                break;
-        }
-        
-        //print_r($_POST);
-        include("class/class.phpmailer.php");
-        $mail  = new PHPMailer();
-        $mail->IsSMTP();
-        $mail->SMTPAuth   = true;                  // enable SMTP authentication
-        $mail->SMTPSecure = "ssl";                 // sets the prefix to the servier
-        $mail->Host       = "smtp.gmail.com";      // sets GMAIL as the SMTP server
-        $mail->Port       = 465;                   // set the SMTP port for the GMAIL server
-        
-        $mail->SMTPDebug = true;
-        
-        $mail->Username   = $seller['email'];  // GMAIL username
-        $mail->Password   = $seller['emailPassword'];         // GMAIL password
-        
-        $mail->AddReplyTo($seller['email'], $seller['id']);
-        
-        $mail->From       = $seller['email'];
-        $mail->FromName   = $seller['id'];
-        
-        $mail->Subject    = $_REQUEST['subject'];
-        
-        $mail->Body       = $toContent;                      //HTML Body
-        //$mail->AltBody    = $toContent; // optional, comment out and test
-        $mail->WordWrap   = 50; // set word wrap
-        
-        $mail->MsgHTML($toContent);
-        
-        //$mail->AddAddress($_POST['shipToEmail'], $_POST['shipToName']);
-        $mail->AddAddress("karentina_86@sina.com", "meidgen de");
-        
-        $mail->IsHTML(true); // send as HTML
-        
-        if(!$mail->Send()) {
-            //file_put_contents("/tmp/1.log", $mail->ErrorInfo, FILE_APPEND);
-            echo "Mailer Error: " . $mail->ErrorInfo;
-        } else {
-            echo "send email success";
-            //file_put_contents("/tmp/1.log", "Success!", FILE_APPEND);
+                case "B":
+                    $toContent = sprintf(self::SHIPPED_BULK_TEMPLET, $row['shipToName'], $itemId, $address, $seller['email'], $sellerId);
+                    break;
+                
+                case "R":
+                    $toContent = sprintf(self::SHIPPED_REGISTERED_TEMPLET, $row['shipToName'], $itemId, $row['postalReferenceNo'], $address, $row['shipToEmail'], $sellerId);
+                    break;
+                
+                case "S":
+                    $toContent = sprintf(self::SHIPPED_SPEEDPOST_TEMPLET, $row['shipToName'], $itemId, $row['postalReferenceNo'], $address, $row['shipToEmail'], $sellerId);
+                    break;
+                
+                case "U":
+                    
+                    break;
+            }
+            
+            //print_r($_POST);
+            include("class/class.phpmailer.php");
+            $mail  = new PHPMailer();
+            $mail->IsSMTP();
+            $mail->SMTPAuth   = true;                  // enable SMTP authentication
+            $mail->SMTPSecure = "ssl";                 // sets the prefix to the servier
+            $mail->Host       = "smtp.gmail.com";      // sets GMAIL as the SMTP server
+            $mail->Port       = 465;                   // set the SMTP port for the GMAIL server
+            
+            $mail->SMTPDebug = true;
+            
+            $mail->Username   = $seller['email'];  // GMAIL username
+            $mail->Password   = $seller['emailPassword'];         // GMAIL password
+            
+            $mail->AddReplyTo($seller['email'], $seller['id']);
+            
+            $mail->From       = $seller['email'];
+            $mail->FromName   = $seller['id'];
+            
+            $mail->Subject    = "Shipping status of your order!";
+            
+            $mail->Body       = $toContent;                      //HTML Body
+            //$mail->AltBody    = $toContent; // optional, comment out and test
+            $mail->WordWrap   = 50; // set word wrap
+            
+            $mail->MsgHTML($toContent);
+            
+            //$mail->AddAddress($_POST['shipToEmail'], $_POST['shipToName']);
+            $mail->AddAddress("karentina_86@sina.com", "meidgen de");
+            
+            $mail->IsHTML(true); // send as HTML
+            
+            if(!$mail->Send()) {
+                //file_put_contents("/tmp/1.log", $mail->ErrorInfo, FILE_APPEND);
+                echo "Mailer Error: " . $mail->ErrorInfo;
+            } else {
+                echo "send email success";
+                //file_put_contents("/tmp/1.log", "Success!", FILE_APPEND);
+            }
+            sleep(1);
         }
         //http://127.0.0.1/eBayBO/service.php?action=sendEmail&itemId=350187839239&sellerId=testuser_heshuai04&shipmentMethod=S&postalReferenceNo=&shipToName=Test User&shipToAddressLine1=address&shipToAddressLine2=&shipToCity=city&shipToStateOrProvince=WA&shipToPostalCode=98102&shipToCountry=
     }
