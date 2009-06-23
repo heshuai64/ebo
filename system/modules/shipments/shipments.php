@@ -4,9 +4,14 @@ class QoShipments {
 	private $os;
 	private $inventory_service_address = 'http://192.168.1.169:8080/inventory/service.php';
 	private $email_service_address = 'http://127.0.0.1/eBayBO/service.php';
+	private static $memcache_connect;
+	const MEMCACHE_HOST = '127.0.0.1';
+	const MEMCACHE_PORT = 11211;
 	
 	public function __construct($os){
 		$this->os = $os;
+		QoShipments::$memcache_connect = new Memcache;
+		QoShipments::$memcache_connect->connect(self::MEMCACHE_HOST, self::MEMCACHE_PORT);
 	}
         
         public function searchShipment(){
@@ -397,6 +402,8 @@ class QoShipments {
 			echo "{success: false, errors: { reason: '<font color=\'red\'>Can\'t Ship This Shipment.</font>'}}";
 		}
 	}
+	
+
 }
 
 ?>
