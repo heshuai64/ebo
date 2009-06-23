@@ -87,12 +87,13 @@ class Service{
     
     public function sendShipShpmentEmail(){
         //file_put_contents("/tmp/1.log", print_r($_POST, true), FILE_APPEND);
-        //$seller = $this->getSellerEmailAccountAndPassword($_REQUEST['sellerId']);
-        $sql = "select ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where emailStatus = 0 and status = 'S'";
+        include("class/class.phpmailer.php");
+        
+        $sql = "select id,ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where emailStatus = 0 and status = 'S'";
         $result = mysql_query($sql);
         while($row = mysql_fetch_assoc($result)){
             //get item Id
-            $sql_1 = "select itemId from qo_shipments_detail where shipmentsId = '".$_POST['id']."'";
+            $sql_1 = "select itemId from qo_shipments_detail where shipmentsId = '".$row['id']."'";
             $result_1 = mysql_query($sql_1);
             $itemId = "";
             while($row_1 = mysql_fetch_assoc($result_1)){
@@ -106,9 +107,9 @@ class Service{
             $result_2 = mysql_query($sql_2);
             $row_2 = mysql_fetch_assoc($result_2);
             $sellerId = $row_2['sellerId'];
+            $seller = $this->getSellerEmailAccountAndPassword($sellerId);
             
-            
-            $this->log("sendEmail", print_r($seller, true)."<br>");
+            $this->log("sendShipShpmentEmail", "seller: ".print_r($seller, true)."<br>");
             $address =  $row['shipToName'].'<br>'.
                         $row['shipToAddressLine1'].'<br>'.
                         (!empty($row['shipToAddressLine2'])?$row['shipToAddressLine2'].'<br>':'').
@@ -137,7 +138,7 @@ class Service{
             }
             
             //print_r($_POST);
-            include("class/class.phpmailer.php");
+            
             $mail  = new PHPMailer();
             $mail->IsSMTP();
             $mail->SMTPAuth   = true;                  // enable SMTP authentication
@@ -165,19 +166,29 @@ class Service{
             
             //$mail->AddAddress($_POST['shipToEmail'], $_POST['shipToName']);
             $mail->AddAddress("karentina_86@sina.com", "meidgen de");
+            //$mail->AddAddress("heshuai64@gmail.com", "heshuai");
             
             $mail->IsHTML(true); // send as HTML
             
             if(!$mail->Send()) {
                 //file_put_contents("/tmp/1.log", $mail->ErrorInfo, FILE_APPEND);
-                echo "Mailer Error: " . $mail->ErrorInfo;
+                $this->log("sendShipShpmentEmail", "<font color='red'>Mailer Error: " . $mail->ErrorInfo."</font><br>");
+                echo "Mailer Error: " . $mail->ErrorInfo."!";
+                echo "\n";
             } else {
-                echo "send email success";
+                $sql_3 = "update qo_shipments set emailStatus = 1 where id = '".$row['id']."'";
+                $result_3 = mysql_query($sql_3);
+                $this->log("sendShipShpmentEmail", $sql_3."<br>send email success<br>");
+                echo $row['id']." send email success!";
+                echo "\n";
                 //file_put_contents("/tmp/1.log", "Success!", FILE_APPEND);
             }
+            $this->log("sendShipShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
             sleep(1);
+            //exit;
         }
-        //http://127.0.0.1/eBayBO/service.php?action=sendEmail&itemId=350187839239&sellerId=testuser_heshuai04&shipmentMethod=S&postalReferenceNo=&shipToName=Test User&shipToAddressLine1=address&shipToAddressLine2=&shipToCity=city&shipToStateOrProvince=WA&shipToPostalCode=98102&shipToCountry=
+        //php -q /export/eBayBO/service.php sendShipShpmentEmail
+        //http://heshuai64.3322.org/eBayBO/service.php?action=sendShipShpmentEmail
     }
     
     public function getService($request){
