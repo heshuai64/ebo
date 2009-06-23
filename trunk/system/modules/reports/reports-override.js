@@ -33,7 +33,7 @@ Ext.override(QoDesk.Reports, {
 			    store: new Ext.data.JsonStore({
 				autoLoad: true,
 				fields: ['id', 'name'],
-				url: "connect.php?moduleId=qo-transactions&action=getSeller"
+				url: "connect.php?moduleId=qo-reports&action=getSeller"
 			    }),
 			    valueField:'id',
 			    displayField:'name',
@@ -104,7 +104,7 @@ Ext.override(QoDesk.Reports, {
 			    store: new Ext.data.JsonStore({
 				autoLoad: true,
 				fields: ['id', 'name'],
-				url: "connect.php?moduleId=qo-transactions&action=getSeller"
+				url: "connect.php?moduleId=qo-reports&action=getSeller"
 			    }),
 			    valueField:'id',
 			    displayField:'name',
