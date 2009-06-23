@@ -205,7 +205,7 @@ Ext.onReady(function(){
         var shipmentDetailForm = new Ext.FormPanel({
             autoScroll:true,
             reader:new Ext.data.JsonReader({
-                }, ['id','ordersId','status','shipmentMethod','packedBy','packedOn','shippedBy','shippedOn',
+                }, ['id','ordersId','status','shipmentMethod','shipmentReason','packedBy','packedOn','shippedBy','shippedOn',
                     'remarks','postalReferenceNo','shippingFeeCurrency','shippingFeeValue','shipToName','shipToEmail',
                     'shipToAddressLine1','shipToAddressLine2','shipToCity','shipToStateOrProvince','shipToPostalCode',
                     'shipToCountry','shipToPhoneNo','createdBy','createdOn','modifiedBy','modifiedOn'
@@ -485,23 +485,22 @@ Ext.onReady(function(){
                         name:"shipToPhoneNo"
                       }]
                   }]
-              }/*,{
+              },{
                         xtype: 'combo',
-                        fieldLabel:"Country",
+                        fieldLabel:"Reason",
                         mode: 'local',
-                        store: new Ext.data.JsonStore({
-                            autoLoad: true,
-                            fields: ['id', 'name'],
-                            url: "connect.php?moduleId=qo-transactions&action=getCountries"
+                        store: new Ext.data.SimpleStore({
+                                fields: ['id', 'name'],
+                                data: lang.shipments.shipment_reason
                         }),
                         valueField:'id',
                         displayField:'name',
                         triggerAction: 'all',
                         editable: false,
                         selectOnFocus:true,
-                        name: 'shipToCountry',
-                        hiddenName:'shipToCountry'
-                }*/,{
+                        name: 'shipmentReason',
+                        hiddenName:'shipmentReason'
+                },{
                         xtype:"textarea",
                         height:50,
                         width:250,
