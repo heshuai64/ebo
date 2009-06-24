@@ -1,7 +1,7 @@
 Ext.onReady(function(){
      Ext.BLANK_IMAGE_URL = "../../Ext/2.2/resources/images/default/s.gif";
      
-     var inventory_service_address = "/tracmor/service.php";
+     var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
      
@@ -150,7 +150,7 @@ Ext.onReady(function(){
           }
      });
      
-     var listing_cctivity_tree = new Ext.tree.TreePanel({
+     var listing_activity_tree = new Ext.tree.TreePanel({
           useArrows:true,
           autoScroll:true,
           animate:true,
@@ -193,7 +193,8 @@ Ext.onReady(function(){
                                    store: activity_store,
                                    //autoHeight: true,
                                    autoScroll: true,
-                                   //width: 600,
+                                   width: 600,
+                                   height: 500,
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
                                        {header: "SKU", width: 120, align: 'center', sortable: true, dataIndex: 'SKU'},
@@ -229,8 +230,9 @@ Ext.onReady(function(){
                                    closable: true,
                                    autoScroll:true
                               })
-                              tabPanel.doLayout();
+                              
                               tabPanel.activate('activity-tab');
+                              tabPanel.doLayout();
                          break;
                     
                          case 3:
@@ -247,6 +249,7 @@ Ext.onReady(function(){
           region:'center',
           deferredRender:false,
           activeTab:0,
+          autoScroll: true,
           items:[{
                id:'inventory-tab',
                title: 'Inventory',
@@ -372,7 +375,7 @@ Ext.onReady(function(){
                        }
                    },{
                          title:'Listing Activity',
-                         items:listing_cctivity_tree,
+                         items:listing_activity_tree,
                          border:false,
                          iconCls:'listing-activity',
                          listeners:{
