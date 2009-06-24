@@ -202,9 +202,13 @@ class QoShipments {
 	}
 	
 	public function verifyShipment(){
-		$sql_1 = "select shipmentMethod from qo_shipments where id = '".$_POST['id']."'";
+		$sql_1 = "select ordersId,shipmentMethod from qo_shipments where id = '".$_POST['id']."'";
 		$result_1 = mysql_query($sql_1);
 		$row_1 = mysql_fetch_assoc($result_1);
+		
+		$sql_2 = "select sellerId from qo_orders where id = '".$row_1['ordersId']."'";
+		$result_2 = mysql_query($sql_2);
+		$row_2 = mysql_fetch_assoc($result_2);
 		
 		$sql = "select sd.id,sd.skuId,sd.skuTitle,sd.itemId,sd.itemTitle,sd.quantity,i.galleryURL from qo_shipments_detail as sd left join qo_items as i on sd.itemId = i.id where sd.shipmentsId = '".$_POST['id']."'";
 		$result = mysql_query($sql);
@@ -219,6 +223,7 @@ class QoShipments {
 			$shipment_detail_array[$i]['quantity'] = $row['quantity'];
 			$shipment_detail_array[$i]['galleryURL'] = $row['galleryURL'];
 			$shipment_detail_array[$i]['shipmentMethod'] = $row_1['shipmentMethod'];
+			$shipment_detail_array[$i]['sellerId'] = $row_2['sellerId'];
 			$i++;
 		}
 		echo json_encode(array('totalCount'=>$i, 'records'=>$shipment_detail_array));
