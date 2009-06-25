@@ -1,7 +1,7 @@
 Ext.onReady(function(){
     Ext.BLANK_IMAGE_URL = "../../Ext/2.2/resources/images/default/s.gif";
     //var categoryPath = "";
-    
+    var today = new Date();
     var pictureForm = new Ext.form.FormPanel({
             labelAlign:"top",
             border: false,
@@ -111,8 +111,7 @@ Ext.onReady(function(){
     
     var itemForm = new Ext.form.FormPanel({
         labelAlign:"top",
-        autoScroll:true,
-        height: 600,
+        //height: 600,
         items:[{
             layout:"column",
             items:[{
@@ -726,12 +725,45 @@ Ext.onReady(function(){
                       }]
                   },{
                     xtype:"panel",
-                    title:"Inventory Information",
+                    //title:"Inventory Information",
                     layout:"form",
                     items:[{
-                        xtype:"textfield",
-                        fieldLabel:"SKU",
-                        name:"SKU"
+                            title: "Schedule",
+                            layout:"column",
+                            items:[{
+                                columnWidth:0.2,
+                                layout:"form",
+                                border: false,
+                                items:[{
+                                    xtype:"datefield",
+                                    fieldLabel:"Date",
+                                    name:"ScheduleDate",
+                                    minValue: today.format("Y-m-d"),
+                                    format : 'Y-m-d'
+                                }]
+                            },{
+                                columnWidth:0.8,
+                                layout:"form",
+                                border: false,
+                                items:[{
+                                    xtype:"timefield",
+                                    fieldLabel:"Time",
+                                    name:"ScheduleTime",
+                                    width: 120,
+                                    listWidth: 120,
+                                    triggerAction: "all",
+                                    selectOnFocus: true,
+                                    increment: 60,
+                                    editable: false,
+                                    format: 'H:i'
+                                }]
+                            }]
+                        },{
+                            xtype:"textfield",
+                            fieldLabel:"<font color='red'>SKU</font>",
+                            name:"SKU",
+                            value: sku,
+                            readOnly: true
                       }]
                   }]
               },{
@@ -1237,6 +1269,7 @@ Ext.onReady(function(){
     
     var itemPanel = new Ext.Panel({
         autoScroll: true,
+        height:750,
         items: itemForm
     })
     

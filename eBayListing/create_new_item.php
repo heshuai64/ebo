@@ -7,6 +7,9 @@
     <script src="../../Ext/2.2/adapter/ext/ext-base.js"></script>
     <script src="../../Ext/2.2/ext-all.js"></script>
     <script src="item.js"></script>
+    <script type="text/javascript">
+            var sku = "<?=$_GET['id']?>";
+    </script>
     <style type="text/css">
 	html, body {
             font:normal 12px verdana;

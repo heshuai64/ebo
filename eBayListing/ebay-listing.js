@@ -1,7 +1,7 @@
 Ext.onReady(function(){
      Ext.BLANK_IMAGE_URL = "../../Ext/2.2/resources/images/default/s.gif";
      
-     var inventory_service_address = "/inventory/service.php";
+     var inventory_service_address = "/einv2/service.php";
      Ext.QuickTips.init();
      Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
      
@@ -121,7 +121,7 @@ Ext.onReady(function(){
      inventory_grid.on("rowdblclick", function(oGrid){
           var oRecord = oGrid.getSelectionModel().getSelected();
           //console.log(oRecord);
-          window.open("/eBayBO/eBayListing/create_new_item.php?id="+oRecord.data['inventory_model_code'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");
+          window.open("/eBayBO/eBayListing/create_new_item.php?id="+oRecord.data['inventory_model_code'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
      })
      
      var inventory_categories_tree = new Ext.tree.TreePanel({
@@ -192,9 +192,9 @@ Ext.onReady(function(){
                                    //title: 'Waiting To Upload SKU List',
                                    store: activity_store,
                                    //autoHeight: true,
-                                   autoScroll: true,
-                                   width: 600,
-                                   height: 500,
+                                   //autoScroll: true,
+                                   //width: 600,
+                                   //height: 500,
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
                                        {header: "SKU", width: 120, align: 'center', sortable: true, dataIndex: 'SKU'},
