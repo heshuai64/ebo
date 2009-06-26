@@ -43,6 +43,7 @@ Ext.onReady(function(){
                 autoHeight: true,
                 store: verifyshipmentStore,
                 selModel: new Ext.grid.RowSelectionModel({}),
+                loadMask: new Ext.LoadMask(Ext.getBody(), {msg:"Please wait..."}),
                 columns:[{
                     header: "Image",
                     dataIndex: 'galleryURL',
