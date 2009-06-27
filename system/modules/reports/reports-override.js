@@ -121,7 +121,7 @@ Ext.override(QoDesk.Reports, {
 			    handler: function(){
 				var sellerId = document.getElementById("sellerId").value;
 				
-				for(var i=1;i<6;i++){
+				for(var i=1;i<5;i++){
 				    setTimeout('window.open("/eBayBO/salesReport.php?week='+i+'&sellerId='+sellerId+'", "_blank", "toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=700")',i * 5000);
 				}
 				
