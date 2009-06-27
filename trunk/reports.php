@@ -98,6 +98,8 @@ class Reports{
     }
     
     public function salesReport(){
+        #test use
+        //select od.quantity,o.sellerId,o.createdOn from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where od.skuId = 'LB00027';
         
         //$fourWeekAgo = date("Y-m-d", strtotime("last Monday", strtotime(date("Y-m-d", strtotime("-4 week")))));
         //$fourWeekAgo = date("Y-m-d", strtotime("-4 week"));
@@ -115,8 +117,13 @@ class Reports{
         $twoWeekAgoMon = date("Y-m-d 23:59:59", strtotime("-2 week", strtotime($nextSun)));
         $oneWeekAgoMon = date("Y-m-d 23:59:59", strtotime("-1 week", strtotime($nextSun)));
         
-        $lastWeekToday = date("Y-m-d", strtotime("-1 week", strtotime(date("Y-m-d"))));
-        $today = date("Y-m-d");
+        //$today = date("Y-m-d");
+        //$lastWeekToday = date("Y-m-d", strtotime("-1 week", strtotime($today)));
+        
+        
+        $yesterday = date("Y-m-d", strtotime("yesterday"));
+        $lastWeekYesterday = date("Y-m-d", strtotime("-1 week", strtotime($yesterday)));
+        
         /*
         echo $nextSun;
         echo "<br>";
@@ -142,11 +149,11 @@ class Reports{
             $day_data = array();
             $sku_array = array();
             
-            //********************************************* Last Week Today  *************************************
+            //********************************************* Last Week Yesterday  *************************************
             if(!empty($_GET['sellerId'])){
-                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn like '".$lastWeekToday."%' group by od.skuId";
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn like '".$lastWeekYesterday."%' group by od.skuId";
             }else{
-                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn like '".$lastWeekToday."%' group by od.skuId";
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn like '".$lastWeekYesterday."%' group by od.skuId";
             }
             
             //echo $sql_1;
@@ -169,11 +176,11 @@ class Reports{
             //****************************************************************************************************
             
             
-            //********************************************* Today  ***********************************************
+            //********************************************* Yesterday  ***********************************************
             if(!empty($_GET['sellerId'])){
-                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn like '".$today."%' group by od.skuId";
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn like '".$yesterday."%' group by od.skuId";
             }else{
-                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn like '".$today."%' group by od.skuId";
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn like '".$yesterday."%' group by od.skuId";
             }
             
             //echo $sql_1;
@@ -199,11 +206,13 @@ class Reports{
             //today growth
             foreach($sku_array as $key=>$sku){
                 if($sku['8_total_num'] == 0){
-                    $sku_array[$key]['today_growth_rate'] = -($sku['7_total_num'] * 100);
+                    $sku_array[$key]['yesterday_growth_rate'] = -($sku['7_total_num'] * 100);
                 }elseif($sku['7_total_num'] == 0){
-                    $sku_array[$key]['today_growth_rate'] = $sku['8_total_num'] * 100;
+                    $sku_array[$key]['yesterday_growth_rate'] = $sku['8_total_num'] * 100;
+                }elseif($sku['7_total_num'] != 0 && $sku['8_total_num'] != 0){
+                    $sku_array[$key]['yesterday_growth_rate'] = ($sku['8_total_num'] - $sku['7_total_num']) / $sku['7_total_num'] * 100;
                 }else{
-                    $sku_array[$key]['today_growth_rate'] = ($sku['8_total_num'] - $sku['7_total_num']) / $sku['7_total_num'] * 100;
+                    $sku_array[$key]['yesterday_growth_rate'] = 0;
                 }
             }
             
@@ -422,7 +431,7 @@ class Reports{
             }
             
             $data_array = array('totalCount'=>$totalCount, 'records'=>$temp);
-            Reports::$memcache_connect->set("salesReport", $data_array, MEMCACHE_COMPRESSED, 86400);
+            Reports::$memcache_connect->set("salesReport", $data_array, MEMCACHE_COMPRESSED, 43200);
             mysql_free_result($result);
         }
         //print_r($temp);
@@ -575,7 +584,7 @@ class Reports{
             }
             
             $data_array = $temp;
-            Reports::$memcache_connect->set("skuSalesChart", $data_array, MEMCACHE_COMPRESSED, 86400);
+            Reports::$memcache_connect->set("skuSalesChart", $data_array, MEMCACHE_COMPRESSED, 43200);
             mysql_free_result($result);
             
             //print_r($temp);

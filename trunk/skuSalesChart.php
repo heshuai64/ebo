@@ -12,7 +12,7 @@
         <link rel="stylesheet" type="text/css" href="../ext-3.0-rc2/resources/css/ext-all.css" />
         <script src="../ext-3.0-rc2/adapter/ext/ext-base.js"></script>
         <script src="../ext-3.0-rc2/ext-all.js"></script>
-        <script src="system/modules/reports/sku-sales-chart.js"></script>
+        <script src="system/modules/reports/sku-sales-chart-min.js"></script>
         <script type="text/javascript">
                 var skuId = "<?=$_GET['skuId']?>";
                 var week = "<?=$_GET['week']?>";

@@ -5,7 +5,7 @@ Ext.onReady(function(){
         totalProperty: 'totalCount',
         idProperty: 'sku_id',
         autoLoad:true,
-        fields: ['sku_id', '0_title', '0_Mon_quantity', '0_Tue_quantity', '0_Wed_quantity', '0_Thu_quantity', '0_Fri_quantity', '0_Sat_quantity', '0_Sun_quantity', '0_total_num', '1_title', '1_Mon_quantity', '1_Tue_quantity', '1_Wed_quantity', '1_Thu_quantity', '1_Fri_quantity', '1_Sat_quantity', '1_Sun_quantity', '1_total_num', '1_growth_rate', '2_title', '2_Mon_quantity', '2_Tue_quantity', '2_Wed_quantity', '2_Thu_quantity', '2_Fri_quantity', '2_Sat_quantity', '2_Sun_quantity', '2_total_num', '2_growth_rate', '3_Mon_quantity', '3_title', '3_Tue_quantity', '3_Wed_quantity', '3_Thu_quantity', '3_Fri_quantity', '3_Sat_quantity', '3_Sun_quantity', '3_total_num', '3_growth_rate', '4_title', '4_Mon_quantity', '4_Tue_quantity', '4_Wed_quantity', '4_Thu_quantity', '4_Fri_quantity', '4_Sat_quantity', '4_Sun_quantity', '4_total_num', '4_growth_rate', '5_Mon_quantity', '5_Tue_quantity', '5_Wed_quantity', '5_Thu_quantity', '5_Fri_quantity', '5_Sat_quantity', '5_Sun_quantity', '5_total_num', '5_growth_rate', '6_Mon_quantity', '6_Tue_quantity', '6_Wed_quantity', '6_Thu_quantity', '6_Fri_quantity', '6_Sat_quantity', '6_Sun_quantity', '6_total_num'],
+        fields: ['sku_id', '0_title', '0_Mon_quantity', '0_Tue_quantity', '0_Wed_quantity', '0_Thu_quantity', '0_Fri_quantity', '0_Sat_quantity', '0_Sun_quantity', '0_total_num', '1_title', '1_Mon_quantity', '1_Tue_quantity', '1_Wed_quantity', '1_Thu_quantity', '1_Fri_quantity', '1_Sat_quantity', '1_Sun_quantity', '1_total_num', '1_growth_rate', '2_title', '2_Mon_quantity', '2_Tue_quantity', '2_Wed_quantity', '2_Thu_quantity', '2_Fri_quantity', '2_Sat_quantity', '2_Sun_quantity', '2_total_num', '2_growth_rate', '3_Mon_quantity', '3_title', '3_Tue_quantity', '3_Wed_quantity', '3_Thu_quantity', '3_Fri_quantity', '3_Sat_quantity', '3_Sun_quantity', '3_total_num', '3_growth_rate', '4_title', '4_Mon_quantity', '4_Tue_quantity', '4_Wed_quantity', '4_Thu_quantity', '4_Fri_quantity', '4_Sat_quantity', '4_Sun_quantity', '4_total_num', '4_growth_rate', 'yesterday_growth_rate', '5_Mon_quantity', '5_Tue_quantity', '5_Wed_quantity', '5_Thu_quantity', '5_Fri_quantity', '5_Sat_quantity', '5_Sun_quantity', '5_total_num', '5_growth_rate', '6_Mon_quantity', '6_Tue_quantity', '6_Wed_quantity', '6_Thu_quantity', '6_Fri_quantity', '6_Sat_quantity', '6_Sun_quantity', '6_total_num'],
         url:'reports.php?type=salesReport&sellerId=' + sellerId
     });
     
@@ -218,8 +218,8 @@ Ext.onReady(function(){
                 {header: "Fri", width: 45, align: 'center', sortable: true, dataIndex: '3_Fri_quantity'},
                 {header: "Sat", width: 45, align: 'center', sortable: true, dataIndex: '3_Sat_quantity'},
                 {header: "Sun", width: 45, align: 'center', sortable: true, dataIndex: '3_Sun_quantity'},
-                {header: "Last Total", width: 65, align: 'center', sortable: true, dataIndex: '3_total_num'},
-                {header: "Last Growth", width: 70, align: 'center', sortable: true, dataIndex: '3_growth_rate', renderer: renderGrowthRate},
+                {header: "L T", width: 65, align: 'center', sortable: true, dataIndex: '3_total_num'},
+                {header: "L G", width: 70, align: 'center', sortable: true, dataIndex: '3_growth_rate', renderer: renderGrowthRate},
                 
                 {header: "|", width: 10, align: 'center', dataIndex: '3_total_num', renderer: renderVerticalLine},
                 
@@ -230,8 +230,9 @@ Ext.onReady(function(){
                 {header: "Fri", width: 45, align: 'center', sortable: true, dataIndex: '4_Fri_quantity'},
                 {header: "Sat", width: 45, align: 'center', sortable: true, dataIndex: '4_Sat_quantity'},
                 {header: "Sun", width: 45, align: 'center', sortable: true, dataIndex: '4_Sun_quantity'},
-                {header: "This Total", width: 65, align: 'center', sortable: true, dataIndex: '4_total_num'},
-                {header: "This Growth", width: 70, align: 'center', sortable: true, dataIndex: '4_growth_rate', renderer: renderGrowthRate}
+                {header: "T T", width: 65, align: 'center', sortable: true, dataIndex: '4_total_num'},
+                {header: "T G", width: 70, align: 'center', sortable: true, dataIndex: '4_growth_rate', renderer: renderGrowthRate},
+                {header: "Y G", width: 45, align: 'center', sortable: true, dataIndex: 'yesterday_growth_rate', renderer: renderGrowthRate}
             ]);
         break;
     
