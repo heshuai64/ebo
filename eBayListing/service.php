@@ -18,7 +18,7 @@ class eBayListing{
     
     public function __construct(){
 	session_start();
-	$_SESSION['account_id'] = 2;
+	$_SESSION['account_id'] = 1;
 	
         eBayListing::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
 
