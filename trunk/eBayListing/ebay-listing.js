@@ -1,7 +1,7 @@
 Ext.onReady(function(){
      Ext.BLANK_IMAGE_URL = "../../Ext/2.2/resources/images/default/s.gif";
      
-     var inventory_service_address = "/einv2/service.php";
+     var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
      
@@ -255,7 +255,7 @@ Ext.onReady(function(){
                title: 'Inventory',
                iconCls: 'inventory',
                items: [inventory_search_form, inventory_grid],
-               closable: true,
+               //closable: true,
                autoScroll:true
           }]
      })

@@ -149,8 +149,8 @@ Ext.onReady(function(){
                                 id:"category",
                                 xtype:"combo",
                                 fieldLabel:"Category",
-                                name:"combovalue",
-                                hiddenName:"combovalue",
+                                //name:"combovalue",
+                                //hiddenName:"combovalue",
                                 width: 600,
                                 listWidth: 600
                             }]
@@ -237,8 +237,8 @@ Ext.onReady(function(){
                                 id:"SCategory",
                                 xtype:"combo",
                                 fieldLabel:"2nd Category",
-                                name:"combovalue",
-                                hiddenName:"combovalue",
+                                //name:"combovalue",
+                                //hiddenName:"combovalue",
                                 width: 600,
                                 listWidth: 600
                             }]
@@ -325,8 +325,8 @@ Ext.onReady(function(){
                                 id:"storeCategory",
                                 xtype:"combo",
                                 fieldLabel:"Store Category",
-                                name:"combovalue",
-                                hiddenName:"combovalue",
+                                //name:"combovalue",
+                                //hiddenName:"combovalue",
                                 width: 600,
                                 listWidth: 600
                             }]
@@ -413,8 +413,8 @@ Ext.onReady(function(){
                                 id:"SStoreCategory",
                                 xtype:"combo",
                                 fieldLabel:"2nd Store Category",
-                                name:"combovalue",
-                                hiddenName:"combovalue",
+                                //name:"combovalue",
+                                //hiddenName:"combovalue",
                                 width: 600,
                                 listWidth: 600
                             }]
@@ -837,6 +837,7 @@ Ext.onReady(function(){
                               }]
                         }],
                         cls: 'my-fieldset',
+                        style: 'margin: 10px;',
                         listeners: {
                             render: function(c){
                                 var combo = new Ext.form.ComboBox({
@@ -1012,6 +1013,7 @@ Ext.onReady(function(){
                               }]
                         }],
                         cls: 'my-fieldset',
+                        style: 'margin: 10px;',
                         listeners: {
                             render: function(c){
                                 var combo = new Ext.form.ComboBox({
@@ -1020,10 +1022,11 @@ Ext.onReady(function(){
                                         editable: false,
                                         width: 150,
                                         listWidth: 150,
+                                        name: 'shippingType',
                                         listeners: {
                                             "select": function(c, r, i){
-                                                //console.log(r);
-                                                shippingServiceStore.load({params: {InternationalService: 0, serviceType: r.data.text}});
+                                                //console.log(c);
+                                                shippingServiceStore.load({params: {InternationalService: 0, serviceType: c.value}});
                                             }
                                         }
                                 });
@@ -1154,6 +1157,7 @@ Ext.onReady(function(){
                               }]
                         }],
                         cls: 'my-fieldset',
+                        style: 'margin: 10px;',
                         listeners: {
                             render: function(c){
                                 var combo = new Ext.form.ComboBox({
@@ -1165,7 +1169,7 @@ Ext.onReady(function(){
                                         listeners: {
                                             "select": function(c, r, i){
                                                 //console.log(r);
-                                                shippingServiceStore.load({params: {InternationalService: 1, serviceType: r.data.text}});
+                                                shippingServiceStore.load({params: {InternationalService: 1, serviceType: c.value}});
                                             }
                                         }
                                 });
@@ -1184,7 +1188,7 @@ Ext.onReady(function(){
                         xtype:"fieldset",
                         title:"PayPal",
                         autoHeight:true,
-                        style: 'padding:0px',
+                        style: 'margin: 10px;',
                         items:[{
                             xtype:"checkbox",
                             labelSeparator: '',
@@ -1269,7 +1273,7 @@ Ext.onReady(function(){
     
     var itemPanel = new Ext.Panel({
         autoScroll: true,
-        height:750,
+        //height:750,
         items: itemForm
     })
     
