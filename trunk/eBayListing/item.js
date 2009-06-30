@@ -1,5 +1,5 @@
 Ext.onReady(function(){
-    Ext.BLANK_IMAGE_URL = "../../Ext/2.2/resources/images/default/s.gif";
+    Ext.BLANK_IMAGE_URL = "../../ext-3.0-rc2/resources/images/default/s.gif";
     //var categoryPath = "";
     var today = new Date();
     var pictureForm = new Ext.form.FormPanel({
@@ -108,11 +108,27 @@ Ext.onReady(function(){
     })
     
     
-    
+    //---------------------------------------------------------------------------------------------------------
     var itemForm = new Ext.form.FormPanel({
         labelAlign:"top",
         //height: 600,
         items:[{
+                xtype:"combo",
+                labelAlign:"left",
+                fieldLabel:"Duration",
+                mode: 'local',
+                store: listingDurationStore,
+                valueField:'id',
+                displayField:'name',
+                triggerAction: 'all',
+                editable: false,
+                selectOnFocus:true,
+                //listWidth: 156,
+                //width: 156,
+                name: 'ListingDuration',
+                //allowBlank: false,
+                hiddenName:'ListingDuration' 
+            },{
             layout:"column",
             items:[{
                 columnWidth:0.7,
@@ -1264,7 +1280,7 @@ Ext.onReady(function(){
                     })
                 }
             },{
-                text: "Canel",
+                text: "Close",
                 handler: function(){
                     
                 }
