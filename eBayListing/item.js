@@ -744,36 +744,104 @@ Ext.onReady(function(){
                     //title:"Inventory Information",
                     layout:"form",
                     items:[{
-                            title: "Schedule",
-                            layout:"column",
-                            items:[{
-                                columnWidth:0.2,
-                                layout:"form",
-                                border: false,
+                                /*
                                 items:[{
                                     xtype:"datefield",
                                     fieldLabel:"Date",
                                     name:"ScheduleDate",
+                                    width: 90,
+                                    listWidth: 90,
                                     minValue: today.format("Y-m-d"),
                                     format : 'Y-m-d'
-                                }]
-                            },{
-                                columnWidth:0.8,
-                                layout:"form",
-                                border: false,
-                                items:[{
+                                },{
                                     xtype:"timefield",
                                     fieldLabel:"Time",
                                     name:"ScheduleTime",
-                                    width: 120,
-                                    listWidth: 120,
+                                    width: 90,
+                                    listWidth: 90,
                                     triggerAction: "all",
                                     selectOnFocus: true,
                                     increment: 60,
                                     editable: false,
-                                    format: 'H:i'
+                                    format: 'H:i' 
                                 }]
-                            }]
+                                */
+                                xtype:"panel",
+                                title:"Schedule",
+                                items:[{
+                                    layout:"table",
+                                    layoutConfig:{
+                                      columns:25
+                                    },
+                                    defaults:{
+                                      width:26
+                                    },
+                                    //width:600,
+                                    items:[{
+                                        width: 60,
+                                        html:"Mon",
+                                        border: false
+                                      },{
+                                        html:"12<br>am",
+                                        bodyStyle:"cursor:pointer;",
+                                        listeners: {
+                                            render: function(t){
+                                                t.body.on('click', function(e, d){
+                                                    console.log(this);
+                                                    //this.body.setStyle("cursor:pointer;background-color:red;");
+                                                    this.bodyStyle = "cursor:pointer;background-color:red;";
+                                                    this.doLayout();
+                                                }, this)
+                                            }
+                                        }
+                                      },{
+                                        html:"1<br>am"
+                                      },{
+                                        html:"2<br>am"
+                                      },{
+                                        html:"3<br>am"
+                                      },{
+                                        html:"4<br>am"
+                                      },{
+                                        html:"5<br>am"
+                                      },{
+                                        html:"6<br>am"
+                                      },{
+                                        html:"7<br>am"
+                                      },{
+                                        html:"8<br>am"
+                                      },{
+                                        html:"9<br>am"
+                                      },{
+                                        html:"10<br>am"
+                                      },{
+                                        html:"11<br>am"
+                                      },{
+                                        html:"12<br>am"
+                                      },{
+                                        html:"1<br>pm"
+                                      },{
+                                        html:"2<br>pm"
+                                      },{
+                                        html:"3<br>pm"
+                                      },{
+                                        html:"4<br>pm"
+                                      },{
+                                        html:"5<br>pm"
+                                      },{
+                                        html:"6<br>pm"
+                                      },{
+                                        html:"7<br>pm"
+                                      },{
+                                        html:"8<br>pm"
+                                      },{
+                                        html:"9<br>pm"
+                                      },{
+                                        html:"10<br>pm"
+                                      },{
+                                        html:"11<br>pm"
+                                      }]
+                                }]
                         },{
                             xtype:"textfield",
                             fieldLabel:"<font color='red'>SKU</font>",
