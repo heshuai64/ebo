@@ -121,7 +121,7 @@ Ext.onReady(function(){
      inventory_grid.on("rowdblclick", function(oGrid){
           var oRecord = oGrid.getSelectionModel().getSelected();
           //console.log(oRecord);
-          window.open("/eBayBO/eBayListing/create_new_item.php?id="+oRecord.data['inventory_model_code'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+          window.open("/eBayBO/eBayListing/item.php?id="+oRecord.data['inventory_model_code'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
      })
      
      var inventory_categories_tree = new Ext.tree.TreePanel({
