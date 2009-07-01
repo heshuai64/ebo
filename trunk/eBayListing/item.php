@@ -18,7 +18,10 @@
             border:0 none;
         }
 	.my-fieldset .x-fieldset-header .x-fieldset-header-text {float: left; padding: 5px 5px 0 0;}
-	.my-fieldset .x-fieldset-header .x-form-field-wrap {float: left;}	
+	.my-fieldset .x-fieldset-header .x-form-field-wrap {float: left;}
+        .schedule-time{
+            cursor:pointer;
+        }
     </style>
 <body>
     <!-- Insert your content here -->
