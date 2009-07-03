@@ -109,7 +109,7 @@ Ext.onReady(function(){
     
     
     var schedule = new Ext.Panel({                              
-        title:"Schedule",
+        //title:"Schedule",
         layout:"table",
         layoutConfig:{
           columns:25
@@ -1078,42 +1078,59 @@ Ext.onReady(function(){
                       }]
                   },{
                     xtype:"panel",
-                    //title:"Inventory Information",
+                    title:"Schedule",
                     layout:"form",
-                    items:[
-                                /*
-                                items:[{
-                                    xtype:"datefield",
-                                    fieldLabel:"Date",
-                                    name:"ScheduleDate",
+                    //labelAlign:"left",
+                    //labelPad:0,
+                    items:[{
+                            layout:"column",
+                            border:false,
+                            items:[{
+                                columnWidth:0.5,
+                                layout:"form",
+                                defaults:{
                                     width: 90,
-                                    listWidth: 90,
-                                    minValue: today.format("Y-m-d"),
-                                    format : 'Y-m-d'
-                                },{
-                                    xtype:"timefield",
-                                    fieldLabel:"Time",
-                                    name:"ScheduleTime",
+                                    listWidth: 90
+                                },
+                                border:false,
+                                items:[{xtype:"datefield",
+                                        fieldLabel:"Start Date",
+                                        name:"ScheduleStartDate",
+                                        minValue: today.format("Y-m-d"),
+                                        triggerAction: 'all',
+                                        editable: false,
+                                        selectOnFocus:true,
+                                        format : 'Y-m-d'
+                                    }]
+                            },{
+                                columnWidth:0.5,
+                                layout:"form",
+                                defaults:{
                                     width: 90,
-                                    listWidth: 90,
-                                    triggerAction: "all",
-                                    selectOnFocus: true,
-                                    increment: 60,
-                                    editable: false,
-                                    format: 'H:i' 
-                                }]
-                                */
-                        {
+                                    listWidth: 90
+                                },
+                                border:false,
+                                items:[{ xtype:"datefield",
+                                        fieldLabel:"End Date",
+                                        name:"ScheduleEndDate",
+                                        minValue: today.format("Y-m-d"),
+                                        triggerAction: 'all',
+                                        editable: false,
+                                        selectOnFocus:true,
+                                        format : 'Y-m-d'
+                                    }]
+                            }]
+                    },{
                             xtype:"panel",
                             items: schedule
-                        },{
-                            xtype:"textfield",
-                            fieldLabel:"<font color='red'>SKU</font>",
-                            name:"SKU",
-                            value: sku,
-                            readOnly: true
-                      }]
-                  }]
+                        }]
+                  },{
+                    xtype:"textfield",
+                    fieldLabel:"<font color='red'>SKU</font>",
+                    name:"SKU",
+                    value: sku,
+                    readOnly: true
+                    }]
               },{
                 columnWidth:0.3,
                 layout:"form",
