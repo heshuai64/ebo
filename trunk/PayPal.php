@@ -423,6 +423,9 @@
             if(empty($_POST['payment_status'])){
                 return 0;
             }
+	    
+	    $this->log("ipn_data", $_POST['txn_id'] ."\n");
+	    
             // read the post from PayPal system and add 'cmd'
             $req = 'cmd=_notify-validate';
             
@@ -431,13 +434,15 @@
                 $req .= "&$key=$value";
             }
             
-            $this->log("ipn_data", $_POST['txn_id']. '   '. print_r($_POST, true));
+            $this->log("ipn_data", "IPN:\n" . print_r($_POST, true));
             // post back to PayPal system to validate
             $header .= "POST /cgi-bin/webscr HTTP/1.0\r\n";
             $header .= "Content-Type: application/x-www-form-urlencoded\r\n";
             $header .= "Content-Length: " . strlen($req) . "\r\n\r\n";
             $fp = fsockopen (self::IPN_VALIDATE_HOST, 443, $errno, $errstr, 30);
 
+	    $this->log("ipn_data", "Send Back PayPal:\n". $header . $req);
+	    
             if (!$fp) {
             // HTTP ERROR
             } else {
@@ -465,6 +470,7 @@
                 }
                 fclose ($fp);
             }
+	    $this->log("ipn_data", "/n/n/n********************************************************************************/n/n/n");
         }
         
         private function PPHttpPost($userName, $password, $sgnature, $methodName_, $nvpStr_) {
