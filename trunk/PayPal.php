@@ -102,15 +102,61 @@
             return "";
         }
         
-        private function getOrderIdFromTxnId($txnId){
+        private function getOrderId($buyerId, $item_number_string){
+	    $sevenDayAgo = date("Y-m-d H:i:s", time() - (7 * 24 * 60 * 60));
+	    $itemNumber = $item_number_string;
+	    $oitemNumber = $item_number_string;
+                
+            $sql = "select id from qo_orders where buyerId='".$buyerId."' and status = 'W' and createdOn > '".$sevenDayAgo."' order by createdOn desc";
+            $this->log('paypal_api', "getyOrderId id: ".$sql);
+            $result = mysql_query($sql, PayPal::$database_connect);
+            while ($row = mysql_fetch_assoc($result)) {
+                $sql_1 = "select itemId from qo_orders_detail where ordersId='".$row['id']."'";
+                $this->log('paypal_api',"getOrderId itemId: ".$sql_1);
+                $result_1 = mysql_query($sql_1, PayPal::$database_connect);
+                $itemId_array = array();
+                while ($row_1 = mysql_fetch_assoc($result_1)) {
+                    $itemId_array[] = $row_1['itemId'];
+                }
+                
+                if($itemId_array[0] == $itemNumber && count($itemId_array) == 1){
+                    $this->log('paypal_api',"getOrderId (S) itemNumber ~ itemId: ".$itemNumber." ~ ".$itemId_array[0]);
+                    return $row['id'];
+                }
+                
+                $success = false;
+                $itemNumber = "hs".$itemNumber;
+                $success_num = 0;
+                foreach ($itemId_array as $itemId){
+                    if(strpos($itemNumber, $itemId)){
+                        $success = true;
+                        $success_num++;
+                    }else{
+                        $success = false;
+                        break;
+                    }
+                }
+                
+                if($success == true && count($itemId_array) == $success_num){
+                    $this->log('paypal_api',"getOrderId (M) itemNumber ~ itemId_array: ".$itemNumber." ~ ".print_r($itemId_array, true));
+                    return $row['id'];
+                }
+                
+                $itemNumber = $oitemNumber;
+                $this->log('paypal_api', "getOrderId ~end one loop~");
+            }
+            return "";
+        }
+        
+        private function getEbayOrderIdFromTxnId($txnId){
 	    if($txnId != ""){
                 $sql = "select id from qo_transactions where txnId = '$txnId'";
-                $this->log('ipn_deal',"getOrderIdFromTxnId: transactionId ".$sql);
+                $this->log('ipn_deal',"getEbayOrderIdFromTxnId: transactionId ".$sql);
                 $result = mysql_query($sql, PayPal::$database_connect);
                 $row = mysql_fetch_assoc($result);
                 
                 $sql = "select ordersId from qo_orders_transactions where transactionsId = '".$row['id']."'";
-                $this->log('ipn_deal',"getOrderIdFromTxnId: ordersId ".$sql);
+                $this->log('ipn_deal',"getEbayOrderIdFromTxnId: ordersId ".$sql);
                 $result = mysql_query($sql, PayPal::$database_connect);
                 $row = mysql_fetch_assoc($result);
                 return $row['ordersId'];
@@ -119,6 +165,23 @@
 	    }
 	    
 	}
+        
+        private function getOrderIdFromTxnId($txnId){
+            if($txnId != ""){
+                $sql = "select id from qo_transactions where txnId = '$txnId'";
+                $this->log('paypal_api',"getOrderIdFromTxnId: transactionId ".$sql);
+                $result = mysql_query($sql, PayPal::$database_connect);
+                $row = mysql_fetch_assoc($result);
+                
+                $sql = "select ordersId from qo_orders_transactions where transactionsId = '".$row['id']."'";
+                $this->log('paypal_api',"getOrderIdFromTxnId: ordersId ".$sql);
+                $result = mysql_query($sql, PayPal::$database_connect);
+                $row = mysql_fetch_assoc($result);
+                return $row['ordersId'];
+	    }else{
+	    	return "";
+	    }
+        }
         
         private function updateEbayOrderAddressInfo($ordersId, $ipn_data){
             $paypalName = $ipn_data['address_name'];
@@ -135,6 +198,24 @@
             paypalAddress2='".mysql_real_escape_string($paypalAddress2)."',paypalCity='".mysql_real_escape_string($paypalCity)."',paypalStateOrProvince='".mysql_real_escape_string($paypalStateOrProvince)."',
             paypalPostalCode='".mysql_real_escape_string($paypalPostalCode)."',paypalCountry='".$paypalCountry."' where id='".$ordersId."'";
             $this->log('ipn_deal',"updateEbayOrderAddressInfo: ".$sql);
+            $result = mysql_query($sql, PayPal::$database_connect);
+        }
+        
+        private function updateOrderAddressInfo($ordersId, $api_data){
+            $paypalName = $api_data['SHIPTONAME'];
+            $paypalEmail  = $api_data['EMAIL'];
+
+            $paypalAddress1 = $api_data['SHIPTOSTREET'];
+            $paypalAddress2 = $api_data['SHIPTOSTREET2'];
+            $paypalCity = $api_data['SHIPTOCITY'];
+            $paypalStateOrProvince = $api_data['SHIPTOSTATE'];
+            $paypalPostalCode = $api_data['SHIPTOZIP'];
+            $paypalCountry = $api_data['SHIPTOCOUNTRYNAME'];
+            
+            $sql = "update qo_orders set paypalName='".mysql_real_escape_string($paypalName)."',paypalEmail='".$paypalEmail."',paypalAddress1='".mysql_real_escape_string($paypalAddress1)."',
+            paypalAddress2='".mysql_real_escape_string($paypalAddress2)."',paypalCity='".mysql_real_escape_string($paypalCity)."',paypalStateOrProvince='".mysql_real_escape_string($paypalStateOrProvince)."',
+            paypalPostalCode='".mysql_real_escape_string($paypalPostalCode)."',paypalCountry='".$paypalCountry."' where id='".$ordersId."'";
+            $this->log('paypal_api',"updateOrderAddressInfo: ".$sql);
             $result = mysql_query($sql, PayPal::$database_connect);
         }
         
@@ -247,7 +328,7 @@
 	    }
 	}
 	
-        private function updateOrderAndShipment($ordersId, $ipn_data){
+        private function updateEbayOrderAndShipment($ordersId, $ipn_data){
             switch($ipn_data['payment_status']){	
                 case "Completed":
                     $pay = $this->getOrderPay($ordersId);
@@ -301,9 +382,86 @@
 
 	}
         
+        private function updateOrderAndShipment($ordersId, $api_data){
+            switch($api_data['PAYMENTSTATUS']){	
+                case "Completed":
+                    $pay = $this->getOrderPay($ordersId);
+                    if($api_data['AMT'] > ($pay + ($pay * 0.02))){
+                            $this->updateOrderStatus($ordersId, "C");
+                    }elseif($api_data['AMT'] < ($pay - ($pay * 0.02))){
+                            $this->updateOrderStatus($ordersId, "S");
+                    }else{
+                            $this->updateOrderStatus($ordersId, "P");
+                            //$this->createShipmentFromPayPal($ordersId);
+                    }
+                break;
+                        
+                case "Refunded":
+                    /*
+                    $pay = $this->getOrderPay($ordersId);
+                    if($ipn_data['mcGross'] >= (0 - ($pay + ($pay * 0.02))) && $ipn_data['mcGross'] <= (0 - ($pay - ($pay * 0.02)))){
+                            $this->updateOrderStatus($ordersId, "X");
+                            $shipment_status = $this->getShipmentStatus($ordersId);
+                            if($shipment_status == "N" || $shipment_status == "K" ){
+                                    $this->updateShipmentStatus($ordersId, 'X');
+                                    if($shipment_status == "K"){
+                                            $this->send_mail($ordersId." Refunded, Shipment Packed!");
+                                    }
+                            }
+                    }else{
+                            $shipment_status = $this->getShipmentStatus($ordersId);
+                            if($shipment_status == "N" || $shipment_status == "K" ){
+                                    $this->updateShipmentStatus($ordersId, 'H');
+                                    if($shipment_status == "K"){
+                                            $this->send_mail($ordersId." Refunded, Shipment Packed!");
+                                    }
+                            }
+                    }
+                    */
+                break;
+           
+                case "Reversed":
+                    $this->updateOrderStatus($ordersId, "V");
+                    //$shipment_status = $this->getShipmentStatus($ordersId);
+                    //if($shipment_status == "N" ){
+                    //    $this->updateShipmentStatus($ordersId, 'H');
+                    //}
+                break;
+                        
+                case "Canceled_Reversal":
+                    $this->updateOrderStatus($ordersId, "P");
+                    //$this->createShipmentFromPayPal($ordersId);
+                break;	   		
+            }
+
+	}
+        
+        private function matchOrder($api_data, $item_number_string, $transactionId){
+            $ordersId = $this->getOrderId($api_data['BUYERID'], $item_number_string);
+            $ordersId = ($ordersId!='')?$ordersId:($this->getOrderIdFromTxnId($api_data['TRANSACTIONID']));
+            if($ordersId !=''){
+                $status = "A";
+                $amountPaidCurrency = $api_data['CURRENCYCODE'];
+                $amountPaidValue = $api_data['AMT'];
+                $createdBy = "Paypal";
+                $createdOn = date("Y-m-d H:i:s");
+                $modifiedBy = "Paypal";
+                $modifiedOn = date("Y-m-d H:i:s");
+                $sql = "insert into qo_orders_transactions (ordersId,transactionsId,status,amountPayCurrency,amountPayValue,createdBy,
+                createdOn,modifiedBy,modifiedOn) values ('$ordersId','$transactionId','$status','$amountPaidCurrency','$amountPaidValue',
+                '$createdBy','$createdOn','$modifiedBy','$modifiedOn')";
+                $this->log('paypal_api',"orderstransactions: ".$sql);
+                $result = mysql_query($sql, PayPal::$database_connect);
+                $this->updateOrderAddressInfo($ordersId, $api_data);
+                $this->updateOrderAndShipment($ordersId, $api_data);
+            }else{
+                $this->log('paypal_api',"mapOrder failure, transactionId: ".$transactionId);
+            }
+        }
+        
         private function matchEbayOrder($ipn_data, $item_number_string, $transactionId){
             $ordersId = $this->getEbayOrderId($ipn_data['auction_buyer_id'], $item_number_string);
-            $ordersId = ($ordersId!='')?$ordersId:($this->getOrderIdFromTxnId($ipn_data['parent_txn_id']));
+            $ordersId = ($ordersId!='')?$ordersId:($this->getEbayOrderIdFromTxnId($ipn_data['parent_txn_id']));
             if($ordersId !=''){
                 $status = "A";
                 $amountPaidCurrency = $ipn_data['mc_currency'];
@@ -318,7 +476,7 @@
                 $this->log('ipn_deal',"orderstransactions: ".$sql);
                 $result = mysql_query($sql, PayPal::$database_connect);
                 $this->updateEbayOrderAddressInfo($ordersId, $ipn_data);
-                $this->updateOrderAndShipment($ordersId, $ipn_data);
+                $this->updateEbayOrderAndShipment($ordersId, $ipn_data);
             }else{
                 $this->log('ipn_deal',"mapEbayOrder failure, transactionId: ".$transactionId);
             }
@@ -470,7 +628,7 @@
                 }
                 fclose ($fp);
             }
-	    $this->log("ipn_data", "/n/n/n********************************************************************************/n/n/n");
+	    $this->log("ipn_data", "\n\n\n********************************************************************************\n\n\n");
         }
         
         private function PPHttpPost($userName, $password, $sgnature, $methodName_, $nvpStr_) {
@@ -496,7 +654,7 @@
     
             // Set the API operation, version, and API signature in the request.
             $nvpreq = "METHOD=$methodName_&VERSION=$version&PWD=$API_Password&USER=$API_UserName&SIGNATURE=$API_Signature$nvpStr_";
-            echo $nvpreq;
+            //echo $nvpreq;
             // Set the request as a POST FIELD for curl.
             curl_setopt($ch, CURLOPT_POSTFIELDS, $nvpreq);
     
@@ -525,28 +683,142 @@
             return $httpParsedResponseAr;
         }
 
-        private function TransactionSearch($userName, $password, $sgnature, $start_time, $end_time){
+        public function TransactionSearch($userName, $password, $sgnature, $start_time, $end_time){
             
             $nvpStr .= "&STARTDATE=$start_time";
             $nvpStr .= "&ENDDATE=$end_time";
             $httpParsedResponseAr = $this->PPHttpPost($userName, $password, $sgnature, 'TransactionSearch', $nvpStr);
-
+            
+            foreach($httpParsedResponseAr as $key=>$value){
+                echo $key.": ".urldecode($value);
+                echo "<br>";
+            }
+            
+            $i = 0;
+            while(!empty($httpParsedResponseAr['L_TRANSACTIONID'.$i])){
+                if(in_array($httpParsedResponseAr['L_TYPE'.$i], array("Payment", "Refund"))){
+                    $this->GetTransactionDetails($userName, $password, $sgnature, $httpParsedResponseAr['L_TRANSACTIONID'.$i]);
+                }
+                $i++;
+            }
+            
             if("Success" == $httpParsedResponseAr["ACK"]) {
-                    exit('TransactionSearch Completed Successfully: '.print_r($httpParsedResponseAr, true));
+                //exit('TransactionSearch Completed Successfully: '.print_r($httpParsedResponseAr, true));
             } else  {
-                    exit('TransactionSearch failed: ' . print_r($httpParsedResponseAr, true));
+                exit('TransactionSearch failed: ' . print_r($httpParsedResponseAr, true));
             }
         }
         
-        private function GetTransactionDetails($userName, $password, $sgnature, $transactionID){
+        private function addTransactionFromAPI($api_date){
+            foreach($api_date as $key=>$value){
+                $api_date[$key] = urldecode($value);
+            }
+            
+            switch($api_date['PAYMENTSTATUS']){
+		
+		case "Pending":
+		    $status = "N";
+		break;
+		
+                case "Completed":
+                    $status = "P";
+                break;
+            
+                case "Reversed":
+                    $status = "V";
+                break;
+            
+                case "Canceled_Reversal":
+                    $status = "C";
+                break;
+            
+                case "Refunded":
+                    $status = "R";
+                break;
+            }
+            $i = 0;
+            //$item_number_string = $ipn_data['item_number'];
+	    $item_number_string = "";
+            while(!empty($api_date['L_NUMBER'.$i])){
+                $item_number_string .= ",".$api_date['L_NUMBER'.$i];
+                $i++;
+            }
+	    
+	    //if items only one, cut off ","
+	    //if($i == 2){
+		$item_number_string = substr($item_number_string, 1);
+	    //}
+	    
+  	    $payerAddressLine1 = $api_date['SHIPTOSTREET'];
+  	    $payerAddressLine2 = $api_date['SHIPTOSTREET2'];
+            
+	    if($status == "V"){
+		$sql = "select count(*) as num from qo_transactions where txnId='".$api_date['TRANSACTIONID']."' and status = 'V'";
+		$result = mysql_query($sql, PayPal::$database_connect);
+		$row = mysql_fetch_assoc($result);
+	    }elseif($status == "C"){
+		$sql = "select count(*) as num from qo_transactions where txnId='".$api_date['TRANSACTIONID']."' and status = 'C'";
+		$result = mysql_query($sql, PayPal::$database_connect);
+		$row = mysql_fetch_assoc($result);
+	    }else{
+		$sql = "select count(*) as num from qo_transactions where txnId='".$api_date['TRANSACTIONID']."'";
+		$result = mysql_query($sql, PayPal::$database_connect);
+		$row = mysql_fetch_assoc($result);
+	    }
+	    
+	    if($row['num'] == 0){
+                $transactionId = $this->getTransactionId();
+		$payeeId = $this->getPayeeIdFromEmail($api_date['RECEIVERBUSINESS']);
+		
+                $sql = "insert into qo_transactions (id,txnId,transactionTime,amountCurrency,amountValue,status,remarks,createdBy,createdOn,payeeId,
+                payerId,payerName,payerEmail,payerAddressLine1,payerAddressLine2,payerCity,payerStateOrProvince,
+                payerPostalCode,payerCountry,itemId) values ('".$transactionId."','".$api_date['TRANSACTIONID']."','".date("Y-m-d H:i:s",strtotime($api_date['ORDERTIME']))."',
+                '".$api_date['CURRENCYCODE']."','".$api_date['AMT']."','".$status."','','PayPal','".date("Y-m-d H:i:s",strtotime($api_date['ORDERTIME']))."','".mysql_real_escape_string($payeeId)."',
+                '".mysql_real_escape_string($api_date['BUYERID'])."','".mysql_real_escape_string($api_date['SHIPTONAME'])."',
+                '".$api_date['EMAIL']."','".mysql_real_escape_string($payerAddressLine1)."','".mysql_real_escape_string($payerAddressLine2)."',
+                '".mysql_real_escape_string($api_date['SHIPTOCITY'])."','".mysql_real_escape_string($api_date['SHIPTOSTATE'])."',
+                '".$api_date['SHIPTOZIP']."','".$api_date['SHIPTOCOUNTRYNAME']."','".$item_number_string."')";
+                
+                $result = mysql_query($sql, PayPal::$database_connect);
+                while($result == false){
+                    sleep(rand(0,10));
+                    $transactionId = $this->getTransactionId();
+                    $sql = "insert into qo_transactions (id,txnId,transactionTime,amountCurrency,amountValue,status,remarks,createdBy,createdOn,payeeId,
+                    payerId,payerName,payerEmail,payerAddressLine1,payerAddressLine2,payerCity,payerStateOrProvince,
+                    payerPostalCode,payerCountry,itemId) values ('".$transactionId."','".$api_date['TRANSACTIONID']."','".date("Y-m-d H:i:s",strtotime($api_date['ORDERTIME']))."',
+                    '".$api_date['CURRENCYCODE']."','".$api_date['AMT']."','".$status."','','PayPal','".date("Y-m-d H:i:s",strtotime($api_date['ORDERTIME']))."','".mysql_real_escape_string($payeeId)."',
+                    '".mysql_real_escape_string($api_date['BUYERID'])."','".mysql_real_escape_string($api_date['SHIPTONAME'])."',
+                    '".$api_date['EMAIL']."','".mysql_real_escape_string($payerAddressLine1)."','".mysql_real_escape_string($payerAddressLine2)."',
+                    '".mysql_real_escape_string($api_date['SHIPTOCITY'])."','".mysql_real_escape_string($api_date['SHIPTOSTATE'])."',
+                    '".$api_date['SHIPTOZIP']."','".$api_date['SHIPTOCOUNTRYNAME']."','".$item_number_string."')";
+                
+                    $result = mysql_query($sql, PayPal::$database_connect);
+		}
+                $this->log('paypal_api', "addTransactionFromAPI: ".$sql);
+            }else{
+                $this->log('paypal_api', "TRANSACTIONID: ". $api_date['TRANSACTIONID']. " Exist.\n");
+            }
+            
+            $this->matchOrder($api_date, $item_number_string, $transactionId);
+            
+        }
+        
+        public function GetTransactionDetails($userName, $password, $sgnature, $transactionID){
             // Add request-specific fields to the request string.
             $nvpStr = "&TRANSACTIONID=$transactionID";
             
             // Execute the API operation; see the PPHttpPost function above.
             $httpParsedResponseAr = $this->PPHttpPost($userName, $password, $sgnature, 'GetTransactionDetails', $nvpStr);
             
+            foreach($httpParsedResponseAr as $key=>$value){
+                echo $key.": ".urldecode($value);
+                echo "<br>";
+            }
+            
+            $this->addTransactionFromAPI($httpParsedResponseAr);
+            
             if("Success" == $httpParsedResponseAr["ACK"]) {
-                    exit('GetTransactionDetails Completed Successfully: '.print_r($httpParsedResponseAr, true));
+                    //exit('GetTransactionDetails Completed Successfully: '.print_r($httpParsedResponseAr, true));
             } else  {
                     exit('GetTransactionDetails failed: ' . print_r($httpParsedResponseAr, true));
             }
@@ -565,9 +837,19 @@
 if(!empty($_POST)){
     $PayPal = new PayPal();
     $PayPal->ipn();
-}else{
-    $PayPal = new PayPal();
-    $PayPal->getAllSellerTransactions();
 }
+
+if(!empty($_GET['action'])){
+    $PayPal = new PayPal();
+    switch($_GET['action']){
+        case "TransactionSearch":
+            $PayPal->TransactionSearch("paintings.suppliersz_api1.gmail.com", "BQ3G47PGEUPFJYUW", "AFAonZoEN5Tlf1AdMI6LHryIRiuXAZmyV1n8z4H3aK3CTTmVXIajebfk", "2009-07-05 00:00:00", "2009-07-06 00:00:00");
+        break;
     
+        case "GetTransactionDetails":
+            $PayPal->GetTransactionDetails("paintings.suppliersz_api1.gmail.com", "BQ3G47PGEUPFJYUW", "AFAonZoEN5Tlf1AdMI6LHryIRiuXAZmyV1n8z4H3aK3CTTmVXIajebfk", "9YE0607179577100D");
+        break;
+    }
+    
+}
 ?>
