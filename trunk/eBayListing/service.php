@@ -554,6 +554,20 @@ class eBayListing{
         }
     }
     
+    public function getSite(){
+	$sql = "select * from site";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$array = array();
+	$i = 0;
+	while($row = mysql_fetch_assoc($result)){
+	    $array[$i]['id'] = $row['abbreviation'];
+	    $array[$i]['name'] = $row['name'];
+	    $i++;
+	}
+	echo json_encode($array);
+	mysql_free_result($result);
+    }
+    
     public function addItems(){
 	/*
 	英,美,法,澳,

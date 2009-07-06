@@ -107,6 +107,10 @@ Ext.onReady(function(){
         url:'service.php?action=getShippingService'
     })
     
+    var siteStore = new Ext.data.JsonStore({
+         fields: ['id', 'name'],
+        url:'service.php?action=getSite'
+    })
     
     var schedule = new Ext.Panel({                              
         //title:"Schedule",
@@ -449,12 +453,13 @@ Ext.onReady(function(){
     var itemForm = new Ext.form.FormPanel({
         labelAlign:"top",
         //height: 600,
+        buttonAlign:"center",
         items:[{
                 xtype:"combo",
                 labelAlign:"left",
-                fieldLabel:"Duration",
+                fieldLabel:"Site",
                 mode: 'local',
-                store: listingDurationStore,
+                store: siteStore,
                 valueField:'id',
                 displayField:'name',
                 triggerAction: 'all',
@@ -462,9 +467,9 @@ Ext.onReady(function(){
                 selectOnFocus:true,
                 //listWidth: 156,
                 //width: 156,
-                name: 'ListingDuration',
+                name: 'Site',
                 //allowBlank: false,
-                hiddenName:'ListingDuration' 
+                hiddenName:'Site' 
             },{
             layout:"column",
             items:[{

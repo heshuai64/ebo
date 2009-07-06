@@ -104,52 +104,6 @@
             return "";
         }
         
-        private function getOrderId($buyerId, $item_number_string){
-	    $sevenDayAgo = date("Y-m-d H:i:s", time() - (7 * 24 * 60 * 60));
-	    $itemNumber = $item_number_string;
-	    $oitemNumber = $item_number_string;
-                
-            $sql = "select id from qo_orders where buyerId='".$buyerId."' and status = 'W' and createdOn > '".$sevenDayAgo."' order by createdOn desc";
-            $this->log('paypal_api', "getyOrderId id: ".$sql);
-            $result = mysql_query($sql, PayPal::$database_connect);
-            while ($row = mysql_fetch_assoc($result)) {
-                $sql_1 = "select itemId from qo_orders_detail where ordersId='".$row['id']."'";
-                $this->log('paypal_api',"getOrderId itemId: ".$sql_1);
-                $result_1 = mysql_query($sql_1, PayPal::$database_connect);
-                $itemId_array = array();
-                while ($row_1 = mysql_fetch_assoc($result_1)) {
-                    $itemId_array[] = $row_1['itemId'];
-                }
-                
-                if($itemId_array[0] == $itemNumber && count($itemId_array) == 1){
-                    $this->log('paypal_api',"getOrderId (S) itemNumber ~ itemId: ".$itemNumber." ~ ".$itemId_array[0]);
-                    return $row['id'];
-                }
-                
-                $success = false;
-                $itemNumber = "hs".$itemNumber;
-                $success_num = 0;
-                foreach ($itemId_array as $itemId){
-                    if(strpos($itemNumber, $itemId)){
-                        $success = true;
-                        $success_num++;
-                    }else{
-                        $success = false;
-                        break;
-                    }
-                }
-                
-                if($success == true && count($itemId_array) == $success_num){
-                    $this->log('paypal_api',"getOrderId (M) itemNumber ~ itemId_array: ".$itemNumber." ~ ".print_r($itemId_array, true));
-                    return $row['id'];
-                }
-                
-                $itemNumber = $oitemNumber;
-                $this->log('paypal_api', "getOrderId ~end one loop~");
-            }
-            return "";
-        }
-        
         private function getEbayOrderIdFromTxnId($txnId){
 	    if($txnId != ""){
                 $sql = "select id from qo_transactions where txnId = '$txnId'";
@@ -171,12 +125,12 @@
         private function getOrderIdFromTxnId($txnId){
             if($txnId != ""){
                 $sql = "select id from qo_transactions where txnId = '$txnId'";
-                $this->log('paypal_api',"getOrderIdFromTxnId: transactionId ".$sql);
+                $this->log('paypal_api', "getOrderIdFromTxnId: transactionId ".$sql."<br>", "html");
                 $result = mysql_query($sql, PayPal::$database_connect);
                 $row = mysql_fetch_assoc($result);
                 
                 $sql = "select ordersId from qo_orders_transactions where transactionsId = '".$row['id']."'";
-                $this->log('paypal_api',"getOrderIdFromTxnId: ordersId ".$sql);
+                $this->log('paypal_api', "getOrderIdFromTxnId: ordersId ".$sql."<br>", "html");
                 $result = mysql_query($sql, PayPal::$database_connect);
                 $row = mysql_fetch_assoc($result);
                 return $row['ordersId'];
@@ -548,6 +502,52 @@
 	    return $row['grandTotalValue'];
         }
 	
+        private function getOrderId($buyerId, $item_number_string){
+	    $sevenDayAgo = date("Y-m-d H:i:s", time() - (7 * 24 * 60 * 60));
+	    $itemNumber = $item_number_string;
+	    $oitemNumber = $item_number_string;
+                
+            $sql = "select id from qo_orders where buyerId='".$buyerId."' and status = 'W' and createdOn > '".$sevenDayAgo."' order by createdOn desc";
+            $this->log('paypal_api', "getyOrderId id: ".$sql."<br>", "html");
+            $result = mysql_query($sql, PayPal::$database_connect);
+            while ($row = mysql_fetch_assoc($result)) {
+                $sql_1 = "select itemId from qo_orders_detail where ordersId='".$row['id']."'";
+                $this->log('paypal_api',"getOrderId itemId: ".$sql_1."<br>", "html");
+                $result_1 = mysql_query($sql_1, PayPal::$database_connect);
+                $itemId_array = array();
+                while ($row_1 = mysql_fetch_assoc($result_1)) {
+                    $itemId_array[] = $row_1['itemId'];
+                }
+                
+                if($itemId_array[0] == $itemNumber && count($itemId_array) == 1){
+                    $this->log('paypal_api',"getOrderId (S) itemNumber ~ itemId: ".$itemNumber." ~ ".$itemId_array[0]."<br>", "html");
+                    return $row['id'];
+                }
+                
+                $success = false;
+                $itemNumber = "hs".$itemNumber;
+                $success_num = 0;
+                foreach ($itemId_array as $itemId){
+                    if(strpos($itemNumber, $itemId)){
+                        $success = true;
+                        $success_num++;
+                    }else{
+                        $success = false;
+                        break;
+                    }
+                }
+                
+                if($success == true && count($itemId_array) == $success_num){
+                    $this->log('paypal_api',"getOrderId (M) itemNumber ~ itemId_array: ".$itemNumber." ~ ".print_r($itemId_array, true)."<br>", "html");
+                    return $row['id'];
+                }
+                
+                $itemNumber = $oitemNumber;
+                $this->log('paypal_api', "getOrderId ~end one loop~<br>", "html");
+            }
+            return "";
+        }
+        
 	private function updateOrderAddressInfo($ordersId, $api_data){
             $paypalName = $api_data['SHIPTONAME'];
             $paypalEmail  = $api_data['EMAIL'];
@@ -630,7 +630,7 @@
 	
 	private function matchOrder($api_data, $item_number_string, $transactionId){
             $ordersId = $this->getOrderId($api_data['BUYERID'], $item_number_string);
-            $ordersId = ($ordersId!='')?$ordersId:($this->getOrderIdFromTxnId($api_data['TRANSACTIONID']));
+            //$ordersId = ($ordersId!='')?$ordersId:($this->getOrderIdFromTxnId($api_data['TRANSACTIONID']));
             if($ordersId !=''){
                 $status = "A";
                 $amountPaidCurrency = $api_data['CURRENCYCODE'];
@@ -798,7 +798,7 @@
                 $sql = "insert into qo_transactions (id,txnId,transactionTime,amountCurrency,amountValue,status,remarks,createdBy,createdOn,payeeId,
                 payerId,payerName,payerEmail,payerAddressLine1,payerAddressLine2,payerCity,payerStateOrProvince,
                 payerPostalCode,payerCountry,itemId) values ('".$transactionId."','".$api_date['TRANSACTIONID']."','".date("Y-m-d H:i:s",strtotime($api_date['ORDERTIME']))."',
-                '".$api_date['CURRENCYCODE']."','".$api_date['AMT']."','".$status."','','PayPal','".date("Y-m-d H:i:s",strtotime($api_date['ORDERTIME']))."','".mysql_real_escape_string($payeeId)."',
+                '".$api_date['CURRENCYCODE']."','".$api_date['AMT']."','".$status."','".mysql_real_escape_string($api_date['NOTE'])."','PayPal','".date("Y-m-d H:i:s",strtotime($api_date['ORDERTIME']))."','".mysql_real_escape_string($payeeId)."',
                 '".mysql_real_escape_string($api_date['BUYERID'])."','".mysql_real_escape_string($api_date['SHIPTONAME'])."',
                 '".$api_date['EMAIL']."','".mysql_real_escape_string($payerAddressLine1)."','".mysql_real_escape_string($payerAddressLine2)."',
                 '".mysql_real_escape_string($api_date['SHIPTOCITY'])."','".mysql_real_escape_string($api_date['SHIPTOSTATE'])."',
@@ -813,7 +813,7 @@
                     $sql = "insert into qo_transactions (id,txnId,transactionTime,amountCurrency,amountValue,status,remarks,createdBy,createdOn,payeeId,
                     payerId,payerName,payerEmail,payerAddressLine1,payerAddressLine2,payerCity,payerStateOrProvince,
                     payerPostalCode,payerCountry,itemId) values ('".$transactionId."','".$api_date['TRANSACTIONID']."','".date("Y-m-d H:i:s",strtotime($api_date['ORDERTIME']))."',
-                    '".$api_date['CURRENCYCODE']."','".$api_date['AMT']."','".$status."','','PayPal','".date("Y-m-d H:i:s",strtotime($api_date['ORDERTIME']))."','".mysql_real_escape_string($payeeId)."',
+                    '".$api_date['CURRENCYCODE']."','".$api_date['AMT']."','".$status."','".mysql_real_escape_string($api_date['NOTE'])."','PayPal','".date("Y-m-d H:i:s",strtotime($api_date['ORDERTIME']))."','".mysql_real_escape_string($payeeId)."',
                     '".mysql_real_escape_string($api_date['BUYERID'])."','".mysql_real_escape_string($api_date['SHIPTONAME'])."',
                     '".$api_date['EMAIL']."','".mysql_real_escape_string($payerAddressLine1)."','".mysql_real_escape_string($payerAddressLine2)."',
                     '".mysql_real_escape_string($api_date['SHIPTOCITY'])."','".mysql_real_escape_string($api_date['SHIPTOSTATE'])."',
