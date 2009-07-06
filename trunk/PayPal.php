@@ -8,7 +8,9 @@
         //const IPN_VALIDATE_HOST = 'ssl://www.sandbox.paypal.com';
         const IPN_VALIDATE_HOST = 'ssl://www.paypal.com';
         const NVPAPI_HOST = 'https://api-3t.paypal.com/nvp';
-        
+        private $start_time;
+	private $end_time;
+	
         public function __construct(){
             PayPal::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
 
@@ -25,8 +27,8 @@
             }
         }
         
-        private function log($file_name, $content){
-            file_put_contents("/export/eBayBO/log/Ipn/".$file_name."-".date("Y-m-d").".log", date("Y-m-d H:i:s")."   ".$content."\n", FILE_APPEND);
+        private function log($file_name, $content, $type="log"){
+            file_put_contents("/export/eBayBO/log/Ipn/".$file_name."-".date("Y-m-d").".".$type, date("Y-m-d H:i:s")."   ".$content."\n", FILE_APPEND);
         }
         
         private function getTransactionId(){
@@ -201,37 +203,19 @@
             $result = mysql_query($sql, PayPal::$database_connect);
         }
         
-        private function updateOrderAddressInfo($ordersId, $api_data){
-            $paypalName = $api_data['SHIPTONAME'];
-            $paypalEmail  = $api_data['EMAIL'];
-
-            $paypalAddress1 = $api_data['SHIPTOSTREET'];
-            $paypalAddress2 = $api_data['SHIPTOSTREET2'];
-            $paypalCity = $api_data['SHIPTOCITY'];
-            $paypalStateOrProvince = $api_data['SHIPTOSTATE'];
-            $paypalPostalCode = $api_data['SHIPTOZIP'];
-            $paypalCountry = $api_data['SHIPTOCOUNTRYNAME'];
-            
-            $sql = "update qo_orders set paypalName='".mysql_real_escape_string($paypalName)."',paypalEmail='".$paypalEmail."',paypalAddress1='".mysql_real_escape_string($paypalAddress1)."',
-            paypalAddress2='".mysql_real_escape_string($paypalAddress2)."',paypalCity='".mysql_real_escape_string($paypalCity)."',paypalStateOrProvince='".mysql_real_escape_string($paypalStateOrProvince)."',
-            paypalPostalCode='".mysql_real_escape_string($paypalPostalCode)."',paypalCountry='".$paypalCountry."' where id='".$ordersId."'";
-            $this->log('paypal_api',"updateOrderAddressInfo: ".$sql);
-            $result = mysql_query($sql, PayPal::$database_connect);
-        }
-        
-        private function getOrderPay($ordersId){
+        private function getEbayOrderPay($ordersId){
             $sql = "select grandTotalValue from qo_orders where id='$ordersId'";
-            $this->log('ipn_deal',"getOrderPay: ".$sql);
+            $this->log('ipn_deal',"getEbayOrderPay: ".$sql);
             $result = mysql_query($sql, PayPal::$database_connect);
             $row = mysql_fetch_assoc($result);
 	    return $row['grandTotalValue'];
         }
         
-        private function updateOrderStatus($ordersId, $status){
+        private function updateEbayOrderStatus($ordersId, $status){
             $modifiedBy = "Paypal";
             $modifiedOn= date("Y-m-d H:i:s");
             $sql = "update qo_orders set status='$status',modifiedBy='$modifiedBy',modifiedOn='$modifiedOn' where id='$ordersId'";
-            $this->log('ipn_deal',"updateOrderStatus: ".$sql);
+            $this->log('ipn_deal',"updateEbayOrderStatus: ".$sql);
             $result = mysql_query($sql, PayPal::$database_connect);
         }
         
@@ -331,22 +315,22 @@
         private function updateEbayOrderAndShipment($ordersId, $ipn_data){
             switch($ipn_data['payment_status']){	
                 case "Completed":
-                    $pay = $this->getOrderPay($ordersId);
+                    $pay = $this->getEbayOrderPay($ordersId);
                     if($ipn_data['mc_gross'] > ($pay + ($pay * 0.02))){
-                            $this->updateOrderStatus($ordersId, "C");
+                            $this->updateEbayOrderStatus($ordersId, "C");
                     }elseif($ipn_data['mc_gross'] < ($pay - ($pay * 0.02))){
-                            $this->updateOrderStatus($ordersId, "S");
+                            $this->updateEbayOrderStatus($ordersId, "S");
                     }else{
-                            $this->updateOrderStatus($ordersId, "P");
+                            $this->updateEbayOrderStatus($ordersId, "P");
                             //$this->createShipmentFromPayPal($ordersId);
                     }
                 break;
                         
                 case "Refunded":
                     /*
-                    $pay = $this->getOrderPay($ordersId);
+                    $pay = $this->getEbayOrderPay($ordersId);
                     if($ipn_data['mcGross'] >= (0 - ($pay + ($pay * 0.02))) && $ipn_data['mcGross'] <= (0 - ($pay - ($pay * 0.02)))){
-                            $this->updateOrderStatus($ordersId, "X");
+                            $this->updateEbayOrderStatus($ordersId, "X");
                             $shipment_status = $this->getShipmentStatus($ordersId);
                             if($shipment_status == "N" || $shipment_status == "K" ){
                                     $this->updateShipmentStatus($ordersId, 'X');
@@ -367,7 +351,7 @@
                 break;
            
                 case "Reversed":
-                    $this->updateOrderStatus($ordersId, "V");
+                    $this->updateEbayOrderStatus($ordersId, "V");
                     //$shipment_status = $this->getShipmentStatus($ordersId);
                     //if($shipment_status == "N" ){
                     //    $this->updateShipmentStatus($ordersId, 'H');
@@ -375,90 +359,13 @@
                 break;
                         
                 case "Canceled_Reversal":
-                    $this->updateOrderStatus($ordersId, "P");
+                    $this->updateEbayOrderStatus($ordersId, "P");
                     //$this->createShipmentFromPayPal($ordersId);
                 break;	   		
             }
 
 	}
-        
-        private function updateOrderAndShipment($ordersId, $api_data){
-            switch($api_data['PAYMENTSTATUS']){	
-                case "Completed":
-                    $pay = $this->getOrderPay($ordersId);
-                    if($api_data['AMT'] > ($pay + ($pay * 0.02))){
-                            $this->updateOrderStatus($ordersId, "C");
-                    }elseif($api_data['AMT'] < ($pay - ($pay * 0.02))){
-                            $this->updateOrderStatus($ordersId, "S");
-                    }else{
-                            $this->updateOrderStatus($ordersId, "P");
-                            //$this->createShipmentFromPayPal($ordersId);
-                    }
-                break;
-                        
-                case "Refunded":
-                    /*
-                    $pay = $this->getOrderPay($ordersId);
-                    if($ipn_data['mcGross'] >= (0 - ($pay + ($pay * 0.02))) && $ipn_data['mcGross'] <= (0 - ($pay - ($pay * 0.02)))){
-                            $this->updateOrderStatus($ordersId, "X");
-                            $shipment_status = $this->getShipmentStatus($ordersId);
-                            if($shipment_status == "N" || $shipment_status == "K" ){
-                                    $this->updateShipmentStatus($ordersId, 'X');
-                                    if($shipment_status == "K"){
-                                            $this->send_mail($ordersId." Refunded, Shipment Packed!");
-                                    }
-                            }
-                    }else{
-                            $shipment_status = $this->getShipmentStatus($ordersId);
-                            if($shipment_status == "N" || $shipment_status == "K" ){
-                                    $this->updateShipmentStatus($ordersId, 'H');
-                                    if($shipment_status == "K"){
-                                            $this->send_mail($ordersId." Refunded, Shipment Packed!");
-                                    }
-                            }
-                    }
-                    */
-                break;
-           
-                case "Reversed":
-                    $this->updateOrderStatus($ordersId, "V");
-                    //$shipment_status = $this->getShipmentStatus($ordersId);
-                    //if($shipment_status == "N" ){
-                    //    $this->updateShipmentStatus($ordersId, 'H');
-                    //}
-                break;
-                        
-                case "Canceled_Reversal":
-                    $this->updateOrderStatus($ordersId, "P");
-                    //$this->createShipmentFromPayPal($ordersId);
-                break;	   		
-            }
-
-	}
-        
-        private function matchOrder($api_data, $item_number_string, $transactionId){
-            $ordersId = $this->getOrderId($api_data['BUYERID'], $item_number_string);
-            $ordersId = ($ordersId!='')?$ordersId:($this->getOrderIdFromTxnId($api_data['TRANSACTIONID']));
-            if($ordersId !=''){
-                $status = "A";
-                $amountPaidCurrency = $api_data['CURRENCYCODE'];
-                $amountPaidValue = $api_data['AMT'];
-                $createdBy = "Paypal";
-                $createdOn = date("Y-m-d H:i:s");
-                $modifiedBy = "Paypal";
-                $modifiedOn = date("Y-m-d H:i:s");
-                $sql = "insert into qo_orders_transactions (ordersId,transactionsId,status,amountPayCurrency,amountPayValue,createdBy,
-                createdOn,modifiedBy,modifiedOn) values ('$ordersId','$transactionId','$status','$amountPaidCurrency','$amountPaidValue',
-                '$createdBy','$createdOn','$modifiedBy','$modifiedOn')";
-                $this->log('paypal_api',"orderstransactions: ".$sql);
-                $result = mysql_query($sql, PayPal::$database_connect);
-                $this->updateOrderAddressInfo($ordersId, $api_data);
-                $this->updateOrderAndShipment($ordersId, $api_data);
-            }else{
-                $this->log('paypal_api',"mapOrder failure, transactionId: ".$transactionId);
-            }
-        }
-        
+               
         private function matchEbayOrder($ipn_data, $item_number_string, $transactionId){
             $ordersId = $this->getEbayOrderId($ipn_data['auction_buyer_id'], $item_number_string);
             $ordersId = ($ordersId!='')?$ordersId:($this->getEbayOrderIdFromTxnId($ipn_data['parent_txn_id']));
@@ -630,7 +537,120 @@
             }
 	    $this->log("ipn_data", "\n\n\n********************************************************************************\n\n\n");
         }
+    
         
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	private function getOrderPay($ordersId){
+            $sql = "select grandTotalValue from qo_orders where id='$ordersId'";
+            $this->log('paypal_api',"getOrderPay: ".$sql);
+            $result = mysql_query($sql, PayPal::$database_connect);
+            $row = mysql_fetch_assoc($result);
+	    return $row['grandTotalValue'];
+        }
+	
+	private function updateOrderAddressInfo($ordersId, $api_data){
+            $paypalName = $api_data['SHIPTONAME'];
+            $paypalEmail  = $api_data['EMAIL'];
+
+            $paypalAddress1 = $api_data['SHIPTOSTREET'];
+            $paypalAddress2 = $api_data['SHIPTOSTREET2'];
+            $paypalCity = $api_data['SHIPTOCITY'];
+            $paypalStateOrProvince = $api_data['SHIPTOSTATE'];
+            $paypalPostalCode = $api_data['SHIPTOZIP'];
+            $paypalCountry = $api_data['SHIPTOCOUNTRYNAME'];
+            
+            $sql = "update qo_orders set paypalName='".mysql_real_escape_string($paypalName)."',paypalEmail='".$paypalEmail."',paypalAddress1='".mysql_real_escape_string($paypalAddress1)."',
+            paypalAddress2='".mysql_real_escape_string($paypalAddress2)."',paypalCity='".mysql_real_escape_string($paypalCity)."',paypalStateOrProvince='".mysql_real_escape_string($paypalStateOrProvince)."',
+            paypalPostalCode='".mysql_real_escape_string($paypalPostalCode)."',paypalCountry='".$paypalCountry."' where id='".$ordersId."'";
+            $this->log('paypal_api',"updateOrderAddressInfo: ".$sql."<br>", "html");
+            $result = mysql_query($sql, PayPal::$database_connect);
+        }
+	
+	private function updateOrderStatus($ordersId, $status){
+            $modifiedBy = "Paypal";
+            $modifiedOn= date("Y-m-d H:i:s");
+            $sql = "update qo_orders set status='$status',modifiedBy='$modifiedBy',modifiedOn='$modifiedOn' where id='$ordersId'";
+            $this->log('paypal_api',"updateOrderStatus: ".$sql."<br>", "html");
+            $result = mysql_query($sql, PayPal::$database_connect);
+        }
+	
+	private function updateOrderAndShipment($ordersId, $api_data){
+            switch($api_data['PAYMENTSTATUS']){	
+                case "Completed":
+                    $pay = $this->getOrderPay($ordersId);
+                    if($api_data['AMT'] > ($pay + ($pay * 0.02))){
+                            $this->updateOrderStatus($ordersId, "C");
+                    }elseif($api_data['AMT'] < ($pay - ($pay * 0.02))){
+                            $this->updateOrderStatus($ordersId, "S");
+                    }else{
+                            $this->updateOrderStatus($ordersId, "P");
+                            //$this->createShipmentFromPayPal($ordersId);
+                    }
+                break;
+                        
+                case "Refunded":
+                    /*
+                    $pay = $this->getOrderPay($ordersId);
+                    if($ipn_data['mcGross'] >= (0 - ($pay + ($pay * 0.02))) && $ipn_data['mcGross'] <= (0 - ($pay - ($pay * 0.02)))){
+                            $this->updateOrderStatus($ordersId, "X");
+                            $shipment_status = $this->getShipmentStatus($ordersId);
+                            if($shipment_status == "N" || $shipment_status == "K" ){
+                                    $this->updateShipmentStatus($ordersId, 'X');
+                                    if($shipment_status == "K"){
+                                            $this->send_mail($ordersId." Refunded, Shipment Packed!");
+                                    }
+                            }
+                    }else{
+                            $shipment_status = $this->getShipmentStatus($ordersId);
+                            if($shipment_status == "N" || $shipment_status == "K" ){
+                                    $this->updateShipmentStatus($ordersId, 'H');
+                                    if($shipment_status == "K"){
+                                            $this->send_mail($ordersId." Refunded, Shipment Packed!");
+                                    }
+                            }
+                    }
+                    */
+                break;
+           
+                case "Reversed":
+                    $this->updateOrderStatus($ordersId, "V");
+                    //$shipment_status = $this->getShipmentStatus($ordersId);
+                    //if($shipment_status == "N" ){
+                    //    $this->updateShipmentStatus($ordersId, 'H');
+                    //}
+                break;
+                        
+                case "Canceled_Reversal":
+                    $this->updateOrderStatus($ordersId, "P");
+                    //$this->createShipmentFromPayPal($ordersId);
+                break;	   		
+            }
+
+	}
+	
+	private function matchOrder($api_data, $item_number_string, $transactionId){
+            $ordersId = $this->getOrderId($api_data['BUYERID'], $item_number_string);
+            $ordersId = ($ordersId!='')?$ordersId:($this->getOrderIdFromTxnId($api_data['TRANSACTIONID']));
+            if($ordersId !=''){
+                $status = "A";
+                $amountPaidCurrency = $api_data['CURRENCYCODE'];
+                $amountPaidValue = $api_data['AMT'];
+                $createdBy = "Paypal";
+                $createdOn = date("Y-m-d H:i:s");
+                $modifiedBy = "Paypal";
+                $modifiedOn = date("Y-m-d H:i:s");
+                $sql = "insert into qo_orders_transactions (ordersId,transactionsId,status,amountPayCurrency,amountPayValue,createdBy,
+                createdOn,modifiedBy,modifiedOn) values ('$ordersId','$transactionId','$status','$amountPaidCurrency','$amountPaidValue',
+                '$createdBy','$createdOn','$modifiedBy','$modifiedOn')";
+                $this->log('paypal_api',"orderstransactions: ".$sql."<br>", "html");
+                $result = mysql_query($sql, PayPal::$database_connect);
+                $this->updateOrderAddressInfo($ordersId, $api_data);
+                $this->updateOrderAndShipment($ordersId, $api_data);
+            }else{
+                $this->log('paypal_api', "<font color='red'>mapOrder failure, transactionId: ".$transactionId."</font><br>", "html");
+            }
+        }
+	
         private function PPHttpPost($userName, $password, $sgnature, $methodName_, $nvpStr_) {
             $API_Endpoint = PayPal::NVPAPI_HOST;
             // Set up your API credentials, PayPal end point, and API version.
@@ -689,14 +709,18 @@
             $nvpStr .= "&ENDDATE=$end_time";
             $httpParsedResponseAr = $this->PPHttpPost($userName, $password, $sgnature, 'TransactionSearch', $nvpStr);
             
-            foreach($httpParsedResponseAr as $key=>$value){
-                echo $key.": ".urldecode($value);
-                echo "<br>";
+	    foreach($httpParsedResponseAr as $key=>$value){
+		$httpParsedResponseAr[$key] = urldecode($value);
+                //echo $key.": ".urldecode($value);
+                //echo "<br>";
             }
+	    
+	    $this->log($userName."-TransactionSearch", print_r($httpParsedResponseAr, true)."<br><br><br>", "html");
+            
             
             $i = 0;
             while(!empty($httpParsedResponseAr['L_TRANSACTIONID'.$i])){
-                if(in_array($httpParsedResponseAr['L_TYPE'.$i], array("Payment", "Refund"))){
+                if(in_array($httpParsedResponseAr['L_TYPE'.$i], array("Payment"/*, "Refund"*/))){
                     $this->GetTransactionDetails($userName, $password, $sgnature, $httpParsedResponseAr['L_TRANSACTIONID'.$i]);
                 }
                 $i++;
@@ -705,15 +729,16 @@
             if("Success" == $httpParsedResponseAr["ACK"]) {
                 //exit('TransactionSearch Completed Successfully: '.print_r($httpParsedResponseAr, true));
             } else  {
-                exit('TransactionSearch failed: ' . print_r($httpParsedResponseAr, true));
+                $this->log($userName."-TransactionSearch", '<font color="red">TransactionSearch failed: ' . print_r($httpParsedResponseAr, true).'</font><br><br><br>', "html");
             }
         }
         
         private function addTransactionFromAPI($api_date){
+	    /*
             foreach($api_date as $key=>$value){
                 $api_date[$key] = urldecode($value);
             }
-            
+	    */
             switch($api_date['PAYMENTSTATUS']){
 		
 		case "Pending":
@@ -779,7 +804,9 @@
                 '".mysql_real_escape_string($api_date['SHIPTOCITY'])."','".mysql_real_escape_string($api_date['SHIPTOSTATE'])."',
                 '".$api_date['SHIPTOZIP']."','".$api_date['SHIPTOCOUNTRYNAME']."','".$item_number_string."')";
                 
+		$this->log('paypal_api', "addTransactionFromAPI: ".$sql."<br>", "html");
                 $result = mysql_query($sql, PayPal::$database_connect);
+		
                 while($result == false){
                     sleep(rand(0,10));
                     $transactionId = $this->getTransactionId();
@@ -792,15 +819,16 @@
                     '".mysql_real_escape_string($api_date['SHIPTOCITY'])."','".mysql_real_escape_string($api_date['SHIPTOSTATE'])."',
                     '".$api_date['SHIPTOZIP']."','".$api_date['SHIPTOCOUNTRYNAME']."','".$item_number_string."')";
                 
+		    $this->log('paypal_api', "<font color='red'>addTransactionFromAPI failure, Repeat: ".$sql."</font><br>", "html");
                     $result = mysql_query($sql, PayPal::$database_connect);
 		}
-                $this->log('paypal_api', "addTransactionFromAPI: ".$sql);
+                
+		$this->matchOrder($api_date, $item_number_string, $transactionId);
             }else{
-                $this->log('paypal_api', "TRANSACTIONID: ". $api_date['TRANSACTIONID']. " Exist.\n");
+                $this->log('paypal_api', '<font color="red">TRANSACTIONID: '. $api_date['TRANSACTIONID']. ' Exist.</font><br>', "html");
             }
-            
-            $this->matchOrder($api_date, $item_number_string, $transactionId);
-            
+	    
+	    $this->log('paypal_api', "<br><br>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++<br><br>", "html");
         }
         
         public function GetTransactionDetails($userName, $password, $sgnature, $transactionID){
@@ -809,24 +837,53 @@
             
             // Execute the API operation; see the PPHttpPost function above.
             $httpParsedResponseAr = $this->PPHttpPost($userName, $password, $sgnature, 'GetTransactionDetails', $nvpStr);
-            
+
             foreach($httpParsedResponseAr as $key=>$value){
-                echo $key.": ".urldecode($value);
-                echo "<br>";
+		$httpParsedResponseAr[$key] = urldecode($value);
+                //echo $key.": ".urldecode($value);
+                //echo "<br>";
             }
-            
+	    
+            $this->log($userName."-GetTransactionDetails", print_r($httpParsedResponseAr, true)."<br><br><br>", "html");
+	    
             $this->addTransactionFromAPI($httpParsedResponseAr);
             
             if("Success" == $httpParsedResponseAr["ACK"]) {
                     //exit('GetTransactionDetails Completed Successfully: '.print_r($httpParsedResponseAr, true));
             } else  {
-                    exit('GetTransactionDetails failed: ' . print_r($httpParsedResponseAr, true));
+		    $this->log($userName."-GetTransactionDetails", '<font color="red">GetTransactionDetails failed: ' . print_r($httpParsedResponseAr, true).'</font>', "html");
             }
         }
         
+	public function setAPITime($start_time, $end_time){
+	    $this->start_time = $start_time;
+	    $this->end_time = $end_time;
+	}
+	
         public function getAllSellerTransactions(){
-            $this->TransactionSearch("paintings.suppliersz_api1.gmail.com", "BQ3G47PGEUPFJYUW", "AFAonZoEN5Tlf1AdMI6LHryIRiuXAZmyV1n8z4H3aK3CTTmVXIajebfk", "2009-04-18 00:00:00", "2009-04-20 00:00:00");
-        }
+            //$this->TransactionSearch("paintings.suppliersz_api1.gmail.com", "BQ3G47PGEUPFJYUW", "AFAonZoEN5Tlf1AdMI6LHryIRiuXAZmyV1n8z4H3aK3CTTmVXIajebfk", "2009-04-18 00:00:00", "2009-04-20 00:00:00");
+	    if(empty($this->start_time) && empty($this->end_time)){
+		$this->start_time = date("Y-m-d H:i:s", time() - (12 * 60 * 60));
+		$this->end_time   = date("Y-m-d H:i:s", time() - (8 * 60 * 60));
+	    }
+	    
+	    $api_acount = array(array(
+					"Username"=> "paintings.suppliersz_api1.gmail.com",
+					"Password"=>"BQ3G47PGEUPFJYUW",
+					"Signature"=>"AFAonZoEN5Tlf1AdMI6LHryIRiuXAZmyV1n8z4H3aK3CTTmVXIajebfk"),
+				array(
+					"Username"=> "bestnbestonlinesz_api1.gmail.com",
+					"Password"=>"8QRU8M9WXG7N3953",
+					"Signature"=>"ATFJ04PNS0BGkSpwDZ9jfBhWpU8DAenN3dU8O9ap3NNjIK46BR-KRcos"),
+				array(
+					"Username"=> "libra.studio.gd_api1.gmail.com",
+					"Password"=>"9SX9GJJX38PGPDBZ",
+					"Signature"=>"AFcWxV21C7fd0v3bYYYRCpSSRl31A5TLxC.ZzYePJo53IDKsil6q0V3o"));
+	    
+	    foreach($api_acount as $acount){
+		$this->TransactionSearch($acount['Username'], $acount['Password'], $acount['Signature'], $this->start_time, $this->end_time);
+	    }
+	}
         
         public function __destruct(){
             mysql_close(PayPal::$database_connect);
@@ -843,13 +900,33 @@ if(!empty($_GET['action'])){
     $PayPal = new PayPal();
     switch($_GET['action']){
         case "TransactionSearch":
-            $PayPal->TransactionSearch("paintings.suppliersz_api1.gmail.com", "BQ3G47PGEUPFJYUW", "AFAonZoEN5Tlf1AdMI6LHryIRiuXAZmyV1n8z4H3aK3CTTmVXIajebfk", "2009-07-05 00:00:00", "2009-07-06 00:00:00");
+            $PayPal->TransactionSearch("paintings.suppliersz_api1.gmail.com", "BQ3G47PGEUPFJYUW", "AFAonZoEN5Tlf1AdMI6LHryIRiuXAZmyV1n8z4H3aK3CTTmVXIajebfk", "2009-07-04 00:00:00", "2009-07-05 00:00:00");
         break;
     
         case "GetTransactionDetails":
             $PayPal->GetTransactionDetails("paintings.suppliersz_api1.gmail.com", "BQ3G47PGEUPFJYUW", "AFAonZoEN5Tlf1AdMI6LHryIRiuXAZmyV1n8z4H3aK3CTTmVXIajebfk", "9YE0607179577100D");
         break;
     }
-    
 }
+
+if(!empty($argv[1]) && $argv[1] == "API"){
+    $PayPal = new PayPal();
+    //$PayPal->setAPITime("2009-07-06 00:00:00", "2009-07-06 09:30:00");
+    $PayPal->getAllSellerTransactions();
+}
+/*
+paintings.suppliersz_api1.gmail.com
+BQ3G47PGEUPFJYUW
+AFAonZoEN5Tlf1AdMI6LHryIRiuXAZmyV1n8z4H3aK3CTTmVXIajebfk
+
+
+bestnbestonlinesz_api1.gmail.com
+8QRU8M9WXG7N3953
+ATFJ04PNS0BGkSpwDZ9jfBhWpU8DAenN3dU8O9ap3NNjIK46BR-KRcos
+
+
+libra.studio.gd_api1.gmail.com
+9SX9GJJX38PGPDBZ
+AFcWxV21C7fd0v3bYYYRCpSSRl31A5TLxC.ZzYePJo53IDKsil6q0V3o
+*/
 ?>

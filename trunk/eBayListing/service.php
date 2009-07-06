@@ -580,6 +580,8 @@ class eBayListing{
 
 	<ListingDuration> token </ListingDuration>
 	
+	<ListingEnhancement> ListingEnhancementsCodeType </ListingEnhancement>
+
 	//AdType,Chinese,CustomCode,Dutch,Express(Germany),FixedPriceItem,LeadGeneration,StoresFixedPrice
 	<ListingType> ListingTypeCodeType </ListingType>
 	<Location> string </Location>
