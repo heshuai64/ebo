@@ -82,6 +82,7 @@ Ext.onReady(function(){
     
     var selectPictureWindow = new Ext.Window({
         title:"Insert Picture URLs - Self Hosted",
+        closeAction:"hide",
         width:450,
         items: [{
             xtype:"panel",
@@ -837,7 +838,45 @@ Ext.onReady(function(){
                         xtype:"htmleditor",
                         fieldLabel:"Descritpion",
                         name:"Description"
-                      }]
+                    },{
+                        layout:"column",
+                        border:false,
+                        items:[{
+                            columnWidth:0.2,
+                            layout:"form",
+                            border:false,
+                            style:"padding:0px;",
+                            items:[{
+                                xtype:"checkbox",
+                                labelWidth: 0,
+                                labelSeparator: '',
+                                fieldLabel:"",
+                                labelStyle: 'height:0px;padding:0px;',
+                                style:"padding:0px;",
+                                boxLabel:"Use Standard Footer"
+                            }]
+                        },{
+                            columnWidth:0.2,
+                            border:false,
+                            items:[{
+                                xtype:"button",
+                                text:"Edit Standard Footer",
+                                handler: function(){
+                                    window.open("/eBayBO/eBayListing/footer.html","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                }
+                            }]
+                        },{
+                            columnWidth:0.2,
+                            border:false,
+                            items:[{
+                                xtype:"button",
+                                text:"Local Preview",
+                                handler: function(){
+                                    
+                                }
+                            }]
+                        }]
+                    }]
                   },{
                     xtype:"panel",
                     title:"Schedule",
