@@ -686,6 +686,35 @@ class eBayListing{
 	
     }
     
+    public function saveItem(){
+	//ScheduleStartDate,ScheduleEndDate
+	//Location,PostalCode
+	//PrimaryCategory,SecondaryCategory
+	//CurrentPrice
+	//Site
+	//ShippingType
+	
+	$PaymentMethods = ($_POST['PayPalPayment'] == 1)?'PayPal':'';
+	$sql = "insert into items (BuyItNowPrice,Country,Currency,Description,ScheduleStartDate,
+	ScheduleEndDate,ListingDuration,ListingType,PaymentMethods,PayPalEmailAddress,Quantity,ShippingType,
+	Site,SKU,StartPrice,StoreCategory2ID,StoreCategoryID,SubTitle,Title,) values (
+	'".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
+	'".$_POST['Description']."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."',
+	'".$_POST['ListingDuration']."','".$_POST['ListingType']."','".$PaymentMethods."',
+	'".$_POST['PayPalEmailAddress']."','".$_POST['Quantity']."','".$_POST['ShippingType']."',
+	'".$_POST['Site']."','".$_POST['SKU']."','".$_POST['StartPrice']."','".$_POST['StoreCategory2ID']."',
+	'".$_POST['StoreCategoryID']."','".$_POST['SubTitle']."',
+	'".$_POST['Title']."','".$_POST['']."',
+	'".$_POST['']."','".$_POST['']."','".$_POST['']."',
+	'".$_POST['']."','".$_POST['']."','".$_POST['']."',
+	'".$_POST['']."','".$_POST['']."','".$_POST['']."',
+	'".$_POST['']."','".$_POST['']."','".$_POST['']."',
+	'".$_POST['']."','".$_POST['']."','".$_POST['']."',
+	'".$_POST['']."','".$_POST['']."','".$_POST['']."',)";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	
+    }
+    
     private function checkItem($itemId){
 	$sql = "select count(*) as count from items where ItemID = '$itemId->ItemID'";
 	$result = mysql_query($sql, eBayListing::$database_connect);

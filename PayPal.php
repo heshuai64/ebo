@@ -496,7 +496,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	private function getOrderPay($ordersId){
             $sql = "select grandTotalValue from qo_orders where id='$ordersId'";
-            $this->log('paypal_api',"getOrderPay: ".$sql);
+            $this->log('paypal_api',"getOrderPay: ".$sql."<br>", "html");
             $result = mysql_query($sql, PayPal::$database_connect);
             $row = mysql_fetch_assoc($result);
 	    return $row['grandTotalValue'];

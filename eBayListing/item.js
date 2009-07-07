@@ -108,7 +108,8 @@ Ext.onReady(function(){
     })
     
     var siteStore = new Ext.data.JsonStore({
-         fields: ['id', 'name'],
+        autoLoad :true,
+        fields: ['id', 'name'],
         url:'service.php?action=getSite'
     })
     
@@ -122,250 +123,6 @@ Ext.onReady(function(){
           width:26
         }
         //width:600,
-        /*
-        items:[{
-            width: 60,
-            html:"Mon",
-            border: false
-          },{
-            html:"0<br>am",
-            id:"mon-am-0-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-am-0",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"1<br>am",
-            id:"mon-am-1-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-am-1",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"2<br>am",
-            id:"mon-am-2-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-am-2",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"3<br>am",
-            id:"mon-am-3-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-am-3",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"4<br>am",
-            id:"mon-am-4-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-am-4",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"5<br>am",
-            id:"mon-am-5-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-am-5",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"6<br>am",
-            id:"mon-am-6-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-am-6",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"7<br>am",
-            id:"mon-am-7-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-am-7",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"8<br>am",
-            id:"mon-am-8-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-am-8",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"9<br>am",
-            id:"mon-am-9-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-am-9",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"10<br>am",
-            id:"mon-am-10-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-am-10",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"11<br>am",
-            id:"mon-am-11-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-am-11",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"12<br>am",
-            id:"mon-am-12-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-am-12",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"1<br>pm",
-            id:"mon-pm-1-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-pm-1",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"2<br>pm",
-            id:"mon-pm-2-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-pm-2",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"3<br>pm",
-            id:"mon-pm-3-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-pm-3",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"4<br>pm",
-            id:"mon-pm-4-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-pm-4",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"5<br>pm",
-            id:"mon-pm-5-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-pm-5",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"6<br>pm",
-            id:"mon-pm-6-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-pm-6",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"7<br>pm",
-            id:"mon-pm-7-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-pm-7",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"8<br>pm",
-            id:"mon-pm-8-panel",
-            bodyCssClass:"schedule-time",
-            layout:"form",
-            items:[{
-                xtype:"hidden",
-                id:"mon-pm-8",
-                name:"ma1",
-                value: 0
-            }]
-          },{
-            html:"9<br>pm"
-          },{
-            html:"10<br>pm"
-          },{
-            html:"11<br>pm"
-          }]
-        */
     })
     
     var day = 0;
@@ -1412,7 +1169,7 @@ Ext.onReady(function(){
                     },{
                         xtype:"fieldset",
                         title:" ",
-                        autoHeight:true,
+                        //autoHeight:true,
                         bodyStyle:"padding:0px;",
                         items:[{
                             layout:"table",
@@ -1565,8 +1322,8 @@ Ext.onReady(function(){
                             labelStyle: 'height:0px;padding:0px',
                             fieldLabel:"",
                             boxLabel:"Credit crads via PayPal",
-                            name:"checkbox",
-                            inputValue:"cbvalue"
+                            name:"PayPalPayment",
+                            inputValue:"PayPalPayment"
                           },{
                             xtype:"textfield",
                             fieldLabel:"PayPal Account Email",
@@ -1614,7 +1371,7 @@ Ext.onReady(function(){
                 handler: function(){
                     itemForm.getForm().submit({
                         clientValidation: true,
-                        url: 'service.php',
+                        url: 'service.php?action=saveItem',
                         success: function(form, action) {
                             Ext.Msg.alert("Success", action.result.msg);
                         },
