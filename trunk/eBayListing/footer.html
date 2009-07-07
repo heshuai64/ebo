@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>eBay Listing</title>
+    <link rel="stylesheet" type="text/css" href="../../ext-3.0.0/resources/css/ext-all.css" />
+    <script src="../../ext-3.0.0/adapter/ext/ext-base.js"></script>
+    <script src="../../ext-3.0.0/ext-all.js"></script>
+    <script type="text/javascript">
+        Ext.onReady(function(){
+            Ext.BLANK_IMAGE_URL = "../../ext-3.0-rc2/resources/images/default/s.gif";
+            var panel = new Ext.Panel({
+                layout:"column",
+                border:false,
+                items:[{
+                    columnWidth:0.6,
+                    layout:"form",
+                    border:false,
+                    items:[{
+                        xtype:"htmleditor"
+                        
+                    }]
+                },{
+                    columnWidth:0.4,
+                    border:false,
+                    items:[{
+                        xtype:"button"
+                        
+                    }]
+                }]
+            })
+            
+            panel.render(document.body);
+        })
+    </script>
+</head>
+<body>
+
+</body>  
+</html>
