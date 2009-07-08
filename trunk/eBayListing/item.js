@@ -865,16 +865,6 @@ Ext.onReady(function(){
                                     window.open("/eBayBO/eBayListing/footer.html","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                 }
                             }]
-                        },{
-                            columnWidth:0.2,
-                            border:false,
-                            items:[{
-                                xtype:"button",
-                                text:"Local Preview",
-                                handler: function(){
-                                    
-                                }
-                            }]
                         }]
                     }]
                   },{
@@ -958,12 +948,15 @@ Ext.onReady(function(){
                                 items:[{
                                     xtype:"numberfield",
                                     fieldLabel:"Start Price",
+                                    id:"StartPrice",
                                     name:"StartPrice"
                                   },{
                                     xtype:"numberfield",
                                     fieldLabel:"Buy It Now Price",
+                                    id:"BuyItNowPrice",
                                     name:"BuyItNowPrice"
                                   },{
+                                    id:"Quantity",
                                     xtype:"numberfield",
                                     fieldLabel:"Quantity",
                                     name:"Quantity"
@@ -979,11 +972,8 @@ Ext.onReady(function(){
                                 items:[{
                                     xtype:"numberfield",
                                     fieldLabel:"Reserve Price",
-                                    name:"textvalue"
-                                  },{
-                                    xtype:"textfield",
-                                    fieldLabel:"Text",
-                                    name:"textvalue"
+                                    id:"ReservePrice",
+                                    name:"ReservePrice"
                                   },{
                                     xtype:"combo",
                                     fieldLabel:"Duration",
@@ -1023,6 +1013,27 @@ Ext.onReady(function(){
                                         width: 150,
                                         listeners: {
                                             "select": function(c, r, i){
+                                                switch(r.data.name){
+                                                    case "Chinese":
+                                                        Ext.getCmp("StartPrice").setDisabled(0);
+                                                        Ext.getCmp("ReservePrice").setDisabled(0);
+                                                        Ext.getCmp("Quantity").setValue(1);
+                                                        Ext.getCmp("Quantity").setDisabled(1);
+                                                    break;
+                                                
+                                                    case "FixedPriceItem":
+                                                        Ext.getCmp("Quantity").setDisabled(0);
+                                                        Ext.getCmp("StartPrice").setDisabled(1);
+                                                        Ext.getCmp("ReservePrice").setDisabled(1);
+                                                    break;
+                                                
+                                                    case "StoresFixedPrice":
+                                                        Ext.getCmp("Quantity").setDisabled(0);
+                                                        Ext.getCmp("StartPrice").setDisabled(1);
+                                                        Ext.getCmp("ReservePrice").setDisabled(1);
+                                                    break;
+                                                }
+                                                
                                                 document.getElementById("ListingType").value = r.data.name;
                                                 listingDurationStore.load({params: {id: r.data.id}});
                                             }
@@ -1040,6 +1051,83 @@ Ext.onReady(function(){
                         name:"ListingType"
                     }]
                   },{
+                    xtype:"panel",
+                    title:"Listing Upgrades",
+                    layout:"column",
+                    items:[{
+                        columnWidth:0.5,
+                        border:false,
+                        items:[{
+                            xtype:"checkbox",
+                            labelWidth: 0,
+                            labelSeparator: '',
+                            fieldLabel:"",
+                            boxLabel:"Highlight",
+                            name:"Highlight"
+                        },{
+                            xtype:"checkbox",
+                            labelWidth: 0,
+                            labelSeparator: '',
+                            fieldLabel:"",
+                            boxLabel:"BoldTitle",
+                            name:"BoldTitle"
+                        },{
+                            xtype:"checkbox",
+                            labelWidth: 0,
+                            labelSeparator: '',
+                            fieldLabel:"",
+                            boxLabel:"Border",
+                            name:"Border"
+                        },{
+                            xtype:"checkbox",
+                            labelWidth: 0,
+                            labelSeparator: '',
+                            fieldLabel:"",
+                            boxLabel:"Featured",
+                            name:"Featured"
+                        }]
+                    },{
+                        columnWidth:0.5,
+                        border:false,
+                        items:[{
+                            xtype:"checkbox",
+                            labelWidth: 0,
+                            labelSeparator: '',
+                            fieldLabel:"",
+                            boxLabel:"HomePageFeatured",
+                            name:"HomePageFeatured"
+                        },{
+                            xtype:"checkbox",
+                            labelWidth: 0,
+                            labelSeparator: '',
+                            fieldLabel:"",
+                            boxLabel:"ProPackBundle",
+                            name:"ProPackBundle"
+                        },{
+                            xtype:"checkbox",
+                            labelWidth: 0,
+                            labelSeparator: '',
+                            fieldLabel:"",
+                            boxLabel:"ProPackPlusBundle",
+                            name:"ProPackPlusBundle"
+                        },{
+                            xtype:"checkbox",
+                            labelWidth: 0,
+                            labelSeparator: '',
+                            fieldLabel:"",
+                            boxLabel:"ValuePackBundle",
+                            name:"ValuePackBundle"
+                        }]
+                    }]
+                  },{
+                        border: false,
+                        xtype:"checkbox",
+                        labelWidth: 0,
+                        labelSeparator: '',
+                        fieldLabel:"",
+                        boxLabel:"BasicUpgradePackBundle",
+                        name:"BasicUpgradePackBundle"
+                    },{
                     xtype:"panel",
                     title:"Shipping Options",
                     layout:"form",
