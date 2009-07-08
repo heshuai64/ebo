@@ -8,7 +8,8 @@ class eBayListing{
     const DATABASE_USER = 'root';
     const DATABASE_PASSWORD = '5333533';
     const DATABASE_NAME = 'ebaylisting';
-    const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
+    //const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
+    const GATEWAY_SOAP = 'https://api.ebay.com/wsapi';
     
     const EBAY_BO_SERVICE = 'http://127.0.0.1/eBayBO/service.phpss';
     const INVENTORY_SERVICE = 'http://127.0.0.1/einv2/service.php';
@@ -57,8 +58,8 @@ class eBayListing{
 	$app = $config[$site]['appId'];
 	$cert = $config[$site]['cert'];
 	$token = (empty($token)?$config[$site]['authToken']:$token);
-	$location = $config[$site]['gatewaySOAP'];
-	//$location = self::GATEWAY_SOAP;
+	//$location = $config[$site]['gatewaySOAP'];
+	$location = self::GATEWAY_SOAP;
 	
 	// Create and configure session
 	$session = new eBaySession($dev, $app, $cert, $proxy_host, $proxy_port);
@@ -220,6 +221,7 @@ class eBayListing{
 	    $results = $client->GetCategoryFeatures($params);
 	    //print_r($results);
 	    
+	    
 	    print_r($results->SiteDefaults->ListingDuration);
 	    foreach($results->SiteDefaults->ListingDuration as $listingDurationType){
 		$sql = "insert into listing_duration_type (id,name) values ('".$listingDurationType->_."','".$listingDurationType->type."')";
@@ -241,7 +243,7 @@ class eBayListing{
 	    //----------   debug --------------------------------
 	    //print "Request: \n".$client->__getLastRequest() ."\n";
 	    //print "Response: \n".$client->__getLastResponse()."\n";
-	    $this->saveFetchData("getCategoryFeatures-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+	    //$this->saveFetchData("getCategoryFeatures-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 	 } catch (SOAPFault $f) {
                 print $f; // error handling
         }
@@ -424,12 +426,12 @@ class eBayListing{
     }
     
     public function getListingDurationType(){
-	$sql = "select id,name from listing_duration_type";
+	$sql = "select name from listing_duration_type";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$array = array();
 	$i = 0;
 	while($row = mysql_fetch_assoc($result)){
-	    $array[$i]['id'] = $row['id'];
+	    $array[$i]['id'] = $row['name'];
 	    $array[$i]['name'] = $row['name'];
 	    $i++;
 	}
@@ -438,7 +440,11 @@ class eBayListing{
     }
     
     public function getListingDuration(){
-	$sql = "select id,name from listing_duration where id = '".$_POST['id']."'";
+	$sql = "select id from listing_duration_type where name = '".$_POST['id']."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	
+	$sql = "select name from listing_duration where id = '".$row['id']."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$array = array();
 	$i = 0;
@@ -693,15 +699,17 @@ class eBayListing{
 	//CurrentPrice
 	//Site
 	//ShippingType
+	//ListingEnhancement
 	
+	//StartTime,EndTime
 	$PaymentMethods = ($_POST['PayPalPayment'] == 1)?'PayPal':'';
 	$sql = "insert into items (BuyItNowPrice,Country,Currency,Description,ScheduleStartDate,
-	ScheduleEndDate,ListingDuration,ListingType,PaymentMethods,PayPalEmailAddress,Quantity,ShippingType,
-	Site,SKU,StartPrice,StoreCategory2ID,StoreCategoryID,SubTitle,Title,) values (
+	ScheduleEndDate,ListingDuration,ListingType,PaymentMethods,PayPalEmailAddress,Quantity,ReservePrice,
+	ShippingType,Site,SKU,StartPrice,StoreCategory2ID,StoreCategoryID,SubTitle,Title,) values (
 	'".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
 	'".$_POST['Description']."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."',
 	'".$_POST['ListingDuration']."','".$_POST['ListingType']."','".$PaymentMethods."',
-	'".$_POST['PayPalEmailAddress']."','".$_POST['Quantity']."','".$_POST['ShippingType']."',
+	'".$_POST['PayPalEmailAddress']."','".$_POST['Quantity']."',''".$_POST['ReservePrice']."'','".$_POST['ShippingType']."',
 	'".$_POST['Site']."','".$_POST['SKU']."','".$_POST['StartPrice']."','".$_POST['StoreCategory2ID']."',
 	'".$_POST['StoreCategoryID']."','".$_POST['SubTitle']."',
 	'".$_POST['Title']."','".$_POST['']."',
@@ -932,6 +940,20 @@ class eBayListing{
 	    $array[] = $row;
 	}
 	print_r($array);
+    }
+    
+    public function saveFooter(){
+	$sql_1 = "select count(*) as num from account_footer where accountId = ''";
+	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	$row_1 = mysql_fetch_assoc($result_1);
+	
+	if($row_1['num'] > 0){
+	    $sql_2 = "update account_footer set footer = '".$_POST['elm1']."' where accountId = ''";
+	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);	
+	}else{
+	    $sql_2 = "insert into account_footer (accountId,footer) values ('','".$_POST['elm1']."')";
+	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);	
+	}
     }
     
     public function __destruct(){
