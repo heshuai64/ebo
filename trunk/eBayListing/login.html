@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" type="text/css" href="../../ext-3.0.0/resources/css/ext-all.css" />
+    <script src="../../ext-3.0.0/adapter/ext/ext-base.js"></script>
+    <script src="../../ext-3.0.0/ext-all.js"></script>
+    <title>Login</title>
+    <script>
+            Ext.onReady(function(){
+                Ext.QuickTips.init();
+                var login_form = new Ext.FormPanel({
+                    labelWidth: 75, // label settings here cascade unless overridden
+                    frame:true,
+                    title: 'Please Login',
+                    bodyStyle:'padding:5px 5px 0',
+                    width: 350,
+                    defaults: {width: 230},
+                    defaultType: 'textfield',
+            
+                    items: [{
+                            id: 'user',
+                            fieldLabel: 'User Name',
+                            name: 'user',
+                            allowBlank:false
+                        },{
+                            id: 'password',
+                            fieldLabel: 'Password',
+                            name: 'password',
+                            inputType: 'password',
+                            allowBlank:false
+                        }
+                    ],
+            
+                    buttons: [{
+                        text: 'Submit',
+                        handler: function(){
+                            Ext.Ajax.request({
+                                url: 'service.php?action=login'
+                                , params: {
+                                    name: Ext.get("user").dom.value,
+                                    password: Ext.get("password").dom.value
+                                }
+                                , success: function(o){
+                                    var d = Ext.decode(o.responseText);
+                                    //console.log(d);
+                                    //window.location = path;
+                                    if(d.success){
+                                        window.location = "index.php";
+                                    }else{
+                                        Ext.Msg.alert('Failure', 'Please enter the correct user name and password.');
+                                    }
+                                }
+                                , failure: function(){
+                                        alert('Lost connection to server.');
+                                }
+                            });
+                        }
+                    }]
+                });
+        
+                login_form.render("login-form");
+                
+                Ext.get("password").addListener('keypress', function(t, e){
+						//console.log(t);
+						//alert(t.getKey());
+						if(t.getKey() == 13){
+						    Ext.Ajax.request({
+                                                        url: 'service.php?action=login'
+                                                        , params: {
+                                                            name: Ext.get("user").dom.value,
+                                                            password: Ext.get("password").dom.value
+                                                        }
+                                                        , success: function(o){
+                                                            var d = Ext.decode(o.responseText);
+                                                            //console.log(d);
+                                                            //window.location = path;
+                                                            if(d.success){
+                                                                window.location = "index.php";
+                                                            }else{
+                                                                Ext.Msg.alert('Failure', 'Please enter the correct user name and password.');
+                                                            }
+                                                        }
+                                                        , failure: function(){
+                                                                alert('Lost connection to server.');
+                                                        }
+                                                    });
+						}
+					}
+		)
+            })           
+        </script>
+</head>
+<body>
+    <div id="login-form" style="position:absolute;top:50%;left:50%;margin:-65px 0px 0px -160px; "></div>
+</body>
+</html>

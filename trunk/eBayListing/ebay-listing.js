@@ -1,5 +1,5 @@
 Ext.onReady(function(){
-     Ext.BLANK_IMAGE_URL = "../../Ext/2.2/resources/images/default/s.gif";
+     Ext.BLANK_IMAGE_URL = "../../ext-3.0.0/resources/images/default/s.gif";
      
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
@@ -264,11 +264,27 @@ Ext.onReady(function(){
      var viewport = new Ext.Viewport({
           layout:'border',
           items:[
-               new Ext.BoxComponent({ // raw
+               //new Ext.BoxComponent({ // raw
+               {
                    region:'north',
-                   el: 'north',
+                   xtype:"panel",
+                   items:[{
+                         xtype:"button",
+                         text:"Ebay Account Manage",
+                         style:"float:left;margin-right:5px",
+                         iconCls:'user'
+                    },{
+                         xtype:"button",
+                         text:"Ebay Account Manage",
+                         style:"float:left;margin-right:5px"
+                    },{
+                         xtype:"button",
+                         text:"Ebay Account Manage",
+                         style:"float:left;margin-right:5px"
+                    }],
+                   //el: 'north',
                    height:32
-               }),/*{
+               },/*){
                    region:'south',
                    contentEl: 'south',
                    split:true,
