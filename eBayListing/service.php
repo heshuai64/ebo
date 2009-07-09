@@ -18,9 +18,6 @@ class eBayListing{
     private $session;
     
     public function __construct(){
-	session_start();
-	$_SESSION['account_id'] = 1;
-	
         eBayListing::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
 
         if (!eBayListing::$database_connect) {
@@ -34,17 +31,20 @@ class eBayListing{
             echo "Unable to select mydbname: " . mysql_error(eBayListing::$database_connect);
             exit;
         }
-       
-	$sql = "select token from account where id = '".$_SESSION['account_id']."'";
-	$result = mysql_query($sql, eBayListing::$database_connect);
-	$row = mysql_fetch_assoc($result);
 	
-	
-	$sql_1 = "select p.host,p.port from proxy as p left join account_to_proxy as atp on p.id = atp.proxy_id where atp.account_id = '".$_SESSION['account_id']."'";
-	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	$row_1 = mysql_fetch_assoc($result_1);
-
-	$this->session = $this->configEbay($row['token'], $row_1['host'], $row_1['port']);
+	//session_start();
+	if(!empty($_COOKIE['account_id'])){
+	    $sql = "select token from account where id = '".$_COOKIE['account_id']."'";
+	    $result = mysql_query($sql, eBayListing::$database_connect);
+	    $row = mysql_fetch_assoc($result);
+	    
+	    
+	    $sql_1 = "select p.host,p.port from proxy as p left join account_to_proxy as atp on p.id = atp.proxy_id where atp.account_id = '".$_COOKIE['account_id']."'";
+	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	    $row_1 = mysql_fetch_assoc($result_1);
+    
+	    $this->session = $this->configEbay($row['token'], $row_1['host'], $row_1['port']);
+	}
     }
     
     private function configEbay($token='', $proxy_host='', $proxy_port=''){
@@ -723,6 +723,10 @@ class eBayListing{
 	
     }
     
+    public function uploadItem(){
+	
+    }
+    
     private function checkItem($itemId){
 	$sql = "select count(*) as count from items where ItemID = '$itemId->ItemID'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
@@ -943,17 +947,35 @@ class eBayListing{
     }
     
     public function saveFooter(){
-	$sql_1 = "select count(*) as num from account_footer where accountId = ''";
+	$sql_1 = "select count(*) as num from account_footer where accountId = '".$_COOKIE['account_id']."'";
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$row_1 = mysql_fetch_assoc($result_1);
 	
 	if($row_1['num'] > 0){
-	    $sql_2 = "update account_footer set footer = '".$_POST['elm1']."' where accountId = ''";
+	    $sql_2 = "update account_footer set footer = '".$_POST['elm1']."' where accountId = '".$_COOKIE['account_id']."'";
 	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);	
 	}else{
-	    $sql_2 = "insert into account_footer (accountId,footer) values ('','".$_POST['elm1']."')";
+	    $sql_2 = "insert into account_footer (accountId,footer) values ('".$_COOKIE['account_id']."','".$_POST['elm1']."')";
 	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);	
 	}
+    }
+    
+    public function login(){
+	$sql = "select id from account where name = '".$_POST['name']."' and password = '".$_POST['password']."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	
+	//$_SESSION['account_id'] = $row['id'];
+	if(!empty($row['id'])){
+	    setcookie("account_id", $row['id'], time() + (60 * 60 * 24));
+	    echo "{success: true}";
+	}else{
+	    echo "{success: false}";
+	}
+    }
+    
+    public function logout(){
+	unset($_COOKIE['account_id']);
     }
     
     public function __destruct(){
