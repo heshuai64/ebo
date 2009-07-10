@@ -8,14 +8,19 @@ class eBayListing{
     const DATABASE_USER = 'root';
     const DATABASE_PASSWORD = '5333533';
     const DATABASE_NAME = 'ebaylisting';
-    //const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
-    const GATEWAY_SOAP = 'https://api.ebay.com/wsapi';
+    const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
+    //const GATEWAY_SOAP = 'https://api.ebay.com/wsapi';
     
     const EBAY_BO_SERVICE = 'http://127.0.0.1/eBayBO/service.phpss';
     const INVENTORY_SERVICE = 'http://127.0.0.1/einv2/service.php';
     private $startTime;
     private $endTime;
+    
+    //private $env = "production";
+    private $env = "sandbox";
+    
     private $session;
+    private $account_id;
     
     public function __construct(){
         eBayListing::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
@@ -31,47 +36,54 @@ class eBayListing{
             echo "Unable to select mydbname: " . mysql_error(eBayListing::$database_connect);
             exit;
         }
-	
-	//session_start();
+    }
+    
+    public  function setAccount($account_id){
+	$this->account_id = $account_id;
+	$this->configEbay();
+    }
+    
+    private function configEbay(){
 	if(!empty($_COOKIE['account_id'])){
-	    $sql = "select token from account where id = '".$_COOKIE['account_id']."'";
+	    $this->account_id = $_COOKIE['account_id'];
+	}
+	
+    	if(!empty($this->account_id)){
+	    $sql = "select token from account where id = '".$this->account_id."'";
 	    $result = mysql_query($sql, eBayListing::$database_connect);
 	    $row = mysql_fetch_assoc($result);
 	    
 	    
-	    $sql_1 = "select p.host,p.port from proxy as p left join account_to_proxy as atp on p.id = atp.proxy_id where atp.account_id = '".$_COOKIE['account_id']."'";
+	    $sql_1 = "select p.host,p.port from proxy as p left join account_to_proxy as atp on p.id = atp.proxy_id where atp.account_id = '".$this->account_id."'";
 	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	    $row_1 = mysql_fetch_assoc($result_1);
     
-	    $this->session = $this->configEbay($row['token'], $row_1['host'], $row_1['port']);
+	    //------------------------------------------------------------------------------------------------
+	    // Load developer-specific configuration data from ini file
+	    $config = parse_ini_file('ebay.ini', true);
+	    $env = $this->env;
+	    //$compatibilityLevel = $config['settings']['compatibilityLevel'];
+	    
+	    $dev =   $config[$env]['devId'];
+	    $app =   $config[$env]['appId'];
+	    $cert =  $config[$env]['cert'];
+	    $token = $config[$env]['authToken'];
+	    //$token = $row['token'];
+	    //$token = (empty($token)?$config[$env]['authToken']:$token);
+	    //$location = $config[$env]['gatewaySOAP'];
+	    $location = self::GATEWAY_SOAP;
+	    
+	    // Create and configure session
+	    $this->session = new eBaySession($dev, $app, $cert, $row_1['host'], $row_1['port']);
+	    $this->session->token = $token;
+	    $this->session->site = 0; // 0 = US;
+	    $this->session->location = $location;
+	    
 	}
     }
     
-    private function configEbay($token='', $proxy_host='', $proxy_port=''){
-    	
-	// Load developer-specific configuration data from ini file
-	$config = parse_ini_file('ebay.ini', true);
-	$site = $config['settings']['site'];
-	//$compatibilityLevel = $config['settings']['compatibilityLevel'];
-	
-	$dev = $config[$site]['devId'];
-	$app = $config[$site]['appId'];
-	$cert = $config[$site]['cert'];
-	$token = (empty($token)?$config[$site]['authToken']:$token);
-	//$location = $config[$site]['gatewaySOAP'];
-	$location = self::GATEWAY_SOAP;
-	
-	// Create and configure session
-	$session = new eBaySession($dev, $app, $cert, $proxy_host, $proxy_port);
-	$session->token = $token;
-	$session->site = 0; // 0 = US;
-	$session->location = $location;
-	
-	return $session;
-    }
-    
     private function saveFetchData($file_name, $data){
-	//file_put_contents("/export/eBayBO/eBayListing/log/".$file_name, $data);
+	file_put_contents("/export/eBayBO/eBayListing/log/".$file_name, $data);
     }
     
     private function checkCategoriesVersion($siteId, $categoryVersion){
@@ -574,7 +586,7 @@ class eBayListing{
 	mysql_free_result($result);
     }
     
-    public function addItems(){
+    public function addItem($item){
 	/*
 	英,美,法,澳,
 	Europe/London       +0100
@@ -689,7 +701,102 @@ class eBayListing{
 	<Title> string </Title>
 
 	*/
-	
+	try {
+	    $client = new eBaySOAP($this->session);
+	    $Version = '607';
+	    
+	    $itemArray = array();
+	    
+	    if(!empty($item['BuyItNowPrice'])){
+		$itemArray['BuyItNowPrice'] = $item['BuyItNowPrice'];
+	    }
+	    $itemArray['CategoryMappingAllowed'] = true;
+	    $itemArray['Country'] = $item['Country'];
+	    $itemArray['Currency'] = $item['Currency'];
+	    $itemArray['Description'] = $item['Description'];
+	    if(!empty($item['DispatchTimeMax'])){
+		$itemArray['DispatchTimeMax'] = $item['DispatchTimeMax'];
+	    }
+	    $itemArray['ListingDuration'] = $item['ListingDuration'];
+	    if($item['BoldTitle'] == true){
+		$itemArray['ListingEnhancement'] = "BoldTitle";
+	    }
+	    if($item['Border'] == true){
+		$itemArray['ListingEnhancement'] = "Border";
+	    }
+	    if($item['Featured'] == true){
+		$itemArray['ListingEnhancement'] = "Featured";
+	    }
+	    if($item['Highlight'] == true){
+		$itemArray['ListingEnhancement'] = "Highlight";
+	    }
+	    if($item['HomePageFeatured'] == true){
+		$itemArray['ListingEnhancement'] = "HomePageFeatured";
+	    }
+	    
+	    $itemArray['ListingType'] = $item['ListingType'];
+	    if(!empty($item['Location'])){
+		$itemArray['Location'] = $item['Location'];
+	    }
+	    $itemArray['PaymentMethods'] = $item['PaymentMethods'];
+	    $itemArray['PayPalEmailAddress'] = $item['PayPalEmailAddress'];
+	    //PictureDetails
+	    if(!empty($item['PostalCode'])){
+		$itemArray['PostalCode'] = $item['PostalCode'];
+	    }
+	    $itemArray['PrimaryCategory']['CategoryID'] = $item['PrimaryCategoryCategoryID'];
+	    $itemArray['Quantity'] = $item['Quantity'];
+	    if(!empty($item['SecondaryCategoryCategoryID'])){
+		$itemArray['SecondaryCategory']['CategoryID'] = $item['SecondaryCategoryCategoryID'];
+	    }
+	    //$itemArray['ShippingDetails']['ShippingType'] = $item['ShippingType'];
+	    if(!empty($item['ShippingServiceOptions']) && is_array($item['ShippingServiceOptions'])){
+		foreach($item['ShippingServiceOptions'] as $s){
+		    $itemArray['ShippingDetails']['ShippingServiceOptions']['FreeShipping'] = $s['FreeShipping'];
+		    $itemArray['ShippingDetails']['ShippingServiceOptions']['ShippingService'] = $s['ShippingService'];
+		    $itemArray['ShippingDetails']['ShippingServiceOptions']['ShippingServiceCost'] = $s['ShippingServiceCost'];
+		}
+	    }
+	    if(!empty($item['InternationalShippingServiceOption']) && is_array($item['InternationalShippingServiceOption'])){
+		foreach($item['ShippingServiceOptions'] as $i){
+		    $itemArray['ShippingDetails']['InternationalShippingServiceOption']['ShippingService'] = $i['ShippingService'];
+		    $itemArray['ShippingDetails']['InternationalShippingServiceOption']['ShippingServiceCost'] = $i['ShippingServiceCost'];
+		    if(!empty($i['ShipToLocation'])){
+			$itemArray['ShippingDetails']['InternationalShippingServiceOption']['ShipToLocation'] = $i['ShipToLocation'];
+		    }
+		}
+	    }
+	    //ShipToLocations
+	    $itemArray['Site'] = $item['Site'];
+	    $itemArray['SKU'] = $item['SKU'];
+	    if(!empty($item['StartPrice'])){
+		$itemArray['StartPrice'] = $item['StartPrice'];
+	    }
+	    if(!empty($item['StoreCategory2ID'])){
+		$itemArray['Storefront']['StoreCategory2ID'] = $item['StoreCategory2ID'];
+	    }
+	    if(!empty($item['StoreCategoryID'])){
+		$itemArray['Storefront']['StoreCategoryID'] = $item['StoreCategoryID'];
+	    }
+	    if(!empty($item['SubTitle'])){
+		$itemArray['SubTitle'] = $item['SubTitle'];
+	    }
+	    $itemArray['Title'] = $item['Title'];
+	   
+	    print_r($itemArray);
+	    $params = array('Version' => $Version,
+			    'Item' => $itemArray);
+	    
+	    $results = $client->AddItem($params);
+	    //print_r($results);
+	    //----------   debug --------------------------------
+	    //print "Request: \n".$client->__getLastRequest() ."\n";
+	    //print "Response: \n".$client->__getLastResponse()."\n";
+	    $this->saveFetchData("addItem-Request-".date("Y-m-d H:i:s").".xml", $client->__getLastRequest());
+	    $this->saveFetchData("addItem-Response-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+        } catch (SOAPFault $f) {
+            print $f; // error handling
+        }
     }
     
     public function getAllCountries(){
@@ -714,7 +821,7 @@ class eBayListing{
 	//ShippingType
 	//ListingEnhancement
 	if(!empty($_POST['UseStandardFooter']) && $_POST['UseStandardFooter'] == 1){
-	    $sql = "select footer from account_footer where accountId = '".$_COOKIE['account_id']."'";
+	    $sql = "select footer from account_footer where accountId = '".$this->account_id."'";
 	    $result = mysql_query($sql, eBayListing::$database_connect);
 	    $row = mysql_fetch_assoc($result);
 	    $_POST['Description'] .= $row['footer'];
@@ -734,7 +841,7 @@ class eBayListing{
 	'".$_POST['Quantity']."','".$_POST['ReservePrice']."','".$_POST['ShippingType']."',
 	'".$_POST['Site']."','".$_POST['SKU']."','".$_POST['StartPrice']."','".$_POST['StoreCategory2ID']."',
 	'".$_POST['StoreCategoryID']."','".$_POST['SubTitle']."',
-	'".$_POST['Title']."','".$_COOKIE['account_id']."','".(empty($_POST['BoldTitle'])?0:1)."',
+	'".$_POST['Title']."','".$this->account_id."','".(empty($_POST['BoldTitle'])?0:1)."',
 	'".(empty($_POST['Border'])?0:1)."','".(empty($_POST['Featured'])?0:1)."','".(empty($_POST['Highlight'])?0:1)."',
 	'".(empty($_POST['HomePageFeatured'])?0:1)."')";
 	$result = mysql_query($sql, eBayListing::$database_connect);
@@ -769,12 +876,47 @@ class eBayListing{
 	}
     }
     
-    public function run(){
-	
-    }
-    
     public function uploadItem(){
+	/*
+	CREATE TABLE `ebaylisting`.`schedule` (
+	`item_id` INT NOT NULL ,
+	`day` VARCHAR( 3 ) NOT NULL ,
+	`time` TIME NOT NULL ,
+	PRIMARY KEY ( `item_id` )
+	) ENGINE = MYISAM
+	*/
 	
+	$day = date("D");
+	$time = date("H:i:s");
+	
+	//$sql = "select item_id from schedule where day = '".$day."' and time ='".$time."'";
+	$sql = "select item_id from schedule where day = '".$day."'";
+
+	$result = mysql_query($sql);
+	while($row = mysql_fetch_assoc($result)){
+	    $sql_1 = "select * from items where Id = '".$row['item_id']."'";
+	    $result_1 = mysql_query($sql_1);
+	    $row_1 = mysql_fetch_assoc($result_1);
+	    
+	    $sql_2 = "select * from shipping_service_options where ItemID = '".$row['item_id']."'";
+	    $result_2 = mysql_query($sql_2);
+	    $ShippingServiceOptions = array();
+	    while($row_2 = mysql_fetch_assoc($result_2)){
+		$ShippingServiceOptions[] = $row_2;
+	    }
+	    
+	    $sql_3 = "select * from international_shipping_service_option where ItemID = '".$row['item_id']."'";
+	    $result_3 = mysql_query($sql_3);
+	    $InternationalShippingServiceOption = array();
+	    while($row_3 = mysql_fetch_assoc($result_3)){
+		$InternationalShippingServiceOption[] = $row_3;
+	    }
+	    
+	    $row_1['ShippingServiceOptions'] = $ShippingServiceOptions;
+	    $row_1['InternationalShippingServiceOption'] = $InternationalShippingServiceOption;
+	    //print_r($row_1);
+	    $this->addItem($row_1);
+	}
     }
     
     private function checkItem($itemId){
@@ -997,15 +1139,15 @@ class eBayListing{
     }
     
     public function saveFooter(){
-	$sql_1 = "select count(*) as num from account_footer where accountId = '".$_COOKIE['account_id']."'";
+	$sql_1 = "select count(*) as num from account_footer where accountId = '".$this->account_id."'";
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$row_1 = mysql_fetch_assoc($result_1);
 	
 	if($row_1['num'] > 0){
-	    $sql_2 = "update account_footer set footer = '".$_POST['elm1']."' where accountId = '".$_COOKIE['account_id']."'";
+	    $sql_2 = "update account_footer set footer = '".$_POST['elm1']."' where accountId = '".$this->account_id."'";
 	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);	
 	}else{
-	    $sql_2 = "insert into account_footer (accountId,footer) values ('".$_COOKIE['account_id']."','".$_POST['elm1']."')";
+	    $sql_2 = "insert into account_footer (accountId,footer) values ('".$this->account_id."','".$_POST['elm1']."')";
 	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);	
 	}
     }
@@ -1034,6 +1176,7 @@ class eBayListing{
 }
 
 $service = new eBayListing();
+$service->setAccount(1);
 $acton = (!empty($_GET['action'])?$_GET['action']:$argv[1]);
 $service->$acton();
 

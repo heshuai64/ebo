@@ -233,7 +233,34 @@ Ext.onReady(function(){
                 //width: 156,
                 name: 'Site',
                 //allowBlank: false,
-                hiddenName:'Site' 
+                hiddenName:'Site',
+                listeners: {
+                    "select": function(c, r, i){
+                        switch(r.data.name){
+                            case "US":
+                               Ext.getCmp("Currency").setValue("USD");
+                            break;
+                        
+                            case "UK":
+                               Ext.getCmp("Currency").setValue("GBP");
+                            break;
+                        
+                            case "Australia":
+                                Ext.getCmp("Currency").setValue("AUD");
+                                
+                            break;
+                        
+                            case "France":
+                                Ext.getCmp("Currency").setValue("EUR");
+                            break;
+                        }
+                    }
+                }
+            },{
+                
+                xtype:"hidden",
+                id:'Currency',
+                name:'Currency'
             },{
             layout:"column",
             items:[{
