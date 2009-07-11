@@ -234,6 +234,7 @@ Ext.onReady(function(){
                 name: 'Site',
                 //allowBlank: false,
                 hiddenName:'Site',
+                allowBlank:false,
                 listeners: {
                     "select": function(c, r, i){
                         switch(r.data.name){
@@ -278,7 +279,8 @@ Ext.onReady(function(){
                         id:"Title",
                         xtype:"textfield",
                         fieldLabel:"Title",
-                        name:"Title"
+                        name:"Title",
+                        allowBlank:false
                       },{
                         id:"SubTitle",
                         xtype:"textfield",
@@ -301,7 +303,8 @@ Ext.onReady(function(){
                                 //name:"combovalue",
                                 //hiddenName:"combovalue",
                                 width: 600,
-                                listWidth: 600
+                                listWidth: 600,
+                                allowBlank:false
                             }]
                           },{
                             columnWidth:0.1,
@@ -926,7 +929,8 @@ Ext.onReady(function(){
                                         triggerAction: 'all',
                                         editable: false,
                                         selectOnFocus:true,
-                                        format : 'Y-m-d'
+                                        format : 'Y-m-d',
+                                        allowBlank:false
                                     }]
                             },{
                                 columnWidth:0.5,
@@ -943,7 +947,8 @@ Ext.onReady(function(){
                                         triggerAction: 'all',
                                         editable: false,
                                         selectOnFocus:true,
-                                        format : 'Y-m-d'
+                                        format : 'Y-m-d',
+                                        allowBlank:false
                                     }]
                             }]
                     },{
@@ -994,7 +999,8 @@ Ext.onReady(function(){
                                     id:"Quantity",
                                     xtype:"numberfield",
                                     fieldLabel:"Quantity",
-                                    name:"Quantity"
+                                    name:"Quantity",
+                                    allowBlank:false
                                   }]
                               },{
                                 columnWidth:0.5,
@@ -1023,7 +1029,8 @@ Ext.onReady(function(){
                                     //width: 156,
                                     name: 'ListingDuration',
                                     //allowBlank: false,
-                                    hiddenName:'ListingDuration' 
+                                    hiddenName:'ListingDuration',
+                                    allowBlank:false
                                   }]
                               }]
                         }],
@@ -1097,22 +1104,34 @@ Ext.onReady(function(){
                             labelWidth: 0,
                             labelSeparator: '',
                             fieldLabel:"",
-                            boxLabel:"Highlight",
-                            name:"Highlight"
+                            boxLabel:"Gallery Plus",
+                            id:"GalleryTypeFeatured",
+                            name:"GalleryTypeFeatured",
+                            inputValue:"1"
                         },{
                             xtype:"checkbox",
                             labelWidth: 0,
                             labelSeparator: '',
                             fieldLabel:"",
                             boxLabel:"BoldTitle",
-                            name:"BoldTitle"
+                            name:"BoldTitle",
+                            inputValue:"1"
                         },{
                             xtype:"checkbox",
                             labelWidth: 0,
                             labelSeparator: '',
                             fieldLabel:"",
                             boxLabel:"Border",
-                            name:"Border"
+                            name:"Border",
+                            inputValue:"1"
+                        },{
+                            xtype:"checkbox",
+                            labelWidth: 0,
+                            labelSeparator: '',
+                            fieldLabel:"",
+                            boxLabel:"Highlight",
+                            name:"Highlight",
+                            inputValue:"1"
                         }]
                     },{
                         columnWidth:0.5,
@@ -1122,15 +1141,35 @@ Ext.onReady(function(){
                             labelWidth: 0,
                             labelSeparator: '',
                             fieldLabel:"",
-                            boxLabel:"HomePageFeatured",
-                            name:"HomePageFeatured"
+                            boxLabel:"Featured Plus",
+                            name:"Featured",
+                            inputValue:"1"
                         },{
                             xtype:"checkbox",
                             labelWidth: 0,
                             labelSeparator: '',
                             fieldLabel:"",
-                            boxLabel:"Featured",
-                            name:"Featured"
+                            boxLabel:"Featured First",
+                            name:"GalleryTypeGallery",
+                            inputValue:"1",
+                            listeners: {"check": function(t, c){
+                                if(c == true){
+                                    Ext.getCmp("GalleryTypeFeatured").setValue(1);
+                                    Ext.getCmp("GalleryTypeFeatured").setDisabled(1);
+                                }else{
+                                    Ext.getCmp("GalleryTypeFeatured").setValue(0);
+                                    Ext.getCmp("GalleryTypeFeatured").setDisabled(0);
+                                }
+                            }
+                            }
+                        },{
+                            xtype:"checkbox",
+                            labelWidth: 0,
+                            labelSeparator: '',
+                            fieldLabel:"",
+                            boxLabel:"HomePageFeatured",
+                            name:"HomePageFeatured",
+                            inputValue:"1"
                         }]
                     }]
                   },{
@@ -1516,7 +1555,7 @@ Ext.onReady(function(){
                             fieldLabel:"",
                             boxLabel:"Credit crads via PayPal",
                             name:"PayPalPayment",
-                            inputValue:"PayPalPayment"
+                            inputValue:1
                           },{
                             xtype:"textfield",
                             fieldLabel:"PayPal Account Email",
