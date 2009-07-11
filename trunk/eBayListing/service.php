@@ -718,22 +718,22 @@ class eBayListing{
 		$itemArray['DispatchTimeMax'] = $item['DispatchTimeMax'];
 	    }
 	    $itemArray['ListingDuration'] = $item['ListingDuration'];
+	    
 	    if($item['BoldTitle'] == true){
-		$itemArray['ListingEnhancement'] = "BoldTitle";
+		$itemArray['ListingEnhancement'][] = "BoldTitle";
 	    }
 	    if($item['Border'] == true){
-		$itemArray['ListingEnhancement'] = "Border";
+		$itemArray['ListingEnhancement'][] = "Border";
 	    }
 	    if($item['Featured'] == true){
-		$itemArray['ListingEnhancement'] = "Featured";
+		$itemArray['ListingEnhancement'][] = "Featured";
 	    }
 	    if($item['Highlight'] == true){
-		$itemArray['ListingEnhancement'] = "Highlight";
+		$itemArray['ListingEnhancement'][] = "Highlight";
 	    }
 	    if($item['HomePageFeatured'] == true){
-		$itemArray['ListingEnhancement'] = "HomePageFeatured";
+		$itemArray['ListingEnhancement'][] = "HomePageFeatured";
 	    }
-	    
 	    $itemArray['ListingType'] = $item['ListingType'];
 	    if(!empty($item['Location'])){
 		$itemArray['Location'] = $item['Location'];
@@ -741,29 +741,52 @@ class eBayListing{
 	    $itemArray['PaymentMethods'] = $item['PaymentMethods'];
 	    $itemArray['PayPalEmailAddress'] = $item['PayPalEmailAddress'];
 	    //PictureDetails
+	    if($item['GalleryTypeFeatured']){
+		$itemArray['PictureDetails']['GalleryType'] = "Featured";
+	    }
+	    if($item['GalleryTypeGallery']){
+		$itemArray['PictureDetails']['GalleryType'] = "Gallery";
+	    }
+	    if(!empty($item['PictureURL']) && is_array($item['PictureURL'])){
+		$i = 0;
+		foreach($item['PictureURL'] as $p){
+		    $itemArray['PictureDetails']['PictureURL'][$i] = $p;
+		    $i++;
+		}
+	    }
 	    if(!empty($item['PostalCode'])){
 		$itemArray['PostalCode'] = $item['PostalCode'];
 	    }
 	    $itemArray['PrimaryCategory']['CategoryID'] = $item['PrimaryCategoryCategoryID'];
 	    $itemArray['Quantity'] = $item['Quantity'];
+	    if(!empty($item['ReturnPolicyDescription'])){
+		$itemArray['ReturnPolicy']['Description'] = $item['ReturnPolicyDescription'];
+	    }
+	    if(!empty($item['ReturnPolicyReturnsAcceptedOption'])){
+		$itemArray['ReturnPolicy']['ReturnsAcceptedOption'] = $item['ReturnPolicyReturnsAcceptedOption'];
+	    }
 	    if(!empty($item['SecondaryCategoryCategoryID'])){
 		$itemArray['SecondaryCategory']['CategoryID'] = $item['SecondaryCategoryCategoryID'];
 	    }
 	    //$itemArray['ShippingDetails']['ShippingType'] = $item['ShippingType'];
 	    if(!empty($item['ShippingServiceOptions']) && is_array($item['ShippingServiceOptions'])){
+		$i = 0;
 		foreach($item['ShippingServiceOptions'] as $s){
-		    $itemArray['ShippingDetails']['ShippingServiceOptions']['FreeShipping'] = $s['FreeShipping'];
-		    $itemArray['ShippingDetails']['ShippingServiceOptions']['ShippingService'] = $s['ShippingService'];
-		    $itemArray['ShippingDetails']['ShippingServiceOptions']['ShippingServiceCost'] = $s['ShippingServiceCost'];
+		    $itemArray['ShippingDetails']['ShippingServiceOptions'][$i]['FreeShipping'] = $s['FreeShipping'];
+		    $itemArray['ShippingDetails']['ShippingServiceOptions'][$i]['ShippingService'] = $s['ShippingService'];
+		    $itemArray['ShippingDetails']['ShippingServiceOptions'][$i]['ShippingServiceCost'] = $s['ShippingServiceCost'];
+		    $i++;
 		}
 	    }
 	    if(!empty($item['InternationalShippingServiceOption']) && is_array($item['InternationalShippingServiceOption'])){
+		$j = 0;
 		foreach($item['ShippingServiceOptions'] as $i){
-		    $itemArray['ShippingDetails']['InternationalShippingServiceOption']['ShippingService'] = $i['ShippingService'];
-		    $itemArray['ShippingDetails']['InternationalShippingServiceOption']['ShippingServiceCost'] = $i['ShippingServiceCost'];
+		    $itemArray['ShippingDetails']['InternationalShippingServiceOption'][$j]['ShippingService'] = $i['ShippingService'];
+		    $itemArray['ShippingDetails']['InternationalShippingServiceOption'][$j]['ShippingServiceCost'] = $i['ShippingServiceCost'];
 		    if(!empty($i['ShipToLocation'])){
-			$itemArray['ShippingDetails']['InternationalShippingServiceOption']['ShipToLocation'] = $i['ShipToLocation'];
+			$itemArray['ShippingDetails']['InternationalShippingServiceOption'][$j]['ShipToLocation'] = $i['ShipToLocation'];
 		    }
+		    $j++;
 		}
 	    }
 	    //ShipToLocations
@@ -783,12 +806,27 @@ class eBayListing{
 	    }
 	    $itemArray['Title'] = $item['Title'];
 	   
-	    print_r($itemArray);
+	    //print_r($itemArray);
 	    $params = array('Version' => $Version,
 			    'Item' => $itemArray);
 	    
 	    $results = $client->AddItem($params);
-	    //print_r($results);
+	    print_r($results);
+	    if(!empty($results->Errors)){
+		if(is_array($results->Errors)){
+		    foreach($results->Errors as $error){
+			echo $error->ShortMessage." : ";
+			echo $error->LongMessage."<br>";
+		    }
+		}else{
+		    echo $results->Errors->ShortMessage." : ";
+		    echo $results->Errors->LongMessage."<br>";
+		}
+	    }else{
+		echo $results->ItemID;
+		echo $results->StartTime;
+		echo $results->EndTime;
+	    }
 	    //----------   debug --------------------------------
 	    //print "Request: \n".$client->__getLastRequest() ."\n";
 	    //print "Response: \n".$client->__getLastResponse()."\n";
@@ -814,6 +852,32 @@ class eBayListing{
     }
     
     public function saveItem(){
+	/*
+	ALTER TABLE `items` ADD `GalleryTypeFeatured` BOOL NOT NULL AFTER `HomePageFeatured` ,
+	ADD `GalleryTypeGallery` BOOL NOT NULL AFTER `GalleryTypeFeatured` ,
+	ADD `GalleryURL` VARCHAR( 255 ) NOT NULL AFTER `GalleryTypeGallery` ,
+	ADD `PhotoDisplay` ENUM( "PicturePack", "SiteHostedPictureShow", "SuperSize", "SuperSizePictureShow", "VendorHostedPictureShow" ) NOT NULL AFTER `GalleryURL` ;
+	
+	CREATE TABLE `ebaylisting`.`PictureURL` (
+	    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+	    `ItemID` INT NOT NULL ,
+	    `url` VARCHAR( 150 ) NOT NULL ,
+	    INDEX ( `ItemID` )
+	) ENGINE = MYISAM
+	
+	
+	ALTER TABLE `shipping_service_options` DROP PRIMARY KEY
+	ALTER TABLE `shipping_service_options` ADD `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST ;
+	ALTER TABLE `shipping_service_options` ADD INDEX ( `ItemID` )
+	 
+	ALTER TABLE `international_shipping_service_option` DROP INDEX `SKU`
+	ALTER TABLE `international_shipping_service_option` ADD `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST ;
+	
+	ALTER TABLE `items` ADD `ReturnPolicyDescription` TEXT NOT NULL AFTER `Quantity` ;
+	
+	ReturnPolicyReturnsAcceptedOption:ReturnsAccepted,ReturnsNotAccepted
+	*/
+	
 	//ScheduleStartDate,ScheduleEndDate
 	//Location,PostalCode
 	//CurrentPrice
@@ -827,15 +891,15 @@ class eBayListing{
 	    $_POST['Description'] .= $row['footer'];
 	}
 	//StartTime,EndTime
-	$PaymentMethods = ($_POST['PayPalPayment'] == 1)?'PayPal':'';
+	//$PaymentMethods = ($_POST['PayPalPayment'] == 1)?'PayPal':'';
 	$sql = "insert into items (BuyItNowPrice,Country,Currency,Description,DispatchTimeMax,ScheduleStartDate,
 	ScheduleEndDate,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,PostalCode,
 	PrimaryCategoryCategoryID,SecondaryCategoryCategoryID,Quantity,ReservePrice,
 	ShippingType,Site,SKU,StartPrice,StoreCategory2ID,StoreCategoryID,SubTitle,Title,accountId,
-	BoldTitle,Border,Featured,Highlight,HomePageFeatured) values (
+	BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery) values (
 	'".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
 	'".$_POST['Description']."','".$_POST['DispatchTimeMax']."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."',
-	'".$_POST['ListingDuration']."','".$_POST['ListingType']."','".$_POST['Location']."','".$PaymentMethods."',
+	'".$_POST['ListingDuration']."','".$_POST['ListingType']."','".$_POST['Location']."','PayPal',
 	'".$_POST['PayPalEmailAddress']."','".$_POST['PostalCode']."',
 	'".$_POST['PrimaryCategoryCategoryID']."','".$_POST['SecondaryCategoryCategoryID']."',
 	'".$_POST['Quantity']."','".$_POST['ReservePrice']."','".$_POST['ShippingType']."',
@@ -843,13 +907,22 @@ class eBayListing{
 	'".$_POST['StoreCategoryID']."','".$_POST['SubTitle']."',
 	'".$_POST['Title']."','".$this->account_id."','".(empty($_POST['BoldTitle'])?0:1)."',
 	'".(empty($_POST['Border'])?0:1)."','".(empty($_POST['Featured'])?0:1)."','".(empty($_POST['Highlight'])?0:1)."',
-	'".(empty($_POST['HomePageFeatured'])?0:1)."')";
+	'".(empty($_POST['HomePageFeatured'])?0:1)."','".(empty($_POST['GalleryTypeFeatured'])?0:1)."','".(empty($_POST['GalleryTypeGallery'])?0:1)."')";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	
 	//echo $sql;
 	//exit;
 	
 	$id = mysql_insert_id(eBayListing::$database_connect);
+	
+	$i = 1;
+	while(!empty($_POST['picture_'.$i])){
+	    $sql_1 = "insert into PictureURL (ItemID,url) values 
+	    ('".$id."','".$_POST['picture_'.$i]."')";
+	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	    $i++;
+	}
+	
 	$i = 1;
 	while(!empty($_POST['ShippingService-'.$i])){
 	    $sql_1 = "insert into shipping_service_options (ItemID,FreeShipping,ShippingService,ShippingServiceCost) values
@@ -912,9 +985,21 @@ class eBayListing{
 		$InternationalShippingServiceOption[] = $row_3;
 	    }
 	    
+	    $sql_4 = "select * from PictureURL where ItemID = '".$row['item_id']."'";
+	    //echo $sql_4;
+	    //echo "<br>";
+	    $result_4 = mysql_query($sql_4);
+	    $PictureURL = array();
+	    while($row_4 = mysql_fetch_assoc($result_4)){
+		$PictureURL[] = $row_4['url'];
+	    } 
+	    
 	    $row_1['ShippingServiceOptions'] = $ShippingServiceOptions;
 	    $row_1['InternationalShippingServiceOption'] = $InternationalShippingServiceOption;
+	    $row_1['PictureURL'] = $PictureURL;
+	    
 	    //print_r($row_1);
+	    //exit;
 	    $this->addItem($row_1);
 	}
     }
