@@ -826,6 +826,10 @@ class eBayListing{
 		echo $results->ItemID;
 		echo $results->StartTime;
 		echo $results->EndTime;
+		$sql = "update items set ItemID = '".$results->ItemID."',StartTime='".$results->StartTime."',
+		EndTime='".$results->EndTime."' where Id = '".$item['Id']."'";
+		$result = mysql_query($sql);
+		
 	    }
 	    //----------   debug --------------------------------
 	    //print "Request: \n".$client->__getLastRequest() ."\n";
@@ -917,7 +921,7 @@ class eBayListing{
 	
 	$i = 1;
 	while(!empty($_POST['picture_'.$i])){
-	    $sql_1 = "insert into PictureURL (ItemID,url) values 
+	    $sql_1 = "insert into picture_url (ItemID,url) values 
 	    ('".$id."','".$_POST['picture_'.$i]."')";
 	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	    $i++;
@@ -985,7 +989,7 @@ class eBayListing{
 		$InternationalShippingServiceOption[] = $row_3;
 	    }
 	    
-	    $sql_4 = "select * from PictureURL where ItemID = '".$row['item_id']."'";
+	    $sql_4 = "select * from picture_url where ItemID = '".$row['item_id']."'";
 	    //echo $sql_4;
 	    //echo "<br>";
 	    $result_4 = mysql_query($sql_4);
@@ -1235,6 +1239,76 @@ class eBayListing{
 	    $sql_2 = "insert into account_footer (accountId,footer) values ('".$this->account_id."','".$_POST['elm1']."')";
 	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);	
 	}
+    }
+    
+    public function addSkuScheduleTime(){
+	session_start();
+	if(!is_array($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']])){
+	    $_SESSION[$_POST['sku'].'-'.$_POST['dayTime']] = array();
+	}
+	if(!in_array($_POST['time'], $_SESSION[$_POST['sku'].'-'.$_POST['dayTime']])){
+	    $_SESSION[$_POST['sku'].'-'.$_POST['dayTime']][] = $_POST['time'];
+	}
+	print_r($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']]);
+    }
+    
+    public function deleteSkuScheduleTime(){
+	session_start();
+	$id_array = explode(",", $_POST['id']);
+	print_r($id_array);
+	foreach($id_array as $id){
+	    unset($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']][$id]);
+	}
+	/*
+	$i = 0;
+	foreach($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']] as $s){
+	    $_SESSION[$_POST['sku'].'-'.$_POST['dayTime']][$i] = $s;
+	    $i++;
+	}
+	*/
+	//sort($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']]);
+	print_r($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']]);
+    }
+    
+    public function deleteAllSkuScheduleTime(){
+	session_start();
+	unset($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']]);
+    }
+    
+    public function getSkuScheduleTime(){
+	session_start();
+	//print_r($_SESSION[$_GET['sku'].'-'.$_GET['dayTime']]);
+	//$array = array(array("time"=>"13:21"), array("time"=>"13:30"));
+	if(is_array($_SESSION[$_GET['sku'].'-'.$_GET['dayTime']])){
+	    sort($_SESSION[$_GET['sku'].'-'.$_GET['dayTime']]);
+	    $data = array();
+	    $i = 0;
+	    foreach($_SESSION[$_GET['sku'].'-'.$_GET['dayTime']] as $s){
+		$data[$i]['time'] = $s;
+		$i++;
+	    }
+	    echo json_encode($data);
+	}else{
+	    echo json_encode(array());
+	}
+	
+    }
+    
+    public function saveSkuScheduleTime(){
+	/*
+	session_start();
+	$sql = "select Id from items where SKU = '".$_POST['sku']."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	$item_id = $row['Id'];
+	
+	$temp = explode("-", $_POST['dayTime']);
+	foreach($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']] as $s){
+	    strftime("%H:%M", strtotime($s));
+	    $sql = "insert into schedule (item_id,day,time) values ('".$item_id."','".$temp[0]."','".strftime("%H:%M", strtotime($s))."')";
+	    echo $sql;
+	}
+	*/
     }
     
     public function login(){

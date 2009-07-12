@@ -873,7 +873,8 @@ Ext.onReady(function(){
                         width: 600,
                         xtype:"htmleditor",
                         fieldLabel:"Descritpion",
-                        name:"Description"
+                        name:"Description",
+                        allowBlank:false
                     },{
                         layout:"column",
                         border:false,
@@ -1053,6 +1054,7 @@ Ext.onReady(function(){
                                         //name: 'ListingTypeCombo',
                                         //hiddenName:'ListingTypeCombo',
                                         width: 150,
+                                        allowBlank:false,
                                         listeners: {
                                             "select": function(c, r, i){
                                                 switch(r.data.name){
@@ -1640,7 +1642,177 @@ Ext.onReady(function(){
     itemPanel.render(document.body);
     
     Ext.select(".schedule-time").on("click",function(e, el){
-        //console.log(el);
+        var tempArray = el.childNodes[0].id.split("-");
+        
+        var timeStore = new Ext.data.JsonStore({
+            //root:"timeList",
+            autoLoad:true,
+            url:'service.php?action=getSkuScheduleTime&sku='+sku+'&dayTime='+el.childNodes[0].id,
+            fields: [{name:'time', type:'string'}],
+            sortInfo: {
+                field: 'time',
+                direction: 'ASC' // or 'DESC' (case sensitive for local sorting)
+            },
+            listeners: {"load": function(t, r){
+                    //console.log(r);
+                }
+            }
+        });
+
+
+        var timeList = new Ext.ListView({
+            store: timeStore,
+            multiSelect: true,
+            //emptyText: 'No time to display',
+            //height:150,
+            reserveScrollOffset: true,
+            //autoHeight:true,
+            columns: [{
+                //width:150,
+                //width:.8,
+                header: ' ',
+                dataIndex: 'time'
+            }]
+        });
+
+        var timeWindow = new Ext.Window({
+            title:String.format('{0} {1}:00:00 {2} - {1}:59:59 {2} schedule', tempArray[0], tempArray[2], tempArray[1]),
+            width:400,
+            height: 213,
+            items:[{
+                layout:"column",
+                //height:150,
+                items:[{
+                    columnWidth:0.5,
+                    title:"List of Start Times",
+                    height:150,
+                    autoScroll:true,
+                    items:timeList
+                    },{
+                    columnWidth:0.5,
+                    title:"New start time",
+                    items:[{
+                        id:"nowStartTime",
+                        xtype:"timefield",
+                        increment:1,
+                        triggerAction: 'all',
+                        editable: false,
+                        selectOnFocus:true,
+                        minValue: tempArray[2] + ":00 " + tempArray[1].toUpperCase(),
+                        maxValue: tempArray[2] + ":59 " + tempArray[1].toUpperCase()
+                    },{
+                        xtype:"button",
+                        text:"Add",
+                        handler: function(){
+                            if(Ext.getCmp("nowStartTime").getValue != ""){
+                                Ext.Ajax.request({
+                                    url: 'service.php?action=addSkuScheduleTime',
+                                    success: function(){
+                                            timeStore.reload();
+                                        },
+                                    failure: function(){},
+                                    params: {
+                                            dayTime: el.childNodes[0].id,
+                                            sku: sku,
+                                            time: Ext.getCmp("nowStartTime").getValue()
+                                        }
+                                });
+                            }
+                        }
+                    }]
+                }]
+            },{
+                layout:"column",
+                items:[{
+                    columnWidth:0.25,
+                    border:false,
+                    items:[{
+                        xtype:"button",
+                        text:"Delete",
+                        handler: function(){
+                            if(timeList.getSelectionCount() > 0){
+                                var id = "";
+                                var selectedIndexes = timeList.getSelectedIndexes();
+                                for(var i in selectedIndexes){
+                                    if(!Ext.isFunction(selectedIndexes[i])){
+                                        id = id + selectedIndexes[i] + ",";
+                                    }
+                                }
+                                //console.log(id);
+                                Ext.Ajax.request({
+                                    url: 'service.php?action=deleteSkuScheduleTime',
+                                    success: function(){
+                                            timeStore.reload();
+                                        },
+                                    failure: function(){},
+                                    params: {
+                                            dayTime: el.childNodes[0].id,
+                                            sku: sku,
+                                            id: id
+                                        }
+                                });
+                            }
+                            //console.log(timeList.getSelectedIndexes());
+                            //timeStore.reload();
+                        }
+                    }]
+                },{
+                    columnWidth:0.25,
+                    border:false,
+                    items:[{
+                        xtype:"button",
+                        text:"Delete All",
+                        handler: function(){
+                            Ext.Ajax.request({
+                                url: 'service.php?action=deleteAllSkuScheduleTime',
+                                success: function(){
+                                        timeStore.reload();
+                                    },
+                                failure: function(){},
+                                params: {
+                                        dayTime: el.childNodes[0].id,
+                                        sku: sku
+                                    }
+                            });
+                        }
+                    }]
+                },{
+                    columnWidth:0.25,
+                    border:false,
+                    items:[{
+                        xtype:"button",
+                        text:"Ok",
+                        handler: function(){
+                            Ext.Ajax.request({
+                                url: 'service.php?action=saveSkuScheduleTime',
+                                success: function(){
+                                        timeWindow.close();
+                                    },
+                                failure: function(){},
+                                params: {
+                                        dayTime: el.childNodes[0].id,
+                                        sku: sku
+                                    }
+                            });
+                        }
+                    }]
+                },{
+                    columnWidth:0.25,
+                    border:false,
+                    items:[{
+                        xtype:"button",
+                        text:"Canel",
+                        handler: function(){
+                            timeWindow.close();
+                        }
+                    }]
+                }]
+            }]
+        })
+        
+        //console.log(tempArray[2] + ":59:59 AM");
+        timeWindow.show();
+        /*
         if(Ext.getCmp(el.childNodes[0].id).getValue() == 0){
             Ext.getCmp(el.childNodes[0].id + "-panel").body.applyStyles("background-color:red;");
             Ext.getCmp(el.childNodes[0].id).setValue(1)
@@ -1650,6 +1822,7 @@ Ext.onReady(function(){
         }
         //el.addClass("schedule-time-y");
         //console.log(el.childNodes[0].id);
+        */
     })
 })
 

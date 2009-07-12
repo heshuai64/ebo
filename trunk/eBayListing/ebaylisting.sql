@@ -1,22 +1,22 @@
 -- phpMyAdmin SQL Dump
--- version 2.11.8.1
+-- version 2.11.9.2
 -- http://www.phpmyadmin.net
 --
--- Host: localhost
--- Generation Time: Jul 10, 2009 at 06:02 PM
--- Server version: 5.0.45
--- PHP Version: 5.2.6
+-- 主机: localhost
+-- 生成日期: 2009 年 07 月 13 日 07:44
+-- 服务器版本: 5.0.67
+-- PHP 版本: 5.2.6
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
 --
--- Database: `ebaylisting`
+-- 数据库: `ebaylisting`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `account`
+-- 表的结构 `account`
 --
 
 CREATE TABLE IF NOT EXISTS `account` (
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `account` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
--- Dumping data for table `account`
+-- 导出表中的数据 `account`
 --
 
 INSERT INTO `account` (`id`, `name`, `password`, `token`, `tokenExpiry`, `status`) VALUES
@@ -40,7 +40,7 @@ INSERT INTO `account` (`id`, `name`, `password`, `token`, `tokenExpiry`, `status
 -- --------------------------------------------------------
 
 --
--- Table structure for table `account_footer`
+-- 表的结构 `account_footer`
 --
 
 CREATE TABLE IF NOT EXISTS `account_footer` (
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS `account_footer` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `account_footer`
+-- 导出表中的数据 `account_footer`
 --
 
 INSERT INTO `account_footer` (`accountId`, `footer`) VALUES
@@ -59,7 +59,7 @@ INSERT INTO `account_footer` (`accountId`, `footer`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `account_store_categories`
+-- 表的结构 `account_store_categories`
 --
 
 CREATE TABLE IF NOT EXISTS `account_store_categories` (
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS `account_store_categories` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `account_store_categories`
+-- 导出表中的数据 `account_store_categories`
 --
 
 INSERT INTO `account_store_categories` (`CategoryID`, `CategoryParentID`, `Name`, `Order`, `AccountId`) VALUES
@@ -97,7 +97,7 @@ INSERT INTO `account_store_categories` (`CategoryID`, `CategoryParentID`, `Name`
 (790500013, 790471013, 'Clavier', 2, 1),
 (790501013, 790471013, 'Chargeur Allume-Cigare', 3, 1),
 (790502013, 790471013, 'Sac Portable', 4, 1),
-(790503013, 790471013, 'Les C芒bles', 5, 1),
+(790503013, 790471013, 'Les C?bles', 5, 1),
 (790504013, 790471013, 'Les Autres', 6, 1),
 (790472013, 0, 'Accessoires Mp3/Mp4', 53, 1),
 (790505013, 790472013, 'Zen', 1, 1),
@@ -110,8 +110,8 @@ INSERT INTO `account_store_categories` (`CategoryID`, `CategoryParentID`, `Name`
 (790474013, 0, 'Accessoires Photo', 55, 1),
 (790511013, 790474013, 'Protection/Housse/Film.etc', 1, 1),
 (790512013, 790474013, 'Chargeur&Batterie', 2, 1),
-(790513013, 790474013, 'Flash Trigger&C芒ble Extension&', 3, 1),
-(790514013, 790474013, 'Date C芒ble', 4, 1),
+(790513013, 790474013, 'Flash Trigger&C?ble Extension&', 3, 1),
+(790514013, 790474013, 'Date C?ble', 4, 1),
 (790515013, 790474013, 'Filtre', 5, 1),
 (790516013, 790474013, 'Les Autres', 6, 1),
 (662521013, 0, 'Video Games Accessories', 46, 1),
@@ -154,7 +154,7 @@ INSERT INTO `account_store_categories` (`CategoryID`, `CategoryParentID`, `Name`
 (790500013, 790471013, 'Clavier', 2, 1),
 (790501013, 790471013, 'Chargeur Allume-Cigare', 3, 1),
 (790502013, 790471013, 'Sac Portable', 4, 1),
-(790503013, 790471013, 'Les C芒bles', 5, 1),
+(790503013, 790471013, 'Les C?bles', 5, 1),
 (790504013, 790471013, 'Les Autres', 6, 1),
 (790472013, 0, 'Accessoires Mp3/Mp4', 53, 1),
 (790505013, 790472013, 'Zen', 1, 1),
@@ -167,8 +167,8 @@ INSERT INTO `account_store_categories` (`CategoryID`, `CategoryParentID`, `Name`
 (790474013, 0, 'Accessoires Photo', 55, 1),
 (790511013, 790474013, 'Protection/Housse/Film.etc', 1, 1),
 (790512013, 790474013, 'Chargeur&Batterie', 2, 1),
-(790513013, 790474013, 'Flash Trigger&C芒ble Extension&', 3, 1),
-(790514013, 790474013, 'Date C芒ble', 4, 1),
+(790513013, 790474013, 'Flash Trigger&C?ble Extension&', 3, 1),
+(790514013, 790474013, 'Date C?ble', 4, 1),
 (790515013, 790474013, 'Filtre', 5, 1),
 (790516013, 790474013, 'Les Autres', 6, 1),
 (662521013, 0, 'Video Games Accessories', 46, 1),
@@ -193,7 +193,7 @@ INSERT INTO `account_store_categories` (`CategoryID`, `CategoryParentID`, `Name`
 -- --------------------------------------------------------
 
 --
--- Table structure for table `account_to_proxy`
+-- 表的结构 `account_to_proxy`
 --
 
 CREATE TABLE IF NOT EXISTS `account_to_proxy` (
@@ -203,7 +203,7 @@ CREATE TABLE IF NOT EXISTS `account_to_proxy` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `account_to_proxy`
+-- 导出表中的数据 `account_to_proxy`
 --
 
 INSERT INTO `account_to_proxy` (`account_id`, `proxy_id`) VALUES
@@ -212,7 +212,7 @@ INSERT INTO `account_to_proxy` (`account_id`, `proxy_id`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `categories`
+-- 表的结构 `categories`
 --
 
 CREATE TABLE IF NOT EXISTS `categories` (
@@ -229,7 +229,7 @@ CREATE TABLE IF NOT EXISTS `categories` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `categories`
+-- 导出表中的数据 `categories`
 --
 
 INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `CategoryParentID`, `LeafCategory`, `BestOfferEnabled`, `AutoPayEnabled`, `CategorySiteID`) VALUES
@@ -615,7 +615,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (2219, 4, 'Other', 39444, 1, 1, 1, 0),
 (63624, 3, 'Pillows', 2218, 1, 1, 1, 0),
 (63627, 3, 'Quilts', 2218, 0, 1, 1, 0),
-(63628, 4, 'Appliqu茅', 63627, 1, 1, 1, 0),
+(63628, 4, 'Appliqué', 63627, 1, 1, 1, 0),
 (63629, 4, 'Baby & Crib', 63627, 1, 1, 1, 0),
 (63630, 4, 'Crazy', 63627, 1, 1, 1, 0),
 (163111, 4, 'Flower Garden', 63627, 1, 1, 1, 0),
@@ -1083,14 +1083,14 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (66679, 3, 'Shams', 20416, 1, 1, 1, 0),
 (100989, 3, 'Sleeping Bags & Sleepsacks', 20416, 1, 1, 1, 0),
 (20421, 3, 'Other', 20416, 1, 1, 1, 0),
-(66697, 2, 'Nursery D茅cor', 2984, 0, 1, 1, 0),
+(66697, 2, 'Nursery Décor', 2984, 0, 1, 1, 0),
 (117398, 3, 'Boxes & Storage', 66697, 1, 1, 1, 0),
 (20428, 3, 'Lamps & Shades', 66697, 1, 1, 1, 0),
 (37632, 3, 'Mats & Rugs', 66697, 1, 1, 1, 0),
 (20429, 3, 'Mobiles', 66697, 1, 1, 1, 0),
 (121153, 3, 'Night Lights', 66697, 1, 1, 1, 0),
 (33235, 3, 'Picture Frames', 66697, 1, 1, 1, 0),
-(37633, 3, 'Wall D茅cor', 66697, 0, 1, 1, 0),
+(37633, 3, 'Wall Décor', 66697, 0, 1, 1, 0),
 (37634, 4, 'Art & Prints', 37633, 1, 1, 1, 0),
 (117397, 4, 'Murals & Wallies', 37633, 1, 1, 1, 0),
 (37635, 4, 'Wall Hangings', 37633, 1, 1, 1, 0),
@@ -2688,15 +2688,15 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (67146, 4, 'Carts, Stands & Kiosks', 67145, 1, 1, 1, 0),
 (46590, 4, 'Concession Trailers', 67145, 1, 1, 1, 0),
 (67147, 4, 'Other', 67145, 1, 1, 1, 0),
-(57093, 3, 'Furniture, Signs & D茅cor', 11874, 0, 1, 1, 0),
+(57093, 3, 'Furniture, Signs & Décor', 11874, 0, 1, 1, 0),
 (67172, 4, 'Chairs & Seating', 57093, 1, 1, 1, 0),
-(57098, 4, 'Decorations & D茅cor', 57093, 1, 1, 1, 0),
+(57098, 4, 'Decorations & Décor', 57093, 1, 1, 1, 0),
 (109371, 4, 'Display Cases', 57093, 1, 1, 1, 0),
 (166673, 4, 'Menu Boards', 57093, 1, 1, 1, 0),
 (166674, 4, 'Sign Holders', 57093, 1, 1, 1, 0),
 (25380, 4, 'Signs', 57093, 1, 1, 1, 0),
 (11883, 4, 'Tables', 57093, 1, 1, 1, 0),
-(167900, 4, 'Vintage Signs & D茅cor', 57093, 1, 1, 1, 0),
+(167900, 4, 'Vintage Signs & Décor', 57093, 1, 1, 1, 0),
 (57096, 4, 'Other', 57093, 1, 1, 1, 0),
 (25375, 3, 'Refrigeration & Ice Machines', 11874, 0, 1, 1, 0),
 (53225, 4, 'Coolers & Refrigerators', 25375, 1, 1, 1, 0),
@@ -6162,11 +6162,11 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (165215, 5, 'Merchandise & Memorabilia', 13588, 1, 1, 1, 0),
 (1321, 5, 'Other', 13588, 1, 1, 1, 0),
 (872, 4, 'Candy & Nuts', 13587, 0, 1, 1, 0),
-(165216, 5, 'Brach鈥檚', 872, 1, 1, 1, 0),
+(165216, 5, 'Brach’s', 872, 1, 1, 1, 0),
 (35645, 5, 'Chewing Gum', 872, 1, 1, 1, 0),
 (10782, 5, 'Cracker Jack', 872, 1, 1, 1, 0),
 (20990, 5, 'Ferrero & Kinder', 872, 1, 1, 1, 0),
-(10783, 5, 'Hershey & Reese鈥檚', 872, 1, 1, 1, 0),
+(10783, 5, 'Hershey & Reese’s', 872, 1, 1, 1, 0),
 (10784, 5, 'Life Savers', 872, 1, 1, 1, 0),
 (3894, 5, 'Planters Nuts', 872, 1, 1, 1, 0),
 (165217, 5, 'Merchandise & Memorabilia', 872, 1, 1, 1, 0),
@@ -6181,12 +6181,12 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (165236, 5, 'Merchandise & Memorabilia', 10785, 1, 1, 1, 0),
 (1322, 5, 'Other', 10785, 1, 1, 1, 0),
 (10793, 4, 'Coffee & Tea', 13587, 0, 1, 1, 0),
-(165218, 5, 'Folger鈥檚', 10793, 1, 1, 1, 0),
+(165218, 5, 'Folger’s', 10793, 1, 1, 1, 0),
 (13584, 5, 'Lipton', 10793, 1, 1, 1, 0),
 (10794, 5, 'Maxwell House', 10793, 1, 1, 1, 0),
 (165219, 5, 'Nescafe', 10793, 1, 1, 1, 0),
 (10795, 5, 'Starbucks', 10793, 1, 1, 1, 0),
-(165220, 5, 'Tim Horton鈥檚', 10793, 1, 1, 1, 0),
+(165220, 5, 'Tim Horton’s', 10793, 1, 1, 1, 0),
 (165221, 5, 'Merchandise & Memorabilia', 10793, 1, 1, 1, 0),
 (865, 5, 'Other', 10793, 1, 1, 1, 0),
 (817, 4, 'Dairy', 13587, 0, 1, 1, 0),
@@ -6206,14 +6206,14 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (165223, 5, 'Canadian Mist', 820, 1, 1, 1, 0),
 (35654, 5, 'Captain Morgan', 820, 1, 1, 1, 0),
 (165224, 5, 'Crown Royal', 820, 1, 1, 1, 0),
-(35655, 5, 'Dewar鈥檚', 820, 1, 1, 1, 0),
+(35655, 5, 'Dewar’s', 820, 1, 1, 1, 0),
 (165225, 5, 'Drambuie', 820, 1, 1, 1, 0),
 (167974, 5, 'Ezra Brooks', 820, 1, 1, 1, 0),
 (165226, 5, 'Fleischmann', 820, 1, 1, 1, 0),
-(165227, 5, 'Gilbey鈥檚', 820, 1, 1, 1, 0),
+(165227, 5, 'Gilbey’s', 820, 1, 1, 1, 0),
 (165228, 5, 'Haig & Haig', 820, 1, 1, 1, 0),
 (4270, 5, 'Irish', 820, 1, 1, 1, 0),
-(822, 5, 'Jack Daniel鈥檚', 820, 1, 1, 1, 0),
+(822, 5, 'Jack Daniel’s', 820, 1, 1, 1, 0),
 (165229, 5, 'Jagermeister', 820, 1, 1, 1, 0),
 (823, 5, 'Jim Beam', 820, 1, 1, 1, 0),
 (10800, 5, 'Johnnie Walker', 820, 1, 1, 1, 0),
@@ -6222,7 +6222,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (165231, 5, 'Old Forester', 820, 1, 1, 1, 0),
 (165232, 5, 'Paul Jones', 820, 1, 1, 1, 0),
 (3882, 5, 'Scotch', 820, 1, 1, 1, 0),
-(7175, 5, 'Seagram鈥檚', 820, 1, 1, 1, 0),
+(7175, 5, 'Seagram’s', 820, 1, 1, 1, 0),
 (26263, 5, 'Smirnoff', 820, 1, 1, 1, 0),
 (32722, 5, 'Southern Comfort', 820, 1, 1, 1, 0),
 (165233, 5, 'Tanqueray', 820, 1, 1, 1, 0),
@@ -6315,7 +6315,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (13595, 3, 'Household', 34, 0, 1, 1, 0),
 (13596, 4, 'Appliances', 13595, 1, 1, 1, 0),
 (165252, 4, 'Furniture', 13595, 1, 1, 1, 0),
-(165253, 4, 'Home D茅cor', 13595, 1, 1, 1, 0),
+(165253, 4, 'Home Décor', 13595, 1, 1, 1, 0),
 (21098, 4, 'Paint & Varnish', 13595, 1, 1, 1, 0),
 (876, 4, 'Soap & Detergent', 13595, 1, 1, 1, 0),
 (1527, 4, 'Other', 13595, 1, 1, 1, 0),
@@ -6326,7 +6326,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (851, 4, 'Big Boy', 849, 1, 1, 1, 0),
 (20168, 4, 'Burger King', 849, 1, 1, 1, 0),
 (167976, 4, 'Dairy Queen', 849, 1, 1, 1, 0),
-(21101, 4, 'Hard Rock Caf茅', 849, 1, 1, 1, 0),
+(21101, 4, 'Hard Rock Café', 849, 1, 1, 1, 0),
 (167977, 4, 'Hooters', 849, 1, 1, 1, 0),
 (35668, 5, 'Mugs & Cups', 35667, 1, 1, 1, 0),
 (35669, 5, 'Pins', 35667, 1, 1, 1, 0),
@@ -6390,7 +6390,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (13611, 5, 'Trucks & Cars', 13600, 1, 1, 1, 0),
 (35690, 5, 'Watches', 13600, 1, 1, 1, 0),
 (38, 5, 'Other', 13600, 1, 1, 1, 0),
-(165262, 4, 'Dad鈥檚', 36, 1, 1, 1, 0),
+(165262, 4, 'Dad’s', 36, 1, 1, 1, 0),
 (877, 4, 'Dr Pepper', 36, 1, 1, 1, 0),
 (852, 4, 'Fountain', 36, 1, 1, 1, 0),
 (857, 4, 'Hires Root Beer', 36, 1, 1, 1, 0),
@@ -6411,7 +6411,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (10810, 4, 'Royal Crown/Nehi/Diet Rite', 36, 1, 1, 1, 0),
 (3897, 4, 'Schweppes', 36, 1, 1, 1, 0),
 (856, 4, 'Squirt', 36, 1, 1, 1, 0),
-(165264, 4, 'Vernor鈥檚', 36, 1, 1, 1, 0),
+(165264, 4, 'Vernor’s', 36, 1, 1, 1, 0),
 (35692, 4, 'Merchandise & Memorabilia', 36, 0, 1, 1, 0),
 (35693, 5, 'Bottle Caps', 35692, 1, 1, 1, 0),
 (35694, 5, 'Bottles', 35692, 1, 1, 1, 0),
@@ -6477,7 +6477,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (165296, 5, 'Handmade, Handcrafted Items', 37869, 1, 1, 1, 0),
 (37870, 5, 'Apparel', 37869, 1, 1, 1, 0),
 (37871, 5, 'Figurines', 37869, 1, 1, 1, 0),
-(165295, 5, 'Garden D茅cor', 37869, 1, 1, 1, 0),
+(165295, 5, 'Garden Décor', 37869, 1, 1, 1, 0),
 (37872, 5, 'Jewelry & Pins', 37869, 1, 1, 1, 0),
 (165297, 5, 'Trinket Boxes', 37869, 1, 1, 1, 0),
 (10885, 5, 'Other', 37869, 1, 1, 1, 0),
@@ -6625,7 +6625,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (90655, 4, 'Otterhound', 10823, 1, 1, 1, 0),
 (29425, 4, 'Papillon', 10823, 1, 1, 1, 0),
 (13635, 4, 'Pekingese', 10823, 1, 1, 1, 0),
-(165282, 4, 'Petit Basset Griffon Vend茅en', 10823, 1, 1, 1, 0),
+(165282, 4, 'Petit Basset Griffon Vendéen', 10823, 1, 1, 1, 0),
 (82483, 4, 'Pit Bull Terrier', 10823, 1, 1, 1, 0),
 (29426, 4, 'Pointer', 10823, 1, 1, 1, 0),
 (10849, 4, 'Pomeranian', 10823, 1, 1, 1, 0),
@@ -7860,7 +7860,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (29464, 4, 'Belt Buckles', 4007, 1, 1, 1, 0),
 (4011, 4, 'Bits & Bridles', 4007, 1, 1, 1, 0),
 (4010, 4, 'Books', 4007, 1, 1, 1, 0),
-(4013, 4, 'D茅cor', 4007, 1, 1, 1, 0),
+(4013, 4, 'Décor', 4007, 1, 1, 1, 0),
 (165485, 4, 'Figures & Statues', 4007, 1, 1, 1, 0),
 (4014, 4, 'Jewelry', 4007, 1, 1, 1, 0),
 (4015, 4, 'Paper', 4007, 1, 1, 1, 0),
@@ -8232,7 +8232,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (7274, 4, '1940-1970', 39628, 1, 1, 1, 0),
 (7273, 4, '1970-Now', 39628, 1, 1, 1, 0),
 (73503, 3, 'Ornaments', 13777, 1, 1, 1, 0),
-(152540, 3, 'Nautical D茅cor', 13777, 1, 1, 1, 0),
+(152540, 3, 'Nautical Décor', 13777, 1, 1, 1, 0),
 (86922, 3, 'Paperweights', 13777, 1, 1, 1, 0),
 (73501, 3, 'Pitchers', 13777, 1, 1, 1, 0),
 (86916, 3, 'Planters', 13777, 1, 1, 1, 0),
@@ -8500,7 +8500,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (2017, 5, 'Other', 2016, 1, 1, 1, 0),
 (13879, 4, 'Fairs & Expositions', 165513, 0, 1, 1, 0),
 (1541, 5, 'County & State Fairs', 13879, 1, 1, 1, 0),
-(4162, 5, 'World鈥檚 Fairs', 13879, 0, 1, 1, 0),
+(4162, 5, 'World’s Fairs', 13879, 0, 1, 1, 0),
 (4163, 6, '1876 Philadelphia', 4162, 1, 1, 1, 0),
 (4164, 6, '1893 Chicago', 4162, 1, 1, 1, 0),
 (4165, 6, '1901 Buffalo', 4162, 1, 1, 1, 0),
@@ -8912,7 +8912,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (10940, 4, 'Tree Toppers', 1089, 1, 1, 1, 0),
 (48814, 4, 'Villages & Houses', 1089, 1, 1, 1, 0),
 (10941, 4, 'Wreaths', 1089, 1, 1, 1, 0),
-(33794, 4, 'Yard D茅cor', 1089, 1, 1, 1, 0),
+(33794, 4, 'Yard Décor', 1089, 1, 1, 1, 0),
 (908, 4, 'Other', 1089, 1, 1, 1, 0),
 (70966, 3, 'Easter', 907, 0, 1, 1, 0),
 (70967, 4, 'Vintage (Pre-1960)', 70966, 0, 1, 1, 0),
@@ -8951,7 +8951,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (168019, 5, 'Masks', 168013, 1, 1, 1, 0),
 (168020, 5, 'Ornaments', 168013, 1, 1, 1, 0),
 (168021, 5, 'Props', 168013, 1, 1, 1, 0),
-(168022, 5, 'Yard D茅cor', 168013, 1, 1, 1, 0),
+(168022, 5, 'Yard Décor', 168013, 1, 1, 1, 0),
 (168023, 5, 'Mixed Lots', 168013, 1, 1, 1, 0),
 (168024, 5, 'Other', 168013, 1, 1, 1, 0),
 (33795, 4, 'Current (1991-Now)', 14285, 0, 1, 1, 0),
@@ -8981,7 +8981,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (70976, 5, 'Masks', 33795, 1, 1, 1, 0),
 (168037, 5, 'Ornaments', 33795, 1, 1, 1, 0),
 (168038, 5, 'Props', 33795, 1, 1, 1, 0),
-(168039, 5, 'Yard D茅cor', 33795, 1, 1, 1, 0),
+(168039, 5, 'Yard Décor', 33795, 1, 1, 1, 0),
 (33805, 5, 'Mixed Lots', 33795, 1, 1, 1, 0),
 (910, 5, 'Other', 33795, 1, 1, 1, 0),
 (82508, 3, 'July 4th', 907, 1, 1, 1, 0),
@@ -9361,7 +9361,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (36043, 5, 'Flags', 36040, 1, 1, 1, 0),
 (165591, 5, 'Photographs', 36040, 1, 1, 1, 0),
 (36041, 5, 'Uniforms', 36040, 1, 1, 1, 0),
-(165590, 5, 'Women鈥檚 Apparel', 36040, 1, 1, 1, 0),
+(165590, 5, 'Women’s Apparel', 36040, 1, 1, 1, 0),
 (13961, 5, 'Other', 36040, 1, 1, 1, 0),
 (158427, 4, 'Other Civil War-Related Items', 13958, 1, 1, 1, 0),
 (156383, 3, 'Indian Wars (1866-97)', 13956, 0, 1, 1, 0),
@@ -12287,11 +12287,11 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (121829, 4, 'Gingerbread Crafts', 160651, 1, 1, 1, 0),
 (160654, 4, 'Halloween', 160651, 1, 1, 1, 0),
 (113339, 4, 'Other', 160651, 1, 1, 1, 0),
-(160656, 3, 'Home D茅cor & Accents', 71183, 0, 1, 1, 0),
+(160656, 3, 'Home Décor & Accents', 71183, 0, 1, 1, 0),
 (134306, 4, 'Baskets', 160656, 1, 1, 1, 0),
 (121831, 4, 'Candles & Holders', 160656, 1, 1, 1, 0),
 (83902, 4, 'Pillows', 160656, 1, 1, 1, 0),
-(168075, 4, 'Table D茅cor', 160656, 1, 1, 1, 0),
+(168075, 4, 'Table Décor', 160656, 1, 1, 1, 0),
 (83904, 4, 'Wall Hangings', 160656, 1, 1, 1, 0),
 (108866, 4, 'Wood Items', 160656, 1, 1, 1, 0),
 (160657, 4, 'Other', 160656, 1, 1, 1, 0),
@@ -12413,7 +12413,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (28160, 4, 'Upholstery Fabric', 113354, 1, 1, 1, 0),
 (113355, 4, 'Tools & Equipment', 113354, 1, 1, 1, 0),
 (113356, 4, 'Other', 113354, 1, 1, 1, 0),
-(75575, 3, 'Wall D茅cor & Tatouage', 160667, 1, 1, 1, 0),
+(75575, 3, 'Wall Décor & Tatouage', 160667, 1, 1, 1, 0),
 (57739, 3, 'Weaving', 160667, 0, 1, 1, 0),
 (57740, 4, 'Weaving Books & Patterns', 57739, 1, 1, 1, 0),
 (57741, 4, 'Weaving Looms', 57739, 1, 1, 1, 0),
@@ -12507,7 +12507,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (41231, 5, 'Doll Clothing', 41228, 1, 1, 1, 0),
 (41232, 5, 'Dolls & Toys', 41228, 1, 1, 1, 0),
 (160707, 5, 'Holiday', 41228, 1, 1, 1, 0),
-(41233, 5, 'Home D茅cor', 41228, 1, 1, 1, 0),
+(41233, 5, 'Home Décor', 41228, 1, 1, 1, 0),
 (134450, 5, 'Purses & Accessories', 41228, 1, 1, 1, 0),
 (41234, 5, 'Mixed Crochet', 41228, 1, 1, 1, 0),
 (150135, 5, 'Vintage', 41228, 1, 1, 1, 0),
@@ -12519,7 +12519,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (160726, 5, 'Crafts & Pets', 41236, 1, 1, 1, 0),
 (71219, 5, 'Dolls & Toys', 41236, 1, 1, 1, 0),
 (160727, 5, 'Holiday', 41236, 1, 1, 1, 0),
-(160728, 5, 'Home D茅cor', 41236, 1, 1, 1, 0),
+(160728, 5, 'Home Décor', 41236, 1, 1, 1, 0),
 (41239, 5, 'Purses & Accessories', 41236, 1, 1, 1, 0),
 (150136, 5, 'Vintage', 41236, 1, 1, 1, 0),
 (83930, 5, 'Other', 41236, 1, 1, 1, 0),
@@ -12527,7 +12527,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (160710, 5, 'Accessories', 160709, 1, 1, 1, 0),
 (160711, 5, 'Clothing', 160709, 1, 1, 1, 0),
 (160712, 5, 'Dolls, Crafts & Pets', 160709, 1, 1, 1, 0),
-(160713, 5, 'Home D茅cor', 160709, 1, 1, 1, 0),
+(160713, 5, 'Home Décor', 160709, 1, 1, 1, 0),
 (160714, 5, 'Other', 160709, 1, 1, 1, 0),
 (83927, 4, 'Totes & Cases', 3094, 1, 1, 1, 0),
 (954, 4, 'Other', 3094, 1, 1, 1, 0),
@@ -12592,7 +12592,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (158462, 4, 'Patterns', 158459, 1, 1, 1, 0),
 (158463, 4, 'Magazines', 158459, 1, 1, 1, 0),
 (158464, 4, 'Other', 158459, 1, 1, 1, 0),
-(28151, 3, 'Macram茅', 160706, 1, 1, 1, 0),
+(28151, 3, 'Macramé', 160706, 1, 1, 1, 0),
 (3104, 3, 'Needlepoint & Plastic Canvas', 160706, 0, 1, 1, 0),
 (3107, 4, 'Needlepoint Canvas', 3104, 1, 1, 1, 0),
 (3109, 4, 'Needlepoint Kits', 3104, 1, 1, 1, 0),
@@ -12764,7 +12764,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (160729, 5, 'Craft & Pet Patterns', 28174, 1, 1, 1, 0),
 (116691, 5, 'Doll, Barbie Clothing Patterns', 28174, 1, 1, 1, 0),
 (116693, 5, 'Holiday Patterns', 28174, 1, 1, 1, 0),
-(11802, 5, 'Home D茅cor Patterns', 28174, 1, 1, 1, 0),
+(11802, 5, 'Home Décor Patterns', 28174, 1, 1, 1, 0),
 (116694, 5, 'Purse & Accessory Patterns', 28174, 1, 1, 1, 0),
 (160730, 5, 'Mixed Lots', 28174, 1, 1, 1, 0),
 (3119, 5, 'Other', 28174, 1, 1, 1, 0),
@@ -12991,7 +12991,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (145879, 6, 'Avon', 48925, 1, 1, 1, 0),
 (160834, 6, 'Cheerleader', 48925, 1, 1, 1, 0),
 (36528, 6, 'Coca-Cola', 48925, 1, 1, 1, 0),
-(160835, 6, 'Hard Rock Caf茅', 48925, 1, 1, 1, 0),
+(160835, 6, 'Hard Rock Café', 48925, 1, 1, 1, 0),
 (36531, 6, 'Harley-Davidson', 48925, 1, 1, 1, 0),
 (160836, 6, 'Hello Kitty', 48925, 1, 1, 1, 0),
 (36533, 6, 'NASCAR', 48925, 1, 1, 1, 0),
@@ -13281,7 +13281,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (2457, 3, 'Miniatures', 1202, 0, 1, 1, 0),
 (16006, 4, 'Vintage (Pre-1970)', 2457, 0, 1, 1, 0),
 (47185, 5, 'Food & Groceries', 16006, 1, 1, 1, 0),
-(16008, 5, 'Furniture & Home D茅cor', 16006, 0, 1, 1, 0),
+(16008, 5, 'Furniture & Home Décor', 16006, 0, 1, 1, 0),
 (160874, 6, 'Bathroom', 16008, 1, 1, 1, 0),
 (160875, 6, 'Bedroom', 16008, 1, 1, 1, 0),
 (160876, 6, 'Garden', 16008, 1, 1, 1, 0),
@@ -13300,7 +13300,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (47181, 5, 'Dishes, Cookware & China', 16005, 1, 1, 1, 0),
 (145885, 5, 'Floor Coverings', 16005, 1, 1, 1, 0),
 (47182, 5, 'Food & Groceries', 16005, 1, 1, 1, 0),
-(63646, 5, 'Furniture & Home D茅cor', 16005, 0, 1, 1, 0),
+(63646, 5, 'Furniture & Home Décor', 16005, 0, 1, 1, 0),
 (63647, 6, 'Bathroom', 63646, 1, 1, 1, 0),
 (63648, 6, 'Bedroom', 63646, 1, 1, 1, 0),
 (80017, 6, 'Garden', 63646, 1, 1, 1, 0),
@@ -14607,7 +14607,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (104754, 4, 'Artists H', 108765, 0, 1, 1, 0),
 (164026, 5, 'Hall & Oates', 104754, 1, 1, 1, 0),
 (108823, 5, 'Hanson', 104754, 1, 1, 1, 0),
-(29905, 5, 'Hard Rock Caf茅', 104754, 0, 1, 1, 0),
+(29905, 5, 'Hard Rock Café', 104754, 0, 1, 1, 0),
 (29909, 6, 'Apparel', 29905, 1, 1, 1, 0),
 (29915, 6, 'Glassware', 29905, 1, 1, 1, 0),
 (29916, 6, 'Pins', 29905, 1, 1, 1, 0),
@@ -15149,7 +15149,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (101933, 4, 'DKNY', 29585, 1, 1, 1, 0),
 (33937, 4, 'Dolce & Gabbana', 29585, 1, 1, 1, 0),
 (67503, 4, 'Escada', 29585, 1, 1, 1, 0),
-(36375, 4, 'Est茅e Lauder', 29585, 1, 1, 1, 0),
+(36375, 4, 'Estée Lauder', 29585, 1, 1, 1, 0),
 (108698, 4, 'Ferrari', 29585, 1, 1, 1, 0),
 (101934, 4, 'Gap', 29585, 1, 1, 1, 0),
 (29587, 4, 'Gianni Versace', 29585, 1, 1, 1, 0),
@@ -15174,7 +15174,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (72774, 4, 'Kenneth Cole', 29585, 1, 1, 1, 0),
 (108699, 4, 'Kenzo', 29585, 1, 1, 1, 0),
 (82576, 4, 'Lacoste', 29585, 1, 1, 1, 0),
-(118053, 4, 'Lanc么me', 29585, 1, 1, 1, 0),
+(118053, 4, 'Lanc?me', 29585, 1, 1, 1, 0),
 (29589, 4, 'Liz Claiborne', 29585, 1, 1, 1, 0),
 (101936, 4, 'Lucky', 29585, 1, 1, 1, 0),
 (72775, 4, 'Mary Kay', 29585, 1, 1, 1, 0),
@@ -15249,7 +15249,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (67529, 4, 'Ellen Tracy', 11848, 1, 1, 1, 0),
 (118714, 4, 'Emanuelle Ungaro', 11848, 1, 1, 1, 0),
 (29601, 4, 'Escada', 11848, 1, 1, 1, 0),
-(11852, 4, 'Est茅e Lauder', 11848, 1, 1, 1, 0),
+(11852, 4, 'Estée Lauder', 11848, 1, 1, 1, 0),
 (118718, 4, 'FCUK', 11848, 1, 1, 1, 0),
 (36390, 4, 'Fendi', 11848, 1, 1, 1, 0),
 (118719, 4, 'Fred Hayman', 11848, 1, 1, 1, 0),
@@ -15285,7 +15285,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (36397, 4, 'Kenzo', 11848, 1, 1, 1, 0),
 (101947, 4, 'Lacoste', 11848, 1, 1, 1, 0),
 (67538, 4, 'Lalique', 11848, 1, 1, 1, 0),
-(29607, 4, 'Lanc么me', 11848, 1, 1, 1, 0),
+(29607, 4, 'Lanc?me', 11848, 1, 1, 1, 0),
 (36398, 4, 'Lanvin', 11848, 1, 1, 1, 0),
 (118727, 4, 'Laura Biagiotti', 11848, 1, 1, 1, 0),
 (29608, 4, 'Liz Claiborne', 11848, 1, 1, 1, 0),
@@ -15419,8 +15419,8 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (67591, 4, 'Benefit', 33920, 1, 1, 1, 0),
 (159800, 4, 'Bobbi Brown', 33920, 1, 1, 1, 0),
 (40094, 4, 'Clinique', 33920, 1, 1, 1, 0),
-(40095, 4, 'Est茅e Lauder', 33920, 1, 1, 1, 0),
-(33921, 4, 'Lanc么me', 33920, 1, 1, 1, 0),
+(40095, 4, 'Estée Lauder', 33920, 1, 1, 1, 0),
+(33921, 4, 'Lanc?me', 33920, 1, 1, 1, 0),
 (67592, 4, 'MAC', 33920, 1, 1, 1, 0),
 (33922, 4, 'Mary Kay', 33920, 1, 1, 1, 0),
 (72804, 4, 'Nars', 33920, 1, 1, 1, 0),
@@ -15456,10 +15456,10 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (33923, 4, 'Clinique', 31789, 1, 1, 1, 0),
 (159808, 4, 'CoverGirl', 31789, 1, 1, 1, 0),
 (114143, 4, 'Elizabeth Arden', 31789, 1, 1, 1, 0),
-(31793, 4, 'Est茅e Lauder', 31789, 1, 1, 1, 0),
+(31793, 4, 'Estée Lauder', 31789, 1, 1, 1, 0),
 (78090, 4, 'Guerlain', 31789, 1, 1, 1, 0),
 (78091, 4, 'Hard Candy', 31789, 1, 1, 1, 0),
-(31794, 4, 'Lanc么me', 31789, 1, 1, 1, 0),
+(31794, 4, 'Lanc?me', 31789, 1, 1, 1, 0),
 (159809, 4, 'Laura Geller', 31789, 1, 1, 1, 0),
 (72822, 4, 'Laura Mercier', 31789, 1, 1, 1, 0),
 (31795, 4, 'MAC', 31789, 1, 1, 1, 0),
@@ -15487,8 +15487,8 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (159820, 4, 'Bourjois', 33924, 1, 1, 1, 0),
 (117348, 4, 'Chanel', 33924, 1, 1, 1, 0),
 (67624, 4, 'Clinique', 33924, 1, 1, 1, 0),
-(72823, 4, 'Est茅e Lauder', 33924, 1, 1, 1, 0),
-(40098, 4, 'Lanc么me', 33924, 1, 1, 1, 0),
+(72823, 4, 'Estée Lauder', 33924, 1, 1, 1, 0),
+(40098, 4, 'Lanc?me', 33924, 1, 1, 1, 0),
 (159821, 4, 'Laura Geller', 33924, 1, 1, 1, 0),
 (159822, 4, 'Laura Mercier', 33924, 1, 1, 1, 0),
 (95209, 4, 'MAC', 33924, 1, 1, 1, 0),
@@ -15518,12 +15518,12 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (67630, 4, 'Dermablend', 31797, 1, 1, 1, 0),
 (159740, 4, 'Dermacia', 31797, 1, 1, 1, 0),
 (33949, 4, 'Elizabeth Arden', 31797, 1, 1, 1, 0),
-(33950, 4, 'Est茅e Lauder', 31797, 1, 1, 1, 0),
+(33950, 4, 'Estée Lauder', 31797, 1, 1, 1, 0),
 (159741, 4, 'GloMinerals', 31797, 1, 1, 1, 0),
 (159742, 4, 'Inner Beauty', 31797, 1, 1, 1, 0),
 (159743, 4, 'Jafra', 31797, 1, 1, 1, 0),
 (159744, 4, 'Jane Iredale', 31797, 1, 1, 1, 0),
-(31799, 4, 'Lanc么me', 31797, 1, 1, 1, 0),
+(31799, 4, 'Lanc?me', 31797, 1, 1, 1, 0),
 (159745, 4, 'Laura Mercier', 31797, 1, 1, 1, 0),
 (67631, 4, 'MAC', 31797, 1, 1, 1, 0),
 (31800, 4, 'Mary Kay', 31797, 1, 1, 1, 0),
@@ -15558,9 +15558,9 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (159828, 4, 'C.O. Bigelow', 36417, 1, 1, 1, 0),
 (159829, 4, 'CoverGirl', 36417, 1, 1, 1, 0),
 (117356, 4, 'DuWop', 36417, 1, 1, 1, 0),
-(72837, 4, 'Est茅e Lauder', 36417, 1, 1, 1, 0),
+(72837, 4, 'Estée Lauder', 36417, 1, 1, 1, 0),
 (108700, 4, 'Jessica Simpson Dessert', 36417, 1, 1, 1, 0),
-(36419, 4, 'Lanc么me', 36417, 1, 1, 1, 0),
+(36419, 4, 'Lanc?me', 36417, 1, 1, 1, 0),
 (159831, 4, 'Laura Mercier', 36417, 1, 1, 1, 0),
 (114146, 4, 'LipFusion', 36417, 1, 1, 1, 0),
 (36420, 4, 'MAC', 36417, 1, 1, 1, 0),
@@ -15601,10 +15601,10 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (159846, 4, 'Coty', 31804, 1, 1, 1, 0),
 (95214, 4, 'CoverGirl', 31804, 1, 1, 1, 0),
 (40957, 4, 'Elizabeth Arden', 31804, 1, 1, 1, 0),
-(31807, 4, 'Est茅e Lauder', 31804, 1, 1, 1, 0),
+(31807, 4, 'Estée Lauder', 31804, 1, 1, 1, 0),
 (159847, 4, 'Fashion Fair', 31804, 1, 1, 1, 0),
 (159848, 4, 'Jane Iredale', 31804, 1, 1, 1, 0),
-(31808, 4, 'Lanc么me', 31804, 1, 1, 1, 0),
+(31808, 4, 'Lanc?me', 31804, 1, 1, 1, 0),
 (159849, 4, 'Laura Mercier', 31804, 1, 1, 1, 0),
 (31809, 4, 'MAC', 31804, 1, 1, 1, 0),
 (159850, 4, 'Manic Panic', 31804, 1, 1, 1, 0),
@@ -15635,8 +15635,8 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (67651, 4, 'Christian Dior', 33952, 1, 1, 1, 0),
 (36422, 4, 'Clinique', 33952, 1, 1, 1, 0),
 (159862, 4, 'CoverGirl', 33952, 1, 1, 1, 0),
-(36423, 4, 'Est茅e Lauder', 33952, 1, 1, 1, 0),
-(33954, 4, 'Lanc么me', 33952, 1, 1, 1, 0),
+(36423, 4, 'Estée Lauder', 33952, 1, 1, 1, 0),
+(33954, 4, 'Lanc?me', 33952, 1, 1, 1, 0),
 (72850, 4, 'MAC', 33952, 1, 1, 1, 0),
 (33955, 4, 'Mary Kay', 33952, 1, 1, 1, 0),
 (101958, 4, 'Maybelline', 33952, 1, 1, 1, 0),
@@ -15653,8 +15653,8 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (40099, 4, 'Bare Escentuals', 36424, 1, 1, 1, 0),
 (159867, 4, 'Bobbi Brown', 36424, 1, 1, 1, 0),
 (36425, 4, 'Clinique', 36424, 1, 1, 1, 0),
-(36426, 4, 'Est茅e Lauder', 36424, 1, 1, 1, 0),
-(36427, 4, 'Lanc么me', 36424, 1, 1, 1, 0),
+(36426, 4, 'Estée Lauder', 36424, 1, 1, 1, 0),
+(36427, 4, 'Lanc?me', 36424, 1, 1, 1, 0),
 (36428, 4, 'MAC', 36424, 1, 1, 1, 0),
 (36429, 4, 'Mary Kay', 36424, 1, 1, 1, 0),
 (159868, 4, 'Smashbox', 36424, 1, 1, 1, 0),
@@ -16101,7 +16101,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (94933, 6, 'Other', 38208, 1, 1, 1, 0),
 (20493, 5, 'Trunks', 20486, 1, 1, 1, 0),
 (3196, 5, 'Other', 20486, 1, 1, 1, 0),
-(38227, 3, 'Holiday & Seasonal D茅cor', 159888, 0, 1, 1, 0),
+(38227, 3, 'Holiday & Seasonal Décor', 159888, 0, 1, 1, 0),
 (117414, 4, 'Artificial Trees', 38227, 1, 1, 1, 0),
 (168138, 4, 'Candles & Candle Accessories', 38227, 1, 1, 1, 0),
 (117413, 4, 'Figurines', 38227, 1, 1, 1, 0),
@@ -16109,12 +16109,12 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (52346, 4, 'Linens & Pillows', 38227, 1, 1, 1, 0),
 (166725, 4, 'Ornaments', 38227, 1, 1, 1, 0),
 (38230, 4, 'Photo Frames', 38227, 1, 1, 1, 0),
-(52347, 4, 'Table D茅cor & Serving Pieces', 38227, 1, 1, 1, 0),
+(52347, 4, 'Table Décor & Serving Pieces', 38227, 1, 1, 1, 0),
 (166726, 4, 'Tree Stands & Accessories', 38227, 1, 1, 1, 0),
-(166727, 4, 'Wall D茅cor', 38227, 1, 1, 1, 0),
+(166727, 4, 'Wall Décor', 38227, 1, 1, 1, 0),
 (117419, 4, 'Wreaths & Garlands', 38227, 1, 1, 1, 0),
 (38232, 4, 'Other', 38227, 1, 1, 1, 0),
-(10033, 3, 'Home D茅cor & Accents', 159888, 0, 1, 1, 0),
+(10033, 3, 'Home Décor & Accents', 159888, 0, 1, 1, 0),
 (20549, 4, 'Afghans, Throws', 10033, 1, 1, 1, 0),
 (20550, 4, 'Baskets', 10033, 1, 1, 1, 0),
 (20551, 4, 'Bookends', 10033, 1, 1, 1, 0),
@@ -16123,8 +16123,8 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (16102, 4, 'Candle Holders & Accessories', 10033, 1, 1, 1, 0),
 (46782, 4, 'Candles', 10033, 1, 1, 1, 0),
 (122845, 4, 'Ceiling Tins & Roses', 10033, 1, 1, 1, 0),
-(115971, 5, 'Tabletop & Shelf D茅cor', 115970, 1, 1, 1, 0),
-(115972, 5, 'Wall D茅cor', 115970, 1, 1, 1, 0),
+(115971, 5, 'Tabletop & Shelf Décor', 115970, 1, 1, 1, 0),
+(115972, 5, 'Wall Décor', 115970, 1, 1, 1, 0),
 (115973, 5, 'Other', 115970, 1, 1, 1, 0),
 (20558, 4, 'Clocks', 10033, 0, 1, 1, 0),
 (79643, 5, 'Alarm Clocks', 20558, 1, 1, 1, 0),
@@ -16143,7 +16143,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (36018, 4, 'Decorative Fruit & Vegetables', 10033, 1, 1, 1, 0),
 (36019, 4, 'Decorative Plates & Bowls', 10033, 1, 1, 1, 0),
 (38217, 4, 'Door Accessories', 10033, 0, 1, 1, 0),
-(36020, 5, 'Door D茅cor', 38217, 1, 1, 1, 0),
+(36020, 5, 'Door Décor', 38217, 1, 1, 1, 0),
 (36021, 5, 'Door Knockers', 38217, 1, 1, 1, 0),
 (115975, 5, 'Doorbells', 38217, 1, 1, 1, 0),
 (20573, 5, 'Doormats', 38217, 1, 1, 1, 0),
@@ -16159,7 +16159,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (79649, 5, 'Log Holders & Carriers', 38219, 1, 1, 1, 0),
 (79650, 5, 'Mantels', 38219, 1, 1, 1, 0),
 (20564, 5, 'Other', 38219, 1, 1, 1, 0),
-(4959, 4, 'Floral D茅cor', 10033, 1, 1, 1, 0),
+(4959, 4, 'Floral Décor', 10033, 1, 1, 1, 0),
 (36023, 4, 'Globes', 10033, 1, 1, 1, 0),
 (20552, 4, 'Home Fragrances', 10033, 0, 1, 1, 0),
 (166724, 5, 'Air Fresheners', 20552, 1, 1, 1, 0),
@@ -16197,7 +16197,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (115976, 5, 'Other', 32887, 1, 1, 1, 0),
 (20578, 4, 'Suncatchers & Mobiles', 10033, 1, 1, 1, 0),
 (101415, 4, 'Vases', 10033, 1, 1, 1, 0),
-(38233, 4, 'Wall D茅cor', 10033, 0, 1, 1, 0),
+(38233, 4, 'Wall Décor', 10033, 0, 1, 1, 0),
 (41509, 5, 'Asian Fans', 38233, 1, 1, 1, 0),
 (79655, 5, 'Ceramic Tiles & Mosaics', 38233, 1, 1, 1, 0),
 (38234, 5, 'Crosses', 38233, 1, 1, 1, 0),
@@ -17079,7 +17079,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (42349, 4, 'Nectar Feeders', 75578, 1, 1, 1, 0),
 (42350, 4, 'Seed Feeders', 75578, 1, 1, 1, 0),
 (75579, 4, 'Other', 75578, 1, 1, 1, 0),
-(20498, 3, 'Garden D茅cor', 159912, 0, 1, 1, 0),
+(20498, 3, 'Garden Décor', 159912, 0, 1, 1, 0),
 (43533, 4, 'Flags & Flagpoles', 20498, 0, 1, 1, 0),
 (43534, 5, 'Decorative', 43533, 1, 1, 1, 0),
 (75590, 5, 'Foreign', 43533, 1, 1, 1, 0),
@@ -17238,7 +17238,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (79692, 4, 'Patio & Picnic Ware', 149242, 1, 1, 1, 0),
 (38249, 4, 'Picnic Baskets & Backpacks', 149242, 1, 1, 1, 0),
 (159926, 4, 'Other', 149242, 1, 1, 1, 0),
-(117416, 3, 'Outdoor Holiday D茅cor', 159912, 1, 1, 1, 0),
+(117416, 3, 'Outdoor Holiday Décor', 159912, 1, 1, 1, 0),
 (42154, 3, 'Outdoor Lighting', 159912, 0, 1, 1, 0),
 (94938, 4, 'Lamp Posts', 42154, 1, 1, 1, 0),
 (42156, 4, 'Lanterns, Strings', 42154, 1, 1, 1, 0),
@@ -25525,7 +25525,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 (113522, 5, 'Take-Along', 113520, 1, 1, 1, 0),
 (22720, 5, 'Other', 113520, 1, 1, 1, 0),
 (146109, 4, 'Games & Toys', 22719, 1, 1, 1, 0),
-(146110, 4, 'Home D茅cor', 22719, 1, 1, 1, 0),
+(146110, 4, 'Home Décor', 22719, 1, 1, 1, 0),
 (146111, 4, 'Lunch Boxes, Dinnerware', 22719, 1, 1, 1, 0),
 (113512, 4, 'Wooden', 22719, 0, 1, 1, 0),
 (113513, 5, 'Accessories', 113512, 1, 1, 1, 0),
@@ -26086,7 +26086,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 -- --------------------------------------------------------
 
 --
--- Table structure for table `countries`
+-- 表的结构 `countries`
 --
 
 CREATE TABLE IF NOT EXISTS `countries` (
@@ -26099,7 +26099,7 @@ CREATE TABLE IF NOT EXISTS `countries` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=240 ;
 
 --
--- Dumping data for table `countries`
+-- 导出表中的数据 `countries`
 --
 
 INSERT INTO `countries` (`countries_id`, `countries_name`, `countries_iso_code_2`, `countries_iso_code_3`) VALUES
@@ -26346,27 +26346,28 @@ INSERT INTO `countries` (`countries_id`, `countries_name`, `countries_iso_code_2
 -- --------------------------------------------------------
 
 --
--- Table structure for table `international_shipping_service_option`
+-- 表的结构 `international_shipping_service_option`
 --
 
 CREATE TABLE IF NOT EXISTS `international_shipping_service_option` (
-  `ItemID` varchar(20) NOT NULL,
+  `id` int(11) NOT NULL auto_increment,
+  `ItemID` int(11) NOT NULL,
   `ShippingService` varchar(50) NOT NULL,
   `ShippingServiceCost` decimal(10,2) NOT NULL,
   `ShipToLocation` varchar(255) NOT NULL,
-  KEY `SKU` (`ItemID`),
+  PRIMARY KEY  (`id`),
   KEY `ItemID` (`ItemID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 --
--- Dumping data for table `international_shipping_service_option`
+-- 导出表中的数据 `international_shipping_service_option`
 --
 
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `items`
+-- 表的结构 `items`
 --
 
 CREATE TABLE IF NOT EXISTS `items` (
@@ -26391,6 +26392,8 @@ CREATE TABLE IF NOT EXISTS `items` (
   `PostalCode` varchar(10) NOT NULL,
   `PrimaryCategoryCategoryID` int(11) NOT NULL,
   `Quantity` int(11) NOT NULL,
+  `ReturnPolicyDescription` text NOT NULL,
+  `ReturnPolicyReturnsAcceptedOption` enum('ReturnsAccepted','ReturnsNotAccepted') NOT NULL,
   `ReservePrice` decimal(10,2) NOT NULL,
   `CurrentPrice` decimal(10,2) NOT NULL,
   `QuantitySold` int(11) NOT NULL,
@@ -26412,6 +26415,10 @@ CREATE TABLE IF NOT EXISTS `items` (
   `Featured` tinyint(1) NOT NULL default '0',
   `Highlight` tinyint(1) NOT NULL default '0',
   `HomePageFeatured` tinyint(1) NOT NULL default '0',
+  `GalleryTypeFeatured` tinyint(1) NOT NULL,
+  `GalleryTypeGallery` tinyint(1) NOT NULL,
+  `GalleryURL` varchar(255) NOT NULL,
+  `PhotoDisplay` enum('PicturePack','SiteHostedPictureShow','SuperSize','SuperSizePictureShow','VendorHostedPictureShow') NOT NULL,
   `Status` int(1) NOT NULL,
   PRIMARY KEY  (`Id`),
   KEY `ItemID` (`ItemID`),
@@ -26419,16 +26426,16 @@ CREATE TABLE IF NOT EXISTS `items` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
--- Dumping data for table `items`
+-- 导出表中的数据 `items`
 --
 
-INSERT INTO `items` (`Id`, `ItemID`, `AutoPay`, `BuyItNowPrice`, `CategoryMappingAllowed`, `Country`, `Currency`, `Description`, `DispatchTimeMax`, `ScheduleStartDate`, `ScheduleEndDate`, `StartTime`, `EndTime`, `ListingDuration`, `ListingType`, `Location`, `PaymentMethods`, `PayPalEmailAddress`, `PostalCode`, `PrimaryCategoryCategoryID`, `Quantity`, `ReservePrice`, `CurrentPrice`, `QuantitySold`, `ListingStatus`, `ScheduleTime`, `SecondaryCategoryCategoryID`, `ShippingType`, `Site`, `SKU`, `StartPrice`, `StoreCategory2ID`, `StoreCategoryID`, `SubTitle`, `Title`, `UserID`, `accountId`, `BoldTitle`, `Border`, `Featured`, `Highlight`, `HomePageFeatured`, `Status`) VALUES
-(1, '', 0, 3.00, 1, 'CN', 'USD', 'test', 3, '2009-07-10 00:00:00', '2009-07-20 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00', 'Days_10', 'Chinese', 'Albania', 'PayPal', 'heshuai64@gmail.com', '11111', 16494, 1, 2.00, 0.00, 0, '', '0000-00-00 00:00:00', 31411, 'Flat', 'US', 'AC00099', 1.00, 0, 0, 'Subtitle', 'Title', '', 0, 1, 0, 0, 1, 0, 0);
+INSERT INTO `items` (`Id`, `ItemID`, `AutoPay`, `BuyItNowPrice`, `CategoryMappingAllowed`, `Country`, `Currency`, `Description`, `DispatchTimeMax`, `ScheduleStartDate`, `ScheduleEndDate`, `StartTime`, `EndTime`, `ListingDuration`, `ListingType`, `Location`, `PaymentMethods`, `PayPalEmailAddress`, `PostalCode`, `PrimaryCategoryCategoryID`, `Quantity`, `ReturnPolicyDescription`, `ReturnPolicyReturnsAcceptedOption`, `ReservePrice`, `CurrentPrice`, `QuantitySold`, `ListingStatus`, `ScheduleTime`, `SecondaryCategoryCategoryID`, `ShippingType`, `Site`, `SKU`, `StartPrice`, `StoreCategory2ID`, `StoreCategoryID`, `SubTitle`, `Title`, `UserID`, `accountId`, `BoldTitle`, `Border`, `Featured`, `Highlight`, `HomePageFeatured`, `GalleryTypeFeatured`, `GalleryTypeGallery`, `GalleryURL`, `PhotoDisplay`, `Status`) VALUES
+(1, '', 0, 3.00, 1, 'CN', 'USD', 'test', 3, '2009-07-10 00:00:00', '2009-07-20 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00', 'Days_10', 'Chinese', 'Albania', 'PayPal', 'heshuai64@gmail.com', '11111', 16494, 1, '', 'ReturnsAccepted', 2.00, 0.00, 0, '', '0000-00-00 00:00:00', 31411, 'Flat', 'US', 'AC00099', 1.00, 0, 0, 'Subtitle', 'Title', '', 0, 1, 0, 0, 1, 0, 0, 0, '', 'PicturePack', 0);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `listing_duration`
+-- 表的结构 `listing_duration`
 --
 
 CREATE TABLE IF NOT EXISTS `listing_duration` (
@@ -26439,7 +26446,7 @@ CREATE TABLE IF NOT EXISTS `listing_duration` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `listing_duration`
+-- 导出表中的数据 `listing_duration`
 --
 
 INSERT INTO `listing_duration` (`id`, `name`, `version`) VALUES
@@ -26469,7 +26476,7 @@ INSERT INTO `listing_duration` (`id`, `name`, `version`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `listing_duration_type`
+-- 表的结构 `listing_duration_type`
 --
 
 CREATE TABLE IF NOT EXISTS `listing_duration_type` (
@@ -26479,7 +26486,7 @@ CREATE TABLE IF NOT EXISTS `listing_duration_type` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `listing_duration_type`
+-- 导出表中的数据 `listing_duration_type`
 --
 
 INSERT INTO `listing_duration_type` (`id`, `name`) VALUES
@@ -26495,27 +26502,26 @@ INSERT INTO `listing_duration_type` (`id`, `name`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `picture_details`
+-- 表的结构 `picture_url`
 --
 
-CREATE TABLE IF NOT EXISTS `picture_details` (
-  `SKU` varchar(20) NOT NULL,
-  `GalleryType` varchar(15) NOT NULL,
-  `GalleryURL` varchar(200) NOT NULL,
-  `PhotoDisplay` varchar(30) NOT NULL,
-  `PictureURL` varchar(200) NOT NULL,
-  KEY `SKU` (`SKU`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+CREATE TABLE IF NOT EXISTS `picture_url` (
+  `id` int(11) NOT NULL auto_increment,
+  `ItemID` int(11) NOT NULL,
+  `url` varchar(150) NOT NULL,
+  PRIMARY KEY  (`id`),
+  KEY `ItemID` (`ItemID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 --
--- Dumping data for table `picture_details`
+-- 导出表中的数据 `picture_url`
 --
 
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `proxy`
+-- 表的结构 `proxy`
 --
 
 CREATE TABLE IF NOT EXISTS `proxy` (
@@ -26526,7 +26532,7 @@ CREATE TABLE IF NOT EXISTS `proxy` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
--- Dumping data for table `proxy`
+-- 导出表中的数据 `proxy`
 --
 
 INSERT INTO `proxy` (`id`, `host`, `port`) VALUES
@@ -26535,7 +26541,7 @@ INSERT INTO `proxy` (`id`, `host`, `port`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `schedule`
+-- 表的结构 `schedule`
 --
 
 CREATE TABLE IF NOT EXISTS `schedule` (
@@ -26546,7 +26552,7 @@ CREATE TABLE IF NOT EXISTS `schedule` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `schedule`
+-- 导出表中的数据 `schedule`
 --
 
 INSERT INTO `schedule` (`item_id`, `day`, `time`) VALUES
@@ -26555,7 +26561,7 @@ INSERT INTO `schedule` (`item_id`, `day`, `time`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `shipping_service_details`
+-- 表的结构 `shipping_service_details`
 --
 
 CREATE TABLE IF NOT EXISTS `shipping_service_details` (
@@ -26576,7 +26582,7 @@ CREATE TABLE IF NOT EXISTS `shipping_service_details` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `shipping_service_details`
+-- 导出表中的数据 `shipping_service_details`
 --
 
 INSERT INTO `shipping_service_details` (`Description`, `InternationalService`, `ShippingService`, `ShippingServiceID`, `ShippingTimeMax`, `ShippingTimeMin`, `ServiceTypeFlat`, `ServiceTypeCalculated`, `ShippingPackageLetter`, `ShippingPackageLargeEnvelope`, `ShippingPackagePackageThickEnvelope`, `ShippingCarrier`, `DimensionsRequired`, `WeightRequired`) VALUES
@@ -26648,28 +26654,30 @@ INSERT INTO `shipping_service_details` (`Description`, `InternationalService`, `
 -- --------------------------------------------------------
 
 --
--- Table structure for table `shipping_service_options`
+-- 表的结构 `shipping_service_options`
 --
 
 CREATE TABLE IF NOT EXISTS `shipping_service_options` (
-  `ItemID` varchar(20) NOT NULL,
+  `id` int(11) NOT NULL auto_increment,
+  `ItemID` int(11) NOT NULL,
   `FreeShipping` tinyint(1) NOT NULL default '0',
   `ShippingService` varchar(50) NOT NULL,
   `ShippingServiceCost` decimal(10,2) NOT NULL,
-  PRIMARY KEY  (`ItemID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  PRIMARY KEY  (`id`),
+  KEY `ItemID` (`ItemID`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
--- Dumping data for table `shipping_service_options`
+-- 导出表中的数据 `shipping_service_options`
 --
 
-INSERT INTO `shipping_service_options` (`ItemID`, `FreeShipping`, `ShippingService`, `ShippingServiceCost`) VALUES
-('1', 0, 'USPSMedia', 1.00);
+INSERT INTO `shipping_service_options` (`id`, `ItemID`, `FreeShipping`, `ShippingService`, `ShippingServiceCost`) VALUES
+(1, 1, 0, 'USPSMedia', 1.00);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `site`
+-- 表的结构 `site`
 --
 
 CREATE TABLE IF NOT EXISTS `site` (
@@ -26684,7 +26692,7 @@ CREATE TABLE IF NOT EXISTS `site` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `site`
+-- 导出表中的数据 `site`
 --
 
 INSERT INTO `site` (`id`, `abbreviation`, `name`, `categoryVersion`, `currency`, `status`) VALUES
@@ -26714,7 +26722,7 @@ INSERT INTO `site` (`id`, `abbreviation`, `name`, `categoryVersion`, `currency`,
 -- --------------------------------------------------------
 
 --
--- Table structure for table `skus_to_items`
+-- 表的结构 `skus_to_items`
 --
 
 CREATE TABLE IF NOT EXISTS `skus_to_items` (
@@ -26724,6 +26732,5 @@ CREATE TABLE IF NOT EXISTS `skus_to_items` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `skus_to_items`
+-- 导出表中的数据 `skus_to_items`
 --
-
