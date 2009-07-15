@@ -1347,7 +1347,8 @@ Ext.onReady(function(){
                             editable: false,
                             selectOnFocus:true,
                             width:150,
-                            listWidth:150    
+                            listWidth:150,
+                            allowBlank:false
                         }],
                         cls: 'my-fieldset',
                         style: 'margin: 10px;',

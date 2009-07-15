@@ -626,7 +626,16 @@ class eBayListing{
 
 	<PictureDetails> PictureDetailsType 
 	    <GalleryDuration> token </GalleryDuration>
+	    Describes the number of days that "Featured" Gallery type applies to a listing.
+	    The values that can be specified in this field are in ListingEnhancementDurationCodeType.
+	    When a seller chooses "Featured" as the Gallery type,
+	    the listing is highlighted and is included at the top of search results.
+	    This functionality is applicable only for Gallery Featured items and returns an error for any other Gallery type.
+	    Additionally, an error is returned if the seller attempts to downgrade from Lifetime to limited duration,
+	    but the seller can upgrade from limited duration to Lifetime duration.
+	    This field is not applicable to auction listings.
 	    <GalleryType> GalleryTypeCodeType </GalleryType>
+	    Featured  Gallery  
 	    <GalleryURL> anyURI </GalleryURL>
 	    <PhotoDisplay> PhotoDisplayCodeType </PhotoDisplay>
 	    <PictureURL> anyURI </PictureURL>
@@ -707,7 +716,7 @@ class eBayListing{
 	    
 	    $itemArray = array();
 	    
-	    if(!empty($item['BuyItNowPrice'])){
+	    if(!empty($item['BuyItNowPrice']) && $item['BuyItNowPrice'] != 0){
 		$itemArray['BuyItNowPrice'] = $item['BuyItNowPrice'];
 	    }
 	    $itemArray['CategoryMappingAllowed'] = true;
@@ -792,7 +801,7 @@ class eBayListing{
 	    //ShipToLocations
 	    $itemArray['Site'] = $item['Site'];
 	    $itemArray['SKU'] = $item['SKU'];
-	    if(!empty($item['StartPrice'])){
+	    if(!empty($item['StartPrice']) && $item['StartPrice'] != 0){
 		$itemArray['StartPrice'] = $item['StartPrice'];
 	    }
 	    if(!empty($item['StoreCategory2ID'])){
@@ -823,11 +832,12 @@ class eBayListing{
 		    echo $results->Errors->LongMessage."<br>";
 		}
 	    }else{
-		echo $results->ItemID;
-		echo $results->StartTime;
-		echo $results->EndTime;
+		//echo $results->ItemID;
+		//echo $results->StartTime;
+		//echo $results->EndTime;
 		$sql = "update items set ItemID = '".$results->ItemID."',StartTime='".$results->StartTime."',
 		EndTime='".$results->EndTime."' where Id = '".$item['Id']."'";
+		echo $sql;
 		$result = mysql_query($sql);
 		
 	    }
@@ -880,6 +890,8 @@ class eBayListing{
 	ALTER TABLE `items` ADD `ReturnPolicyDescription` TEXT NOT NULL AFTER `Quantity` ;
 	
 	ReturnPolicyReturnsAcceptedOption:ReturnsAccepted,ReturnsNotAccepted
+	
+	ALTER TABLE `items` CHANGE `ListingType` `ListingType` VARCHAR( 20 )
 	*/
 	
 	//ScheduleStartDate,ScheduleEndDate
@@ -888,6 +900,7 @@ class eBayListing{
 	//Site
 	//ShippingType
 	//ListingEnhancement
+	//StartPrice  FixedPriceItem
 	if(!empty($_POST['UseStandardFooter']) && $_POST['UseStandardFooter'] == 1){
 	    $sql = "select footer from account_footer where accountId = '".$this->account_id."'";
 	    $result = mysql_query($sql, eBayListing::$database_connect);
@@ -1327,6 +1340,20 @@ class eBayListing{
     
     public function logout(){
 	unset($_COOKIE['account_id']);
+    }
+    
+    public function testComet(){
+	$i = 1;
+	while(1 == 1){
+	    file_put_contents('log/t.log', $i."\n", FILE_APPEND);
+	    //usleep(10000);
+	    sleep(1);
+	    if($i > 9){
+		exit;
+	    }
+	    $i++;
+	}
+	echo "finish";
     }
     
     public function __destruct(){
