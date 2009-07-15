@@ -1361,6 +1361,7 @@ Ext.onReady(function(){
                                         width: 150,
                                         listWidth: 150,
                                         name: 'shippingType',
+                                        hiddenName:'shippingType',
                                         listeners: {
                                             "select": function(c, r, i){
                                                 //console.log(c);
@@ -1541,6 +1542,20 @@ Ext.onReady(function(){
                             width:60
                             
                         }]
+                    },{
+                        xtype:"fieldset",
+                        title: 'Additional Ship To Locations',
+                        items:[{
+                            xtype:"checkbox",
+                            labelWidth: 0,
+                            labelSeparator: '',
+                            fieldLabel:"",
+                            boxLabel:"Highlight",
+                            name:"Highlight",
+                            inputValue:"1"
+                        },{
+                            
+                        }]
                     }]
                   },{
                     xtype:"panel",
@@ -1642,6 +1657,7 @@ Ext.onReady(function(){
     
     itemPanel.render(document.body);
     
+    //Schedule Time  --------------------------------------------------------------------------------
     Ext.select(".schedule-time").on("click",function(e, el){
         var tempArray = el.childNodes[0].id.split("-");
         
@@ -1787,6 +1803,13 @@ Ext.onReady(function(){
                             Ext.Ajax.request({
                                 url: 'service.php?action=saveSkuScheduleTime',
                                 success: function(){
+                                        if(timeStore.getCount() > 0){
+                                            Ext.getCmp(el.childNodes[0].id + "-panel").body.applyStyles("background-color:red;");
+                                            Ext.getCmp(el.childNodes[0].id).setValue(1)
+                                        }else{
+                                            Ext.getCmp(el.childNodes[0].id + "-panel").body.applyStyles("background-color:white;");
+                                            Ext.getCmp(el.childNodes[0].id).setValue(0)
+                                        }
                                         timeWindow.close();
                                     },
                                 failure: function(){},
