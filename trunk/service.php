@@ -109,7 +109,7 @@ class Service{
             $sellerId = $row_2['sellerId'];
             $seller = $this->getSellerEmailAccountAndPassword($sellerId);
             
-            $this->log("sendShipShpmentEmail", "seller: ".print_r($seller, true)."<br>");
+            $this->log("email/sendShipShpmentEmail", "seller: ".print_r($seller, true)."<br>");
             $address =  $row['shipToName'].'<br>'.
                         $row['shipToAddressLine1'].'<br>'.
                         (!empty($row['shipToAddressLine2'])?$row['shipToAddressLine2'].'<br>':'').
@@ -172,18 +172,18 @@ class Service{
             
             if(!$mail->Send()) {
                 //file_put_contents("/tmp/1.log", $mail->ErrorInfo, FILE_APPEND);
-                $this->log("sendShipShpmentEmail", "<font color='red'>Mailer Error: " . $mail->ErrorInfo."</font><br>");
+                $this->log("email/sendShipShpmentEmail", "<font color='red'>Send Email Failure: " . $mail->ErrorInfo."</font><br>");
                 echo "Mailer Error: " . $mail->ErrorInfo."!";
                 echo "\n";
             } else {
                 $sql_3 = "update qo_shipments set emailStatus = 1 where id = '".$row['id']."'";
                 $result_3 = mysql_query($sql_3);
-                $this->log("sendShipShpmentEmail", $sql_3."<br>send email success<br>");
+                $this->log("email/sendShipShpmentEmail", $sql_3."<br>Send Email Success<br>");
                 echo $row['id']." send email success!";
                 echo "\n";
                 //file_put_contents("/tmp/1.log", "Success!", FILE_APPEND);
             }
-            $this->log("sendShipShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
+            $this->log("email/sendShipShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
             sleep(1);
             //exit;
         }
