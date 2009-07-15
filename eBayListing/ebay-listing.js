@@ -284,31 +284,33 @@ Ext.onReady(function(){
                     }],
                    //el: 'north',
                    height:32
-               },/*){
-                   region:'south',
-                   contentEl: 'south',
-                   split:true,
-                   height: 100,
-                   minSize: 100,
-                   maxSize: 200,
-                   collapsible: true,
-                   title:'South',
-                   margins:'0 0 0 0'
-               },*/{
-                   region:'west',
-                   id:'west-panel',
-                   title:'West',
-                   split:true,
-                   width: 200,
-                   minSize: 175,
-                   maxSize: 400,
-                   collapsible: true,
-                   margins:'0 0 0 5',
-                   layout:'accordion',
-                   layoutConfig:{
-                       animate:true
-                   },
-                   items: [{
+               },{
+                    region:'south',
+                    //contentEl: 'south',
+                    split:true,
+                    height: 100,
+                    autoScroll: true,
+                    minSize: 100,
+                    maxSize: 150,
+                    collapsible: true,
+                    title:'Log',
+                    html:'test',
+                    margins:'0 0 0 0'
+               },{
+                    region:'west',
+                    id:'west-panel',
+                    title:'West',
+                    split:true,
+                    width: 200,
+                    minSize: 175,
+                    maxSize: 400,
+                    collapsible: true,
+                    margins:'0 0 0 5',
+                    layout:'accordion',
+                    layoutConfig:{
+                        animate:true
+                    },
+                    items: [{
                          id: 'inventory-accordion',
                          title:'Inventory',
                          border:false,
@@ -320,11 +322,11 @@ Ext.onReady(function(){
                               }
                          }
                    },{
-                       title:'Waiting To Upload',
-                       html:'xxx',
-                       border:false,
-                       iconCls:'waiting-to-upload',
-                       listeners:{
+                         title:'Waiting To Upload',
+                         html:'xxx',
+                         border:false,
+                         iconCls:'waiting-to-upload',
+                         listeners:{
                          expand: function(p){
                               var wait_store =new Ext.data.JsonStore({
                                    root: 'records',

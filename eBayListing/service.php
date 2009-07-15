@@ -505,7 +505,7 @@ class eBayListing{
 	
     }
     
-    public function geteBayDetailsByShippingServiceDetails(){
+    public function getShippingServiceDetails(){
 	try {
                 $client = new eBaySOAP($this->session);
                 $Version = '607';
@@ -569,6 +569,24 @@ class eBayListing{
 		
         } catch (SOAPFault $f) {
                 print $f; // error handling
+        }
+    }
+    
+    public function getShippingLocationDetails(){
+	try {
+	    $client = new eBaySOAP($this->session);
+	    $Version = '607';
+	    $DetailName = "ShippingLocationDetails";
+	 
+	    $params = array('Version' => $Version, 'DetailName' => $DetailName);
+	    $results = $client->GeteBayDetails($params);
+	    print_r($results);
+	    //----------   debug --------------------------------
+	    //print "Request: \n".$client->__getLastRequest() ."\n";
+	    print "Response: \n".$client->__getLastResponse()."\n";
+	    //$this->saveFetchData("geteBayDetails-".date("Y-m-d H:i
+	} catch (SOAPFault $f) {
+            print $f; // error handling
         }
     }
     
@@ -864,6 +882,7 @@ class eBayListing{
 	
 	//ScheduleStartDate,ScheduleEndDate
 	//ShippingType
+	//ShipToLocations
 	
 	if(!empty($_POST['UseStandardFooter']) && $_POST['UseStandardFooter'] == 1){
 	    $sql = "select footer from account_footer where accountId = '".$this->account_id."'";
@@ -1310,12 +1329,14 @@ class eBayListing{
     }
     
     public function addSkuScheduleTime(){
-	session_start();
-	if(@!is_array($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']])){
-	    $_SESSION[$_POST['sku'].'-'.$_POST['dayTime']] = array();
-	}
-	if(@!in_array($_POST['time'], $_SESSION[$_POST['sku'].'-'.$_POST['dayTime']])){
-	    $_SESSION[$_POST['sku'].'-'.$_POST['dayTime']][] = $_POST['time'];
+	if(!empty($_POST['time'])){
+	    session_start();
+	    if(@!is_array($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']])){
+		$_SESSION[$_POST['sku'].'-'.$_POST['dayTime']] = array();
+	    }
+	    if(@!in_array($_POST['time'], $_SESSION[$_POST['sku'].'-'.$_POST['dayTime']])){
+		$_SESSION[$_POST['sku'].'-'.$_POST['dayTime']][] = $_POST['time'];
+	    }
 	}
 	print_r($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']]);
     }
@@ -1359,7 +1380,7 @@ class eBayListing{
 	}else{
 	    echo json_encode(array());
 	}
-	print_r($_SESSION);
+	//print_r($_SESSION);
     }
     
     public function saveSkuScheduleTime(){
