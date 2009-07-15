@@ -588,14 +588,6 @@ class eBayListing{
     
     public function addItem($item){
 	/*
-	英,美,法,澳,
-	Europe/London       +0100
-	America/New_York    -0400
-	Europe/Paris        +0200
-	Australia/Canberra  +1000
-	
-	Asia/Shanghai       +0800
-	
 	<BuyItNowPrice currencyID="CurrencyCodeType"> AmountType (double) </BuyItNowPrice>
  
 	<CategoryMappingAllowed> boolean </CategoryMappingAllowed>
@@ -867,45 +859,22 @@ class eBayListing{
     
     public function saveItem(){
 	/*
-	ALTER TABLE `items` ADD `GalleryTypeFeatured` BOOL NOT NULL AFTER `HomePageFeatured` ,
-	ADD `GalleryTypeGallery` BOOL NOT NULL AFTER `GalleryTypeFeatured` ,
-	ADD `GalleryURL` VARCHAR( 255 ) NOT NULL AFTER `GalleryTypeGallery` ,
-	ADD `PhotoDisplay` ENUM( "PicturePack", "SiteHostedPictureShow", "SuperSize", "SuperSizePictureShow", "VendorHostedPictureShow" ) NOT NULL AFTER `GalleryURL` ;
-	
-	CREATE TABLE `ebaylisting`.`PictureURL` (
-	    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-	    `ItemID` INT NOT NULL ,
-	    `url` VARCHAR( 150 ) NOT NULL ,
-	    INDEX ( `ItemID` )
-	) ENGINE = MYISAM
-	
-	
-	ALTER TABLE `shipping_service_options` DROP PRIMARY KEY
-	ALTER TABLE `shipping_service_options` ADD `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST ;
-	ALTER TABLE `shipping_service_options` ADD INDEX ( `ItemID` )
-	 
-	ALTER TABLE `international_shipping_service_option` DROP INDEX `SKU`
-	ALTER TABLE `international_shipping_service_option` ADD `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST ;
-	
-	ALTER TABLE `items` ADD `ReturnPolicyDescription` TEXT NOT NULL AFTER `Quantity` ;
-	
-	ReturnPolicyReturnsAcceptedOption:ReturnsAccepted,ReturnsNotAccepted
-	
 	ALTER TABLE `items` CHANGE `ListingType` `ListingType` VARCHAR( 20 )
 	*/
 	
 	//ScheduleStartDate,ScheduleEndDate
-	//Location,PostalCode
-	//CurrentPrice
-	//Site
 	//ShippingType
-	//ListingEnhancement
-	//StartPrice  FixedPriceItem
+	
 	if(!empty($_POST['UseStandardFooter']) && $_POST['UseStandardFooter'] == 1){
 	    $sql = "select footer from account_footer where accountId = '".$this->account_id."'";
 	    $result = mysql_query($sql, eBayListing::$database_connect);
 	    $row = mysql_fetch_assoc($result);
 	    $_POST['Description'] .= $row['footer'];
+	}
+	
+	if($_POST['ListingType'] == "FixedPriceItem" || $_POST['ListingType'] == "StoresFixedPrice"){
+	    $_POST['StartPrice'] = $_POST['BuyItNowPrice'];
+	    $_POST['BuyItNowPrice'] = 0;
 	}
 	//StartTime,EndTime
 	//$PaymentMethods = ($_POST['PayPalPayment'] == 1)?'PayPal':'';
@@ -954,6 +923,92 @@ class eBayListing{
 	    ('".$id."','".$_POST['InternationalShippingService-'.$i]."','".$_POST['InternationalShippingServiceCost-'.$i]."')";
 	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
 	    $i++;
+	}
+	
+	/*
+	英,美,法,澳,
+	Europe/London       +0100  -8h
+	America/New_York    -0400  -12h
+	Europe/Paris        +0200  -7h
+	Australia/Canberra  +1000  +2h
+	
+	Asia/Shanghai       +0800
+	
+	Array
+	(
+	    [LB00009-Mon-am-1] => Array
+		(
+		    [0] => 1:00 AM
+		    [1] => 1:01 AM
+		    [2] => 1:02 AM
+		)
+	)
+
+	*/
+	session_start();
+	switch($_POST['Site']){
+	    case "US":
+		foreach($_SESSION as $key=>$value){
+		    $keyArray = explode("-", $key);
+		    if(count($keyArray) == 4){
+			foreach($value as $name){
+			    $sku = $keyArray[0];
+			    $day = $keyArray[1];
+			    $time = date("H:i:s", strtotime("-12 hour ".$name));
+			    $sql_3 = "insert into (item_id,day,time) values 
+			    ('".$id."','".$day."','".time."')";
+			    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+			}
+		    }
+		}
+	    break;
+	
+	    case "UK":
+		foreach($_SESSION as $key=>$value){
+		    $keyArray = explode("-", $key);
+		    if(count($keyArray) == 4){
+			foreach($value as $name){
+			    $sku = $keyArray[0];
+			    $day = $keyArray[1];
+			    $time = date("H:i:s", strtotime("-8 hour ".$name));
+			    $sql_3 = "insert into (item_id,day,time) values 
+			    ('".$id."','".$day."','".time."')";
+			    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+			}
+		    }
+		}
+	    break;
+	
+	    case "AU":
+		foreach($_SESSION as $key=>$value){
+		    $keyArray = explode("-", $key);
+		    if(count($keyArray) == 4){
+			foreach($value as $name){
+			    $sku = $keyArray[0];
+			    $day = $keyArray[1];
+			    $time = date("H:i:s", strtotime("+2 hour ".$name));
+			    $sql_3 = "insert into (item_id,day,time) values 
+			    ('".$id."','".$day."','".time."')";
+			    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+			}
+		    }
+		}
+	    break;
+	
+	    case "FR":
+		foreach($_SESSION as $key=>$value){
+		    $keyArray = explode("-", $key);
+		    if(count($keyArray) == 4){
+			foreach($value as $name){
+			    $sku = $keyArray[0];
+			    $day = $keyArray[1];
+			    $time = date("H:i:s", strtotime("-7 hour ".$name));
+			    $sql = "insert into (item_id,day,time) values 
+			    ('".$id."','".$day."','".time."')";
+			}
+		    }
+		}
+	    break;
 	}
 	
 	if($result && $result_1 && $result_2){
@@ -1256,10 +1311,10 @@ class eBayListing{
     
     public function addSkuScheduleTime(){
 	session_start();
-	if(!is_array($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']])){
+	if(@!is_array($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']])){
 	    $_SESSION[$_POST['sku'].'-'.$_POST['dayTime']] = array();
 	}
-	if(!in_array($_POST['time'], $_SESSION[$_POST['sku'].'-'.$_POST['dayTime']])){
+	if(@!in_array($_POST['time'], $_SESSION[$_POST['sku'].'-'.$_POST['dayTime']])){
 	    $_SESSION[$_POST['sku'].'-'.$_POST['dayTime']][] = $_POST['time'];
 	}
 	print_r($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']]);
@@ -1292,7 +1347,7 @@ class eBayListing{
 	session_start();
 	//print_r($_SESSION[$_GET['sku'].'-'.$_GET['dayTime']]);
 	//$array = array(array("time"=>"13:21"), array("time"=>"13:30"));
-	if(is_array($_SESSION[$_GET['sku'].'-'.$_GET['dayTime']])){
+	if(@is_array($_SESSION[$_GET['sku'].'-'.$_GET['dayTime']])){
 	    sort($_SESSION[$_GET['sku'].'-'.$_GET['dayTime']]);
 	    $data = array();
 	    $i = 0;
@@ -1304,7 +1359,7 @@ class eBayListing{
 	}else{
 	    echo json_encode(array());
 	}
-	
+	print_r($_SESSION);
     }
     
     public function saveSkuScheduleTime(){
