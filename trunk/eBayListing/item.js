@@ -224,7 +224,7 @@ Ext.onReady(function(){
                 fieldLabel:"Site",
                 mode: 'local',
                 store: siteStore,
-                valueField:'id',
+                valueField:'name',
                 displayField:'name',
                 triggerAction: 'all',
                 editable: false,
@@ -237,6 +237,7 @@ Ext.onReady(function(){
                 allowBlank:false,
                 listeners: {
                     "select": function(c, r, i){
+                        //console.log(r);
                         switch(r.data.name){
                             case "US":
                                Ext.getCmp("Currency").setValue("USD");
@@ -255,13 +256,17 @@ Ext.onReady(function(){
                                 Ext.getCmp("Currency").setValue("EUR");
                             break;
                         }
+                        Ext.getCmp("SiteID").setValue(r.data.id);
                     }
                 }
             },{
-                
                 xtype:"hidden",
                 id:'Currency',
                 name:'Currency'
+            },{
+                xtype:"hidden",
+                id:'SiteID',
+                name:'SiteID'
             },{
             layout:"column",
             items:[{
@@ -1217,7 +1222,7 @@ Ext.onReady(function(){
                                     hiddenName:'ShippingService-1',
                                     //allowBlank: false,
                                     width:150,
-                                    listWidth:260
+                                    listWidth:300
                                   }]
                               },{
                                 layout:"form",
@@ -1260,7 +1265,7 @@ Ext.onReady(function(){
                                     editable: false,
                                     selectOnFocus:true,
                                     width:150,
-                                    listWidth:260
+                                    listWidth:300
                                   }]
                               },{
                                 layout:"form",
@@ -1306,7 +1311,7 @@ Ext.onReady(function(){
                                     editable: false,
                                     selectOnFocus:true,
                                     width:150,
-                                    listWidth:260
+                                    listWidth:300
                                   }]
                               },{
                                 layout:"form",
@@ -1365,7 +1370,7 @@ Ext.onReady(function(){
                                         listeners: {
                                             "select": function(c, r, i){
                                                 //console.log(c);
-                                                shippingServiceStore.load({params: {InternationalService: 0, serviceType: c.value}});
+                                                shippingServiceStore.load({params: {InternationalService: 0, serviceType: c.value, SiteID: Ext.getCmp("SiteID").getValue()}});
                                             }
                                         }
                                 });
@@ -1386,7 +1391,7 @@ Ext.onReady(function(){
                         items:[{
                             layout:"table",
                             layoutConfig:{
-                              columns:3
+                              columns:2
                             },
                             defaults:{
                               bodyStyle:"padding:0px;",
@@ -1409,8 +1414,13 @@ Ext.onReady(function(){
                                     triggerAction: 'all',
                                     editable: false,
                                     selectOnFocus:true,
-                                    width:150,
-                                    listWidth:260
+                                    width:220,
+                                    listWidth:300,
+                                    listeners: {
+                                                "select": function(c, r, i){
+                                                    Ext.getCmp("InternationalShippingTo-1").show();
+                                                }
+                                            }
                                   }]
                               },{
                                 layout:"form",
@@ -1422,7 +1432,55 @@ Ext.onReady(function(){
                                     width:60
                                   }]
                               },{
-                                border:false
+                                id:"InternationalShippingTo-1",
+                                hidden:true,
+                                layout:"form",
+                                colspan: 2,
+                                items:[{
+                                    xtype:"fieldset",
+                                    title: 'To',
+                                    style: 'margin: 10px;',
+                                    items:[{
+                                            xtype:"combo",
+                                            labelWidth: 0,
+                                            labelSeparator: '',
+                                            labelStyle:'height:0px;padding:0px;',
+                                            fieldLabel:"",
+                                            store: ['Custom Locations', 'Worldwide'],
+                                            triggerAction: 'all',
+                                            editable: false,
+                                            selectOnFocus:true,
+                                            width: 150,
+                                            listWidth: 150,
+                                            listeners: {
+                                                "select": function(c, r, i){
+                                                    //console.log(c);
+                                                    if(c.value == "Custom Locations"){
+                                                        Ext.getCmp("InternationalShippingCustom-1").show();
+                                                    }else{
+                                                        Ext.getCmp("InternationalShippingCustom-1").hide();
+                                                    }
+                                                    
+                                                }
+                                            }
+                                        },{
+                                            id:"InternationalShippingCustom-1",
+                                            hidden:true,
+                                            layout:"form",
+                                            border:false,
+                                            items:[{
+                                                xtype:"checkbox",
+                                                labelWidth: 0,
+                                                labelSeparator: '',
+                                                fieldLabel:"",
+                                                labelStyle: 'height:0px;padding:0px;',
+                                                style:"padding:0px;",
+                                                boxLabel:"Use Standard Footer",
+                                                name:"UseStandardFooter",
+                                                inputValue:1
+                                            }]
+                                    }]
+                                }]
                               },{
                                 layout:"form",
                                 border:false,
@@ -1441,8 +1499,8 @@ Ext.onReady(function(){
                                     triggerAction: 'all',
                                     editable: false,
                                     selectOnFocus:true,
-                                    width:150,
-                                    listWidth:260
+                                    width:220,
+                                    listWidth:300
                                   }]
                               },{
                                 layout:"form",
@@ -1457,7 +1515,11 @@ Ext.onReady(function(){
                                     width:60
                                   }]
                               },{
-                                border:false
+                                layout:"form",
+                                colspan: 2,
+                                items:[{
+                                
+                                }]
                               },{
                                 layout:"form",
                                 border:false,
@@ -1476,8 +1538,8 @@ Ext.onReady(function(){
                                     triggerAction: 'all',
                                     editable: false,
                                     selectOnFocus:true,
-                                    width:150,
-                                    listWidth:260
+                                    width:220,
+                                    listWidth:300
                                   }]
                               },{
                                 layout:"form",
@@ -1492,7 +1554,11 @@ Ext.onReady(function(){
                                     width:60
                                   }]
                               },{
-                                border:false
+                                layout:"form",
+                                colspan: 2,
+                                items:[{
+                                
+                                }]
                               }]
                         }],
                         cls: 'my-fieldset',
@@ -1508,7 +1574,7 @@ Ext.onReady(function(){
                                         listeners: {
                                             "select": function(c, r, i){
                                                 //console.log(r);
-                                                shippingServiceStore.load({params: {InternationalService: 1, serviceType: c.value}});
+                                                shippingServiceStore.load({params: {InternationalService: 1, serviceType: c.value, SiteID: Ext.getCmp("SiteID").getValue()}});
                                             }
                                         }
                                 });
@@ -1540,20 +1606,6 @@ Ext.onReady(function(){
                             fieldLabel:"ZIP Code",
                             name:"PostalCode",
                             width:60
-                            
-                        }]
-                    },{
-                        xtype:"fieldset",
-                        title: 'Additional Ship To Locations',
-                        items:[{
-                            xtype:"checkbox",
-                            labelWidth: 0,
-                            labelSeparator: '',
-                            fieldLabel:"",
-                            boxLabel:"Highlight",
-                            name:"Highlight",
-                            inputValue:"1"
-                        },{
                             
                         }]
                     }]

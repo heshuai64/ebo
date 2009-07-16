@@ -20,6 +20,7 @@ class eBayListing{
     private $env = "sandbox";
     
     private $session;
+    private $site_id = 0;
     private $account_id;
     
     public function __construct(){
@@ -40,10 +41,13 @@ class eBayListing{
     
     public  function setAccount($account_id){
 	$this->account_id = $account_id;
-	$this->configEbay();
     }
     
-    private function configEbay(){
+    public function setSite($site_id){
+	$this->site_id = $site_id;
+    }
+    
+    public function configEbay(){
 	if(!empty($_COOKIE['account_id'])){
 	    $this->account_id = $_COOKIE['account_id'];
 	}
@@ -76,9 +80,9 @@ class eBayListing{
 	    // Create and configure session
 	    $this->session = new eBaySession($dev, $app, $cert, $row_1['host'], $row_1['port']);
 	    $this->session->token = $token;
-	    $this->session->site = 0; // 0 = US;
+	    //$this->session->site = 0; // 0 = US;
+	    $this->session->site = $this->site_id;
 	    $this->session->location = $location;
-	    
 	}
     }
     
@@ -481,9 +485,9 @@ class eBayListing{
 	//echo "\n";
 	
 	if($_POST['serviceType'] == "Flat"){
-	    $sql = "select Description,ShippingService from shipping_service_details where  ServiceTypeFlat = 1 ".$InternationalService;
+	    $sql = "select Description,ShippingService from shipping_service_details where  SiteID = '".$_POST['SiteID']."' and ServiceTypeFlat = 1 ".$InternationalService;
 	}elseif($_POST['serviceType'] == "Calculated"){
-	    $sql = "select Description,ShippingService from shipping_service_details where  ServiceTypeCalculated = 1 ".$InternationalService;
+	    $sql = "select Description,ShippingService from shipping_service_details where  SiteID = '".$_POST['SiteID']."' and ServiceTypeCalculated = 1 ".$InternationalService;
 	}
 	
 	//echo $sql;
@@ -505,6 +509,7 @@ class eBayListing{
 	
     }
     
+    //GeteBayDetails   ----------------------------------------------------------------
     public function getShippingServiceDetails(){
 	try {
                 $client = new eBaySOAP($this->session);
@@ -515,61 +520,129 @@ class eBayListing{
                 $results = $client->GeteBayDetails($params);
                 //print_r($results);
 		//----------   debug --------------------------------
-                //print "Request: \n".$client->__getLastRequest() ."\n";
-                print "Response: \n".$client->__getLastResponse()."\n";
-                //$this->saveFetchData("geteBayDetails-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+                $this->saveFetchData("ShippingServiceDetails-Request-".date("Y-m-d H:i:s").".xml", $client->__getLastRequest());
+                $this->saveFetchData("ShippingServiceDetails-Response-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 		
-		$ServiceTypeFlat = false;
-		$ServiceTypeCalculated = false;
-                foreach($results->ShippingServiceDetails as $shippingServiceDetail){
-		    foreach($shippingServiceDetail->ServiceType as $serviceType){
-			if($serviceType == "Flat"){
-			    $ServiceTypeFlat = true;
-			}elseif($serviceType == "Calculated"){
-			    $ServiceTypeCalculated = true;
-			}
-		    }
-		    
-		    $ShippingPackageLetter = false;
-		    $ShippingPackageLargeEnvelope = false;
-		    $ShippingPackagePackageThickEnvelope = false;
-		    foreach($shippingServiceDetail->ShippingPackage as $shippingPackage){
-			switch($shippingPackage){
-			    case "Letter":
-				$ShippingPackageLetter = true;
-				break;
-			    
-			    case "LargeEnvelope":
-				$ShippingPackageLargeEnvelope = true;
-				break;
-			    
-			    case "PackageThickEnvelope":
-				$ShippingPackagePackageThickEnvelope = true;
-				break;
-			}
-		    }
-		    
-		    $sql = "insert into shipping_service_details (Description,InternationalService,ShippingService,
-		    ShippingServiceID,ShippingTimeMax,ShippingTimeMin,ServiceTypeFlat,ServiceTypeCalculated,
-		    ShippingPackageLetter,ShippingPackageLargeEnvelope,ShippingPackagePackageThickEnvelope,
-		    ShippingCarrier,DimensionsRequired,WeightRequired) values ('".mysql_escape_string($shippingServiceDetail->Description)."',
-		    '".$shippingServiceDetail->InternationalService."','".mysql_escape_string($shippingServiceDetail->ShippingService)."',
-		    '".$shippingServiceDetail->ShippingServiceID."','".$shippingServiceDetail->ShippingTimeMax."',
-		    '".$shippingServiceDetail->ShippingTimeMin."','".$ServiceTypeFlat."',
-		    '".$ServiceTypeCalculated."','".$ShippingPackageLetter."',
-		    '".$ShippingPackageLargeEnvelope."','".$ShippingPackagePackageThickEnvelope."',
-		    '".$shippingServiceDetail->ShippingCarrier."','".$shippingServiceDetail->DimensionsRequired."',
-		    '".$shippingServiceDetail->WeightRequired."')";
-		    
-		    echo $sql;
-		    echo "<be>";
+		if(!empty($results->ShippingServiceDetails)){
+		    //clear up
+		    $sql = "delete from shipping_service_details where SiteID = '".$this->site_id."'";
 		    $result = mysql_query($sql, eBayListing::$database_connect);
+		    
+		    foreach($results->ShippingServiceDetails as $shippingServiceDetail){
+			if(@empty($shippingServiceDetail->InternationalService)){
+			    $shippingServiceDetail->InternationalService = false;
+			}
+			
+			if(@empty($shippingServiceDetail->ShippingTimeMax)){
+			    $shippingServiceDetail->ShippingTimeMax = false;
+			}
+			
+			if(@empty($shippingServiceDetail->ShippingTimeMin)){
+			    $shippingServiceDetail->ShippingTimeMin = false;
+			}
+			
+			$ServiceTypeFlat = false;
+			$ServiceTypeCalculated = false;
+			if(@is_array($shippingServiceDetail->ServiceType)){
+			    foreach($shippingServiceDetail->ServiceType as $serviceType){
+				if($serviceType == "Flat"){
+				    $ServiceTypeFlat = true;
+				}elseif($serviceType == "Calculated"){
+				    $ServiceTypeCalculated = true;
+				}
+			    }
+			}else{
+			    if(@$shippingServiceDetail->ServiceType == "Flat"){
+				$ServiceTypeFlat = true;
+			    }elseif(@$shippingServiceDetail->ServiceType == "Calculated"){
+				$ServiceTypeCalculated = true;
+			    }
+			}
+			
+			$ShippingPackageLetter = false;
+			$ShippingPackageLargeEnvelope = false;
+			$ShippingPackagePackageThickEnvelope = false;
+			if(@is_array($shippingServiceDetail->ShippingPackage)){
+			    foreach($shippingServiceDetail->ShippingPackage as $shippingPackage){
+				switch($shippingPackage){
+				    case "Letter":
+					$ShippingPackageLetter = true;
+					break;
+				    
+				    case "LargeEnvelope":
+					$ShippingPackageLargeEnvelope = true;
+					break;
+				    
+				    case "PackageThickEnvelope":
+					$ShippingPackagePackageThickEnvelope = true;
+					break;
+				}
+			    }
+			}else{
+			    switch(@$shippingServiceDetail->ShippingPackage){
+				case "Letter":
+				    $ShippingPackageLetter = true;
+				    break;
+				
+				case "LargeEnvelope":
+				    $ShippingPackageLargeEnvelope = true;
+				    break;
+				
+				case "PackageThickEnvelope":
+				    $ShippingPackagePackageThickEnvelope = true;
+				    break;
+			    }
+			}
+			
+			if(@empty($shippingServiceDetail->ShippingCarrier)){
+			    $shippingServiceDetail->ShippingCarrier = false;
+			}
+			
+			if(@empty($shippingServiceDetail->DimensionsRequired)){
+			    $shippingServiceDetail->DimensionsRequired = false;
+			}
+			
+			if(@empty($shippingServiceDetail->WeightRequired)){
+			    $shippingServiceDetail->WeightRequired = false;
+			}
+			
+			echo "<font color='red'>".$shippingServiceDetail->Description."</font>";
+			echo "<br>";
+			
+			$sql = "insert into shipping_service_details (SiteID,Description,InternationalService,ShippingService,
+			ShippingServiceID,ShippingTimeMax,ShippingTimeMin,ServiceTypeFlat,ServiceTypeCalculated,
+			ShippingPackageLetter,ShippingPackageLargeEnvelope,ShippingPackagePackageThickEnvelope,
+			ShippingCarrier,DimensionsRequired,WeightRequired) values ('".$this->site_id."','".mysql_escape_string($shippingServiceDetail->Description)."',
+			'".$shippingServiceDetail->InternationalService."','".mysql_escape_string($shippingServiceDetail->ShippingService)."',
+			'".$shippingServiceDetail->ShippingServiceID."','".$shippingServiceDetail->ShippingTimeMax."',
+			'".$shippingServiceDetail->ShippingTimeMin."','".$ServiceTypeFlat."',
+			'".$ServiceTypeCalculated."','".$ShippingPackageLetter."',
+			'".$ShippingPackageLargeEnvelope."','".$ShippingPackagePackageThickEnvelope."',
+			'".$shippingServiceDetail->ShippingCarrier."','".$shippingServiceDetail->DimensionsRequired."',
+			'".$shippingServiceDetail->WeightRequired."')";
+			
+			echo $sql;
+			echo "<br>";
+			$result = mysql_query($sql, eBayListing::$database_connect);
+		    }
 		}
-		
-		
+		echo "<h2>Fetch ".$this->site_id." End.</h2>";
+		echo "<br>";
+		echo "<br>";
+		echo "<br>";
         } catch (SOAPFault $f) {
                 print $f; // error handling
         }
+    }
+    
+    public function getAllSiteShippingServiceDetails(){
+	$sql = "select id from site where status = 1";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	while ($row = mysql_fetch_assoc($result)){
+	    $this->setSite($row['id']);
+	    $this->configEbay();
+	    $this->getShippingServiceDetails();
+	}
     }
     
     public function getShippingLocationDetails(){
@@ -581,22 +654,45 @@ class eBayListing{
 	    $params = array('Version' => $Version, 'DetailName' => $DetailName);
 	    $results = $client->GeteBayDetails($params);
 	    print_r($results);
+	    
+	    foreach($results->ShippingLocationDetails as $shippingLocationDetails){
+		$sql = "insert into ship_to_location (SiteID,ShippingLocation,Description) 
+		values ('".$this->site_id."','".$shippingLocationDetails->ShippingLocation."','".mysql_escape_string($shippingLocationDetails->Description)."')";
+		echo $sql;
+		echo "<br>";
+		$result = mysql_query($sql, eBayListing::$database_connect);
+	    }
+	    echo "<h2>Fetch ".$this->site_id." End.</h2>";
+	    echo "<br>";
+	    echo "<br>";
+	    echo "<br>";
 	    //----------   debug --------------------------------
 	    //print "Request: \n".$client->__getLastRequest() ."\n";
-	    print "Response: \n".$client->__getLastResponse()."\n";
-	    //$this->saveFetchData("geteBayDetails-".date("Y-m-d H:i
+	    //print "Response: \n".$client->__getLastResponse()."\n";
+	    $this->saveFetchData("ShippingLocationDetails-Request-".date("Y-m-d H:i:s").".xml", $client->__getLastRequest());
+	    $this->saveFetchData("ShippingLocationDetails-Response-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 	} catch (SOAPFault $f) {
             print $f; // error handling
         }
     }
     
+    public function getAllSiteShippingLocationDetails(){
+	$sql = "select id from site where status = 1";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	while ($row = mysql_fetch_assoc($result)){
+	    $this->setSite($row['id']);
+	    $this->configEbay();
+	    $this->getShippingLocationDetails();
+	}
+    }
+    //---------------------------------------------------------------------------------
     public function getAllSites(){
 	$sql = "select * from site where status = '1'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$array = array();
 	$i = 0;
 	while($row = mysql_fetch_assoc($result)){
-	    $array[$i]['id'] = $row['name'];
+	    $array[$i]['id'] = $row['id'];
 	    $array[$i]['name'] = $row['name'];
 	    $i++;
 	}
@@ -878,6 +974,24 @@ class eBayListing{
     public function saveItem(){
 	/*
 	ALTER TABLE `items` CHANGE `ListingType` `ListingType` VARCHAR( 20 )
+	LTER TABLE `shipping_service_details` ADD `SiteID` INT NOT NULL FIRST ;
+	ALTER TABLE `shipping_service_details` ADD INDEX ( `SiteID` ) ;
+	
+	ALTER TABLE `shipping_service_details` CHANGE `ServiceTypeFlat` `ServiceTypeFlat` BOOL NOT NULL DEFAULT '0',
+	CHANGE `ServiceTypeCalculated` `ServiceTypeCalculated` BOOL NOT NULL DEFAULT '0',
+	CHANGE `ShippingPackageLetter` `ShippingPackageLetter` BOOL NOT NULL DEFAULT '0',
+	CHANGE `ShippingPackageLargeEnvelope` `ShippingPackageLargeEnvelope` BOOL NOT NULL DEFAULT '0',
+	CHANGE `ShippingPackagePackageThickEnvelope` `ShippingPackagePackageThickEnvelope` BOOL NOT NULL DEFAULT '0',
+	CHANGE `DimensionsRequired` `DimensionsRequired` BOOL NOT NULL DEFAULT '0',
+	CHANGE `WeightRequired` `WeightRequired` BOOL NOT NULL DEFAULT '0' ,
+	CHANGE `InternationalService` `InternationalService` BOOL NOT NULL DEFAULT '0'
+	
+	CREATE TABLE IF NOT EXISTS `ship_to_location` (
+	  `SiteID` int(11) NOT NULL,
+	  `ShippingLocation` varchar(25) NOT NULL,
+	  `Description` varchar(50) NOT NULL,
+	  KEY `SiteID` (`SiteID`)
+	);
 	*/
 	
 	//ScheduleStartDate,ScheduleEndDate
@@ -1440,6 +1554,10 @@ class eBayListing{
 $service = new eBayListing();
 $service->setAccount(1);
 $acton = (!empty($_GET['action'])?$_GET['action']:$argv[1]);
-$service->$acton();
-
+if(in_array($acton, array("getAllSiteShippingServiceDetails", "getAllSiteShippingLocationDetails"))){
+    $service->$acton();
+}else{
+    $service->configEbay();
+    $service->$acton();
+}
 ?>
