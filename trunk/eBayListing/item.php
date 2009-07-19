@@ -22,6 +22,13 @@
         .schedule-time{
             cursor:pointer;
         }
+	.gallery-url{
+	    background-image:url(./images/image_add.png) !important;
+	}
+	.return-policy{
+	    background-image:url(./images/page_edit.png) !important;
+	}
+	
     </style>
 <body>
     <!-- Insert your content here -->

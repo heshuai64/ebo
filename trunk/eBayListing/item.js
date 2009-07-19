@@ -645,9 +645,47 @@ Ext.onReady(function(){
                         }]
                       }]
                   },{
+                        xtype:"hidden",
+                        id:"GalleryURL",
+                        name:"GalleryURL"
+                    },{
                     xtype:"panel",
                     title:"Pictures and Description",
                     layout:"form",
+                    tbar:[{
+                        text:"Gallery thumbnail",
+                        handler:function(){
+                            var window = new Ext.Window({
+                                title:"Add gallery thumbnail picture",
+                                closeAction:"hide",
+                                width:450,
+                                layout:"form",
+                                items: [{
+                                    xtype:"textfield",
+                                    fieldLabel:"url",
+                                    labelStyle:"width:50px;",
+                                    id:"gallery-url",
+                                    style:"padding-left:0px;",
+                                    width:300
+                                }],
+                                buttons:[{
+                                    text:"OK",
+                                    handler:function(){
+                                        Ext.getCmp("GalleryURL").setValue(Ext.getCmp("gallery-url").getValue());
+                                        window.close();
+                                    }
+                                },{
+                                    text:"Cancel",
+                                    handler:function(){
+                                        window.close();
+                                    }
+                                }]
+                            })
+                            Ext.getCmp("gallery-url").setValue(Ext.getCmp("GalleryURL").getValue());
+                            window.show();
+                        },
+                        iconCls :"gallery-url"
+                    }],
                     items:[{
                         layout:"column",
                         title:"Picture",
@@ -1112,9 +1150,10 @@ Ext.onReady(function(){
                             labelSeparator: '',
                             fieldLabel:"",
                             boxLabel:"Gallery Plus",
-                            id:"GalleryTypeFeatured",
-                            name:"GalleryTypeFeatured",
-                            inputValue:"1"
+                            id:"GalleryTypePlus",
+                            name:"GalleryTypePlus",
+                            inputValue:"1",
+                            disabled:true
                         },{
                             xtype:"checkbox",
                             labelWidth: 0,
@@ -1122,7 +1161,8 @@ Ext.onReady(function(){
                             fieldLabel:"",
                             boxLabel:"BoldTitle",
                             name:"BoldTitle",
-                            inputValue:"1"
+                            inputValue:"1",
+                            disabled:true
                         },{
                             xtype:"checkbox",
                             labelWidth: 0,
@@ -1138,7 +1178,8 @@ Ext.onReady(function(){
                             fieldLabel:"",
                             boxLabel:"Highlight",
                             name:"Highlight",
-                            inputValue:"1"
+                            inputValue:"1",
+                            disabled:true
                         }]
                     },{
                         columnWidth:0.5,
@@ -1150,25 +1191,27 @@ Ext.onReady(function(){
                             fieldLabel:"",
                             boxLabel:"Featured Plus",
                             name:"Featured",
-                            inputValue:"1"
+                            inputValue:"1",
+                            disabled:true
                         },{
                             xtype:"checkbox",
                             labelWidth: 0,
                             labelSeparator: '',
                             fieldLabel:"",
                             boxLabel:"Featured First",
-                            name:"GalleryTypeGallery",
+                            name:"GalleryTypeFeatured",
                             inputValue:"1",
                             listeners: {"check": function(t, c){
-                                if(c == true){
-                                    Ext.getCmp("GalleryTypeFeatured").setValue(1);
-                                    Ext.getCmp("GalleryTypeFeatured").setDisabled(1);
-                                }else{
-                                    Ext.getCmp("GalleryTypeFeatured").setValue(0);
-                                    Ext.getCmp("GalleryTypeFeatured").setDisabled(0);
+                                    if(c == true){
+                                        Ext.getCmp("GalleryTypePlus").setValue(1);
+                                        Ext.getCmp("GalleryTypePlus").setDisabled(1);
+                                    }else{
+                                        Ext.getCmp("GalleryTypePlus").setValue(0);
+                                        Ext.getCmp("GalleryTypePlus").setDisabled(0);
+                                    }
                                 }
-                            }
-                            }
+                            },
+                            disabled:true
                         },{
                             xtype:"checkbox",
                             labelWidth: 0,
@@ -1176,7 +1219,8 @@ Ext.onReady(function(){
                             fieldLabel:"",
                             boxLabel:"HomePageFeatured",
                             name:"HomePageFeatured",
-                            inputValue:"1"
+                            inputValue:"1",
+                            disabled:true
                         }]
                     }]
                   },{
@@ -1184,6 +1228,129 @@ Ext.onReady(function(){
                     title:"Shipping Options",
                     layout:"form",
                     labelAlign:"top",
+                    tbar:[{
+                        text:"Return Policy",
+                        iconCls:"return-policy",
+                        handler:function(){
+                            var window = new Ext.Window({
+                                title:"Please specify a return policy",
+                                closeAction:"hide",
+                                width:450,
+                                layout:"form",
+                                labelAlign:"top",
+                                items: [{
+                                    xtype:"radio",
+                                    labelWidth: 0,
+                                    labelSeparator: '',
+                                    fieldLabel:"",
+                                    boxLabel:"Returns accepted",
+                                    name:"ReturnPolicyReturnsAcceptedOption",
+                                    inputValue:"ReturnsAccepted"
+                                },{
+                                    xtype:"form",
+                                    style:"padding-left:10px;",
+                                    labelAlign:"top",
+                                    items:[{
+                                            id:"ReturnPolicyReturnsWithinOption",
+                                            xtype:"combo",
+                                            fieldLabel:"Item must be returned within",
+                                            store: new Ext.data.SimpleStore({
+                                                fields: ["id","name"],
+                                                data: [["Days_3", "3 Days"],["Days_7", "7 Days"], ["Days_10", "10 Days"], ["Days_14", "14 Days"], ["Days_30", "30 Days"], ["Days_60", "60 Days"]]
+                                            }),
+                                            mode: 'local',
+                                            valueField: 'id',
+                                            displayField: 'name',
+                                            triggerAction: 'all',
+                                            editable: false,
+                                            name: 'ReturnPolicyReturnsWithinOption',
+                                            hiddenName:'ReturnPolicyReturnsWithinOption'
+                                        },/*{
+                                            xtype:"label",
+                                            text:"After the buyer receives the item, it can be returned within the time frame selected."
+                                        },*/{
+                                            id:"ReturnPolicyRefundOption",
+                                            xtype:"combo",
+                                            fieldLabel:"Refund will be given as",
+                                            store: new Ext.data.SimpleStore({
+                                                fields: ["id","name"],
+                                                data: [["Exchange", "Exchange"],["MerchandiseCredit", "Merchandise Credit"], ["MoneyBack", "Money Back"]]
+                                            }),
+                                            mode: 'local',
+                                            valueField: 'id',
+                                            displayField: 'name',
+                                            triggerAction: 'all',
+                                            editable: false,
+                                            name: 'ReturnPolicyRefundOption',
+                                            hiddenName:'ReturnPolicyRefundOption'
+                                        },{
+                                            id:"ReturnPolicyShippingCostPaidByOption1",
+                                            xtype:"radio",
+                                            fieldLabel: 'Return shipping will be paid by',
+                                            boxLabel: 'Buyer',
+                                            name: 'ReturnPolicyShippingCostPaidByOption',
+                                            inputValue: 'Buyer'    
+                                        },{
+                                            id:"ReturnPolicyShippingCostPaidByOption2",
+                                            xtype:"radio",
+                                            fieldLabel: '',
+                                            labelSeparator: '',
+                                            labelStyle: 'height:0px;padding:0px;',
+                                            boxLabel: 'Seller',
+                                            name: 'ReturnPolicyShippingCostPaidByOption',
+                                            inputValue: 'Seller'    
+                                        },{
+                                            id:"ReturnPolicyDescription",
+                                            xtype:"textarea",
+                                            fieldLabel: 'Additional return policy details',
+                                            name: 'ReturnPolicyDescription',
+                                            width:400
+                                        }]
+                                },{
+                                    xtype:"radio",
+                                    labelWidth: 0,
+                                    labelSeparator: '',
+                                    fieldLabel:"",
+                                    boxLabel:"Returns not accepted",
+                                    name:"ReturnPolicyReturnsAcceptedOption",
+                                    inputValue:"ReturnsNotAccepted",
+                                    listeners:{"check":function(t, c){
+                                            if(c){
+                                                Ext.getCmp("ReturnPolicyReturnsWithinOption").setDisabled(1);
+                                                Ext.getCmp("ReturnPolicyRefundOption").setDisabled(1);
+                                                Ext.getCmp("ReturnPolicyShippingCostPaidByOption1").setDisabled(1);
+                                                Ext.getCmp("ReturnPolicyShippingCostPaidByOption2").setDisabled(1);
+                                                Ext.getCmp("ReturnPolicyDescription").setDisabled(1);
+                                            }else{
+                                                Ext.getCmp("ReturnPolicyReturnsWithinOption").setDisabled(0);
+                                                Ext.getCmp("ReturnPolicyRefundOption").setDisabled(0);
+                                                Ext.getCmp("ReturnPolicyShippingCostPaidByOption2").setDisabled(0);
+                                                Ext.getCmp("ReturnPolicyShippingCostPaidByOption2").setDisabled(0);
+                                                Ext.getCmp("ReturnPolicyDescription").setDisabled(0);
+                                            }
+                                        }
+                                    }
+                                },{
+                                    xtype:"label",
+                                    text:"Sellers may be required to accept a return if eBay determines that the item is significantly different from what was description in listing."
+                                }],
+                                buttons:[{
+                                    text:"OK",
+                                    handler:function(){
+                                        
+                                        window.close();
+                                    }
+                                },{
+                                    text:"Cancel",
+                                    handler:function(){
+                                        window.close();
+                                    }
+                                }]
+                            })
+                            
+                            window.show();
+                        }
+                    }],
                     items:[{
                         xtype:"label",
                         text:"Domestic Shipping"
@@ -1394,9 +1561,9 @@ Ext.onReady(function(){
                               columns:2
                             },
                             defaults:{
-                              bodyStyle:"padding:0px;",
-                              style:"margin:0px;"
-                              //width:60
+                                bodyStyle:"padding:0px;",
+                                style:"margin:0px;"
+                                //width:60
                             },
                             border:false,
                             items:[{
@@ -1439,7 +1606,7 @@ Ext.onReady(function(){
                                 items:[{
                                     xtype:"fieldset",
                                     title: 'To',
-                                    style: 'margin: 10px;',
+                                    style: 'margin: 5px;',
                                     items:[{
                                             xtype:"combo",
                                             labelWidth: 0,
@@ -1466,20 +1633,159 @@ Ext.onReady(function(){
                                         },{
                                             id:"InternationalShippingCustom-1",
                                             hidden:true,
-                                            layout:"form",
                                             border:false,
+                                            layout:"column",
                                             items:[{
-                                                xtype:"checkbox",
-                                                labelWidth: 0,
-                                                labelSeparator: '',
-                                                fieldLabel:"",
-                                                labelStyle: 'height:0px;padding:0px;',
-                                                style:"padding:0px;",
-                                                boxLabel:"Use Standard Footer",
-                                                name:"UseStandardFooter",
-                                                inputValue:1
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                defaults:{
+                                                    
+                                                },
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"Americas",
+                                                    name:"UseStandardFooter",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.4,
+                                                layout:"form",
+                                                defaults:{
+                                                    
+                                                },
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"Europe",
+                                                    name:"UseStandardFooter",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                defaults:{
+                                                    
+                                                },
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"Asia",
+                                                    name:"UseStandardFooter",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    boxLabel:"Canada",
+                                                    name:"UseStandardFooter",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.4,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"UK",
+                                                    name:"UseStandardFooter",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"Australia",
+                                                    name:"UseStandardFooter",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"Mexico",
+                                                    name:"UseStandardFooter",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.4,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"Germany",
+                                                    name:"UseStandardFooter",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"Japan",
+                                                    name:"UseStandardFooter",
+                                                    inputValue:1
+                                                }]
                                             }]
-                                    }]
+                                        }]
                                 }]
                               },{
                                 layout:"form",
@@ -1625,14 +1931,16 @@ Ext.onReady(function(){
                             fieldLabel:"",
                             boxLabel:"Credit crads via PayPal",
                             name:"PayPalPayment",
-                            inputValue:1
+                            inputValue:1,
+                            checked:true,
+                            disabled:true
                           },{
                             xtype:"textfield",
                             fieldLabel:"PayPal Account Email",
                             name:"PayPalEmailAddress",
                             width: 250
                           }]
-                      },{
+                      }/*,{
                         xtype:"checkbox",
                         labelSeparator: '',
                         labelStyle: 'height:0px;padding:0px',
@@ -1664,7 +1972,7 @@ Ext.onReady(function(){
                         boxLabel:"Merchant credit card: American Express",
                         name:"checkbox",
                         inputValue:"cbvalue"
-                      }]
+                      }*/]
                     }]
                 }]
             }],
