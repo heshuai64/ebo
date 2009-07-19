@@ -862,6 +862,9 @@ class eBayListing{
 	    if($item['GalleryTypeGallery']){
 		$itemArray['PictureDetails']['GalleryType'] = "Gallery";
 	    }
+	    if($item['GalleryTypePlus']){
+		$itemArray['PictureDetails']['GalleryType'] = "Plus";
+	    }
 	    if(!empty($item['PictureURL']) && is_array($item['PictureURL'])){
 		$i = 0;
 		foreach($item['PictureURL'] as $p){
@@ -973,25 +976,20 @@ class eBayListing{
     
     public function saveItem(){
 	/*
-	ALTER TABLE `items` CHANGE `ListingType` `ListingType` VARCHAR( 20 )
-	LTER TABLE `shipping_service_details` ADD `SiteID` INT NOT NULL FIRST ;
-	ALTER TABLE `shipping_service_details` ADD INDEX ( `SiteID` ) ;
-	
-	ALTER TABLE `shipping_service_details` CHANGE `ServiceTypeFlat` `ServiceTypeFlat` BOOL NOT NULL DEFAULT '0',
-	CHANGE `ServiceTypeCalculated` `ServiceTypeCalculated` BOOL NOT NULL DEFAULT '0',
-	CHANGE `ShippingPackageLetter` `ShippingPackageLetter` BOOL NOT NULL DEFAULT '0',
-	CHANGE `ShippingPackageLargeEnvelope` `ShippingPackageLargeEnvelope` BOOL NOT NULL DEFAULT '0',
-	CHANGE `ShippingPackagePackageThickEnvelope` `ShippingPackagePackageThickEnvelope` BOOL NOT NULL DEFAULT '0',
-	CHANGE `DimensionsRequired` `DimensionsRequired` BOOL NOT NULL DEFAULT '0',
-	CHANGE `WeightRequired` `WeightRequired` BOOL NOT NULL DEFAULT '0' ,
-	CHANGE `InternationalService` `InternationalService` BOOL NOT NULL DEFAULT '0'
-	
 	CREATE TABLE IF NOT EXISTS `ship_to_location` (
 	  `SiteID` int(11) NOT NULL,
 	  `ShippingLocation` varchar(25) NOT NULL,
 	  `Description` varchar(50) NOT NULL,
 	  KEY `SiteID` (`SiteID`)
 	);
+	1> 分类属性
+	2> 生成导入sp的文件
+	3> 模板
+	4> 查询后显示的图片可自己输入  *
+	5> 隐藏拍卖用户ID
+	5> 运费政策     *
+	6> 输入保险费用
+
 	*/
 	
 	//ScheduleStartDate,ScheduleEndDate
@@ -1015,7 +1013,7 @@ class eBayListing{
 	ScheduleEndDate,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,PostalCode,
 	PrimaryCategoryCategoryID,SecondaryCategoryCategoryID,Quantity,ReservePrice,
 	ShippingType,Site,SKU,StartPrice,StoreCategory2ID,StoreCategoryID,SubTitle,Title,accountId,
-	BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery) values (
+	BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypePlus) values (
 	'".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
 	'".$_POST['Description']."','".$_POST['DispatchTimeMax']."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."',
 	'".$_POST['ListingDuration']."','".$_POST['ListingType']."','".$_POST['Location']."','PayPal',
@@ -1026,7 +1024,7 @@ class eBayListing{
 	'".$_POST['StoreCategoryID']."','".$_POST['SubTitle']."',
 	'".$_POST['Title']."','".$this->account_id."','".(empty($_POST['BoldTitle'])?0:1)."',
 	'".(empty($_POST['Border'])?0:1)."','".(empty($_POST['Featured'])?0:1)."','".(empty($_POST['Highlight'])?0:1)."',
-	'".(empty($_POST['HomePageFeatured'])?0:1)."','".(empty($_POST['GalleryTypeFeatured'])?0:1)."','".(empty($_POST['GalleryTypeGallery'])?0:1)."')";
+	'".(empty($_POST['HomePageFeatured'])?0:1)."','".(empty($_POST['GalleryTypeFeatured'])?0:1)."','".(empty($_POST['GalleryTypePlus'])?0:1)."')";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	
 	//echo $sql;

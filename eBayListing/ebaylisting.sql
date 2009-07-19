@@ -2,21 +2,21 @@
 -- version 2.11.9.2
 -- http://www.phpmyadmin.net
 --
--- 主机: localhost
--- 生成日期: 2009 年 07 月 13 日 07:44
--- 服务器版本: 5.0.67
--- PHP 版本: 5.2.6
+-- Host: localhost
+-- Generation Time: Jul 20, 2009 at 07:41 AM
+-- Server version: 5.0.67
+-- PHP Version: 5.2.6
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
 --
--- 数据库: `ebaylisting`
+-- Database: `ebaylisting`
 --
 
 -- --------------------------------------------------------
 
 --
--- 表的结构 `account`
+-- Table structure for table `account`
 --
 
 CREATE TABLE IF NOT EXISTS `account` (
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `account` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
 --
--- 导出表中的数据 `account`
+-- Dumping data for table `account`
 --
 
 INSERT INTO `account` (`id`, `name`, `password`, `token`, `tokenExpiry`, `status`) VALUES
@@ -40,7 +40,7 @@ INSERT INTO `account` (`id`, `name`, `password`, `token`, `tokenExpiry`, `status
 -- --------------------------------------------------------
 
 --
--- 表的结构 `account_footer`
+-- Table structure for table `account_footer`
 --
 
 CREATE TABLE IF NOT EXISTS `account_footer` (
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS `account_footer` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- 导出表中的数据 `account_footer`
+-- Dumping data for table `account_footer`
 --
 
 INSERT INTO `account_footer` (`accountId`, `footer`) VALUES
@@ -59,7 +59,7 @@ INSERT INTO `account_footer` (`accountId`, `footer`) VALUES
 -- --------------------------------------------------------
 
 --
--- 表的结构 `account_store_categories`
+-- Table structure for table `account_store_categories`
 --
 
 CREATE TABLE IF NOT EXISTS `account_store_categories` (
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS `account_store_categories` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- 导出表中的数据 `account_store_categories`
+-- Dumping data for table `account_store_categories`
 --
 
 INSERT INTO `account_store_categories` (`CategoryID`, `CategoryParentID`, `Name`, `Order`, `AccountId`) VALUES
@@ -193,7 +193,7 @@ INSERT INTO `account_store_categories` (`CategoryID`, `CategoryParentID`, `Name`
 -- --------------------------------------------------------
 
 --
--- 表的结构 `account_to_proxy`
+-- Table structure for table `account_to_proxy`
 --
 
 CREATE TABLE IF NOT EXISTS `account_to_proxy` (
@@ -203,7 +203,7 @@ CREATE TABLE IF NOT EXISTS `account_to_proxy` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- 导出表中的数据 `account_to_proxy`
+-- Dumping data for table `account_to_proxy`
 --
 
 INSERT INTO `account_to_proxy` (`account_id`, `proxy_id`) VALUES
@@ -212,7 +212,7 @@ INSERT INTO `account_to_proxy` (`account_id`, `proxy_id`) VALUES
 -- --------------------------------------------------------
 
 --
--- 表的结构 `categories`
+-- Table structure for table `categories`
 --
 
 CREATE TABLE IF NOT EXISTS `categories` (
@@ -229,7 +229,7 @@ CREATE TABLE IF NOT EXISTS `categories` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- 导出表中的数据 `categories`
+-- Dumping data for table `categories`
 --
 
 INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `CategoryParentID`, `LeafCategory`, `BestOfferEnabled`, `AutoPayEnabled`, `CategorySiteID`) VALUES
@@ -26086,7 +26086,7 @@ INSERT INTO `categories` (`CategoryID`, `CategoryLevel`, `CategoryName`, `Catego
 -- --------------------------------------------------------
 
 --
--- 表的结构 `countries`
+-- Table structure for table `countries`
 --
 
 CREATE TABLE IF NOT EXISTS `countries` (
@@ -26099,7 +26099,7 @@ CREATE TABLE IF NOT EXISTS `countries` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=240 ;
 
 --
--- 导出表中的数据 `countries`
+-- Dumping data for table `countries`
 --
 
 INSERT INTO `countries` (`countries_id`, `countries_name`, `countries_iso_code_2`, `countries_iso_code_3`) VALUES
@@ -26346,7 +26346,7 @@ INSERT INTO `countries` (`countries_id`, `countries_name`, `countries_iso_code_2
 -- --------------------------------------------------------
 
 --
--- 表的结构 `international_shipping_service_option`
+-- Table structure for table `international_shipping_service_option`
 --
 
 CREATE TABLE IF NOT EXISTS `international_shipping_service_option` (
@@ -26360,14 +26360,14 @@ CREATE TABLE IF NOT EXISTS `international_shipping_service_option` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 --
--- 导出表中的数据 `international_shipping_service_option`
+-- Dumping data for table `international_shipping_service_option`
 --
 
 
 -- --------------------------------------------------------
 
 --
--- 表的结构 `items`
+-- Table structure for table `items`
 --
 
 CREATE TABLE IF NOT EXISTS `items` (
@@ -26385,7 +26385,7 @@ CREATE TABLE IF NOT EXISTS `items` (
   `StartTime` datetime NOT NULL,
   `EndTime` datetime NOT NULL,
   `ListingDuration` varchar(10) NOT NULL,
-  `ListingType` varchar(10) NOT NULL,
+  `ListingType` varchar(20) default NULL,
   `Location` varchar(15) NOT NULL,
   `PaymentMethods` varchar(20) NOT NULL,
   `PayPalEmailAddress` varchar(50) NOT NULL,
@@ -26393,7 +26393,10 @@ CREATE TABLE IF NOT EXISTS `items` (
   `PrimaryCategoryCategoryID` int(11) NOT NULL,
   `Quantity` int(11) NOT NULL,
   `ReturnPolicyDescription` text NOT NULL,
+  `ReturnPolicyRefundOption` enum('Exchange','MerchandiseCredit','MoneyBack') NOT NULL,
   `ReturnPolicyReturnsAcceptedOption` enum('ReturnsAccepted','ReturnsNotAccepted') NOT NULL,
+  `ReturnPolicyReturnsWithinOption` enum('Days_3','Days_7','Days_10','Days_14','Days_30','Days_60') NOT NULL,
+  `ReturnPolicyShippingCostPaidByOption` enum('Buyer','Seller') NOT NULL,
   `ReservePrice` decimal(10,2) NOT NULL,
   `CurrentPrice` decimal(10,2) NOT NULL,
   `QuantitySold` int(11) NOT NULL,
@@ -26415,8 +26418,9 @@ CREATE TABLE IF NOT EXISTS `items` (
   `Featured` tinyint(1) NOT NULL default '0',
   `Highlight` tinyint(1) NOT NULL default '0',
   `HomePageFeatured` tinyint(1) NOT NULL default '0',
-  `GalleryTypeFeatured` tinyint(1) NOT NULL,
-  `GalleryTypeGallery` tinyint(1) NOT NULL,
+  `GalleryTypeFeatured` tinyint(1) NOT NULL default '0',
+  `GalleryTypeGallery` tinyint(1) NOT NULL default '1',
+  `GalleryTypePlus` tinyint(1) NOT NULL default '0',
   `GalleryURL` varchar(255) NOT NULL,
   `PhotoDisplay` enum('PicturePack','SiteHostedPictureShow','SuperSize','SuperSizePictureShow','VendorHostedPictureShow') NOT NULL,
   `Status` int(1) NOT NULL,
@@ -26426,16 +26430,16 @@ CREATE TABLE IF NOT EXISTS `items` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
--- 导出表中的数据 `items`
+-- Dumping data for table `items`
 --
 
-INSERT INTO `items` (`Id`, `ItemID`, `AutoPay`, `BuyItNowPrice`, `CategoryMappingAllowed`, `Country`, `Currency`, `Description`, `DispatchTimeMax`, `ScheduleStartDate`, `ScheduleEndDate`, `StartTime`, `EndTime`, `ListingDuration`, `ListingType`, `Location`, `PaymentMethods`, `PayPalEmailAddress`, `PostalCode`, `PrimaryCategoryCategoryID`, `Quantity`, `ReturnPolicyDescription`, `ReturnPolicyReturnsAcceptedOption`, `ReservePrice`, `CurrentPrice`, `QuantitySold`, `ListingStatus`, `ScheduleTime`, `SecondaryCategoryCategoryID`, `ShippingType`, `Site`, `SKU`, `StartPrice`, `StoreCategory2ID`, `StoreCategoryID`, `SubTitle`, `Title`, `UserID`, `accountId`, `BoldTitle`, `Border`, `Featured`, `Highlight`, `HomePageFeatured`, `GalleryTypeFeatured`, `GalleryTypeGallery`, `GalleryURL`, `PhotoDisplay`, `Status`) VALUES
-(1, '', 0, 3.00, 1, 'CN', 'USD', 'test', 3, '2009-07-10 00:00:00', '2009-07-20 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00', 'Days_10', 'Chinese', 'Albania', 'PayPal', 'heshuai64@gmail.com', '11111', 16494, 1, '', 'ReturnsAccepted', 2.00, 0.00, 0, '', '0000-00-00 00:00:00', 31411, 'Flat', 'US', 'AC00099', 1.00, 0, 0, 'Subtitle', 'Title', '', 0, 1, 0, 0, 1, 0, 0, 0, '', 'PicturePack', 0);
+INSERT INTO `items` (`Id`, `ItemID`, `AutoPay`, `BuyItNowPrice`, `CategoryMappingAllowed`, `Country`, `Currency`, `Description`, `DispatchTimeMax`, `ScheduleStartDate`, `ScheduleEndDate`, `StartTime`, `EndTime`, `ListingDuration`, `ListingType`, `Location`, `PaymentMethods`, `PayPalEmailAddress`, `PostalCode`, `PrimaryCategoryCategoryID`, `Quantity`, `ReturnPolicyDescription`, `ReturnPolicyRefundOption`, `ReturnPolicyReturnsAcceptedOption`, `ReturnPolicyReturnsWithinOption`, `ReturnPolicyShippingCostPaidByOption`, `ReservePrice`, `CurrentPrice`, `QuantitySold`, `ListingStatus`, `ScheduleTime`, `SecondaryCategoryCategoryID`, `ShippingType`, `Site`, `SKU`, `StartPrice`, `StoreCategory2ID`, `StoreCategoryID`, `SubTitle`, `Title`, `UserID`, `accountId`, `BoldTitle`, `Border`, `Featured`, `Highlight`, `HomePageFeatured`, `GalleryTypeFeatured`, `GalleryTypeGallery`, `GalleryTypePlus`, `GalleryURL`, `PhotoDisplay`, `Status`) VALUES
+(1, '', 0, 3.00, 1, 'CN', 'USD', 'test', 3, '2009-07-10 00:00:00', '2009-07-20 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00', 'Days_10', 'Chinese', 'Albania', 'PayPal', 'heshuai64@gmail.com', '11111', 16494, 1, '', 'Exchange', 'ReturnsAccepted', 'Days_3', 'Buyer', 2.00, 0.00, 0, '', '0000-00-00 00:00:00', 31411, 'Flat', 'US', 'AC00099', 1.00, 0, 0, 'Subtitle', 'Title', '', 0, 1, 0, 0, 1, 0, 0, 0, 0, '', 'PicturePack', 0);
 
 -- --------------------------------------------------------
 
 --
--- 表的结构 `listing_duration`
+-- Table structure for table `listing_duration`
 --
 
 CREATE TABLE IF NOT EXISTS `listing_duration` (
@@ -26446,7 +26450,7 @@ CREATE TABLE IF NOT EXISTS `listing_duration` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- 导出表中的数据 `listing_duration`
+-- Dumping data for table `listing_duration`
 --
 
 INSERT INTO `listing_duration` (`id`, `name`, `version`) VALUES
@@ -26476,7 +26480,7 @@ INSERT INTO `listing_duration` (`id`, `name`, `version`) VALUES
 -- --------------------------------------------------------
 
 --
--- 表的结构 `listing_duration_type`
+-- Table structure for table `listing_duration_type`
 --
 
 CREATE TABLE IF NOT EXISTS `listing_duration_type` (
@@ -26486,7 +26490,7 @@ CREATE TABLE IF NOT EXISTS `listing_duration_type` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- 导出表中的数据 `listing_duration_type`
+-- Dumping data for table `listing_duration_type`
 --
 
 INSERT INTO `listing_duration_type` (`id`, `name`) VALUES
@@ -26502,7 +26506,7 @@ INSERT INTO `listing_duration_type` (`id`, `name`) VALUES
 -- --------------------------------------------------------
 
 --
--- 表的结构 `picture_url`
+-- Table structure for table `picture_url`
 --
 
 CREATE TABLE IF NOT EXISTS `picture_url` (
@@ -26514,14 +26518,14 @@ CREATE TABLE IF NOT EXISTS `picture_url` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 --
--- 导出表中的数据 `picture_url`
+-- Dumping data for table `picture_url`
 --
 
 
 -- --------------------------------------------------------
 
 --
--- 表的结构 `proxy`
+-- Table structure for table `proxy`
 --
 
 CREATE TABLE IF NOT EXISTS `proxy` (
@@ -26532,7 +26536,7 @@ CREATE TABLE IF NOT EXISTS `proxy` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
--- 导出表中的数据 `proxy`
+-- Dumping data for table `proxy`
 --
 
 INSERT INTO `proxy` (`id`, `host`, `port`) VALUES
@@ -26541,7 +26545,7 @@ INSERT INTO `proxy` (`id`, `host`, `port`) VALUES
 -- --------------------------------------------------------
 
 --
--- 表的结构 `schedule`
+-- Table structure for table `schedule`
 --
 
 CREATE TABLE IF NOT EXISTS `schedule` (
@@ -26552,7 +26556,7 @@ CREATE TABLE IF NOT EXISTS `schedule` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- 导出表中的数据 `schedule`
+-- Dumping data for table `schedule`
 --
 
 INSERT INTO `schedule` (`item_id`, `day`, `time`) VALUES
@@ -26561,100 +26565,102 @@ INSERT INTO `schedule` (`item_id`, `day`, `time`) VALUES
 -- --------------------------------------------------------
 
 --
--- 表的结构 `shipping_service_details`
+-- Table structure for table `shipping_service_details`
 --
 
 CREATE TABLE IF NOT EXISTS `shipping_service_details` (
+  `SiteID` int(11) NOT NULL,
   `Description` text NOT NULL,
-  `InternationalService` int(1) NOT NULL,
+  `InternationalService` tinyint(1) NOT NULL default '0',
   `ShippingService` varchar(50) NOT NULL,
   `ShippingServiceID` int(11) NOT NULL,
   `ShippingTimeMax` int(11) NOT NULL,
   `ShippingTimeMin` int(11) NOT NULL,
-  `ServiceTypeFlat` int(1) NOT NULL,
-  `ServiceTypeCalculated` int(1) NOT NULL,
-  `ShippingPackageLetter` int(1) NOT NULL,
-  `ShippingPackageLargeEnvelope` int(1) NOT NULL,
-  `ShippingPackagePackageThickEnvelope` int(1) NOT NULL,
+  `ServiceTypeFlat` tinyint(1) NOT NULL default '0',
+  `ServiceTypeCalculated` tinyint(1) NOT NULL default '0',
+  `ShippingPackageLetter` tinyint(1) NOT NULL default '0',
+  `ShippingPackageLargeEnvelope` tinyint(1) NOT NULL default '0',
+  `ShippingPackagePackageThickEnvelope` tinyint(1) NOT NULL default '0',
   `ShippingCarrier` varchar(50) NOT NULL,
-  `DimensionsRequired` int(1) NOT NULL,
-  `WeightRequired` int(1) NOT NULL
+  `DimensionsRequired` tinyint(1) NOT NULL default '0',
+  `WeightRequired` tinyint(1) NOT NULL default '0',
+  KEY `SiteID` (`SiteID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- 导出表中的数据 `shipping_service_details`
+-- Dumping data for table `shipping_service_details`
 --
 
-INSERT INTO `shipping_service_details` (`Description`, `InternationalService`, `ShippingService`, `ShippingServiceID`, `ShippingTimeMax`, `ShippingTimeMin`, `ServiceTypeFlat`, `ServiceTypeCalculated`, `ShippingPackageLetter`, `ShippingPackageLargeEnvelope`, `ShippingPackagePackageThickEnvelope`, `ShippingCarrier`, `DimensionsRequired`, `WeightRequired`) VALUES
-('USPS Global Express Mail', 1, 'USPSGlobalExpress', 50003, 5, 3, 1, 1, 1, 1, 1, 'USPS', 0, 1),
-('US Postal Service Priority Mail', 0, 'USPSPriority', 7, 3, 2, 1, 1, 1, 1, 1, 'USPS', 1, 1),
-('US Postal Service Priority Mail Flat Rate Envelope', 0, 'USPSPriorityFlatRateEnvelope', 19, 3, 2, 1, 1, 1, 1, 1, 'USPS', 0, 1),
-('USPS Global Priority Mail', 1, 'USPSGlobalPriority', 50005, 6, 4, 1, 1, 1, 1, 1, 'USPS', 0, 1),
-('US Postal Service Ground', 0, 'USPSGround', 17, 6, 1, 1, 1, 0, 0, 0, 'USPS', 0, 0),
-('US Postal Service Priority Mail Small Flat Rate Box', 0, 'USPSPriorityMailSmallFlatRateBox', 23, 3, 2, 1, 1, 1, 1, 1, 'USPS', 0, 1),
-('US Postal Service Priority Mail Flat Rate Box', 0, 'USPSPriorityFlatRateBox', 20, 3, 2, 1, 1, 1, 1, 1, 'USPS', 0, 1),
-('USPS Economy Letter Post', 1, 'USPSEconomyLetter', 50007, 42, 28, 1, 1, 1, 1, 1, 'USPS', 0, 1),
-('US Postal Service Priority Mail Large Flat Rate Box', 0, 'USPSPriorityMailLargeFlatRateBox', 22, 3, 2, 1, 1, 1, 1, 1, 'USPS', 0, 1),
-('USPS Economy Parcel Post', 1, 'USPSEconomyParcel', 50006, 42, 28, 1, 1, 0, 0, 1, 'USPS', 0, 1),
-('US Postal Service Express Mail', 0, 'USPSExpressMail', 11, 1, 0, 1, 1, 1, 1, 1, 'USPS', 0, 1),
-('USPS Airmail Letter Post', 1, 'USPSAirmailLetter', 50008, 10, 4, 1, 1, 1, 1, 1, 'USPS', 0, 1),
-('US Postal Service Express Mail Flat Rate Envelope', 0, 'USPSExpressFlatRateEnvelope', 21, 1, 0, 1, 1, 1, 1, 1, 'USPS', 0, 1),
-('USPS Airmail Parcel Post', 1, 'USPSAirmailParcel', 50009, 10, 4, 1, 1, 0, 0, 1, 'USPS', 0, 1),
-('USPS First Class Mail International', 1, 'USPSFirstClassMailInternational', 50022, 0, 0, 1, 1, 1, 1, 1, 'USPS', 0, 1),
-('US Postal Service Parcel Post', 0, 'USPSParcel', 8, 9, 2, 1, 1, 0, 1, 1, 'USPS', 0, 1),
-('USPS Priority Mail International', 1, 'USPSPriorityMailInternational', 50023, 10, 6, 1, 1, 1, 1, 1, 'USPS', 0, 1),
-('US Postal Service Media Mail', 0, 'USPSMedia', 9, 9, 2, 1, 1, 0, 0, 1, 'USPS', 0, 1),
-('US Postal Service First Class Mail', 0, 'USPSFirstClass', 10, 5, 2, 1, 1, 1, 1, 1, 'USPS', 0, 1),
-('USPS Priority Mail International Flat Rate Envelope', 1, 'USPSPriorityMailInternationalFlatRateEnvelope', 50025, 10, 6, 1, 1, 1, 1, 1, 'USPS', 0, 1),
-('US Postal Service Priority Mail International Small Flat Rate Box', 1, 'USPSPriorityMailInternationalSmallFlatRateBox', 50032, 10, 6, 1, 1, 1, 1, 1, 'USPS', 0, 1),
-('UPS Ground', 0, 'UPSGround', 3, 6, 1, 1, 1, 1, 1, 1, 'UPS', 1, 1),
-('USPS Priority Mail International Flat Rate Box', 1, 'USPSPriorityMailInternationalFlatRateBox', 50026, 10, 6, 1, 1, 1, 1, 1, 'USPS', 0, 1),
-('USPS Priority Mail International Large Flat Rate Box', 1, 'USPSPriorityMailInternationalLargeFlatRateBox', 50028, 10, 6, 1, 1, 1, 1, 1, 'USPS', 0, 1),
-('USPS Express Mail International', 1, 'USPSExpressMailInternational', 50024, 5, 3, 1, 1, 1, 1, 1, 'USPS', 0, 1),
-('USPS Express Mail International Flat Rate Envelope', 1, 'USPSExpressMailInternationalFlatRateEnvelope', 50027, 5, 3, 1, 1, 1, 1, 1, 'USPS', 0, 1),
-('UPS 3 Day Select', 0, 'UPS3rdDay', 4, 3, 1, 1, 1, 1, 1, 1, 'UPS', 1, 1),
-('UPS 2nd Day Air', 0, 'UPS2ndDay', 5, 2, 1, 1, 1, 1, 1, 1, 'UPS', 1, 1),
-('UPS Worldwide Express Plus', 1, 'UPSWorldWideExpressPlus', 50010, 2, 1, 1, 1, 1, 1, 1, 'UPS', 1, 1),
-('UPS Worldwide Express', 1, 'UPSWorldWideExpress', 50011, 2, 1, 1, 1, 1, 1, 1, 'UPS', 1, 1),
-('UPS Next Day Air Saver', 0, 'UPSNextDay', 6, 1, 1, 1, 1, 1, 1, 1, 'UPS', 1, 1),
-('UPS Next Day Air', 0, 'UPSNextDayAir', 12, 1, 1, 1, 1, 1, 1, 1, 'UPS', 1, 1),
-('UPS Worldwide Expedited', 1, 'UPSWorldWideExpedited', 50012, 5, 2, 1, 1, 1, 1, 1, 'UPS', 1, 1),
-('UPS Worldwide Saver', 1, 'UPSWorldwideSaver', 50033, 3, 1, 1, 1, 1, 1, 1, 'UPS', 1, 0),
-('Standard Flat Rate Shipping Service', 0, 'ShippingMethodStandard', 1, 0, 0, 1, 1, 0, 0, 0, '', 0, 0),
-('Local Delivery/Pickup', 0, 'LocalDelivery', 15, 0, 0, 1, 1, 0, 0, 0, '', 0, 0),
-('UPS Standard To Canada', 1, 'UPSStandardToCanada', 50013, 0, 0, 1, 1, 1, 1, 1, 'UPS', 1, 1),
-('Expedited Flat Rate Shipping Service', 0, 'ShippingMethodExpress', 2, 0, 0, 1, 1, 0, 0, 0, '', 0, 0),
-('Standard Int''l Flat Rate Shipping', 1, 'StandardInternational', 50001, 0, 0, 1, 1, 0, 0, 0, '', 0, 0),
-('Overnight Flat Rate Shipping Service', 0, 'ShippingMethodOvernight', 18, 1, 1, 1, 1, 0, 0, 0, '', 0, 0),
-('Expedited Int''l Flat Rate Shipping', 1, 'ExpeditedInternational', 50002, 0, 0, 1, 1, 0, 0, 0, '', 0, 0),
-('Other Int''l Shipping (see description)', 1, 'OtherInternational', 50014, 0, 0, 1, 1, 0, 0, 0, '', 0, 0),
-('Other (see description)', 0, 'Other', 14, 0, 0, 1, 1, 0, 0, 0, '', 0, 0),
-('USPS Global Priority Mail Flat Rate Small Envelope', 1, 'USPSGlobalPrioritySmallEnvelope', 50016, 0, 0, 1, 1, 0, 0, 0, 'USPS', 0, 1),
-('USPS Global Priority Mail Flat Rate Large Envelope', 1, 'USPSGlobalPriorityLargeEnvelope', 50017, 0, 0, 1, 1, 0, 0, 0, 'USPS', 0, 1),
-('UPS Worldwide Express Box 10Kg', 1, 'UPSWorldWideExpressBox10kg', 50018, 0, 0, 1, 1, 0, 0, 0, 'UPS', 0, 1),
-('UPS Worldwide Express Box 25Kg', 1, 'UPSWorldWideExpressBox25kg', 50019, 0, 0, 1, 1, 0, 0, 0, 'UPS', 0, 1),
-('UPS Worldwide Express Plus Box 10Kg', 1, 'UPSWorldWideExpressPlusBox10kg', 50020, 0, 0, 1, 1, 0, 0, 0, 'UPS', 0, 1),
-('UPS Worldwide Express Plus Box 25Kg', 1, 'UPSWorldWideExpressPlusBox25kg', 50021, 0, 0, 1, 1, 0, 0, 0, 'UPS', 0, 1),
-('USPS First Class Letter ', 0, 'USPSFirstClassLetter', 46, 0, 0, 1, 1, 0, 0, 0, 'USPS', 0, 1),
-('USPS First Class Large Envelop', 0, 'USPSFirstClassLargeEnvelop', 47, 0, 0, 1, 1, 0, 0, 0, 'USPS', 0, 1),
-('USPS First Class Parcel', 0, 'USPSFirstClassParcel', 48, 0, 0, 1, 1, 0, 0, 0, 'USPS', 0, 1),
-('USPS Global Express Guaranteed', 1, 'USPSGlobalExpressGuaranteed', 50004, 0, 0, 1, 1, 0, 0, 0, 'USPS', 0, 0),
-('Freight Shipping', 0, 'FreightShipping', 16, 0, 0, 1, 1, 0, 0, 0, '', 1, 0),
-('Freight Shipping', 1, 'FreightShippingInternational', 50015, 0, 0, 1, 1, 0, 0, 0, '', 1, 0),
-('Promotional Shipping Service', 1, 'PromotionalShippingMethod', 50099, 0, 0, 1, 1, 0, 0, 0, '', 0, 1),
-('Promotional Shipping Service', 0, 'PromotionalShippingMethod', 99, 0, 0, 1, 1, 0, 0, 0, '', 0, 1),
-('Freight', 0, 'Freight', 50, 0, 0, 1, 1, 0, 0, 0, '', 0, 0),
-('UPS Next Day Air', 0, 'UPS2DayAirAM', 13, 0, 0, 1, 1, 0, 0, 0, 'UPS', 1, 0),
-('Local Delivery', 0, 'Delivery', 151, 0, 0, 1, 1, 0, 0, 0, '', 0, 0),
-('Local Pickup', 0, 'Pickup', 150, 0, 0, 1, 1, 0, 0, 0, '', 0, 0),
-('USPS First Class Mail International Parcel', 1, 'USPSFirstClassMailInternationalParcel', 50031, 0, 0, 1, 1, 0, 0, 0, 'USPS', 1, 1),
-('USPS First Class Mail International Large Envelope', 1, 'USPSFirstClassMailInternationalLargeEnvelope', 50030, 0, 0, 1, 1, 0, 0, 0, 'USPS', 1, 1),
-('USPS First Class Mail International Letter', 1, 'USPSFirstClassMailInternationalLetter', 50029, 0, 0, 1, 1, 0, 0, 0, 'USPS', 1, 1);
+INSERT INTO `shipping_service_details` (`SiteID`, `Description`, `InternationalService`, `ShippingService`, `ShippingServiceID`, `ShippingTimeMax`, `ShippingTimeMin`, `ServiceTypeFlat`, `ServiceTypeCalculated`, `ShippingPackageLetter`, `ShippingPackageLargeEnvelope`, `ShippingPackagePackageThickEnvelope`, `ShippingCarrier`, `DimensionsRequired`, `WeightRequired`) VALUES
+(0, 'USPS Global Express Mail', 1, 'USPSGlobalExpress', 50003, 5, 3, 1, 1, 1, 1, 1, 'USPS', 0, 1),
+(0, 'US Postal Service Priority Mail', 0, 'USPSPriority', 7, 3, 2, 1, 1, 1, 1, 1, 'USPS', 1, 1),
+(0, 'US Postal Service Priority Mail Flat Rate Envelope', 0, 'USPSPriorityFlatRateEnvelope', 19, 3, 2, 1, 1, 1, 1, 1, 'USPS', 0, 1),
+(0, 'USPS Global Priority Mail', 1, 'USPSGlobalPriority', 50005, 6, 4, 1, 1, 1, 1, 1, 'USPS', 0, 1),
+(0, 'US Postal Service Ground', 0, 'USPSGround', 17, 6, 1, 1, 1, 0, 0, 0, 'USPS', 0, 0),
+(0, 'US Postal Service Priority Mail Small Flat Rate Box', 0, 'USPSPriorityMailSmallFlatRateBox', 23, 3, 2, 1, 1, 1, 1, 1, 'USPS', 0, 1),
+(0, 'US Postal Service Priority Mail Flat Rate Box', 0, 'USPSPriorityFlatRateBox', 20, 3, 2, 1, 1, 1, 1, 1, 'USPS', 0, 1),
+(0, 'USPS Economy Letter Post', 1, 'USPSEconomyLetter', 50007, 42, 28, 1, 1, 1, 1, 1, 'USPS', 0, 1),
+(0, 'US Postal Service Priority Mail Large Flat Rate Box', 0, 'USPSPriorityMailLargeFlatRateBox', 22, 3, 2, 1, 1, 1, 1, 1, 'USPS', 0, 1),
+(0, 'USPS Economy Parcel Post', 1, 'USPSEconomyParcel', 50006, 42, 28, 1, 1, 0, 0, 1, 'USPS', 0, 1),
+(0, 'US Postal Service Express Mail', 0, 'USPSExpressMail', 11, 1, 0, 1, 1, 1, 1, 1, 'USPS', 0, 1),
+(0, 'USPS Airmail Letter Post', 1, 'USPSAirmailLetter', 50008, 10, 4, 1, 1, 1, 1, 1, 'USPS', 0, 1),
+(0, 'US Postal Service Express Mail Flat Rate Envelope', 0, 'USPSExpressFlatRateEnvelope', 21, 1, 0, 1, 1, 1, 1, 1, 'USPS', 0, 1),
+(0, 'USPS Airmail Parcel Post', 1, 'USPSAirmailParcel', 50009, 10, 4, 1, 1, 0, 0, 1, 'USPS', 0, 1),
+(0, 'USPS First Class Mail International', 1, 'USPSFirstClassMailInternational', 50022, 0, 0, 1, 1, 1, 1, 1, 'USPS', 0, 1),
+(0, 'US Postal Service Parcel Post', 0, 'USPSParcel', 8, 9, 2, 1, 1, 0, 1, 1, 'USPS', 0, 1),
+(0, 'USPS Priority Mail International', 1, 'USPSPriorityMailInternational', 50023, 10, 6, 1, 1, 1, 1, 1, 'USPS', 0, 1),
+(0, 'US Postal Service Media Mail', 0, 'USPSMedia', 9, 9, 2, 1, 1, 0, 0, 1, 'USPS', 0, 1),
+(0, 'US Postal Service First Class Mail', 0, 'USPSFirstClass', 10, 5, 2, 1, 1, 1, 1, 1, 'USPS', 0, 1),
+(0, 'USPS Priority Mail International Flat Rate Envelope', 1, 'USPSPriorityMailInternationalFlatRateEnvelope', 50025, 10, 6, 1, 1, 1, 1, 1, 'USPS', 0, 1),
+(0, 'US Postal Service Priority Mail International Small Flat Rate Box', 1, 'USPSPriorityMailInternationalSmallFlatRateBox', 50032, 10, 6, 1, 1, 1, 1, 1, 'USPS', 0, 1),
+(0, 'UPS Ground', 0, 'UPSGround', 3, 6, 1, 1, 1, 1, 1, 1, 'UPS', 1, 1),
+(0, 'USPS Priority Mail International Flat Rate Box', 1, 'USPSPriorityMailInternationalFlatRateBox', 50026, 10, 6, 1, 1, 1, 1, 1, 'USPS', 0, 1),
+(0, 'USPS Priority Mail International Large Flat Rate Box', 1, 'USPSPriorityMailInternationalLargeFlatRateBox', 50028, 10, 6, 1, 1, 1, 1, 1, 'USPS', 0, 1),
+(0, 'USPS Express Mail International', 1, 'USPSExpressMailInternational', 50024, 5, 3, 1, 1, 1, 1, 1, 'USPS', 0, 1),
+(0, 'USPS Express Mail International Flat Rate Envelope', 1, 'USPSExpressMailInternationalFlatRateEnvelope', 50027, 5, 3, 1, 1, 1, 1, 1, 'USPS', 0, 1),
+(0, 'UPS 3 Day Select', 0, 'UPS3rdDay', 4, 3, 1, 1, 1, 1, 1, 1, 'UPS', 1, 1),
+(0, 'UPS 2nd Day Air', 0, 'UPS2ndDay', 5, 2, 1, 1, 1, 1, 1, 1, 'UPS', 1, 1),
+(0, 'UPS Worldwide Express Plus', 1, 'UPSWorldWideExpressPlus', 50010, 2, 1, 1, 1, 1, 1, 1, 'UPS', 1, 1),
+(0, 'UPS Worldwide Express', 1, 'UPSWorldWideExpress', 50011, 2, 1, 1, 1, 1, 1, 1, 'UPS', 1, 1),
+(0, 'UPS Next Day Air Saver', 0, 'UPSNextDay', 6, 1, 1, 1, 1, 1, 1, 1, 'UPS', 1, 1),
+(0, 'UPS Next Day Air', 0, 'UPSNextDayAir', 12, 1, 1, 1, 1, 1, 1, 1, 'UPS', 1, 1),
+(0, 'UPS Worldwide Expedited', 1, 'UPSWorldWideExpedited', 50012, 5, 2, 1, 1, 1, 1, 1, 'UPS', 1, 1),
+(0, 'UPS Worldwide Saver', 1, 'UPSWorldwideSaver', 50033, 3, 1, 1, 1, 1, 1, 1, 'UPS', 1, 0),
+(0, 'Standard Flat Rate Shipping Service', 0, 'ShippingMethodStandard', 1, 0, 0, 1, 1, 0, 0, 0, '', 0, 0),
+(0, 'Local Delivery/Pickup', 0, 'LocalDelivery', 15, 0, 0, 1, 1, 0, 0, 0, '', 0, 0),
+(0, 'UPS Standard To Canada', 1, 'UPSStandardToCanada', 50013, 0, 0, 1, 1, 1, 1, 1, 'UPS', 1, 1),
+(0, 'Expedited Flat Rate Shipping Service', 0, 'ShippingMethodExpress', 2, 0, 0, 1, 1, 0, 0, 0, '', 0, 0),
+(0, 'Standard Int''l Flat Rate Shipping', 1, 'StandardInternational', 50001, 0, 0, 1, 1, 0, 0, 0, '', 0, 0),
+(0, 'Overnight Flat Rate Shipping Service', 0, 'ShippingMethodOvernight', 18, 1, 1, 1, 1, 0, 0, 0, '', 0, 0),
+(0, 'Expedited Int''l Flat Rate Shipping', 1, 'ExpeditedInternational', 50002, 0, 0, 1, 1, 0, 0, 0, '', 0, 0),
+(0, 'Other Int''l Shipping (see description)', 1, 'OtherInternational', 50014, 0, 0, 1, 1, 0, 0, 0, '', 0, 0),
+(0, 'Other (see description)', 0, 'Other', 14, 0, 0, 1, 1, 0, 0, 0, '', 0, 0),
+(0, 'USPS Global Priority Mail Flat Rate Small Envelope', 1, 'USPSGlobalPrioritySmallEnvelope', 50016, 0, 0, 1, 1, 0, 0, 0, 'USPS', 0, 1),
+(0, 'USPS Global Priority Mail Flat Rate Large Envelope', 1, 'USPSGlobalPriorityLargeEnvelope', 50017, 0, 0, 1, 1, 0, 0, 0, 'USPS', 0, 1),
+(0, 'UPS Worldwide Express Box 10Kg', 1, 'UPSWorldWideExpressBox10kg', 50018, 0, 0, 1, 1, 0, 0, 0, 'UPS', 0, 1),
+(0, 'UPS Worldwide Express Box 25Kg', 1, 'UPSWorldWideExpressBox25kg', 50019, 0, 0, 1, 1, 0, 0, 0, 'UPS', 0, 1),
+(0, 'UPS Worldwide Express Plus Box 10Kg', 1, 'UPSWorldWideExpressPlusBox10kg', 50020, 0, 0, 1, 1, 0, 0, 0, 'UPS', 0, 1),
+(0, 'UPS Worldwide Express Plus Box 25Kg', 1, 'UPSWorldWideExpressPlusBox25kg', 50021, 0, 0, 1, 1, 0, 0, 0, 'UPS', 0, 1),
+(0, 'USPS First Class Letter ', 0, 'USPSFirstClassLetter', 46, 0, 0, 1, 1, 0, 0, 0, 'USPS', 0, 1),
+(0, 'USPS First Class Large Envelop', 0, 'USPSFirstClassLargeEnvelop', 47, 0, 0, 1, 1, 0, 0, 0, 'USPS', 0, 1),
+(0, 'USPS First Class Parcel', 0, 'USPSFirstClassParcel', 48, 0, 0, 1, 1, 0, 0, 0, 'USPS', 0, 1),
+(0, 'USPS Global Express Guaranteed', 1, 'USPSGlobalExpressGuaranteed', 50004, 0, 0, 1, 1, 0, 0, 0, 'USPS', 0, 0),
+(0, 'Freight Shipping', 0, 'FreightShipping', 16, 0, 0, 1, 1, 0, 0, 0, '', 1, 0),
+(0, 'Freight Shipping', 1, 'FreightShippingInternational', 50015, 0, 0, 1, 1, 0, 0, 0, '', 1, 0),
+(0, 'Promotional Shipping Service', 1, 'PromotionalShippingMethod', 50099, 0, 0, 1, 1, 0, 0, 0, '', 0, 1),
+(0, 'Promotional Shipping Service', 0, 'PromotionalShippingMethod', 99, 0, 0, 1, 1, 0, 0, 0, '', 0, 1),
+(0, 'Freight', 0, 'Freight', 50, 0, 0, 1, 1, 0, 0, 0, '', 0, 0),
+(0, 'UPS Next Day Air', 0, 'UPS2DayAirAM', 13, 0, 0, 1, 1, 0, 0, 0, 'UPS', 1, 0),
+(0, 'Local Delivery', 0, 'Delivery', 151, 0, 0, 1, 1, 0, 0, 0, '', 0, 0),
+(0, 'Local Pickup', 0, 'Pickup', 150, 0, 0, 1, 1, 0, 0, 0, '', 0, 0),
+(0, 'USPS First Class Mail International Parcel', 1, 'USPSFirstClassMailInternationalParcel', 50031, 0, 0, 1, 1, 0, 0, 0, 'USPS', 1, 1),
+(0, 'USPS First Class Mail International Large Envelope', 1, 'USPSFirstClassMailInternationalLargeEnvelope', 50030, 0, 0, 1, 1, 0, 0, 0, 'USPS', 1, 1),
+(0, 'USPS First Class Mail International Letter', 1, 'USPSFirstClassMailInternationalLetter', 50029, 0, 0, 1, 1, 0, 0, 0, 'USPS', 1, 1);
 
 -- --------------------------------------------------------
 
 --
--- 表的结构 `shipping_service_options`
+-- Table structure for table `shipping_service_options`
 --
 
 CREATE TABLE IF NOT EXISTS `shipping_service_options` (
@@ -26668,7 +26674,7 @@ CREATE TABLE IF NOT EXISTS `shipping_service_options` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
--- 导出表中的数据 `shipping_service_options`
+-- Dumping data for table `shipping_service_options`
 --
 
 INSERT INTO `shipping_service_options` (`id`, `ItemID`, `FreeShipping`, `ShippingService`, `ShippingServiceCost`) VALUES
@@ -26677,7 +26683,7 @@ INSERT INTO `shipping_service_options` (`id`, `ItemID`, `FreeShipping`, `Shippin
 -- --------------------------------------------------------
 
 --
--- 表的结构 `site`
+-- Table structure for table `site`
 --
 
 CREATE TABLE IF NOT EXISTS `site` (
@@ -26692,7 +26698,7 @@ CREATE TABLE IF NOT EXISTS `site` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- 导出表中的数据 `site`
+-- Dumping data for table `site`
 --
 
 INSERT INTO `site` (`id`, `abbreviation`, `name`, `categoryVersion`, `currency`, `status`) VALUES
@@ -26722,7 +26728,7 @@ INSERT INTO `site` (`id`, `abbreviation`, `name`, `categoryVersion`, `currency`,
 -- --------------------------------------------------------
 
 --
--- 表的结构 `skus_to_items`
+-- Table structure for table `skus_to_items`
 --
 
 CREATE TABLE IF NOT EXISTS `skus_to_items` (
@@ -26732,5 +26738,5 @@ CREATE TABLE IF NOT EXISTS `skus_to_items` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
--- 导出表中的数据 `skus_to_items`
+-- Dumping data for table `skus_to_items`
 --
