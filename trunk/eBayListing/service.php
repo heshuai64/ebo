@@ -509,7 +509,7 @@ class eBayListing{
 	
     }
     
-    //GeteBayDetails   ----------------------------------------------------------------
+    //-----------------   GeteBayDetails     ------------------------------------------
     public function getShippingServiceDetails(){
 	try {
                 $client = new eBaySOAP($this->session);
@@ -684,6 +684,121 @@ class eBayListing{
 	    $this->configEbay();
 	    $this->getShippingLocationDetails();
 	}
+    }
+    //-----------------  Item Specifics -----------------------------------------------
+    /*
+    CREATE TABLE IF NOT EXISTS `CharacteristicsSets` (
+	`SiteID` int(11) NOT NULL,
+	`CategoryID` int(11) NOT NULL,
+	`Name` varchar(255) NOT NULL,
+	`AttributeSetID` int(11) NOT NULL,
+	`AttributeSetVersion` int(11) NOT NULL,
+	KEY `CategoryID` (`CategoryID`),
+	KEY `SiteID` (`SiteID`)
+    )
+    
+    CREATE TABLE IF NOT EXISTS `CharacteristicsLists` (
+	`CharacteristicsSetId` int(11) NOT NULL,
+	`AttributeId` int(11) NOT NULL,
+	`Label` varchar(50) character set latin1 NOT NULL,
+	`Type` varchar(20) character set latin1 NOT NULL,
+	KEY `CharacteristicsSetId` (`CharacteristicsSetId`)
+    )
+    
+    CREATE TABLE IF NOT EXISTS `CharacteristicsAttributeValueLists` (
+	`CharacteristicsSetId` int(11) NOT NULL,
+	`AttributeId` int(11) NOT NULL,
+	`id` int(11) NOT NULL,
+	`name` varchar(255) NOT NULL,
+	KEY `CharacteristicsSetId` (`CharacteristicsSetId`),
+	KEY `AttributeId` (`AttributeId`)
+    ) 
+    */
+    public function getCategory2CS(){
+	try {
+	    $client = new eBaySOAP($this->session);
+	    $Version = '607';
+	    $DetailLevel = "ReturnAll";
+	 
+	    $params = array('Version' => $Version, 'DetailLevel' => $DetailLevel);
+	    $results = $client->GetCategory2CS($params);
+	    
+	    foreach ($results->MappedCategoryArray->Category as $category){
+		$sql = "insert into CharacteristicsSets (SiteID,CategoryID,Name,AttributeSetID,AttributeSetVersion) values 
+		('15','".$category->CategoryID."','".$category->CharacteristicsSets->Name."',
+		'".$category->CharacteristicsSets->AttributeSetID."','".$category->CharacteristicsSets->AttributeSetVersion."')";
+		$result = mysql_query($sql, eBayListing::$database_connect);
+	    }
+	} catch (SOAPFault $f) {
+            print $f; // error handling
+        }
+    }
+    
+    public function getAllCategory2CS(){
+	$sql = "select id from site where status = 1";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	while ($row = mysql_fetch_assoc($result)){
+	    $this->setSite($row['id']);
+	    $this->configEbay();
+	    $this->getCategory2CS();
+	}
+    }
+    
+    public function getAttributesCS(){
+	try {
+	    $client = new eBaySOAP($this->session);
+	    $Version = '607';
+	    $DetailLevel = "ReturnAll";
+	 
+	    $params = array('Version' => $Version, 'DetailLevel' => $DetailLevel);
+	    $results = $client->GetAttributesCS($params);
+	    
+	    file_put_contents("GetAttributesCS-".$this->site_id.".xml", $results->AttributeData);
+	} catch (SOAPFault $f) {
+            print $f; // error handling
+        }
+    }
+    
+    public function getAllAttributesCS(){
+	$sql = "select id from site where status = 1";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	while ($row = mysql_fetch_assoc($result)){
+	    $this->setSite($row['id']);
+	    $this->configEbay();
+	    $this->getAttributesCS();
+	}
+    }
+    
+    public function getAttributes(){
+	$sql = "select AttributeSetID from CharacteristicsSets where SiteID = '15' and CategoryID = '".$_GET['CategoryID']."'";
+	//echo $sql;
+	//echo "<br>";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_array($result, MYSQL_ASSOC);
+	$AttributeSetID = $row['AttributeSetID'];
+	
+	$sql = "select CharacteristicsSetId,AttributeId,Label,Type from CharacteristicsLists where CharacteristicsSetId = '".$AttributeSetID."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$array = array();
+	$i = 0;
+	while($row = mysql_fetch_array($result, MYSQL_ASSOC)){
+	    $array[$i]['CharacteristicsSetId'] = $row['CharacteristicsSetId'];
+	    $array[$i]['AttributeId'] = $row['AttributeId'];
+	    $array[$i]['Label'] = $row['Label'];
+	    $array[$i]['Type'] = $row['Type'];
+	    
+	    $sql_1 = "select CharacteristicsSetId,AttributeId,id,name from CharacteristicsAttributeValueLists where CharacteristicsSetId = '".$row['CharacteristicsSetId']."' and AttributeId = '".$row['AttributeId']."'";
+	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	    $j = 0;
+	    while($row_1 = mysql_fetch_array($result_1, MYSQL_ASSOC)){
+		    $array[$i]['ValueList'][$j]['id'] = $row_1['id'];
+		    $array[$i]['ValueList'][$j]['name'] = $row_1['name'];
+		    $j++;
+	    }
+	    $i++;
+	}
+	print_r($array);
+	echo json_encode($array);
     }
     //---------------------------------------------------------------------------------
     public function getAllSites(){
