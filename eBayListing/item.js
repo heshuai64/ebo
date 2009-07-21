@@ -280,6 +280,21 @@ Ext.onReady(function(){
                         width: 600,
                         listWidth: 600
                     },
+                    tbar:[{
+                        text:"Item Specifics",
+                        iconCls :"item-specifics",
+                        handler:function(){
+                            Ext.Ajax.request({
+                                url: 'service.php',
+                                success: function(){
+                                    
+                                },
+                                failure: function(){
+                                    
+                                }
+                            });
+                        }
+                    }],
                     items:[{
                         id:"Title",
                         xtype:"textfield",
