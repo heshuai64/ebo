@@ -717,6 +717,8 @@ class eBayListing{
     //http://127.0.0.1:6666/eBayBO/eBaylisting/service.php?action=getAllCategory2CS
     public function getCategory2CS(){
 	try {
+	    echo $this->site_id;
+	    echo "\n";
 	    $client = new eBaySOAP($this->session);
 	    $Version = '607';
 	    $DetailLevel = "ReturnAll";
@@ -728,8 +730,14 @@ class eBayListing{
 		$sql = "insert into CharacteristicsSets (SiteID,CategoryID,Name,AttributeSetID,AttributeSetVersion) values 
 		('".$this->site_id."','".$category->CategoryID."','".$category->CharacteristicsSets->Name."',
 		'".$category->CharacteristicsSets->AttributeSetID."','".$category->CharacteristicsSets->AttributeSetVersion."')";
+		echo $sql;
+		echo "\n";
 		$result = mysql_query($sql, eBayListing::$database_connect);
 	    }
+	    
+	    echo "\n****************************************************************\n";
+	    flush();
+	    //exit();
 	} catch (SOAPFault $f) {
             print $f; // error handling
         }
@@ -767,6 +775,7 @@ class eBayListing{
 	    $this->setSite($row['id']);
 	    $this->configEbay();
 	    $this->getAttributesCS();
+	    exit();
 	}
     }
     
