@@ -771,34 +771,34 @@ class eBayListing{
     }
     
     public function getAttributes(){
-	$sql = "select AttributeSetID from CharacteristicsSets where SiteID = '".$_GET['SiteID']."' and CategoryID = '".$_GET['CategoryID']."'";
+	$sql = "select AttributeSetID from CharacteristicsSets where SiteID = '15' and CategoryID = '".$_GET['CategoryID']."'";
 	//echo $sql;
 	//echo "<br>";
-	$result = mysql_query($sql, eBayListing::$database_connect);
+	$result = mysql_query($sql);
 	$row = mysql_fetch_array($result, MYSQL_ASSOC);
 	$AttributeSetID = $row['AttributeSetID'];
 	
-	$sql = "select CharacteristicsSetId,AttributeId,Label,Type from CharacteristicsLists where CharacteristicsSetId = '".$AttributeSetID."'";
-	$result = mysql_query($sql, eBayListing::$database_connect);
 	$array = array();
+	$array['CharacteristicsSetId'] = $AttributeSetID;
+	$sql = "select CharacteristicsSetId,AttributeId,Label,Type from CharacteristicsLists where CharacteristicsSetId = '".$AttributeSetID."'";
+	$result = mysql_query($sql);
+	
 	$i = 0;
 	while($row = mysql_fetch_array($result, MYSQL_ASSOC)){
-	    $array[$i]['CharacteristicsSetId'] = $row['CharacteristicsSetId'];
-	    $array[$i]['AttributeId'] = $row['AttributeId'];
-	    $array[$i]['Label'] = $row['Label'];
-	    $array[$i]['Type'] = $row['Type'];
-	    
-	    $sql_1 = "select CharacteristicsSetId,AttributeId,id,name from CharacteristicsAttributeValueLists where CharacteristicsSetId = '".$row['CharacteristicsSetId']."' and AttributeId = '".$row['AttributeId']."'";
-	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	    $j = 0;
-	    while($row_1 = mysql_fetch_array($result_1, MYSQL_ASSOC)){
-		    $array[$i]['ValueList'][$j]['id'] = $row_1['id'];
-		    $array[$i]['ValueList'][$j]['name'] = $row_1['name'];
-		    $j++;
-	    }
-	    $i++;
+		$array['Attribute'][$i]['AttributeId'] = $row['AttributeId'];
+		$array['Attribute'][$i]['Label'] = $row['Label'];
+		$array['Attribute'][$i]['Type'] = $row['Type'];
+		$sql_1 = "select CharacteristicsSetId,AttributeId,id,name from CharacteristicsAttributeValueLists where CharacteristicsSetId = '".$row['CharacteristicsSetId']."' and AttributeId = '".$row['AttributeId']."'";
+		$result_1 = mysql_query($sql_1);
+		$j = 0;
+		while($row_1 = mysql_fetch_array($result_1, MYSQL_ASSOC)){
+			$array['Attribute'][$i]['ValueList'][$j]['id'] = $row_1['id'];
+			$array['Attribute'][$i]['ValueList'][$j]['name'] = $row_1['name'];
+			$j++;
+		}
+		$i++;
 	}
-	print_r($array);
+	//print_r($array);
 	echo json_encode($array);
     }
     //---------------------------------------------------------------------------------
