@@ -714,6 +714,7 @@ class eBayListing{
 	KEY `AttributeId` (`AttributeId`)
     ) 
     */
+    //http://127.0.0.1:6666/eBayBO/eBaylisting/service.php?action=getAllCategory2CS
     public function getCategory2CS(){
 	try {
 	    $client = new eBaySOAP($this->session);
@@ -725,7 +726,7 @@ class eBayListing{
 	    
 	    foreach ($results->MappedCategoryArray->Category as $category){
 		$sql = "insert into CharacteristicsSets (SiteID,CategoryID,Name,AttributeSetID,AttributeSetVersion) values 
-		('15','".$category->CategoryID."','".$category->CharacteristicsSets->Name."',
+		('".$this->site_id."','".$category->CategoryID."','".$category->CharacteristicsSets->Name."',
 		'".$category->CharacteristicsSets->AttributeSetID."','".$category->CharacteristicsSets->AttributeSetVersion."')";
 		$result = mysql_query($sql, eBayListing::$database_connect);
 	    }
@@ -770,7 +771,7 @@ class eBayListing{
     }
     
     public function getAttributes(){
-	$sql = "select AttributeSetID from CharacteristicsSets where SiteID = '15' and CategoryID = '".$_GET['CategoryID']."'";
+	$sql = "select AttributeSetID from CharacteristicsSets where SiteID = '".$_GET['SiteID']."' and CategoryID = '".$_GET['CategoryID']."'";
 	//echo $sql;
 	//echo "<br>";
 	$result = mysql_query($sql, eBayListing::$database_connect);
@@ -1667,7 +1668,7 @@ class eBayListing{
 $service = new eBayListing();
 $service->setAccount(1);
 $acton = (!empty($_GET['action'])?$_GET['action']:$argv[1]);
-if(in_array($acton, array("getAllSiteShippingServiceDetails", "getAllSiteShippingLocationDetails"))){
+if(in_array($acton, array("getAllSiteShippingServiceDetails", "getAllSiteShippingLocationDetails", "getAllCategory2CS", "getAllAttributesCS"))){
     $service->$acton();
 }else{
     $service->configEbay();

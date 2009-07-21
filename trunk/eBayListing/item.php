@@ -22,6 +22,9 @@
         .schedule-time{
             cursor:pointer;
         }
+	.item-specifics{
+	    background-image:url(./images/cog_add.png) !important;
+	}
 	.gallery-url{
 	    background-image:url(./images/image_add.png) !important;
 	}
