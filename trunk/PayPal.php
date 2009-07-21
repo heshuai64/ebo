@@ -878,7 +878,11 @@
 				array(
 					"Username"=> "libra.studio.gd_api1.gmail.com",
 					"Password"=>"9SX9GJJX38PGPDBZ",
-					"Signature"=>"AFcWxV21C7fd0v3bYYYRCpSSRl31A5TLxC.ZzYePJo53IDKsil6q0V3o"));
+					"Signature"=>"AFcWxV21C7fd0v3bYYYRCpSSRl31A5TLxC.ZzYePJo53IDKsil6q0V3o"),
+				array(
+					"Username"=> "nereus.art.cn_api1.gmail.com",
+					"Password"=>"QDS5D3X3KMQ3NCV7",
+					"Signature"=>"AFcWxV21C7fd0v3bYYYRCpSSRl31Asr3tZEXyZXwyN79SRA4ulR.0J7E"));
 	    
 	    foreach($api_acount as $acount){
 		$this->TransactionSearch($acount['Username'], $acount['Password'], $acount['Signature'], $this->start_time, $this->end_time);
