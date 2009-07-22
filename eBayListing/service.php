@@ -780,7 +780,7 @@ class eBayListing{
     }
     
     public function getAttributes(){
-	$sql = "select AttributeSetID from CharacteristicsSets where SiteID = '15' and CategoryID = '".$_GET['CategoryID']."'";
+	$sql = "select AttributeSetID from CharacteristicsSets where SiteID = '".$_GET['SiteID']."' and CategoryID = '".$_GET['CategoryID']."'";
 	//echo $sql;
 	//echo "<br>";
 	$result = mysql_query($sql);
@@ -789,26 +789,52 @@ class eBayListing{
 	
 	$array = array();
 	$array['CharacteristicsSetId'] = $AttributeSetID;
-	$sql = "select CharacteristicsSetId,AttributeId,Label,Type from CharacteristicsLists where CharacteristicsSetId = '".$AttributeSetID."'";
+	$sql = "select CharacteristicsSetId,AttributeId,Label,Type from CharacteristicsLists where (Type <> '' and Type <> 'radio' and Type <> 'textfield') and CharacteristicsSetId = '".$AttributeSetID."'";
 	$result = mysql_query($sql);
 	
 	$i = 0;
 	while($row = mysql_fetch_array($result, MYSQL_ASSOC)){
-		$array['Attribute'][$i]['AttributeId'] = $row['AttributeId'];
-		$array['Attribute'][$i]['Label'] = $row['Label'];
-		$array['Attribute'][$i]['Type'] = $row['Type'];
-		$sql_1 = "select CharacteristicsSetId,AttributeId,id,name from CharacteristicsAttributeValueLists where CharacteristicsSetId = '".$row['CharacteristicsSetId']."' and AttributeId = '".$row['AttributeId']."'";
-		$result_1 = mysql_query($sql_1);
-		$j = 0;
-		while($row_1 = mysql_fetch_array($result_1, MYSQL_ASSOC)){
-			$array['Attribute'][$i]['ValueList'][$j]['id'] = $row_1['id'];
-			$array['Attribute'][$i]['ValueList'][$j]['name'] = $row_1['name'];
-			$j++;
-		}
-		$i++;
+	    $array['Attribute'][$i]['id'] = $row['AttributeId'];
+	    $array['Attribute'][$i]['fieldLabel'] = $row['Label'];
+	    
+	    
+	    switch($row['Type']){
+		case "checkbox":
+		    $array['Attribute'][$i]['Type'] = "checkboxgroup";
+		    $array['Attribute'][$i]['name'] = $row['AttributeId'];
+		    $array['Attribute'][$i]['hiddenName'] = $row['AttributeId'];
+		break;
+	    
+		case "collapsible_textarea":
+		    $array['Attribute'][$i]['Type'] = "textarea";
+		     $array['Attribute'][$i]['name'] = $row['AttributeId'];
+		break;
+	    
+		case "dropdown":
+		    $array['Attribute'][$i]['Type'] = "combo";
+		    $array['Attribute'][$i]['name'] = $row['AttributeId'];
+		    $array['Attribute'][$i]['hiddenName'] = $row['AttributeId'];
+		break;
+	    
+		case "multiple":
+		    $array['Attribute'][$i]['Type'] = "checkboxgroup";
+		     $array['Attribute'][$i]['name'] = $row['AttributeId'];
+		break;
+	    }
+		
+		
+	    $sql_1 = "select CharacteristicsSetId,AttributeId,id,name from CharacteristicsAttributeValueLists where CharacteristicsSetId = '".$row['CharacteristicsSetId']."' and AttributeId = '".$row['AttributeId']."'";
+	    $result_1 = mysql_query($sql_1);
+	    $j = 0;
+	    while($row_1 = mysql_fetch_array($result_1, MYSQL_ASSOC)){
+		    $array['Attribute'][$i]['ValueList'][$j]['id'] = $row_1['id'];
+		    $array['Attribute'][$i]['ValueList'][$j]['name'] = $row_1['name'];
+		    $j++;
+	    }
+	    $i++;
 	}
-	//print_r($array);
-	echo json_encode($array);
+	print_r($array);
+	//echo json_encode($array);
     }
     //---------------------------------------------------------------------------------
     public function getAllSites(){
