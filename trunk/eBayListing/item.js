@@ -284,15 +284,53 @@ Ext.onReady(function(){
                         text:"Item Specifics",
                         iconCls :"item-specifics",
                         handler:function(){
-                            Ext.Ajax.request({
-                                url: 'service.php',
-                                success: function(){
-                                    
-                                },
-                                failure: function(){
-                                    
-                                }
-                            });
+                            if(Ext.isEmpty(Ext.getCmp("SiteID").getValue()) || Ext.isEmpty(Ext.getCmp("PrimaryCategoryCategoryID").getValue())){
+                                Ext.Msg.alert('Warn', 'Please choice Site/Category.');
+                            }else{
+                                Ext.Ajax.request({
+                                    url: 'service.php?action=getAttributes&SiteID='+Ext.getCmp("SiteID").getValue()+'&CategoryID='+Ext.getCmp("PrimaryCategoryCategoryID").getValue(),
+                                    success: function(a, b){
+                                        var temp = Ext.decode(a.responseText);
+                                        /*
+                                        {"CharacteristicsSetId":"2919","Attribute":[{"AttributeId":"10244","Label":"Condition","Type":"dropdown"
+                                        
+                                        ,"ValueList":[{"id":"-10","name":"-"},{"id":"10425","name":"New"},{"id":"10426","name":"Used"}]},{"AttributeId"
+                                        
+                                        :"3801","Label":"SIFFTAS Group Pseudo Attribute","Type":""}]}
+                                        */
+                                        
+                                        var itemSpecificsForm = new Ext.FormPanel();
+                                        
+                                        for(var i in temp.Attribute){
+                                            itemSpecificsForm.add({
+                                                xtype:""
+                                            });
+                                        }
+                                        
+                                        var window = new Ext.Window({
+                                            title:"XXXX",
+                                            height:500,
+                                            autoScroll:true,
+                                            items: itemSpecificsForm,
+                                            buttons:[{
+                                                text:"OK",
+                                                handler:function(){
+                                                    
+                                                }
+                                            },{
+                                                text:"Cancel",
+                                                handler:function(){
+                                                    window.close();
+                                                }
+                                            }]
+                                        })
+                                        window.show();
+                                    },
+                                    failure: function(){
+                                        
+                                    }
+                                });
+                            }
                         }
                     }],
                     items:[{
