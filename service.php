@@ -302,8 +302,10 @@ class Service{
             $data_json = json_encode($skuArray);
             
             $json_result = $this->getService(self::INVENTORY_SERVICE."?action=getEnvelopeBySku&data=".urlencode($data_json));
-            echo $json_result;
-            echo "<br>";
+            //echo $json_result;
+            //echo "<br>";
+            $this->log("updateShipmentEnvelope", "inventory system return: ".$json_result. "<br>");
+            
             $service_result = json_decode($json_result);
             $envelope = $service_result->envelope;
             if(!empty($envelope)){
@@ -314,7 +316,7 @@ class Service{
             }else{
                 $this->log("updateShipmentEnvelope", "shipmentsId: ".$row['id'].", sku: ".print_r($skuArray, true)." no in inventory system<br>\n");
             }
-            
+            $this->log("updateShipmentEnvelope", "<br>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++<br>");
             //if($i > 3){
             //    exit;
             //}
