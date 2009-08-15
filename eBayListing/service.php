@@ -660,7 +660,7 @@ class eBayListing{
 		values ('".$this->site_id."','".$shippingLocationDetails->ShippingLocation."','".mysql_escape_string($shippingLocationDetails->Description)."')";
 		echo $sql;
 		echo "<br>";
-		$result = mysql_query($sql, eBayListing::$database_connect);
+		//$result = mysql_query($sql, eBayListing::$database_connect);
 	    }
 	    echo "<h2>Fetch ".$this->site_id." End.</h2>";
 	    echo "<br>";
@@ -669,8 +669,8 @@ class eBayListing{
 	    //----------   debug --------------------------------
 	    //print "Request: \n".$client->__getLastRequest() ."\n";
 	    //print "Response: \n".$client->__getLastResponse()."\n";
-	    $this->saveFetchData("ShippingLocationDetails-Request-".date("Y-m-d H:i:s").".xml", $client->__getLastRequest());
-	    $this->saveFetchData("ShippingLocationDetails-Response-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+	    //$this->saveFetchData("ShippingLocationDetails-Request-".date("Y-m-d H:i:s").".xml", $client->__getLastRequest());
+	    //$this->saveFetchData("ShippingLocationDetails-Response-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 	} catch (SOAPFault $f) {
             print $f; // error handling
         }
@@ -683,8 +683,21 @@ class eBayListing{
 	    $this->setSite($row['id']);
 	    $this->configEbay();
 	    $this->getShippingLocationDetails();
+	    exit();
 	}
     }
+    
+    public function getShippingLocation(){
+	$sql = "select ShippingLocation from ship_to_location where SiteID = '".$_GET['SiteID']."'";
+	//echo $sql;
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$array = array();
+	while ($row = mysql_fetch_assoc($result)){
+	    $array[] = $row['ShippingLocation'];
+	}
+	echo json_encode($array);
+    }
+    
     //-----------------  Item Specifics -----------------------------------------------
     /*
     CREATE TABLE IF NOT EXISTS `CharacteristicsSets` (
@@ -780,6 +793,8 @@ class eBayListing{
     }
     
     public function getAttributes(){
+	session_start();
+	//$_GET['CategoryID'] = 34;
 	$sql = "select AttributeSetID from CharacteristicsSets where SiteID = '".$_GET['SiteID']."' and CategoryID = '".$_GET['CategoryID']."'";
 	//echo $sql;
 	//echo "<br>";
@@ -797,45 +812,90 @@ class eBayListing{
 	    $array['Attribute'][$i]['id'] = $row['AttributeId'];
 	    $array['Attribute'][$i]['fieldLabel'] = $row['Label'];
 	    
+	    $sql_1 = "select id,name from CharacteristicsAttributeValueLists where CharacteristicsSetId = '".$row['CharacteristicsSetId']."' and AttributeId = '".$row['AttributeId']."'";
+	    //echo $sql_1;
+	    $result_1 = mysql_query($sql_1);
+	    $j = 0;
 	    
 	    switch($row['Type']){
+		
 		case "checkbox":
-		    $array['Attribute'][$i]['Type'] = "checkboxgroup";
-		    $array['Attribute'][$i]['name'] = $row['AttributeId'];
-		    $array['Attribute'][$i]['hiddenName'] = $row['AttributeId'];
+		    $array['Attribute'][$i]['xtype'] = "checkboxgroup";
+		    $array['Attribute'][$i]['fieldLabel'] = $row['Label'];
+		    $array['Attribute'][$i]['items'] = "[";
+		    while($row_1 = mysql_fetch_array($result_1, MYSQL_ASSOC)){
+			$array['Attribute'][$i]['items'] .= "{id: '".$row_1['id']."', boxLabel: '".$row_1['name']."', name: '".$row_1['id']."'},";
+		    }
+		    $array['Attribute'][$i]['items'] = substr($array['Attribute'][$i]['items'], 0, -1);
+		    $array['Attribute'][$i]['items'] .= "]";
 		break;
 	    
 		case "collapsible_textarea":
-		    $array['Attribute'][$i]['Type'] = "textarea";
-		     $array['Attribute'][$i]['name'] = $row['AttributeId'];
+		    $array['Attribute'][$i]['xtype'] = "textarea";
+		    $array['Attribute'][$i]['name'] = $row['AttributeId'];
 		break;
-	    
+		
 		case "dropdown":
-		    $array['Attribute'][$i]['Type'] = "combo";
+		    $array['Attribute'][$i]['xtype'] = "combo";
 		    $array['Attribute'][$i]['name'] = $row['AttributeId'];
 		    $array['Attribute'][$i]['hiddenName'] = $row['AttributeId'];
+		    $array['Attribute'][$i]['store'] = "{xtype: 'arraystore', fields: ['id','name'], data: [";
+		    while($row_1 = mysql_fetch_array($result_1, MYSQL_ASSOC)){
+			$array['Attribute'][$i]['store'] .= "[" .$row_1['id'] . ",'" . $row_1['name'] ."'],";
+		    }
+		    $array['Attribute'][$i]['store'] = substr($array['Attribute'][$i]['store'], 0, -1);
+		    $array['Attribute'][$i]['store'] .= "]";
+		    $array['Attribute'][$i]['store'] .= "}";
 		break;
 	    
 		case "multiple":
-		    $array['Attribute'][$i]['Type'] = "checkboxgroup";
-		     $array['Attribute'][$i]['name'] = $row['AttributeId'];
+		    /*
+		    $array['Attribute'][$i]['xtype'] = "checkboxgroup";
+		    $array['Attribute'][$i]['name'] = $row['AttributeId'];
+		    $array['Attribute'][$i]['columns'] = 2;
+		    while($row_1 = mysql_fetch_array($result_1, MYSQL_ASSOC)){
+			$array['Attribute'][$i]['items'][$j]['name'] = $row_1['id'];
+			$array['Attribute'][$i]['items'][$j]['boxLabel'] = $row_1['name'];
+			$array['Attribute'][$i]['items'][$j]['inputValue'] = $row_1['id'];
+			$j++;
+		    }
+		    */
 		break;
 	    }
-		
-		
-	    $sql_1 = "select CharacteristicsSetId,AttributeId,id,name from CharacteristicsAttributeValueLists where CharacteristicsSetId = '".$row['CharacteristicsSetId']."' and AttributeId = '".$row['AttributeId']."'";
-	    $result_1 = mysql_query($sql_1);
-	    $j = 0;
-	    while($row_1 = mysql_fetch_array($result_1, MYSQL_ASSOC)){
-		    $array['Attribute'][$i]['ValueList'][$j]['id'] = $row_1['id'];
-		    $array['Attribute'][$i]['ValueList'][$j]['name'] = $row_1['name'];
-		    $j++;
-	    }
+	   
 	    $i++;
 	}
-	print_r($array);
-	//echo json_encode($array);
+	//print_r($array);
+	echo json_encode($array);
     }
+    public function loadItemSpecifics(){
+	session_start();
+	if(!empty($_SESSION['AttributeSet'][$_GET['sku']][$_GET['AttributeSetID']])){
+	    echo '['.json_encode($_SESSION['AttributeSet'][$_GET['sku']][$_GET['AttributeSetID']]).']';
+	}
+	//print_r($_SESSION['AttributeSet']);
+    }
+    
+    public function saveItemSpecifics(){
+	session_start();
+	unset($_SESSION['AttributeSet'][$_GET['sku']][$_POST['CharacteristicsSetId']]);
+	//unset($_SESSION);
+	foreach($_POST as $key=>$value){
+	    if($key != "CharacteristicsSetId"){
+		$_SESSION['AttributeSet'][$_GET['sku']][$_POST['CharacteristicsSetId']][$key] = $value;
+	    }
+	}
+	//print_r($_SESSION['AttributeSet'][$_GET['sku']][$_POST['CharacteristicsSetId']]);
+	if(!empty($_SESSION['AttributeSet'][$_GET['sku']][$_POST['CharacteristicsSetId']])){
+		echo 	'{success: true}';
+		
+	}else{
+		echo 	'{success: false,
+			  errors: {message: "can\'t create."}
+			}';
+	}
+    }
+    
     //---------------------------------------------------------------------------------
     public function getAllSites(){
 	$sql = "select * from site where status = '1'";
@@ -853,6 +913,20 @@ class eBayListing{
     
     public function addItem($item){
 	/*
+	<AttributeSetArray> AttributeSetArrayType 
+	    <AttributeSet attributeSetID="int" attributeSetVersion="string"> AttributeSetType 
+		<Attribute attributeID="int"> AttributeType 
+		    <Value> ValType 
+			<ValueID> int </ValueID>
+			<ValueLiteral> string </ValueLiteral>
+		    </Value>
+		    <!-- ... more Value nodes here ... -->
+		</Attribute>
+		<!-- ... more Attribute nodes here ... -->
+	    </AttributeSet>
+	    <!-- ... more AttributeSet nodes here ... -->
+	</AttributeSetArray>
+	
 	<BuyItNowPrice currencyID="CurrencyCodeType"> AmountType (double) </BuyItNowPrice>
  
 	<CategoryMappingAllowed> boolean </CategoryMappingAllowed>
@@ -1230,76 +1304,97 @@ class eBayListing{
 	session_start();
 	switch($_POST['Site']){
 	    case "US":
-		foreach($_SESSION as $key=>$value){
+		foreach($_SESSION['Schedule'] as $key=>$value){
 		    $keyArray = explode("-", $key);
-		    if(count($keyArray) == 4){
+		    //if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
 			foreach($value as $name){
-			    $sku = $keyArray[0];
+			    //$sku = $keyArray[0];
 			    $day = $keyArray[1];
 			    $time = date("H:i:s", strtotime("-12 hour ".$name));
-			    $sql_3 = "insert into (item_id,day,time) values 
-			    ('".$id."','".$day."','".time."')";
+			    $sql_3 = "insert into schedule (item_id,day,time) values 
+			    ('".$id."','".$day."','".$time."')";
 			    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
 			}
-		    }
+		    //}
 		}
 	    break;
 	
 	    case "UK":
-		foreach($_SESSION as $key=>$value){
+		foreach($_SESSION['Schedule'] as $key=>$value){
 		    $keyArray = explode("-", $key);
-		    if(count($keyArray) == 4){
+		    //if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
 			foreach($value as $name){
-			    $sku = $keyArray[0];
+			    //$sku = $keyArray[0];
 			    $day = $keyArray[1];
 			    $time = date("H:i:s", strtotime("-8 hour ".$name));
-			    $sql_3 = "insert into (item_id,day,time) values 
-			    ('".$id."','".$day."','".time."')";
+			    $sql_3 = "insert into schedule (item_id,day,time) values 
+			    ('".$id."','".$day."','".$time."')";
 			    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
 			}
-		    }
+		    //}
 		}
 	    break;
 	
 	    case "AU":
-		foreach($_SESSION as $key=>$value){
+		foreach($_SESSION['Schedule'] as $key=>$value){
 		    $keyArray = explode("-", $key);
-		    if(count($keyArray) == 4){
+		    //if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
 			foreach($value as $name){
-			    $sku = $keyArray[0];
+			    //$sku = $keyArray[0];
 			    $day = $keyArray[1];
 			    $time = date("H:i:s", strtotime("+2 hour ".$name));
-			    $sql_3 = "insert into (item_id,day,time) values 
-			    ('".$id."','".$day."','".time."')";
+			    $sql_3 = "insert into schedule (item_id,day,time) values 
+			    ('".$id."','".$day."','".$time."')";
 			    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
 			}
-		    }
+		    //}
 		}
 	    break;
 	
 	    case "FR":
-		foreach($_SESSION as $key=>$value){
+		foreach($_SESSION['Schedule'] as $key=>$value){
 		    $keyArray = explode("-", $key);
-		    if(count($keyArray) == 4){
+		    //if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
 			foreach($value as $name){
-			    $sku = $keyArray[0];
+			    //$sku = $keyArray[0];
 			    $day = $keyArray[1];
 			    $time = date("H:i:s", strtotime("-7 hour ".$name));
-			    $sql = "insert into (item_id,day,time) values 
-			    ('".$id."','".$day."','".time."')";
+			    $sql_3 = "insert into schedule (item_id,day,time) values 
+			    ('".$id."','".$day."','".$time."')";
+			    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
 			}
-		    }
+		    //}
 		}
 	    break;
 	}
 	
+	if(!empty($_SESSION['AttributeSet'])){
+	    foreach($_SESSION['AttributeSet'][$_POST['SKU']] as $attributeSetID=>$Attribute){
+		$sql_3 = "insert into attribute_set (item_id,attributeSetID) values ('".$id."', '".$attributeSetID."')";
+		$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+		
+		$attribute_set_id = mysql_insert_id(eBayListing::$database_connect);
+		
+		foreach($Attribute as $attributeID=>$ValueID){
+		    if(!empty($ValueID)){
+			$sql_4 = "insert into attribute (attributeID,attribute_set_id,ValueID) values 
+			('".$attributeID."', '".$attribute_set_id."', '".$ValueID."')";
+			$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+		    }
+		}
+	    }
+	    
+	}
+	
 	if($result && $result_1 && $result_2){
-		echo 	'{success: true}';
+	    unset($_SESSION['Schedule']);
+	    unset($_SESSION['AttributeSet']);
+	    echo '{success: true}';
 		
 	}else{
-		echo 	'{success: false,
-			  errors: {message: "can\'t create."}
-			}';
+	    echo '{success: false,
+		    errors: {message: "can\'t create."}
+		}';
 	}
     }
     
@@ -1348,6 +1443,28 @@ class eBayListing{
 		$PictureURL[] = $row_4['url'];
 	    } 
 	    
+	    $sql_5 = "select * from attribute_set where item_id = '".$row['item_id']."'";
+	    $result_5 = mysql_query($sql_5);
+	    $AttributeSetArray = array();
+	    $i = 0;
+	    while($row_5 = mysql_fetch_assoc($result_5)){
+		$AttributeSetArray[$i]['AttributeSet']['attributeSetID'] = $row_5['attributeSetID'];
+		
+		$sql_6 = "select * from attribute where attribute_set_id = '".$row_5['attribute_set_id']."'";
+		$result_6 = mysql_query($sql_6);
+		$j = 0;
+		while($row_6 = mysql_fetch_assoc($result_6)){
+		    $AttributeSetArray[$i]['AttributeSet'][$j]['Attribute']['attributeID'] = $row_6['attributeID'];
+		    $AttributeSetArray[$i]['AttributeSet'][$j]['Attribute']['Value']['ValueID'] = $row_6['ValueID'];
+		    if(!empty($row_6['ValueLiteral'])){
+			$AttributeSetArray[$i]['AttributeSet'][$j]['Attribute']['Value']['ValueLiteral'] = $row_6['ValueLiteral'];
+		    }
+		    $j++;
+		}
+		$i++;
+	    }
+	    
+	    $row_1['AttributeSetArray'] = $AttributeSetArray;
 	    $row_1['ShippingServiceOptions'] = $ShippingServiceOptions;
 	    $row_1['InternationalShippingServiceOption'] = $InternationalShippingServiceOption;
 	    $row_1['PictureURL'] = $PictureURL;
@@ -1591,17 +1708,18 @@ class eBayListing{
 	}
     }
     
+    //-----------------   Schedule  -----------------------------------------------------------------------------
     public function addSkuScheduleTime(){
 	if(!empty($_POST['time'])){
 	    session_start();
-	    if(@!is_array($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']])){
-		$_SESSION[$_POST['sku'].'-'.$_POST['dayTime']] = array();
+	    if(@!is_array($_SESSION['Schedule'][$_POST['sku'].'-'.$_POST['dayTime']])){
+		$_SESSION['Schedule'][$_POST['sku'].'-'.$_POST['dayTime']] = array();
 	    }
-	    if(@!in_array($_POST['time'], $_SESSION[$_POST['sku'].'-'.$_POST['dayTime']])){
-		$_SESSION[$_POST['sku'].'-'.$_POST['dayTime']][] = $_POST['time'];
+	    if(@!in_array($_POST['time'], $_SESSION['Schedule'][$_POST['sku'].'-'.$_POST['dayTime']])){
+		$_SESSION['Schedule'][$_POST['sku'].'-'.$_POST['dayTime']][] = $_POST['time'];
 	    }
 	}
-	print_r($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']]);
+	print_r($_SESSION['Schedule'][$_POST['sku'].'-'.$_POST['dayTime']]);
     }
     
     public function deleteSkuScheduleTime(){
@@ -1609,7 +1727,7 @@ class eBayListing{
 	$id_array = explode(",", $_POST['id']);
 	print_r($id_array);
 	foreach($id_array as $id){
-	    unset($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']][$id]);
+	    unset($_SESSION['Schedule'][$_POST['sku'].'-'.$_POST['dayTime']][$id]);
 	}
 	/*
 	$i = 0;
@@ -1619,23 +1737,23 @@ class eBayListing{
 	}
 	*/
 	//sort($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']]);
-	print_r($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']]);
+	print_r($_SESSION['Schedule'][$_POST['sku'].'-'.$_POST['dayTime']]);
     }
     
     public function deleteAllSkuScheduleTime(){
 	session_start();
-	unset($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']]);
+	unset($_SESSION['Schedule'][$_POST['sku'].'-'.$_POST['dayTime']]);
     }
     
     public function getSkuScheduleTime(){
 	session_start();
 	//print_r($_SESSION[$_GET['sku'].'-'.$_GET['dayTime']]);
 	//$array = array(array("time"=>"13:21"), array("time"=>"13:30"));
-	if(@is_array($_SESSION[$_GET['sku'].'-'.$_GET['dayTime']])){
-	    sort($_SESSION[$_GET['sku'].'-'.$_GET['dayTime']]);
+	if(@is_array($_SESSION['Schedule'][$_GET['sku'].'-'.$_GET['dayTime']])){
+	    sort($_SESSION['Schedule'][$_GET['sku'].'-'.$_GET['dayTime']]);
 	    $data = array();
 	    $i = 0;
-	    foreach($_SESSION[$_GET['sku'].'-'.$_GET['dayTime']] as $s){
+	    foreach($_SESSION['Schedule'][$_GET['sku'].'-'.$_GET['dayTime']] as $s){
 		$data[$i]['time'] = $s;
 		$i++;
 	    }
@@ -1643,7 +1761,7 @@ class eBayListing{
 	}else{
 	    echo json_encode(array());
 	}
-	//print_r($_SESSION);
+	//print_r($_SESSION['Schedule']);
     }
     
     public function saveSkuScheduleTime(){
@@ -1663,6 +1781,7 @@ class eBayListing{
 	*/
     }
     
+    //-----------------   Schedule  -----------------------------------------------------------------------------
     public function login(){
 	$sql = "select id from account where name = '".$_POST['name']."' and password = '".$_POST['password']."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);

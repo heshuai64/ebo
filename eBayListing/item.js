@@ -299,32 +299,134 @@ Ext.onReady(function(){
                                         :"3801","Label":"SIFFTAS Group Pseudo Attribute","Type":""}]}
                                         */
                                         
-                                        var itemSpecificsForm = new Ext.FormPanel();
+                                        //console.log(temp);
                                         
-                                        for(var i in temp.Attribute){
-                                            itemSpecificsForm.add({
-                                                xtype:""
-                                            });
+                                        var tempArray = new Array();
+                                        for(var t in temp.Attribute){
+                                            /*
+                                            if(temp.Attribute[t].xtype == 'checkboxgroup'){
+                                                //tempArray.push(temp.Attribute[t].id);
+                                                var temp1 = Ext.decode(temp.Attribute[t].items);
+                                                //console.log(temp.Attribute[t].items);
+                                                for(var e in temp1){
+                                                    //console.log(temp1[e]);
+                                                    if(!Ext.isFunction(temp1[e])){
+                                                        //tempArray.push(temp1[e].name);
+                                                        Ext.getCmp(temp1[e].name).setValue(1);
+                                                    }
+                                                }
+                                            }else{
+                                            */
+                                                if(!Ext.isFunction(temp.Attribute[t]) && temp.Attribute[t].xtype != 'checkboxgroup'){
+                                                    tempArray.push(temp.Attribute[t].id);
+                                                }
+                                            //}
                                         }
                                         
-                                        var window = new Ext.Window({
-                                            title:"XXXX",
-                                            height:500,
+                                        //console.log(tempArray);
+                                        
+                                        var itemSpecificsForm = new Ext.FormPanel({
+                                            autoScroll:true,
+                                            reader:new Ext.data.JsonReader({
+                                            },tempArray)
+                                        });
+                                        
+                                        itemSpecificsForm.add({
+                                            xtype: "hidden",
+                                            name: "CharacteristicsSetId",
+                                            value: temp.CharacteristicsSetId
+                                        });
+                                        
+                                        for(var i in temp.Attribute){
+                                            if(!Ext.isFunction(temp.Attribute[i])){
+                                                //console.log(Ext.decode(temp.Attribute[i].store))
+                                                switch(temp.Attribute[i].xtype){
+                                                    case "checkboxgroup":
+                                                        itemSpecificsForm.add({
+                                                            xtype: temp.Attribute[i].xtype,
+                                                            fieldLabel: temp.Attribute[i].fieldLabel,
+                                                            columns: 2,
+                                                            items: Ext.decode(temp.Attribute[i].items)
+                                                        });
+                                                    break;
+                                                
+                                                    case "combo":
+                                                        itemSpecificsForm.add({
+                                                            //id: temp.Attribute[i].id,
+                                                            xtype: temp.Attribute[i].xtype,
+                                                            fieldLabel: temp.Attribute[i].fieldLabel,
+                                                            name: temp.Attribute[i].name,
+                                                            hiddenName: temp.Attribute[i].hiddenName,
+                                                            mode: 'local',
+                                                            triggerAction: 'all',
+                                                            editable: false,
+                                                            selectOnFocus:true,
+                                                            valueField: 'id',
+                                                            displayField: 'name',
+                                                            store: Ext.decode(temp.Attribute[i].store)
+                                                        });
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        
+                                        var itemSpecificsWindow = new Ext.Window({
+                                            title:"Item Specifics",
+                                            height:300,
+                                            width: 400,
                                             autoScroll:true,
                                             items: itemSpecificsForm,
                                             buttons:[{
                                                 text:"OK",
                                                 handler:function(){
-                                                    
+                                                    itemSpecificsForm.getForm().submit({
+                                                        clientValidation: true,
+                                                        url: 'service.php?action=saveItemSpecifics&sku='+sku,
+                                                        success: function(form, action) {
+                                                            itemSpecificsWindow.close();
+                                                            //console.log(action);
+                                                            //Ext.Msg.alert("Success", action.result.msg);
+                                                        },
+                                                        failure: function(form, action) {
+                                                            switch (action.failureType) {
+                                                                case Ext.form.Action.CLIENT_INVALID:
+                                                                    Ext.Msg.alert("Failure", "Form fields may not be submitted with invalid values");
+                                                                    break;
+                                                                case Ext.form.Action.CONNECT_FAILURE:
+                                                                    Ext.Msg.alert("Failure", "Ajax communication failed");
+                                                                    break;
+                                                                case Ext.form.Action.SERVER_INVALID:
+                                                                    Ext.Msg.alert("Failure", action.result.msg);
+                                                            }
+                                                        }
+                                
+                                                    })
                                                 }
                                             },{
-                                                text:"Cancel",
+                                                text:"Close",
                                                 handler:function(){
-                                                    window.close();
+                                                    itemSpecificsWindow.close();
                                                 }
                                             }]
                                         })
-                                        window.show();
+                                        itemSpecificsWindow.show();
+                                        
+                                        itemSpecificsForm.getForm().load({
+                                            url: 'service.php?action=loadItemSpecifics&AttributeSetID='+temp.CharacteristicsSetId+'&sku='+sku,
+                                            waitMsg:'Please wait...',
+                                            success: function(form, action){
+                                                //console.log(action);
+                                                var temp = Ext.decode(action.response.responseText);
+                                                //console.log(temp);
+                                                for(var i in temp[0]){
+                                                    //console.log(i);
+                                                    if(temp[0][i] == "on"){
+                                                        Ext.getCmp(i).setValue(1);
+                                                    }
+                                                }
+                                            }
+                                        });
+                                        
                                     },
                                     failure: function(){
                                         
@@ -358,6 +460,7 @@ Ext.onReady(function(){
                                 id:"category",
                                 xtype:"combo",
                                 fieldLabel:"Category",
+                                editable:false,
                                 //name:"combovalue",
                                 //hiddenName:"combovalue",
                                 width: 600,
@@ -447,6 +550,7 @@ Ext.onReady(function(){
                                 id:"SCategory",
                                 xtype:"combo",
                                 fieldLabel:"2nd Category",
+                                editable:false,
                                 //name:"combovalue",
                                 //hiddenName:"combovalue",
                                 width: 600,
@@ -535,6 +639,7 @@ Ext.onReady(function(){
                                 id:"storeCategory",
                                 xtype:"combo",
                                 fieldLabel:"Store Category",
+                                editable:false,
                                 //name:"combovalue",
                                 //hiddenName:"combovalue",
                                 width: 600,
@@ -623,6 +728,7 @@ Ext.onReady(function(){
                                 id:"SStoreCategory",
                                 xtype:"combo",
                                 fieldLabel:"2nd Store Category",
+                                editable:false,
                                 //name:"combovalue",
                                 //hiddenName:"combovalue",
                                 width: 600,
@@ -1438,6 +1544,7 @@ Ext.onReady(function(){
                                     selectOnFocus:true,
                                     //listWidth: 156,
                                     //width: 156,
+                                    title:'Select a Shipping Service',
                                     name: 'ShippingService-1',
                                     hiddenName:'ShippingService-1',
                                     //allowBlank: false,
@@ -1475,6 +1582,7 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
+                                    title:'Select a Shipping Service',
                                     name:"ShippingService-2",
                                     hiddenName:"ShippingService-2",
                                     mode: 'local',
@@ -1521,6 +1629,7 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
+                                    title:'Select a Shipping Service',
                                     name:"ShippingService-3",
                                     hiddenName:"ShippingService-3",
                                     mode: 'local',
@@ -1562,6 +1671,7 @@ Ext.onReady(function(){
                         },{
                             xtype:"combo",
                             fieldLabel:"Domestic Handling Time",
+                            title:'Select a time Period',
                             name:"DispatchTimeMax",
                             hiddenName:"DispatchTimeMax",
                             mode: 'local',
@@ -1625,6 +1735,7 @@ Ext.onReady(function(){
                                 items:[{
                                     xtype:"combo",
                                     fieldLabel:"International Services",
+                                    title:'Select a Shipping Service',
                                     name:"InternationalShippingService-1",
                                     hiddenName:"InternationalShippingService-1",
                                     mode: 'local',
@@ -1677,12 +1788,29 @@ Ext.onReady(function(){
                                                     //console.log(c);
                                                     if(c.value == "Custom Locations"){
                                                         Ext.getCmp("InternationalShippingCustom-1").show();
+                                                        Ext.Ajax.request({
+                                                            url: 'service.php?action=getShippingLocation&SiteID='+Ext.getCmp("SiteID").getValue(),
+                                                            success: function(a, b){
+                                                                var temp = Ext.decode(a.responseText);
+                                                                
+                                                            },
+                                                            failure: function(){
+                                                                
+                                                            }
+                                                        })
                                                     }else{
                                                         Ext.getCmp("InternationalShippingCustom-1").hide();
                                                     }
                                                     
                                                 }
                                             }
+                                        },{
+                                            xtype:"form",
+                                            item:[{
+                                                id: "InternationalShippingCustomCheckboxGroup-1",
+                                                xtype: 'checkboxgroup'
+                                                //fieldLabel: 'Auto Layout',
+                                            }]
                                         },{
                                             id:"InternationalShippingCustom-1",
                                             hidden:true,
@@ -1849,6 +1977,7 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
+                                    title:'Select a Shipping Service',
                                     name:"InternationalShippingService-2",
                                     hiddenName:"InternationalShippingService-2",
                                     mode: 'local',
@@ -1888,6 +2017,7 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
+                                    title:'Select a Shipping Service',
                                     name:"InternationalShippingService-3",
                                     hiddenName:"InternationalShippingService-3",
                                     mode: 'local',
