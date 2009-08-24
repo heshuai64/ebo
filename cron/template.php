@@ -68,7 +68,7 @@
                                                 $this->shipment[$i]['shipToCity']. '<br>'.
                                                 $this->shipment[$i]['shipToStateOrProvince']. ", ". $this->shipment[$i]['shipToPostalCode'].'<br>'.
                                                 $this->shipment[$i]['shipToCountry'].'<br>'.
-                                                (!empty($this->shipment[$i]['shipToPhoneNo']) && $this->shipment[$i]['shipToPhoneNo'] != "Invalid Request")?"Tel:".$this->shipment[$i]['shipToPhoneNo'].'<br>':'';
+                                                ((!empty($this->shipment[$i]['shipToPhoneNo']) && $this->shipment[$i]['shipToPhoneNo'] != "Invalid Request")?"Tel:".$this->shipment[$i]['shipToPhoneNo'].'<br>':'');
                                                 echo '<div class="barcode">';
                                                         echo '<img src="'.PackingList::BAR_CODE_URL.'?code=code39&o=1&t=30&r=1&text='.$this->shipment[$i]['id'].'&f1=-1&f2=8&a1=&a2=&a3=">';
                                                 echo '</div>
@@ -82,7 +82,7 @@
                                                 $this->shipment[$i]['shipToCity']. '<br>'.
                                                 $this->shipment[$i]['shipToStateOrProvince']. ", ". $this->shipment[$i]['shipToPostalCode'].'<br>'.
                                                 $this->shipment[$i]['shipToCountry'].'<br>'.
-                                                (!empty($this->shipment[$i]['shipToPhoneNo']) && $this->shipment[$i]['shipToPhoneNo'] != "Invalid Request")?"Tel:".$this->shipment[$i]['shipToPhoneNo'].'<br>':'';
+                                                ((!empty($this->shipment[$i]['shipToPhoneNo']) && $this->shipment[$i]['shipToPhoneNo'] != "Invalid Request")?"Tel:".$this->shipment[$i]['shipToPhoneNo'].'<br>':'');
                                                 echo '<div class="barcode">';                       //image.php?code=code39&o=1&t=30&r=1&text=SHM200906A0013&f1=Arial.ttf&f2=8&a1=&a2=&a3=
                                                         echo '<img src="'.PackingList::BAR_CODE_URL.'?code=code39&o=1&t=30&r=1&text='.$this->shipment[$i]['id'].'&f1=-1&f2=8&a1=&a2=&a3=">';
                                                 echo '</div>
