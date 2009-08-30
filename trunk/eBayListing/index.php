@@ -28,13 +28,15 @@ if(empty($_COOKIE['account_id'])){
         .inventory {
             background-image:url(./images/package.png);
         }
+	.template {
+            background-image:url(./images/plugin.png);
+        }
         .waiting-to-upload {
             background-image:url(./images/package_go.png);
         }
         .listing-activity {
             background-image:url(./images/money_dollar.png);
         }
-	
 	.user{
 	    background-image:url(./images/user.png) !important;
 	}

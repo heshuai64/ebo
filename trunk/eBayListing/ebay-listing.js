@@ -94,7 +94,7 @@ Ext.onReady(function(){
                     Ext.getCmp('inventory-accordion').setTitle('Inventory ('+t.totalLength+')');
                }
           }
-     });
+     })
      
      
      var inventory_grid = new Ext.grid.GridPanel({
@@ -121,7 +121,7 @@ Ext.onReady(function(){
      inventory_grid.on("rowdblclick", function(oGrid){
           var oRecord = oGrid.getSelectionModel().getSelected();
           //console.log(oRecord);
-          window.open("/eBayBO/eBayListing/item.php?id="+oRecord.data['inventory_model_code'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+          window.open("/eBayBO/eBayListing/sku.php?id="+oRecord.data['inventory_model_code'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
      })
      
      var inventory_categories_tree = new Ext.tree.TreePanel({
@@ -148,7 +148,128 @@ Ext.onReady(function(){
                }
                
           }
-     });
+     })
+     
+     var template_search_form = new Ext.FormPanel({
+          title: 'Search',
+          items:[{
+               layout:"column",
+               items:[{
+                    columnWidth:0.4,
+                    layout:"form",
+                    items:[{
+                         xtype:"textfield",
+                         width: 200,
+                         fieldLabel:"Sku",
+                         name:"SKU"
+                    }]
+               },{
+                    columnWidth:0.6,
+                    layout:"form",
+                    items:[{
+                         xtype:"textfield",
+                         width: 400,
+                         fieldLabel:"Title",
+                         name:"Title"
+                    }]
+               }]
+          }],
+          buttons: [{
+                    text: 'Submit',
+                    handler: function(){
+                         template_store.baseParams = {
+                              SKU: template_search_form.getForm().findField("SKU").getValue(),
+                              Title: template_search_form.getForm().findField("Title").getValue()
+                         };
+                         template_store.load({params:{start:0, limit:20}});
+                    }
+          }]
+     })
+          
+     var template_store = new Ext.data.JsonStore({
+          root: 'records',
+          totalProperty: 'totalCount',
+          idProperty: 'id',
+          //autoLoad:true,
+          fields: ['Id', 'SKU', 'Title'],
+          url: 'service.php?action=getAllTemplate',
+          listeners: {
+               load: function(t, r){
+                    //console.log(t.totalLength);
+                    Ext.getCmp('template-accordion').setTitle('Template ('+t.totalLength+')');
+               }
+          }
+     })
+     
+     var template_grid = new Ext.grid.GridPanel({
+          title: 'Template List',
+          store: template_store,
+          autoHeight: true,
+          selModel: new Ext.grid.RowSelectionModel({}),
+          columns:[
+              {header: "Sku", width: 200, align: 'center', sortable: true, dataIndex: 'SKU'},
+              {header: "Title", width: 600, align: 'center', sortable: true, dataIndex: 'Title'}
+          ],
+          bbar: new Ext.PagingToolbar({
+              pageSize: 20,
+              store: template_store,
+              displayInfo: true
+          })
+     })
+     
+     template_grid.on("rowdblclick", function(oGrid){
+          var oRecord = oGrid.getSelectionModel().getSelected();
+          //console.log(oRecord);
+          window.open("/eBayBO/eBayListing/template.php?id="+oRecord.data['Id'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+     })
+                                   
+     var template_category_tree = new Ext.tree.TreePanel({
+          useArrows:true,
+          autoScroll:true,
+          animate:true,
+          height: 500,
+          // auto create TreeLoader
+          dataUrl: 'service.php?action=getTemplateTree',
+          root: {
+               id: '0',
+               nodeType: 'async',
+               text: 'All Templates',
+               draggable:false,
+               expanded: true
+          },
+          listeners:{
+               click: function(n, e){
+                    //console.log(n);
+                    template_store.baseParams = {
+                         category_id: n.id
+                    };
+                    template_store.load({params:{start:0, limit:20}});
+               }
+               
+          }
+     })
+     
+     var template_category_form = new Ext.FormPanel({
+          title: 'Template Categories Manage',
+          border: false,
+          items:[{
+               xtype:"textfield",
+               //width: 400,
+               name:"name",
+               hideLabel:true
+          }],
+          buttons: [{
+                    text: 'Add',
+                    handler: function(){
+                        
+                    }
+          },{
+               text: 'Delete',
+               handler: function(){
+                    
+               }
+          }]
+     })
      
      var listing_activity_tree = new Ext.tree.TreePanel({
           useArrows:true,
@@ -322,6 +443,34 @@ Ext.onReady(function(){
                               }
                          }
                    },{
+                         id:'template-accordion',
+                         title:'Template',
+                         border:false,
+                         items:[template_category_form, template_category_tree],
+                         iconCls:'template',
+                         listeners:{
+                              expand: function(p){
+                                   //console.log(tabPanel.isVisible('template-tab'));
+                                   if(Ext.getCmp("template-tab")){
+                                        //console.log("test1");
+                                        tabPanel.activate('template-tab');
+                                   }else{
+                                        //console.log("test2");
+                                        template_store.load();
+                                        tabPanel.add({
+                                             id:'template-tab',
+                                             iconCls: 'template',
+                                             title: "Template",
+                                             items: [template_search_form, template_grid],
+                                             //closable: true,
+                                             autoScroll:true
+                                        })
+                                        tabPanel.doLayout();
+                                        tabPanel.activate('template-tab');
+                                   }
+                              }
+                         }
+                    },{
                          title:'Waiting To Upload',
                          html:'xxx',
                          border:false,
