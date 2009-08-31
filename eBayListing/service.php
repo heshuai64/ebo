@@ -345,7 +345,35 @@ class eBayListing{
     
     //-----------------  Template --------------------------------------------------------------------------
     public function getTemplateTree(){
-	
+	$array = array();
+	$i = 0;
+	if(empty($_POST['node'])){
+	    $parent_id = 0;
+	}else{
+	    $parent_id = $_POST['node'];
+	}
+	$sql = "select * from templates where parent_id = '".$parent_id."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	while($row = mysql_fetch_assoc($result)){
+	    
+	    $sql_1 = "select count(*) as count from items_to_templates where template_id = '".$row['id']."'";
+	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	    $row_1 = mysql_fetch_assoc($result_1);
+	    
+            $array[$i]['id'] = $row['id'];
+	    $array[$i]['text'] = $row['name'] ." (".$row_1['count'].")";
+	    $sql_2 = "select count(*) as count from templates where parent_id = '".$row['id']."'";
+	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
+	    $row_2 = mysql_fetch_assoc($result_2);
+	    if($row_2['count'] > 0){
+		$array[$i]['leaf'] = false;
+	    }else{
+		$array[$i]['leaf'] = true;
+	    }
+	    $i++;
+	}
+	echo json_encode($array);
+	mysql_free_result($result);
     }
     
     public function getAllTemplate(){

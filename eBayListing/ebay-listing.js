@@ -241,7 +241,7 @@ Ext.onReady(function(){
                click: function(n, e){
                     //console.log(n);
                     template_store.baseParams = {
-                         category_id: n.id
+                         parent_id: n.id
                     };
                     template_store.load({params:{start:0, limit:20}});
                }
@@ -451,6 +451,7 @@ Ext.onReady(function(){
                          listeners:{
                               expand: function(p){
                                    //console.log(tabPanel.isVisible('template-tab'));
+                                   template_category_tree.root.reload()
                                    if(Ext.getCmp("template-tab")){
                                         //console.log("test1");
                                         tabPanel.activate('template-tab');
