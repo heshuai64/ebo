@@ -210,6 +210,95 @@ Ext.onReady(function(){
               {header: "Sku", width: 200, align: 'center', sortable: true, dataIndex: 'SKU'},
               {header: "Title", width: 600, align: 'center', sortable: true, dataIndex: 'Title'}
           ],
+          tbar:[{
+               text: 'Add to upload',
+               icon: './images/arrow_up.png',
+               tooltip:'add selected template to upload queue',
+               handler: function(){
+                    var selections = template_grid.selModel.getSelections();
+                    var ids = "";
+                    for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    //console.log(ids);
+                    
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=templateAddToUpload', 
+                         params: { 
+                                ids: ids
+                         }, 
+                         success: function(response){
+                             var result=eval(response.responseText);
+                             switch(result){
+                                case 1:  // Success : simply reload
+                                  template_store.reload();
+                                  break;
+                                default:
+                                  Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
+                                  break;
+                             }
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
+               }
+          },'-',{
+               text: 'Delete',
+               icon: './images/cancel.png',
+               tooltip:'Delete selected template',
+               handler: function(){
+                    var selections = template_grid.selModel.getSelections();
+                    var ids = "";
+                    for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    //console.log(ids);
+                    
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=templateDelete', 
+                         params: { 
+                                ids: ids
+                         }, 
+                         success: function(response){
+                             var result=eval(response.responseText);
+                             switch(result){
+                                case 1:  // Success : simply reload
+                                  template_store.reload();
+                                  break;
+                                default:
+                                  Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
+                                  break;
+                             }
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
+               }
+          },'-',{
+               xtype: 'form',
+               items: [{
+                    id:'11',
+                    xtype:'datefield',
+                    width: 100
+               },{
+                    id:'22',
+                    xtype: 'timefield',
+                    increment:1,
+                    triggerAction: 'all',
+                    editable: false,
+                    selectOnFocus:true,
+                    width:100,
+                    listWidth: 100
+               }] 
+          }],
           bbar: new Ext.PagingToolbar({
               pageSize: 20,
               store: template_store,

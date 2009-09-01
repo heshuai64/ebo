@@ -429,6 +429,46 @@ class eBayListing{
 	mysql_free_result($result);
     }
     
+    public function templateAddToUpload(){
+	if(strpos($_POST['ids'], ',')){
+	    $ids = explode(',', $_POST['ids']);
+	    foreach($ids as $id){
+		$sql = "update items set Status = '1' where Id = '".$id."'";
+	    }
+	}else{
+	    $sql = "update items set Status = '1' where Id = '".$_POST['ids']."'";
+	}
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	
+	if($result){
+		echo 	'{success: true}';
+	}else{
+		echo '{success: false,
+			errors: {message: "failure."}
+		    }';
+	}
+    }
+    
+    public function templateDelete(){
+	if(strpos($_POST['ids'], ',')){
+	    $ids = explode(',', $_POST['ids']);
+	    foreach($ids as $id){
+		$sql = "delete from items where Id = '".$id."'";
+	    }
+	}else{
+	    $sql = "delete from items where Id = '".$_POST['ids']."'";
+	}
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	
+	if($result){
+		echo 	'{success: true}';
+	}else{
+		echo '{success: false,
+			errors: {message: "failure."}
+		    }';
+	}
+    }
+    
     //-------------------------------------------------------------------------------------------------------
     public function getAllInventorySkus(){
 	$result = $this->get(self::INVENTORY_SERVICE."?action=getAllSkus");
