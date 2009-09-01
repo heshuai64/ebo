@@ -882,7 +882,16 @@
 				array(
 					"Username"=> "nereus.art.cn_api1.gmail.com",
 					"Password"=>"QDS5D3X3KMQ3NCV7",
-					"Signature"=>"AFcWxV21C7fd0v3bYYYRCpSSRl31Asr3tZEXyZXwyN79SRA4ulR.0J7E"));
+					"Signature"=>"AFcWxV21C7fd0v3bYYYRCpSSRl31Asr3tZEXyZXwyN79SRA4ulR.0J7E"),
+                                array(
+                                        "Username"=> "oldtreegallerypp_api1.gmail.com",
+					"Password"=>"TEREJGADVK95MWJR",
+					"Signature"=>"A7q2cyetJjzJX85fxzjXpjxCQkMEAu-p4XeFoUBBAvtfnbH7gyAnQO0q"),
+                                array(
+                                        "Username"=> "aphroditestore_api1.gmail.com",
+					"Password"=>"5FPAT9TZD2NBW4H7",
+					"Signature"=>"ACZLQT51.W3KBggie8Z1cE3P-wY5Aw7.GiUniQ0wDxc9G4fkTsKRc25u")
+                                );
 	    
 	    foreach($api_acount as $acount){
 		$this->TransactionSearch($acount['Username'], $acount['Password'], $acount['Signature'], $this->start_time, $this->end_time);
