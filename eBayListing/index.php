@@ -37,8 +37,15 @@ if(empty($_COOKIE['account_id'])){
         .listing-activity {
             background-image:url(./images/money_dollar.png);
         }
+	
+	.manage{
+	    background-image:url(./images/wrench.png) !important;
+	}
 	.user{
 	    background-image:url(./images/user.png) !important;
+	}
+	.proxy{
+	    background-image:url(./images/vector.png) !important;
 	}
     </style>
 </head>

@@ -3,7 +3,12 @@ Ext.onReady(function(){
      
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
-     Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
+     
+     var cp = new Ext.state.CookieProvider({
+          path: "/eBayBO/eBayListing/"
+     });
+     Ext.state.Manager.setProvider(cp);
+     //Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
      
      var inventory_search_form = new Ext.FormPanel({
           title: 'Search',
@@ -282,22 +287,69 @@ Ext.onReady(function(){
                          }
                     });
                }
+          },'-',/*{
+               xtype:"datefield",
+               id:"11",
+               name:"11",
+               format:'Y-m-d'
           },'-',{
-               xtype: 'form',
+               xtype:"tbtext",
+               id:"22",
+               name:"22"
+          }*/{
+               xtype:'form',
+               width: 400,
+               labelWidth: 40,
+               layout: 'column',
                items: [{
-                    id:'11',
-                    xtype:'datefield',
-                    width: 100
+                    columnWidth:0.4,
+                    layout:"form",
+                    border:false,
+                    items:[{
+                         id:'11',
+                         fieldLabel:'Date',
+                         xtype:'datefield',
+                         format:'Y-m-d'
+                    }]
                },{
-                    id:'22',
-                    xtype: 'timefield',
-                    increment:1,
-                    triggerAction: 'all',
-                    editable: false,
-                    selectOnFocus:true,
-                    width:100,
-                    listWidth: 100
-               }] 
+                    columnWidth:0.35,
+                    layout:"form",
+                    border:false,
+                    items:[{
+                         id:'22',
+                         hideLabel:true,
+                         xtype:'timefield',
+                         increment:1,
+                         triggerAction: 'all',
+                         editable: false,
+                         selectOnFocus:true,
+                         listWidth:80,
+                         width:80
+                    }]
+               },{
+                    columnWidth:0.25,
+                    layout:"form",
+                    border:false,
+                    items:[{
+                         hideLabel:true,
+                         xtype:"combo",
+                         store:[1,2,3,4,5,6,7,8,9,10],
+                         listWidth:60,
+                         width:60
+                    }]
+               }]
+          
+          },{
+               text:'submit',
+               handler: function(){
+                    var selections = template_grid.selModel.getSelections();
+                    var ids = "";
+                    for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    
+               }
           }],
           bbar: new Ext.PagingToolbar({
               pageSize: 20,
@@ -561,6 +613,7 @@ Ext.onReady(function(){
                               }
                          }
                     },{
+                         id:'waiting-to-upload',
                          title:'Waiting To Upload',
                          html:'xxx',
                          border:false,
@@ -572,9 +625,13 @@ Ext.onReady(function(){
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
-                                   fields: ['inventory_model_code', 'short_description', 'long_description', 'category', 'manufacturer', 'Weight', 'Cost'],
-                                   //url: 'service.php?action=getWait'
-                                   url: inventory_service_address + '?action=getAllSkus'
+                                   fields: ['Id', 'SKU', 'Title'],
+                                   url: 'service.php?action=getWaitingUploadTemplate',
+                                   listeners: {
+                                        load: function(t, r){
+                                             Ext.getCmp('waiting-to-upload').setTitle('Waiting To Upload ('+t.totalLength+')');
+                                        }
+                                   }
                               })
                               
                               var wait_grid = new Ext.grid.GridPanel({
@@ -583,13 +640,8 @@ Ext.onReady(function(){
                                    autoHeight: true,
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
-                                       {header: "Sku", width: 120, align: 'center', sortable: true, dataIndex: 'inventory_model_code'},
-                                       {header: "Model", width: 120, align: 'center', sortable: true, dataIndex: 'short_description'},
-                                       {header: "Description", width: 180, align: 'center', sortable: true, dataIndex: 'long_description'},
-                                       {header: "Categpru", width: 100, align: 'center', sortable: true, dataIndex: 'category'},
-                                       {header: "Supplier", width: 120, align: 'center', sortable: true, dataIndex: 'manufacturer'},
-                                       {header: "Weight", width: 60, align: 'center', sortable: true, dataIndex: 'Weight'},
-                                       {header: "Cost", width: 60, align: 'center', sortable: true, dataIndex: 'Cost'}
+                                        {header: "Sku", width: 200, align: 'center', sortable: true, dataIndex: 'SKU'},
+                                        {header: "Title", width: 600, align: 'center', sortable: true, dataIndex: 'Title'}
                                    ],
                                    bbar: new Ext.PagingToolbar({
                                        pageSize: 20,
@@ -642,6 +694,31 @@ Ext.onReady(function(){
                               }
                          }
                    },{
+                         title:'Manage',
+                         hidden:(cp.get("role")=='admin')?false:true,
+                         items:{
+                              xtype: 'buttongroup',
+                              columns: 1,
+                              items: [{
+                                   text: 'eBay User',
+                                   iconCls: 'user'
+                                   //scale: 'large',
+                                   //iconAlign: 'top',
+                                   //cls: 'x-btn-as-arrow'
+                              },{
+                                   text: 'eBay Proxy',
+                                   iconCls: 'proxy'
+                              }]                      
+                         },
+                         border:false,
+                         iconCls:'manage',
+                         listeners:{
+                              expand: function(p){
+                                   
+                                   
+                              }
+                         }
+                    },{
                          title:'Sales Report',
                          border:false,
                          iconCls:'sales-report',
@@ -697,6 +774,6 @@ Ext.onReady(function(){
                    }]
                },tabPanel
             ]
-       });
-       
+     });
+     console.log(cp.get("role"));  
 });
