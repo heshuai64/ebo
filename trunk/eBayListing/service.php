@@ -440,13 +440,7 @@ class eBayListing{
 	}
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	
-	if($result){
-		echo 	'{success: true}';
-	}else{
-		echo '{success: false,
-			errors: {message: "failure."}
-		    }';
-	}
+	echo $result;
     }
     
     public function templateDelete(){
@@ -460,13 +454,60 @@ class eBayListing{
 	}
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	
-	if($result){
-		echo 	'{success: true}';
+	echo $result;
+    }
+    
+    public function getWaitingUploadTemplate(){
+	$array = array();
+	
+	if(empty($_POST)){
+	    $sql = "select count(*) as count from items where Status = 1";
+	    $result = mysql_query($sql, eBayListing::$database_connect);
+            $row = mysql_fetch_assoc($result);
+            $totalCount = $row['count'];
+	    
+	    if(empty($_POST['start']) && empty($_POST['limit'])){
+                $_POST['start'] = 0;
+                $_POST['limit'] = 20;
+            }
+	    
+	    $sql = "select Id,SKU,Title from items where Status = 1 limit ".$_POST['start'].",".$_POST['limit'];
+            $result = mysql_query($sql, eBayListing::$database_connect);
+            
 	}else{
-		echo '{success: false,
-			errors: {message: "failure."}
-		    }';
+	    $where = " where Status = 1 ";
+		
+	    if(empty($_POST['start']) && empty($_POST['limit'])){
+                $_POST['start'] = 0;
+                $_POST['limit'] = 20;
+            }
+	    
+            if(!empty($_POST['SKU'])){
+                $where .= " and SKU like '%".$_POST['SKU']."%'";
+            }
+            
+            if(!empty($_POST['Title'])){
+                $where .= " and Title like '%".$_POST['Title']."%'";
+            }
+                
+            $sql = "select count(*) as count from items ".$where;
+            $result = mysql_query($sql, eBayListing::$database_connect);
+            $row = mysql_fetch_assoc($result);
+            $totalCount = $row['count'];
+            
+            $sql = "select Id,SKU,Title from items ".$where." limit ".$_POST['start'].",".$_POST['limit'];
+            //echo $sql;
+            $result = mysql_query($sql, eBayListing::$database_connect);
 	}
+	
+	//echo $sql;
+	
+	while($row = mysql_fetch_assoc($result)){
+	    $array[] = $row;
+	}
+	
+	echo json_encode(array('totalCount'=>$totalCount, 'records'=>$array));
+	mysql_free_result($result);
     }
     
     //-------------------------------------------------------------------------------------------------------
@@ -1511,8 +1552,8 @@ class eBayListing{
 			    $day = date("D", strtotime("-12 hour ".$keyArray[1]." ".$name));
 			    $time = date("H:i:s", strtotime("-12 hour ".$name));
 			    $china_time = date("H:i:s", strtotime($name));
-			    $sql_3 = "insert into schedule (item_id,day,time,china_day,china_time) values 
-			    ('".$id."','".$day."','".$time."','".$keyArray[1]."','".$china_time."')";
+			    $sql_3 = "insert into schedule (item_id,startDate,endDate,day,time,china_day,china_time) values 
+			    ('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."')";
 			    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
 			}
 		    //}
@@ -1528,8 +1569,8 @@ class eBayListing{
 			    $day = date("D", strtotime("-8 hour ".$keyArray[1]." ".$name));
 			    $time = date("H:i:s", strtotime("-8 hour ".$name));
 			    $china_time = date("H:i:s", strtotime($name));
-			    $sql_3 = "insert into schedule (item_id,day,time,china_day,china_time) values 
-			    ('".$id."','".$day."','".$time."','".$keyArray[1]."','".$china_time."')";
+			    $sql_3 = "insert into schedule (item_id,startDate,endDate,day,time,china_day,china_time) values 
+			    ('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."')";
 			    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
 			}
 		    //}
@@ -1545,8 +1586,8 @@ class eBayListing{
 			    $day = date("D", strtotime("+2 hour ".$keyArray[1]." ".$name));
 			    $time = date("H:i:s", strtotime("+2 hour ".$name));
 			    $china_time = date("H:i:s", strtotime($name));
-			    $sql_3 = "insert into schedule (item_id,day,time,china_day,china_time) values 
-			    ('".$id."','".$day."','".$time."','".$keyArray[1]."','".$china_time."')";
+			    $sql_3 = "insert into schedule (item_id,startDate,endDate,day,time,china_day,china_time) values 
+			    ('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."')";
 			    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
 			}
 		    //}
@@ -1562,8 +1603,8 @@ class eBayListing{
 			    $day = date("D", strtotime("-7 hour ".$keyArray[1]." ".$name));
 			    $time = date("H:i:s", strtotime("-7 hour ".$name));
 			    $china_time = date("H:i:s", strtotime($name));
-			    $sql_3 = "insert into schedule (item_id,day,time,china_day,china_time) values 
-			    ('".$id."','".$day."','".$time."','".$keyArray[1]."','".$china_time."')";
+			    $sql_3 = "insert into schedule (item_id,startDate,endDate,day,time,china_day,china_time) values 
+			    ('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."')";
 			    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
 			}
 		    //}
@@ -1602,18 +1643,11 @@ class eBayListing{
     }
     
     public function uploadItem(){
-	/*
-	CREATE TABLE `ebaylisting`.`schedule` (
-	`item_id` INT NOT NULL ,
-	`day` VARCHAR( 3 ) NOT NULL ,
-	`time` TIME NOT NULL ,
-	PRIMARY KEY ( `item_id` )
-	) ENGINE = MYISAM
-	*/
-	
+	$date = date("Y-m-d");
 	$day = date("D");
-	$time = date("H:i:s");
+	$time = date("H:i:00");
 	
+	$sql = "select item_id from schedule where startDate <= '".$date."' and endDate => '".$date."' and day = '".$day."' and time ='".$time."'";
 	//$sql = "select item_id from schedule where day = '".$day."' and time ='".$time."'";
 	$sql = "select item_id from schedule where day = '".$day."'";
 
@@ -1912,6 +1946,11 @@ class eBayListing{
     }
     
     //-----------------   Schedule  -----------------------------------------------------------------------------
+    /*
+    ALTER TABLE `schedule` ADD `startDate` DATE NULL AFTER `item_id` ,
+    ADD `endDate` DATE NULL AFTER `startDate` ;
+    */
+    
     public function addSkuScheduleTime(){
 	if(!empty($_POST['time'])){
 	    session_start();
@@ -1986,13 +2025,17 @@ class eBayListing{
     
     //-----------------   Schedule  -----------------------------------------------------------------------------
     public function login(){
-	$sql = "select id from account where name = '".$_POST['name']."' and password = '".$_POST['password']."'";
+	/*
+	ALTER TABLE `account` ADD `role` ENUM( 'user', 'admin' ) NOT NULL DEFAULT 'user' AFTER `password` ;
+	*/
+	$sql = "select id,role from account where name = '".$_POST['name']."' and password = '".$_POST['password']."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
 	
 	//$_SESSION['account_id'] = $row['id'];
 	if(!empty($row['id'])){
 	    setcookie("account_id", $row['id'], time() + (60 * 60 * 24));
+	    setcookie("role", $row['role'], time() + (60 * 60 * 24));
 	    echo "{success: true}";
 	}else{
 	    echo "{success: false}";
@@ -2001,6 +2044,7 @@ class eBayListing{
     
     public function logout(){
 	unset($_COOKIE['account_id']);
+	unset($_COOKIE['role']);
     }
     
     public function testComet(){
