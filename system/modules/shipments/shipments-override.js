@@ -380,7 +380,7 @@ Ext.override(QoDesk.Shipments, {
 		    },{
 			text: 'Export Csv',
 			handler: function(){
-			    window.open("/eBayBO/exportCsv.php?type=shipment&createdOnFrom"+searchShipmentForm.findField('createdOnFrom').getValue()+"&createdOnTo="+searchShipmentForm.findField('createdOnTo').getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=10, height=10");  
+			    window.open("/eBayBO/exportCsv.php?type=shipment&createdOnFrom="+Ext.getCmp("search-shipment-form").getForm().findField('createdOnFrom').getValue()+"&createdOnTo="+Ext.getCmp("search-shipment-form").getForm().findField('createdOnTo').getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=10, height=10");  
 			    win.close();
 			}
 		    },{
