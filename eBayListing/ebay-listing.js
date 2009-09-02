@@ -287,6 +287,13 @@ Ext.onReady(function(){
                          }
                     });
                }
+          },'-',{
+               text: 'Import Csv',
+               icon: './images/cancel.png',
+               tooltip:'Delete selected template',
+               handler: function(){
+                        
+               }
           },'-',/*{
                xtype:"datefield",
                id:"11",
@@ -394,6 +401,7 @@ Ext.onReady(function(){
           title: 'Template Categories Manage',
           border: false,
           items:[{
+               id:"template_category_name",
                xtype:"textfield",
                //width: 400,
                name:"name",
@@ -402,12 +410,55 @@ Ext.onReady(function(){
           buttons: [{
                     text: 'Add',
                     handler: function(){
-                        
+                         Ext.Ajax.request({  
+                              waitMsg: 'Please Wait',
+                              url: 'service.php?action=addTemplateCateogry', 
+                              params: { 
+                                   templateCateogryParentId: template_category_tree.getSelectionModel().getSelectedNode().id ,
+                                   templateCategoryName: Ext.getCmp("template_category_name").getValue()
+                              }, 
+                              success: function(response){
+                                  var result=eval(response.responseText);
+                                  switch(result){
+                                     case 1:  // Success : simply reload
+                                       template_category_tree.root.reload();
+                                       break;
+                                     default:
+                                       Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
+                                       break;
+                                  }
+                              },
+                              failure: function(response){
+                                  var result=response.responseText;
+                                  Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                              }
+                         });
                     }
           },{
                text: 'Delete',
                handler: function(){
-                    
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=deleteTemplateCateogry', 
+                         params: { 
+                              templateCateogryId: template_category_tree.getSelectionModel().getSelectedNode().id
+                         }, 
+                         success: function(response){
+                             var result=eval(response.responseText);
+                             switch(result){
+                                case 1:  // Success : simply reload
+                                  template_category_tree.root.reload();
+                                  break;
+                                default:
+                                  Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
+                                  break;
+                             }
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
                }
           }]
      })
@@ -592,7 +643,7 @@ Ext.onReady(function(){
                          listeners:{
                               expand: function(p){
                                    //console.log(tabPanel.isVisible('template-tab'));
-                                   template_category_tree.root.reload()
+                                   template_category_tree.root.reload();
                                    if(Ext.getCmp("template-tab")){
                                         //console.log("test1");
                                         tabPanel.activate('template-tab');

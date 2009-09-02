@@ -344,6 +344,20 @@ class eBayListing{
     }
     
     //-----------------  Template --------------------------------------------------------------------------
+    /*
+    CREATE TABLE IF NOT EXISTS `templates` (
+	`id` int(11) NOT NULL auto_increment,
+	`name` varchar(30) NOT NULL,
+	`parent_id` int(11) NOT NULL default '0',
+	PRIMARY KEY  (`id`),
+	KEY `parent_id` (`parent_id`)
+    )
+    CREATE TABLE IF NOT EXISTS `items_to_templates` (
+	`item_id` int(11) NOT NULL,
+	`template_id` int(11) NOT NULL,
+	PRIMARY KEY  (`item_id`,`template_id`)
+    ) 
+    */
     public function getTemplateTree(){
 	$array = array();
 	$i = 0;
@@ -374,6 +388,18 @@ class eBayListing{
 	}
 	echo json_encode($array);
 	mysql_free_result($result);
+    }
+    
+    public function addTemplateCateogry(){
+	$sql = "insert into templates (name,parent_id) values ('".$_POST['templateCategoryName']."','".$_POST['templateCateogryParentId']."')";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	echo $result;
+    }
+    
+    public function deleteTemplateCateogry(){
+	$sql = "delete from templates where id = '".$_POST['templateCateogryId']."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	echo $result;
     }
     
     public function getAllTemplate(){
