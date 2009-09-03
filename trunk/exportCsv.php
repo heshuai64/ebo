@@ -32,7 +32,7 @@ class ExportCsv{
         $this->data .= 'Shipment Method,Postal Reference Number,Country,eBay Buyer Name, eBay Buyer Id,Zip,Address,Shipment Id'."\n";
         $this->file_name = 'shipment';
         
-        $where = " where 1 = 1 ";
+        $where = " where shipmentMethod = 'R' and 1 = 1 ";
         
         if(!empty($_GET['createdOnFrom'])){
             $where .= " and s.createdOn > '".date('Y-m-d', strtotime(substr($_GET['createdOnFrom'], 0, -18)))."'";
@@ -70,7 +70,7 @@ class ExportCsv{
     
     public function __destruct(){
         //echo $this->data;
-
+        //exit;
         mysql_close(ExportCsv::$database_connect);
         header("Content-type: application/x-msdownload");
         header("Content-Disposition: attachment; filename=".$this->file_name.".csv");

@@ -840,6 +840,26 @@ Ext.onReady(function(){
                               }
                          }
                     },{
+                         title:'Log',
+                         items:{
+                              xtype: 'buttongroup',
+                              columns: 1,
+                              items: [{
+                                   text: 'User Upload Log',
+                                   iconCls: 'user-upload-log'
+                              },{
+                                   text: 'Template Log',
+                                   iconCls: 'template-log'
+                              }]                      
+                         },
+                         border:false,
+                         iconCls:'log',
+                         listeners:{
+                              expand: function(p){
+                                   
+                              }
+                         }
+                    },{
                          title:'Sales Report',
                          border:false,
                          iconCls:'sales-report',
