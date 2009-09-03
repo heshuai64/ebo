@@ -12,8 +12,7 @@ Ext.onReady(function(){
      */
      Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
      
-     var getCookie = function(c_name)
-     {
+     var getCookie = function(c_name){
           if (document.cookie.length>0){
                c_start=document.cookie.indexOf(c_name + "=");
                if (c_start!=-1){
@@ -212,7 +211,7 @@ Ext.onReady(function(){
           totalProperty: 'totalCount',
           idProperty: 'id',
           //autoLoad:true,
-          fields: ['Id', 'SKU', 'Title'],
+          fields: ['Id', 'SKU', 'Title', 'Price', 'Quantity', 'ListingDuration', 'ListingType'],
           url: 'service.php?action=getAllTemplate',
           listeners: {
                load: function(t, r){
@@ -228,8 +227,12 @@ Ext.onReady(function(){
           autoHeight: true,
           selModel: new Ext.grid.RowSelectionModel({}),
           columns:[
-              {header: "Sku", width: 200, align: 'center', sortable: true, dataIndex: 'SKU'},
-              {header: "Title", width: 600, align: 'center', sortable: true, dataIndex: 'Title'}
+               {header: "Sku", width: 100, align: 'center', sortable: true, dataIndex: 'SKU'},
+               {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title'},
+               {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
+               {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
+               {header: "Duration", width: 100, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
+               {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'}
           ],
           tbar:[{
                text: 'Add to upload',
@@ -376,7 +379,7 @@ Ext.onReady(function(){
           }*/{
                xtype:'form',
                width: 400,
-               labelWidth: 40,
+               labelWidth: 50,
                layout: 'column',
                items: [{
                     columnWidth:0.4,
@@ -384,12 +387,12 @@ Ext.onReady(function(){
                     border:false,
                     items:[{
                          id:'11',
-                         fieldLabel:'Date',
+                         fieldLabel:'Start Time',
                          xtype:'datefield',
                          format:'Y-m-d'
                     }]
                },{
-                    columnWidth:0.35,
+                    columnWidth:0.25,
                     layout:"form",
                     border:false,
                     items:[{
@@ -404,11 +407,13 @@ Ext.onReady(function(){
                          width:80
                     }]
                },{
-                    columnWidth:0.25,
+                    columnWidth:0.35,
                     layout:"form",
                     border:false,
+                    labelWidth: 40,
                     items:[{
-                         hideLabel:true,
+                         //hideLabel:true,
+                         fieldLabel:'Interval',
                          xtype:"combo",
                          store:[1,2,3,4,5,6,7,8,9,10],
                          listWidth:60,
