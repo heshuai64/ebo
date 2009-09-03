@@ -11,7 +11,9 @@ if(empty($_COOKIE['account_id'])){
     <link rel="stylesheet" type="text/css" href="../../ext-3.0.0/resources/css/ext-all.css" />
     <script src="../../ext-3.0.0/adapter/ext/ext-base.js"></script>
     <script src="../../ext-3.0.0/ext-all.js"></script>
+    <script src="FileUploadField.js"></script>
     <script src="ebay-listing.js"></script>
+    <link rel="stylesheet" type="text/css" href="fileuploadfield.css"/>
     <style type="text/css">
 	html, body {
             font:normal 12px verdana;
@@ -37,6 +39,9 @@ if(empty($_COOKIE['account_id'])){
         .listing-activity {
             background-image:url(./images/money_dollar.png);
         }
+	.upload-icon{
+	    background: url(./images/database.png) no-repeat 0 0 !important;
+	}
 	
 	.manage{
 	    background-image:url(./images/wrench.png) !important;

@@ -4,12 +4,28 @@ Ext.onReady(function(){
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      
+     /*
      var cp = new Ext.state.CookieProvider({
           path: "/eBayBO/eBayListing/"
      });
      Ext.state.Manager.setProvider(cp);
-     //Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
+     */
+     Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
      
+     var getCookie = function(c_name)
+     {
+          if (document.cookie.length>0){
+               c_start=document.cookie.indexOf(c_name + "=");
+               if (c_start!=-1){
+                    c_start=c_start + c_name.length+1;
+                    c_end=document.cookie.indexOf(";",c_start);
+                    if (c_end==-1) c_end=document.cookie.length;
+                    return unescape(document.cookie.substring(c_start,c_end));
+               }
+          }
+          return "";
+     }
+
      var inventory_search_form = new Ext.FormPanel({
           title: 'Search',
           items:[{
@@ -289,10 +305,64 @@ Ext.onReady(function(){
                }
           },'-',{
                text: 'Import Csv',
-               icon: './images/cancel.png',
-               tooltip:'Delete selected template',
+               icon: './images/folder_database.png',
+               tooltip:'Import csv file, include sku and tiitle',
                handler: function(){
-                        
+                    var  importCsvWindow = new Ext.Window({
+                         title: 'Import CSV File' ,
+                         closable:true,
+                         width: 320,
+                         height: 150,
+                         plain:true,
+                         layout: 'fit',
+                         items: [{
+                              xtype:'form',
+                              id:'csv-form',
+                              fileUpload: true,
+                              frame: true,
+                              autoHeight: true,
+                              bodyStyle: 'padding: 10px 10px 0 10px;',
+                              labelWidth: 50,
+                              defaults: {
+                                  anchor: '95%',
+                                  allowBlank: false
+                              },
+                              items:[{
+                                   xtype: 'fileuploadfield',
+                                   id: 'csv-file',
+                                   emptyText: 'Select an csv file',
+                                   fieldLabel: 'CSV',
+                                   //hideLabel:true,
+                                   name: 'csv-file',
+                                   buttonText: '',
+                                   buttonCfg: {
+                                       iconCls: 'upload-icon'
+                                   }
+                              }]
+                         }],                                           
+                         buttons: [{
+                                        text: 'OK',
+                                        handler: function(){
+                                             fp = Ext.getCmp("csv-form");
+                                             if(fp.getForm().isValid()){
+                                                  fp.getForm().submit({
+                                                       url: 'service.php?action=templateImportCsv',
+                                                       waitMsg: 'Uploading your csv...',
+                                                       success: function(fp, o){
+                                                           console.log(o);
+                                                       }
+                                                  });
+                                             }
+                                        }
+                                 },{
+                                        text: 'Cancel',
+                                        handler: function(){
+                                             importCsvWindow.close();
+                                        }
+                                 }]
+                                   
+                    })
+                    importCsvWindow.show();   
                }
           },'-',/*{
                xtype:"datefield",
@@ -746,7 +816,7 @@ Ext.onReady(function(){
                          }
                    },{
                          title:'Manage',
-                         hidden:(cp.get("role")=='admin')?false:true,
+                         hidden:(getCookie("role")=='admin')?false:true,
                          items:{
                               xtype: 'buttongroup',
                               columns: 1,
@@ -826,5 +896,4 @@ Ext.onReady(function(){
                },tabPanel
             ]
      });
-     console.log(cp.get("role"));  
 });

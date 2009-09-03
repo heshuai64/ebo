@@ -345,18 +345,12 @@ class eBayListing{
     
     //-----------------  Template --------------------------------------------------------------------------
     /*
-    CREATE TABLE IF NOT EXISTS `templates` (
-	`id` int(11) NOT NULL auto_increment,
-	`name` varchar(30) NOT NULL,
-	`parent_id` int(11) NOT NULL default '0',
-	PRIMARY KEY  (`id`),
-	KEY `parent_id` (`parent_id`)
-    )
-    CREATE TABLE IF NOT EXISTS `items_to_templates` (
-	`item_id` int(11) NOT NULL,
-	`template_id` int(11) NOT NULL,
-	PRIMARY KEY  (`item_id`,`template_id`)
-    ) 
+    ALTER TABLE `templates` ADD `account_id` INT NOT NULL ;
+    ALTER TABLE `templates` ADD INDEX ( `account_id` ) ;
+    
+    ALTER TABLE `items` ADD INDEX ( `Title` );
+    ALTER TABLE `items` ADD `account_id` INT NOT NULL ;
+    ALTER TABLE `items` ADD INDEX ( `account_id` ) ;
     */
     public function getTemplateTree(){
 	$array = array();
@@ -366,7 +360,7 @@ class eBayListing{
 	}else{
 	    $parent_id = $_POST['node'];
 	}
-	$sql = "select * from templates where parent_id = '".$parent_id."'";
+	$sql = "select * from templates where account_id = '".$this->account_id."' and parent_id = '".$parent_id."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while($row = mysql_fetch_assoc($result)){
 	    
@@ -391,7 +385,7 @@ class eBayListing{
     }
     
     public function addTemplateCateogry(){
-	$sql = "insert into templates (name,parent_id) values ('".$_POST['templateCategoryName']."','".$_POST['templateCateogryParentId']."')";
+	$sql = "insert into templates (name,parent_id,account_id) values ('".$_POST['templateCategoryName']."','".$_POST['templateCateogryParentId']."','".$this->account_id."')";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	echo $result;
     }
@@ -406,7 +400,7 @@ class eBayListing{
 	$array = array();
 	
 	if(empty($_POST)){
-	    $sql = "select count(*) as count from items";
+	    $sql = "select count(*) as count from items where account_id = '".$this->account_id."'";
 	    $result = mysql_query($sql, eBayListing::$database_connect);
             $row = mysql_fetch_assoc($result);
             $totalCount = $row['count'];
@@ -416,11 +410,11 @@ class eBayListing{
                 $_POST['limit'] = 20;
             }
 	    
-	    $sql = "select Id,SKU,Title from items limit ".$_POST['start'].",".$_POST['limit'];
+	    $sql = "select Id,SKU,Title from items where account_id = '".$this->account_id."' limit ".$_POST['start'].",".$_POST['limit'];
             $result = mysql_query($sql, eBayListing::$database_connect);
             
 	}else{
-	    $where = " where 1 = 1 ";
+	    $where = " where account_id = '".$this->account_id."' ";
 		
 	    if(empty($_POST['start']) && empty($_POST['limit'])){
                 $_POST['start'] = 0;
@@ -534,6 +528,11 @@ class eBayListing{
 	
 	echo json_encode(array('totalCount'=>$totalCount, 'records'=>$array));
 	mysql_free_result($result);
+    }
+    
+    public function templateImportCsv(){
+	//print_r($_POST);
+	echo "{success:true}";
     }
     
     //-------------------------------------------------------------------------------------------------------
