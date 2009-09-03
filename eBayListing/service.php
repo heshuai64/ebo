@@ -2086,6 +2086,21 @@ class eBayListing{
 	echo "finish";
     }
     
+    /*
+    CREATE TABLE `ebaylisting`.`log` (
+    `id` INT NOT NULL ,
+    `type` VARCHAR( 10 ) NOT NULL ,
+    `content` TEXT NOT NULL ,
+    `account_id` INT NOT NULL ,
+    `time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+    PRIMARY KEY ( `id` ) ,
+    INDEX ( `account_id` )
+    )
+    */
+    public function log(){
+	
+    }
+    
     public function __destruct(){
         mysql_close(eBayListing::$database_connect);
     }

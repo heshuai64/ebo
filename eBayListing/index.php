@@ -52,6 +52,15 @@ if(empty($_COOKIE['account_id'])){
 	.proxy{
 	    background-image:url(./images/vector.png) !important;
 	}
+	.log{
+	    background-image:url(./images/application_view_list.png) !important;
+	}
+	.user-upload-log{
+	    background-image:url(./images/table_go.png) !important;
+	}
+	.template-log{
+	    background-image:url(./images/table_edit.png) !important;
+	}
     </style>
 </head>
 <body>
