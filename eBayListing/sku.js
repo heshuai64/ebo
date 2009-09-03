@@ -1796,7 +1796,7 @@ Ext.onReady(function(){
                                             width: 150,
                                             listWidth: 150,
                                             name:'InternationalShippingToLocations-1',
-                                            hiddenName:"InternationalShippingService-1",
+                                            hiddenName:"InternationalShippingToLocations-1",
                                             listeners: {
                                                 "select": function(c, r, i){
                                                     //console.log(c);
@@ -2054,7 +2054,7 @@ Ext.onReady(function(){
                                             width: 150,
                                             listWidth: 150,
                                             name:'InternationalShippingToLocations-2',
-                                            hiddenName:"InternationalShippingService-2",
+                                            hiddenName:"InternationalShippingToLocations-2",
                                             listeners: {
                                                 "select": function(c, r, i){
                                                     //console.log(c);
@@ -2284,7 +2284,7 @@ Ext.onReady(function(){
                                             width: 150,
                                             listWidth: 150,
                                             name:'InternationalShippingToLocations-3',
-                                            hiddenName:"InternationalShippingService-3",
+                                            hiddenName:"InternationalShippingToLocations-3",
                                             listeners: {
                                                 "select": function(c, r, i){
                                                     //console.log(c);

@@ -400,7 +400,7 @@ class eBayListing{
 	$array = array();
 	
 	if(empty($_POST)){
-	    $sql = "select count(*) as count from items where account_id = '".$this->account_id."'";
+	    $sql = "select count(*) as count from items where accountId = '".$this->account_id."'";
 	    $result = mysql_query($sql, eBayListing::$database_connect);
             $row = mysql_fetch_assoc($result);
             $totalCount = $row['count'];
@@ -410,11 +410,11 @@ class eBayListing{
                 $_POST['limit'] = 20;
             }
 	    
-	    $sql = "select Id,SKU,Title from items where account_id = '".$this->account_id."' limit ".$_POST['start'].",".$_POST['limit'];
+	    $sql = "select Id,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ListingDuration from items where accountId = '".$this->account_id."' limit ".$_POST['start'].",".$_POST['limit'];
             $result = mysql_query($sql, eBayListing::$database_connect);
             
 	}else{
-	    $where = " where account_id = '".$this->account_id."' ";
+	    $where = " where accountId = '".$this->account_id."' ";
 		
 	    if(empty($_POST['start']) && empty($_POST['limit'])){
                 $_POST['start'] = 0;
@@ -434,7 +434,7 @@ class eBayListing{
             $row = mysql_fetch_assoc($result);
             $totalCount = $row['count'];
             
-            $sql = "select Id,SKU,Title from items ".$where." limit ".$_POST['start'].",".$_POST['limit'];
+            $sql = "select Id,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ListingDuration from items ".$where." limit ".$_POST['start'].",".$_POST['limit'];
             //echo $sql;
             $result = mysql_query($sql, eBayListing::$database_connect);
 	}
@@ -442,6 +442,11 @@ class eBayListing{
 	//echo $sql;
 	
 	while($row = mysql_fetch_assoc($result)){
+	    if($row['ListingType'] == "FixedPriceItem"){
+		$row['Price'] = $row['BuyItNowPrice'];
+	    }else{
+		$row['Price'] = $row['StartPrice'];
+	    }
 	    $array[] = $row;
 	}
 	
@@ -862,7 +867,7 @@ class eBayListing{
 	 
 	    $params = array('Version' => $Version, 'DetailName' => $DetailName);
 	    $results = $client->GeteBayDetails($params);
-	    //print_r($results);
+	    print_r($results);
 	    
 	    foreach($results->ShippingLocationDetails as $shippingLocationDetails){
 		$sql = "insert into ship_to_location (SiteID,ShippingLocation,Description) 
@@ -1334,19 +1339,24 @@ class eBayListing{
 	    }
 	    if(!empty($item['InternationalShippingServiceOption']) && is_array($item['InternationalShippingServiceOption'])){
 		$j = 0;
-		foreach($item['ShippingServiceOptions'] as $i){
+		foreach($item['InternationalShippingServiceOption'] as $i){
 		    $itemArray['ShippingDetails']['InternationalShippingServiceOption'][$j]['ShippingService'] = $i['ShippingService'];
 		    $itemArray['ShippingDetails']['InternationalShippingServiceOption'][$j]['ShippingServiceCost'] = $i['ShippingServiceCost'];
 		    if(!empty($i['ShipToLocation'])){
-			if(strpos($itemArray['ShippingDetails']['InternationalShippingServiceOption'][$j]['ShipToLocation'], ',') != false){
-			    $itemArray['ShippingDetails']['InternationalShippingServiceOption'][$j]['ShipToLocation'] = explode(',', $itemArray['ShippingDetails']['InternationalShippingServiceOption'][$j]['ShipToLocation']);
+			if(strpos($i['ShipToLocation'], ',') != false){
+			    //echo "test1";
+			    $itemArray['ShippingDetails']['InternationalShippingServiceOption'][$j]['ShipToLocation'] = explode(',', $i['ShipToLocation']);
 			}else{
+			    //echo "test2";
 			    $itemArray['ShippingDetails']['InternationalShippingServiceOption'][$j]['ShipToLocation'] = $i['ShipToLocation'];
 			}
 		    }
 		    $j++;
 		}
 	    }
+	    
+	    //print_r($itemArray['ShippingDetails']['InternationalShippingServiceOption']);
+	    //exit;
 	    //ShipToLocations
 	    $itemArray['Site'] = $item['Site'];
 	    $itemArray['SKU'] = $item['SKU'];
@@ -1579,6 +1589,7 @@ class eBayListing{
 			    $china_time = date("H:i:s", strtotime($name));
 			    $sql_3 = "insert into schedule (item_id,startDate,endDate,day,time,china_day,china_time) values 
 			    ('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."')";
+			    //echo $sql_3;
 			    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
 			}
 		    //}
@@ -1639,8 +1650,8 @@ class eBayListing{
 	
 	if(!empty($_SESSION['AttributeSet'])){
 	    foreach($_SESSION['AttributeSet'][$_POST['SKU']] as $attributeSetID=>$Attribute){
-		$sql_3 = "insert into attribute_set (item_id,attributeSetID) values ('".$id."', '".$attributeSetID."')";
-		$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+		$sql_4 = "insert into attribute_set (item_id,attributeSetID) values ('".$id."', '".$attributeSetID."')";
+		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
 		
 		$attribute_set_id = mysql_insert_id(eBayListing::$database_connect);
 		
@@ -1674,8 +1685,9 @@ class eBayListing{
 	
 	$sql = "select item_id from schedule where startDate <= '".$date."' and endDate => '".$date."' and day = '".$day."' and time ='".$time."'";
 	//$sql = "select item_id from schedule where day = '".$day."' and time ='".$time."'";
-	$sql = "select item_id from schedule where day = '".$day."'";
-
+	//$sql = "select item_id from schedule where day = '".$day."'";
+	$sql = "select item_id from schedule where item_id = '9'";
+	
 	$result = mysql_query($sql);
 	while($row = mysql_fetch_assoc($result)){
 	    $sql_1 = "select * from items where Id = '".$row['item_id']."'";
