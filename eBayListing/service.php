@@ -344,14 +344,6 @@ class eBayListing{
     }
     
     //-----------------  Template --------------------------------------------------------------------------
-    /*
-    ALTER TABLE `templates` ADD `account_id` INT NOT NULL ;
-    ALTER TABLE `templates` ADD INDEX ( `account_id` ) ;
-    
-    ALTER TABLE `items` ADD INDEX ( `Title` );
-    ALTER TABLE `items` ADD `account_id` INT NOT NULL ;
-    ALTER TABLE `items` ADD INDEX ( `account_id` ) ;
-    */
     public function getTemplateTree(){
 	$array = array();
 	$i = 0;
@@ -486,7 +478,7 @@ class eBayListing{
 	$array = array();
 	
 	if(empty($_POST)){
-	    $sql = "select count(*) as count from items where Status = 1";
+	    $sql = "select count(*) as count from items where accountId = '".$this->account_id."' and Status = '1'";
 	    $result = mysql_query($sql, eBayListing::$database_connect);
             $row = mysql_fetch_assoc($result);
             $totalCount = $row['count'];
@@ -496,11 +488,11 @@ class eBayListing{
                 $_POST['limit'] = 20;
             }
 	    
-	    $sql = "select Id,SKU,Title from items where Status = 1 limit ".$_POST['start'].",".$_POST['limit'];
+	    $sql = "select Id,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice from items where accountId = '".$this->account_id."' and Status = '1' limit ".$_POST['start'].",".$_POST['limit'];
             $result = mysql_query($sql, eBayListing::$database_connect);
             
 	}else{
-	    $where = " where Status = 1 ";
+	    $where = " where accountId = '".$this->account_id."' and Status = '1' ";
 		
 	    if(empty($_POST['start']) && empty($_POST['limit'])){
                 $_POST['start'] = 0;
@@ -520,7 +512,7 @@ class eBayListing{
             $row = mysql_fetch_assoc($result);
             $totalCount = $row['count'];
             
-            $sql = "select Id,SKU,Title from items ".$where." limit ".$_POST['start'].",".$_POST['limit'];
+            $sql = "select Id,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice from items ".$where." limit ".$_POST['start'].",".$_POST['limit'];
             //echo $sql;
             $result = mysql_query($sql, eBayListing::$database_connect);
 	}
@@ -528,6 +520,15 @@ class eBayListing{
 	//echo $sql;
 	
 	while($row = mysql_fetch_assoc($result)){
+	    $sql_1 = "select * from schedule where item_id = '".$row['Id']."'";
+	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	    while($row_1 = mysql_fetch_assoc($result_1)){
+		if($row_1['type'] == 'time'){
+		    $row['UploadTime'] = 'from '.$row_1['startDate'].' to '.$row_1['endDate'].' on '.$row_1['day'].' '.$row_1['time'];
+		}else{
+		    $row['UploadTime'] = '';
+		}
+	    }
 	    $array[] = $row;
 	}
 	
@@ -538,6 +539,70 @@ class eBayListing{
     public function templateImportCsv(){
 	//print_r($_POST);
 	echo "{success:true}";
+    }
+    
+    public function templateIntervalUpload(){
+	//echo date("Y-m-d H:i:s", strtotime("12:00:00") + 60);
+	$ids = explode(',', $_POST['ids']);
+	if(count($ids) > 1){
+	    $i = 0;
+	    foreach($ids as $id){
+		$sql = "select Site from items where Id = '".$id."'";
+		$result = mysql_query($sql, eBayListing::$database_connect);
+		$row = mysql_fetch_assoc($result);
+		
+		switch($row['Site']){
+		    case "US":
+			$startDate = date("Y-m-d", strtotime("-12 hour ".$_POST['date'].' '.$_POST['time']) + ($i * 60));
+			$time      = date("H:i:s", strtotime("-12 hour ".$_POST['date'].' '.$_POST['time']) + ($i * 60));
+		    break;
+		
+		    case "UK":
+			$startDate = date("Y-m-d", strtotime("-8 hour ".$_POST['date'].' '.$_POST['time']) + ($i * 60));
+			$time      = date("H:i:s", strtotime("-8 hour ".$_POST['date'].' '.$_POST['time']) + ($i * 60));
+		    break;
+		
+		    case "AU":
+			$startDate = date("Y-m-d", strtotime("+2 hour ".$_POST['date'].' '.$_POST['time']) + ($i * 60));
+			$time      = date("H:i:s", strtotime("+2 hour ".$_POST['date'].' '.$_POST['time']) + ($i * 60));
+		    break;
+		
+		    case "FR":
+			$startDate = date("Y-m-d", strtotime("-7 hour ".$_POST['date'].' '.$_POST['time']) + ($i * 60));
+			$time      = date("H:i:s", strtotime("-7 hour ".$_POST['date'].' '.$_POST['time']) + ($i * 60));
+		    break;
+		}
+		$sql = "insert into schedule (item_id,startDate,time,type) values ('".$id."','".$startDate."','".$time."','interval')";
+		$result = mysql_query($sql, eBayListing::$database_connect);
+		$i++;
+	    }
+	}else{
+	    switch($row['Site']){
+		case "US":
+		    $startDate = date("Y-m-d", strtotime("-12 hour ".$_POST['date'].' '.$_POST['time']));
+		    $time = date("H:i:s", strtotime("-12 hour ".$_POST['date'].' '.$_POST['time']));
+		break;
+	    
+		case "UK":
+		    $startDate = date("Y-m-d", strtotime("-8 hour ".$_POST['date'].' '.$_POST['time']));
+		    $time = date("H:i:s", strtotime("-8 hour ".$_POST['date'].' '.$_POST['time']));
+		break;
+	    
+		case "AU":
+		    $startDate = date("Y-m-d", strtotime("+2 hour ".$_POST['date'].' '.$_POST['time']));
+		    $time = date("H:i:s", strtotime("+2 hour ".$_POST['date'].' '.$_POST['time']));
+		break;
+	    
+		case "FR":
+		    $startDate = date("Y-m-d", strtotime("-7 hour ".$_POST['date'].' '.$_POST['time']));
+		    $time = date("H:i:s", strtotime("-7 hour ".$_POST['date'].' '.$_POST['time']));
+		break;
+	    }
+	    $sql = "insert into schedule (item_id,startDate,time,type) values ('".$ids."','".$startDate."','".$time."','interval')";
+	    $result = mysql_query($sql, eBayListing::$database_connect);
+	}
+    
+	echo $result;
     }
     
     //-------------------------------------------------------------------------------------------------------
@@ -1387,11 +1452,12 @@ class eBayListing{
 	    unset($_SESSION['Schedule']);
 	    unset($_SESSION['AttributeSet']);
 	    echo '{success: true}';
-		
+	    $this->log("template", $_POST['SKU'] . " add to template.");
 	}else{
 	    echo '{success: false,
 		    errors: {message: "can\'t create."}
 		}';
+	    $this->log("template", $_POST['SKU'] . " add to template failure.", "error");
 	}
     }
     
@@ -1466,7 +1532,7 @@ class eBayListing{
 	}
     }
     
-    public function addItem($item){
+    private function addItem($item){
 	/*
 	<AttributeSetArray> AttributeSetArrayType 
 	    <AttributeSet attributeSetID="int" attributeSetVersion="string"> AttributeSetType 
@@ -1723,13 +1789,17 @@ class eBayListing{
 	    print_r($results);
 	    if(!empty($results->Errors)){
 		if(is_array($results->Errors)){
+		    $temp = '';
 		    foreach($results->Errors as $error){
 			echo $error->ShortMessage." : ";
 			echo $error->LongMessage."<br>";
+			$temp .= $error->LongMessage;
 		    }
+		    $this->log("upload", temp, "error");
 		}else{
 		    echo $results->Errors->ShortMessage." : ";
 		    echo $results->Errors->LongMessage."<br>";
+		    $this->log("upload", $results->Errors->LongMessage, "error");
 		}
 	    }else{
 		//echo $results->ItemID;
@@ -1739,7 +1809,7 @@ class eBayListing{
 		EndTime='".$results->EndTime."' where Id = '".$item['Id']."'";
 		echo $sql;
 		$result = mysql_query($sql);
-		
+		$this->log("upload", "XXX");
 	    }
 	    //----------   debug --------------------------------
 	    //print "Request: \n".$client->__getLastRequest() ."\n";
@@ -1988,6 +2058,7 @@ class eBayListing{
     /*
     ALTER TABLE `schedule` ADD `startDate` DATE NULL AFTER `item_id` ,
     ADD `endDate` DATE NULL AFTER `startDate` ;
+    ALTER TABLE `schedule` ADD `type` ENUM( "time", "interval" ) NOT NULL DEFAULT 'time';
     */
     
     public function addSkuScheduleTime(){
@@ -2102,20 +2173,22 @@ class eBayListing{
     
     /*
     CREATE TABLE `ebaylisting`.`log` (
-    `id` INT NOT NULL ,
-    `type` VARCHAR( 10 ) NOT NULL ,
-    `content` TEXT NOT NULL ,
-    `account_id` INT NOT NULL ,
-    `time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-    PRIMARY KEY ( `id` ) ,
-    INDEX ( `account_id` )
+	`id` INT NOT NULL ,
+	`type` VARCHAR( 10 ) NOT NULL ,
+	`content` TEXT NOT NULL ,
+	`account_id` INT NOT NULL ,
+	`time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+	PRIMARY KEY ( `id` ) ,
+	INDEX ( `account_id` )
     )
+    ALTER TABLE `log` ADD `level` ENUM( "normal", "warn", "error" ) NOT NULL DEFAULT 'normal' AFTER `id` ;
     
     ALTER TABLE `international_shipping_service_option` ADD `ShippingServiceAdditionalCost` DECIMAL( 10, 2 ) NOT NULL DEFAULT '0' AFTER `ShippingServiceCost` ;
     ALTER TABLE `shipping_service_options` ADD `ShippingServiceAdditionalCost` DECIMAL( 10, 2 ) NOT NULL DEFAULT '0' AFTER `ShippingServiceCost` ;
     */
-    public function log(){
-	
+    private function log($type, $content, $level = 'normal'){
+	$sql = "insert into log (level,type,content,account_id) values('".$level."','".$type."','".$content."','".$this->account_id."')";
+	$result = mysql_query($sql, eBayListing::$database_connect);
     }
     
     public function __destruct(){
