@@ -542,7 +542,13 @@ class eBayListing{
     }
     
     public function templateIntervalUpload(){
+	/*
+	ALTER TABLE `schedule` DROP PRIMARY KEY;
+	ALTER TABLE `schedule` ADD INDEX ( `item_id` );
+	 
+	*/
 	//echo date("Y-m-d H:i:s", strtotime("12:00:00") + 60);
+	$_POST['date'] = substr($_POST['date'], 0, -24);
 	$ids = explode(',', $_POST['ids']);
 	if(count($ids) > 1){
 	    $i = 0;
@@ -551,10 +557,13 @@ class eBayListing{
 		$result = mysql_query($sql, eBayListing::$database_connect);
 		$row = mysql_fetch_assoc($result);
 		
+		$china_day  = date("Y-m-d", strtotime($_POST['date'].' '.$_POST['time']) + ($i * 60));
+		$china_time = date("Y-m-d", strtotime($_POST['date'].' '.$_POST['time']) + ($i * 60));
+			
 		switch($row['Site']){
 		    case "US":
-			$startDate = date("Y-m-d", strtotime("-12 hour ".$_POST['date'].' '.$_POST['time']) + ($i * 60));
-			$time      = date("H:i:s", strtotime("-12 hour ".$_POST['date'].' '.$_POST['time']) + ($i * 60));
+			$startDate  = date("Y-m-d", strtotime("-12 hour ".$_POST['date'].' '.$_POST['time']) + ($i * 60));
+			$time       = date("H:i:s", strtotime("-12 hour ".$_POST['date'].' '.$_POST['time']) + ($i * 60));
 		    break;
 		
 		    case "UK":
@@ -572,11 +581,18 @@ class eBayListing{
 			$time      = date("H:i:s", strtotime("-7 hour ".$_POST['date'].' '.$_POST['time']) + ($i * 60));
 		    break;
 		}
-		$sql = "insert into schedule (item_id,startDate,time,type) values ('".$id."','".$startDate."','".$time."','interval')";
+		$sql = "insert into schedule (item_id,startDate,time,china_day,china_time,type) values ('".$id."','".$startDate."','".$time."','".$china_day."','".$china_time."','interval')";
 		$result = mysql_query($sql, eBayListing::$database_connect);
 		$i++;
 	    }
 	}else{
+	    $sql = "select Site from items where Id = '".$_POST['ids']."'";
+	    $result = mysql_query($sql, eBayListing::$database_connect);
+	    $row = mysql_fetch_assoc($result);
+	    
+	    $china_day  = date("Y-m-d", strtotime($_POST['date'].' '.$_POST['time']));
+	    $china_time = date("Y-m-d", strtotime($_POST['date'].' '.$_POST['time']));
+		
 	    switch($row['Site']){
 		case "US":
 		    $startDate = date("Y-m-d", strtotime("-12 hour ".$_POST['date'].' '.$_POST['time']));
@@ -598,7 +614,8 @@ class eBayListing{
 		    $time = date("H:i:s", strtotime("-7 hour ".$_POST['date'].' '.$_POST['time']));
 		break;
 	    }
-	    $sql = "insert into schedule (item_id,startDate,time,type) values ('".$ids."','".$startDate."','".$time."','interval')";
+	    $sql = "insert into schedule (item_id,startDate,time,china_day,china_time,type) values ('".$_POST['ids']."','".$startDate."','".$time."','".$china_day."','".$china_time."','interval')";
+	    //echo $sql;
 	    $result = mysql_query($sql, eBayListing::$database_connect);
 	}
     
@@ -1469,7 +1486,7 @@ class eBayListing{
 	$sql = "select item_id from schedule where startDate <= '".$date."' and endDate => '".$date."' and day = '".$day."' and time ='".$time."'";
 	//$sql = "select item_id from schedule where day = '".$day."' and time ='".$time."'";
 	//$sql = "select item_id from schedule where day = '".$day."'";
-	$sql = "select item_id from schedule where item_id = '6'";
+	$sql = "select item_id from schedule where item_id = '7'";
 	
 	$result = mysql_query($sql);
 	while($row = mysql_fetch_assoc($result)){
@@ -1795,7 +1812,7 @@ class eBayListing{
 			echo $error->LongMessage."<br>";
 			$temp .= $error->LongMessage;
 		    }
-		    $this->log("upload", temp, "error");
+		    $this->log("upload", $temp, "error");
 		}else{
 		    echo $results->Errors->ShortMessage." : ";
 		    echo $results->Errors->LongMessage."<br>";
