@@ -55,7 +55,7 @@ if(empty($_COOKIE['account_id'])){
 	.log{
 	    background-image:url(./images/application_view_list.png) !important;
 	}
-	.user-upload-log{
+	.upload-log{
 	    background-image:url(./images/table_go.png) !important;
 	}
 	.template-log{
