@@ -227,10 +227,10 @@ Ext.onReady(function(){
           autoHeight: true,
           selModel: new Ext.grid.RowSelectionModel({}),
           columns:[
-               {header: "Sku", width: 100, align: 'center', sortable: true, dataIndex: 'SKU'},
+               {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
                {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title'},
                {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
-               {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
+               {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
                {header: "Duration", width: 100, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
                {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'}
           ],
@@ -386,7 +386,7 @@ Ext.onReady(function(){
                     layout:"form",
                     border:false,
                     items:[{
-                         id:'11',
+                         id:'interval-date',
                          fieldLabel:'Start Time',
                          xtype:'datefield',
                          format:'Y-m-d'
@@ -396,7 +396,7 @@ Ext.onReady(function(){
                     layout:"form",
                     border:false,
                     items:[{
-                         id:'22',
+                         id:'interval-time',
                          hideLabel:true,
                          xtype:'timefield',
                          increment:1,
@@ -413,6 +413,7 @@ Ext.onReady(function(){
                     labelWidth: 40,
                     items:[{
                          //hideLabel:true,
+                         id:'interval-minute',
                          fieldLabel:'Interval',
                          xtype:"combo",
                          store:[1,2,3,4,5,6,7,8,9,10],
@@ -431,6 +432,31 @@ Ext.onReady(function(){
                     }
                     ids = ids.slice(0,-1);
                     
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=templateIntervalUpload', 
+                         params: {
+                              ids: ids,
+                              date: Ext.getCmp('interval-date').getValue(),
+                              time: Ext.getCmp('interval-time').getValue(),
+                              minute: Ext.getCmp('interval-minute').getValue()
+                         }, 
+                         success: function(response){
+                             var result=eval(response.responseText);
+                             switch(result){
+                                case 1:  // Success : simply reload
+                                  
+                                  break;
+                                default:
+                                  Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
+                                  break;
+                             }
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
                }
           }],
           bbar: new Ext.PagingToolbar({
@@ -751,7 +777,7 @@ Ext.onReady(function(){
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
-                                   fields: ['Id', 'SKU', 'Title'],
+                                   fields: ['Id', 'SKU', 'Title', 'Price', 'Quantity', 'ListingDuration', 'ListingType', 'UploadTime'],
                                    url: 'service.php?action=getWaitingUploadTemplate',
                                    listeners: {
                                         load: function(t, r){
@@ -766,8 +792,13 @@ Ext.onReady(function(){
                                    autoHeight: true,
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
-                                        {header: "Sku", width: 200, align: 'center', sortable: true, dataIndex: 'SKU'},
-                                        {header: "Title", width: 600, align: 'center', sortable: true, dataIndex: 'Title'}
+                                        {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
+                                        {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title'},
+                                        {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
+                                        {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
+                                        {header: "Duration", width: 100, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
+                                        {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
+                                        {header: "UploadTime", width: 250, align: 'center', sortable: true, dataIndex: 'UploadTime'}
                                    ],
                                    bbar: new Ext.PagingToolbar({
                                        pageSize: 20,
