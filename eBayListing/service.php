@@ -526,7 +526,7 @@ class eBayListing{
 		if($row_1['type'] == 'time'){
 		    $row['UploadTime'] = 'from '.$row_1['startDate'].' to '.$row_1['endDate'].' on '.$row_1['day'].' '.$row_1['time'];
 		}else{
-		    $row['UploadTime'] = '';
+		    $row['UploadTime'] = 'start on '.$row_1['startDate'].' '.$row_1['time'];
 		}
 	    }
 	    $array[] = $row;
@@ -584,6 +584,9 @@ class eBayListing{
 		$sql = "insert into schedule (item_id,startDate,time,china_day,china_time,type) values ('".$id."','".$startDate."','".$time."','".$china_day."','".$china_time."','interval')";
 		$result = mysql_query($sql, eBayListing::$database_connect);
 		$i++;
+		
+		$sql = "update items set Status = '1' where Id = '".$id."'";
+		$result = mysql_query($sql, eBayListing::$database_connect);
 	    }
 	}else{
 	    $sql = "select Site from items where Id = '".$_POST['ids']."'";
@@ -616,6 +619,9 @@ class eBayListing{
 	    }
 	    $sql = "insert into schedule (item_id,startDate,time,china_day,china_time,type) values ('".$_POST['ids']."','".$startDate."','".$time."','".$china_day."','".$china_time."','interval')";
 	    //echo $sql;
+	    $result = mysql_query($sql, eBayListing::$database_connect);
+	    
+	    $sql = "update items set Status = '1' where Id = '".$_POST['ids']."'";
 	    $result = mysql_query($sql, eBayListing::$database_connect);
 	}
     
@@ -2072,12 +2078,6 @@ class eBayListing{
     }
     
     //-----------------   Schedule  -----------------------------------------------------------------------------
-    /*
-    ALTER TABLE `schedule` ADD `startDate` DATE NULL AFTER `item_id` ,
-    ADD `endDate` DATE NULL AFTER `startDate` ;
-    ALTER TABLE `schedule` ADD `type` ENUM( "time", "interval" ) NOT NULL DEFAULT 'time';
-    */
-    
     public function addSkuScheduleTime(){
 	if(!empty($_POST['time'])){
 	    session_start();
@@ -2188,26 +2188,14 @@ class eBayListing{
 	echo "finish";
     }
     
-    /*
-    CREATE TABLE `ebaylisting`.`log` (
-	`id` INT NOT NULL ,
-	`type` VARCHAR( 10 ) NOT NULL ,
-	`content` TEXT NOT NULL ,
-	`account_id` INT NOT NULL ,
-	`time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-	PRIMARY KEY ( `id` ) ,
-	INDEX ( `account_id` )
-    )
-    ALTER TABLE `log` ADD `level` ENUM( "normal", "warn", "error" ) NOT NULL DEFAULT 'normal' AFTER `id` ;
-    
-    ALTER TABLE `international_shipping_service_option` ADD `ShippingServiceAdditionalCost` DECIMAL( 10, 2 ) NOT NULL DEFAULT '0' AFTER `ShippingServiceCost` ;
-    ALTER TABLE `shipping_service_options` ADD `ShippingServiceAdditionalCost` DECIMAL( 10, 2 ) NOT NULL DEFAULT '0' AFTER `ShippingServiceCost` ;
-    */
     private function log($type, $content, $level = 'normal'){
 	$sql = "insert into log (level,type,content,account_id) values('".$level."','".$type."','".$content."','".$this->account_id."')";
 	$result = mysql_query($sql, eBayListing::$database_connect);
     }
     
+    public function getUploadLog(){
+	
+    }
     public function __destruct(){
         mysql_close(eBayListing::$database_connect);
     }

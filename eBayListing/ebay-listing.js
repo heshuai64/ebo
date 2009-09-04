@@ -881,8 +881,52 @@ Ext.onReady(function(){
                               xtype: 'buttongroup',
                               columns: 1,
                               items: [{
-                                   text: 'User Upload Log',
-                                   iconCls: 'user-upload-log'
+                                   text: 'Upload Log',
+                                   iconCls: 'upload-log',
+                                   handler: function(){
+                                        //console.log("test");
+                                        var log_store = new Ext.data.JsonStore({
+                                             root: 'records',
+                                             totalProperty: 'totalCount',
+                                             idProperty: 'id',
+                                             //autoLoad:true,
+                                             fields: ['id', 'level', 'content', 'time'],
+                                             url: 'service.php?action=getUploadLog'
+                                        })
+                                        //console.log("test1");
+                                        var log_grid = new Ext.grid.GridPanel({
+                                             title: 'Upload Log',
+                                             store: log_store,
+                                             autoHeight: true,
+                                             selModel: new Ext.grid.RowSelectionModel({}),
+                                             columns:[
+                                                  {header: "Level", width: 80, align: 'center', sortable: true, dataIndex: 'level'},
+                                                  {header: "Content", width: 300, align: 'center', sortable: true, dataIndex: 'content'},
+                                                  {header: "Time", width: 80, align: 'center', sortable: true, dataIndex: 'time'}
+                                             ],
+                                             bbar: new Ext.PagingToolbar({
+                                                 pageSize: 20,
+                                                 store: log_grid,
+                                                 displayInfo: true
+                                             })
+                                        })
+                                        //console.log(tabPanel);
+                                        if(tabPanel.isVisible('upload-log-tab'))
+                                             tabPanel.remove('upload-log-tab');
+                                             
+     
+                                        log_store.load();
+                                        tabPanel.add({
+                                             id:'upload-log-tab',
+                                             iconCls: 'upload-log',
+                                             title: "Log",
+                                             items: log_grid,
+                                             closable: true,
+                                             autoScroll:true
+                                        })
+                                        tabPanel.doLayout();
+                                        tabPanel.activate('upload-log-tab');
+                                   }
                               },{
                                    text: 'Template Log',
                                    iconCls: 'template-log'
