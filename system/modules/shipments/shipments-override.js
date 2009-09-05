@@ -380,7 +380,7 @@ Ext.override(QoDesk.Shipments, {
 		    },{
 			text: 'Registered List',
 			handler: function(){
-			    window.open("/eBayBO/list.php?type=shipmentRegistered&createdOnFrom="+Ext.getCmp("search-shipment-form").getForm().findField('createdOnFrom').getValue()+"&createdOnTo="+Ext.getCmp("search-shipment-form").getForm().findField('createdOnTo').getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=900, height=700");  
+			    window.open("/eBayBO/list.php?type=shipmentRegistered&shippedOnFrom="+Ext.getCmp("search-shipment-form").getForm().findField('shippedOnFrom').getValue()+"&shippedOnTo="+Ext.getCmp("search-shipment-form").getForm().findField('shippedOnTo').getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=900, height=700");  
 			    win.close();
 			}
 		    },{
