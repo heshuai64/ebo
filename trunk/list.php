@@ -42,12 +42,12 @@ class Lists {
         
         $where = " where shipmentMethod = 'R' ";
         
-        if(!empty($_GET['createdOnFrom'])){
-            $where .= " and s.createdOn > '".date('Y-m-d', strtotime(substr($_GET['createdOnFrom'], 0, -18)))."'";
+        if(!empty($_GET['shippedOnFrom'])){
+            $where .= " and s.shippedOn > '".date('Y-m-d', strtotime(substr($_GET['shippedOnFrom'], 0, -18)))."'";
         }
         
-        if(!empty($_GET['createdOnTo'])){
-            $where .= " and s.createdOn < '".date('Y-m-d', strtotime(substr($_GET['createdOnTo'], 0, -18)))."'";
+        if(!empty($_GET['shippedOnTo'])){
+            $where .= " and s.shippedOn < '".date('Y-m-d', strtotime(substr($_GET['shippedOnTo'], 0, -18)))."'";
         }
         
         $sql = "select s.id,o.ebayName,o.buyerId,s.shipmentMethod,s.postalReferenceNo,s.shipToCountry,s.shipToPostalCode,s.shipToAddressLine1,s.shipToAddressLine2 
