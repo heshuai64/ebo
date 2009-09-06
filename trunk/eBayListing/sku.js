@@ -1167,11 +1167,27 @@ Ext.onReady(function(){
                             items: schedule
                         }]
                   },{
-                    xtype:"textfield",
-                    fieldLabel:"<font color='red'>SKU</font>",
-                    name:"SKU",
-                    value: sku,
-                    readOnly: true
+                        xtype:"textfield",
+                        fieldLabel:"<font color='red'>SKU</font>",
+                        name:"SKU",
+                        value: sku,
+                        readOnly: true
+                    },{
+                        xtype: 'combo',
+                        fieldLabel:"Template Category",
+                        mode: 'local',
+                        store: new Ext.data.JsonStore({
+                            autoLoad: true,
+                            fields: ['id', 'name'],
+                            url: "service.php?action=getTemplateCategory"
+                        }),
+                        valueField:'id',
+                        displayField:'name',
+                        triggerAction: 'all',
+                        editable: false,
+                        selectOnFocus:true,
+                        name: 'template_category_id',
+                        hiddenName:'template_category_id'
                     }]
               },{
                 columnWidth:0.3,
