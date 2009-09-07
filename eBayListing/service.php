@@ -2254,6 +2254,64 @@ class eBayListing{
 	echo $result;
     }
 	
+    public function getAlleBayProxy(){
+	$sql = "select id as account_id,name as account_name from account";
+	$result = mysql_query($sql);
+	$seller_array = array();
+	while($row = mysql_fetch_assoc($result)){
+	    $seller_array[] = $row;
+	}
+	
+	$sql = "select * from proxy";
+	$result = mysql_query($sql);
+	$proxy_array = array();
+	while($row = mysql_fetch_assoc($result)){
+	    $sql_1 = "select a.id,a.name from account as a left join account_to_proxy as atp on a.id = atp.account_id where atp.proxy_id = '".$row['id']."'";
+	    $result_1 = mysql_query($sql_1);
+	    $row_1 = mysql_fetch_assoc($result_1);
+	    $row['account_id'] = $row_1['id'];
+	    $row['account_name'] = $row_1['name'];
+	    $proxy_array[] = $row;
+	}
+	echo json_encode(array('result'=>array('seller'=>$seller_array,'proxy'=>$proxy_array)));
+	mysql_free_result($result);
+    }
+    
+    public function addeBayProxy(){
+	$sql = "select count(*) as num from account_to_proxy where account_id = '".$_POST['account_id']."'";
+	//echo $sql;
+	$result = mysql_query($sql);
+	$row = mysql_fetch_assoc($result);
+	if($row['num'] ==0 ){
+	    $sql = "insert into proxy (host,port) values ('".$_POST['host']."','".$_POST['port']."')";
+	    //echo $sql;
+	    $result = mysql_query($sql);
+	    $proxy_id = mysql_insert_id();
+	    
+	    $sql = "insert into account_to_proxy (account_id,proxy_id) values ('".$_POST['account_id']."','".$proxy_id."')";
+	    $result = mysql_query($sql);
+	    echo $result;
+	}else{
+	    echo 0;
+	}
+    }
+    
+    public function updateeBayProxy(){
+	$sql = "update proxy set host = '".$_POST['host']."', port='".$_POST['port']."' where id = '".$_POST['id']."'";
+	$result = mysql_query($sql);
+
+	$sql = "update account_to_proxy set account_id = '".$_POST['account_id']."' where proxy_id = '".$_POST['id']."'";
+	$result = mysql_query($sql);
+	echo $result;
+    }
+    
+    public function deleteeBayProxy(){
+	$sql = "delete from proxy where id = '".$_POST['id']."'";
+	$result = mysql_query($sql);
+	echo $result;
+    }
+    
+    //------------------------------- Log ---------------------------------------------------------------
     private function log($type, $content, $level = 'normal'){
 	$sql = "insert into log (level,type,content,account_id) values('".$level."','".$type."','".$content."','".$this->account_id."')";
 	//echo $sql;
@@ -2261,7 +2319,25 @@ class eBayListing{
     }
     
     public function getUploadLog(){
+	$array = array();
 	
+	$sql = "select count(*) as num from log where account_id = '".$this->account_id."' and type = 'upload'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	$totalCount = $row['num'];
+	
+	if(empty($_POST['start']) && empty($_POST['limit'])){
+	    $_POST['start'] = 0;
+	    $_POST['limit'] = 20;
+	}
+	    
+	$sql = "select * from log where account_id = '".$this->account_id."' and type = 'upload' limit ".$_POST['start'].",".$_POST['limit'];
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	while($row = mysql_fetch_assoc($result)){
+	    $array[] = $row;
+	}
+	echo json_encode(array('totalCount'=>$totalCount, 'records'=>$array));
+	mysql_free_result($result);
     }
     public function __destruct(){
         mysql_close(eBayListing::$database_connect);

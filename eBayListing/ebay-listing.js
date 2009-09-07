@@ -860,7 +860,7 @@ Ext.onReady(function(){
                               xtype: 'buttongroup',
                               columns: 1,
                               items: [{
-                                   text: 'eBay User',
+                                   text: 'eBay Account Manage',
                                    iconCls: 'user',
                                    handler: function(){
                                         var store = new Ext.data.JsonStore({
@@ -915,6 +915,9 @@ Ext.onReady(function(){
                                                              columnWidth:0.5,
                                                              layout:"form",
                                                              items:[{
+                                                                 xtype:"hidden",
+                                                                 name:"id"
+                                                               },{
                                                                  xtype:"textfield",
                                                                  fieldLabel:"Name",
                                                                  name:"name"
@@ -922,17 +925,17 @@ Ext.onReady(function(){
                                                                  xtype:"textfield",
                                                                  fieldLabel:"Password",
                                                                  name:"password"
-                                                               },{
-                                                                 xtype:"combo",
-                                                                 fieldLabel:"Status",
-                                                                 name:"status",
-                                                                 width:80,
-                                                                 hiddenName:"status"
                                                                }]
                                                            },{
                                                              columnWidth:0.5,
                                                              layout:"form",
                                                              items:[{
+                                                                 xtype:"combo",
+                                                                 fieldLabel:"Status",
+                                                                 name:"status",
+                                                                 width:80,
+                                                                 hiddenName:"status"
+                                                               },{
                                                                  xtype:"textfield",
                                                                  fieldLabel:"Token Expiry",
                                                                  name:"tokenExpiry"
@@ -953,11 +956,11 @@ Ext.onReady(function(){
                                                              waitMsg: 'Please wait...',
                                                              url: 'service.php?action=updateeBayAccount',
                                                              params: {
-                                                                     id: ebayManageForm.form.findField('id').getValue(),
-                                                                     name: ebayManageForm.form.findField('name').getValue(),
-                                                                     password: ebayManageForm.form.findField('password').getValue(),
-                                                                     token: ebayManageForm.form.findField('token').getValue(),
-                                                                     status: ebayManageForm.form.findField('status').getValue()
+                                                                 id: ebayManageForm.form.findField('id').getValue(),
+                                                                 name: ebayManageForm.form.findField('name').getValue(),
+                                                                 password: ebayManageForm.form.findField('password').getValue(),
+                                                                 token: ebayManageForm.form.findField('token').getValue(),
+                                                                 status: ebayManageForm.form.findField('status').getValue()
                                                              },
                                                              success: function(response){
                                                                      var result = eval(response.responseText);
@@ -997,17 +1000,17 @@ Ext.onReady(function(){
                                                                          xtype:"textfield",
                                                                          fieldLabel:"Password",
                                                                          name:"password"
-                                                                       },{
-                                                                         xtype:"combo",
-                                                                         fieldLabel:"Status",
-                                                                         name:"status",
-                                                                         width:80,
-                                                                         hiddenName:"status"
                                                                        }]
                                                                    },{
                                                                      columnWidth:0.5,
                                                                      layout:"form",
                                                                      items:[{
+                                                                         xtype:"combo",
+                                                                         fieldLabel:"Status",
+                                                                         name:"status",
+                                                                         width:80,
+                                                                         hiddenName:"status"
+                                                                       },{
                                                                          xtype:"textfield",
                                                                          fieldLabel:"Token Expiry",
                                                                          name:"tokenExpiry"
@@ -1119,28 +1122,254 @@ Ext.onReady(function(){
                                         ebayManageWin.show();
                                    }
                               },{
-                                   text: 'eBay Proxy',
+                                   text: 'eBay Proxy Manage',
                                    iconCls: 'proxy',
                                    handler: function(){
                                         
+                                        var store = new Ext.data.JsonStore({
+                                             root: 'result.proxy',
+                                             autoLoad: true,
+                                             fields: ['id','account_id','account_name','host','port'],
+                                             url:'service.php?action=getAllEbayProxy'
+                                        });
+
+                                        var loadComplete = function(S, r){
+                                             if(!ebayProxyManageWin){
+                                                 var seller = S.reader.jsonData.result.seller;
+                                                 
+                                                 var gridForm = new Ext.FormPanel({
+                                                     id: 'ebay-proxy-manage-form',
+                                                     frame: true,
+                                                     labelAlign: 'left',
+                                                     //title: '用户管理',
+                                                     bodyStyle:'padding:5px',
+                                                     //width: 750,
+                                                     layout: 'column',	
+                                                     items: [{
+                                                         columnWidth: 0.55,
+                                                         layout: 'fit',
+                                                         items: {
+                                                                 xtype: 'grid',
+                                                                 store: store,
+                                                                 columns:[
+                                                                         {header: "id", width: 0, sortable: true,  dataIndex: 'id', hidden:true},
+                                                                         {header: "eBay id", width: 0, sortable: true,  dataIndex: 'account_id', hidden:true},
+                                                                         {header: "eBay account", width: 135, sortable: true,  dataIndex: 'account_name'},
+                                                                         {header: "proxy host", width: 90, sortable: true, dataIndex: 'host'},
+                                                                         {header: "proxy port", width: 80, sortable: true, dataIndex: 'port'}
+                                                                     ],
+                                                                 sm: new Ext.grid.RowSelectionModel({
+                                                                     singleSelect: true,
+                                                                     listeners: {
+                                                                         rowselect: function(sm, row, rec) {
+                                                                             Ext.getCmp("ebay-proxy-manage-form").getForm().loadRecord(rec);
+                                                                         }
+                                                                     }
+                                                                 }),
+                                                                 height: 350,
+                                                                 border: true,
+                                                                 listeners: {
+                                                                         render: function(g) {
+                                                                                 g.getSelectionModel().selectRow(0);
+                                                                         },
+                                                                         delay: 10 // Allow rows to be rendered.
+                                                                 }
+                                                             }
+                                                     },{
+                                                         columnWidth: 0.45,
+                                                         xtype: 'fieldset',
+                                                         labelWidth: 55,
+                                                         //title:'用户信息',
+                                                         defaults: {width: 150},	// Default config options for child items
+                                                         defaultType: 'textfield',
+                                                         autoHeight: true,
+                                                         bodyStyle: Ext.isIE ? 'padding:0 0 5px 15px;' : 'padding:10px 15px;',
+                                                         border: false,
+                                                         style: {
+                                                             "margin-left": "10px", // when you add custom margin in IE 6...
+                                                             "margin-right": Ext.isIE6 ? (Ext.isStrict ? "-10px" : "-13px") : "0"  // you have to adjust for it somewhere else
+                                                         },
+                                                         items: [{
+                                                             xtype: 'hidden',
+                                                             name:'id'
+                                                             },{
+                                                             xtype: 'combo',
+                                                             fieldLabel: 'account',
+                                                             mode: 'local',
+                                                             store: new Ext.data.JsonStore({
+                                                                 fields: ['account_id', 'account_name'],
+                                                                 data : seller
+                                                             }),
+                                                             valueField:'account_id',
+                                                             displayField:'account_name',
+                                                             triggerAction: 'all',
+                                                             editable: false,
+                                                             selectOnFocus:true,
+                                                             name: 'account_id',
+                                                             hiddenName:'account_id'
+                                                         },{
+                                                             fieldLabel: 'host',
+                                                             name: 'host'
+                                                         },{
+                                                             fieldLabel: 'port',
+                                                             name: 'port'
+                                                         }]
+                                                     }],
+                                                     buttons: [{
+                                                         text: 'Add eBay Proxy',
+                                                         handler: function(){
+                                                             var add_ebay_proxy_form =  form = new Ext.FormPanel({
+                                                                 labelAlign: 'top',
+                                                                 bodyStyle:'padding:5px',
+                                                                 defaultType: 'textfield',
+                                                                 items: [{
+                                                                         xtype: 'combo',
+                                                                         fieldLabel: 'eBay account',
+                                                                         mode: 'local',
+                                                                         store: new Ext.data.JsonStore({
+                                                                             fields: ['account_id', 'account_name'],
+                                                                             data : seller
+                                                                         }),
+                                                                         valueField:'account_id',
+                                                                         displayField:'account_name',
+                                                                         triggerAction: 'all',
+                                                                         editable: false,
+                                                                         selectOnFocus:true,
+                                                                         name: 'account_id',
+                                                                         hiddenName:'account_id'
+                                                                     },{
+                                                                         fieldLabel: 'host',
+                                                                         name: 'host'
+                                                                     },{
+                                                                         fieldLabel: 'port',
+                                                                         name: 'port'
+                                                                     }]
+                                                             })
+                                                            
+                                                            var addeBayProxyWindow = new Ext.Window({
+                                                                 title: 'Add eBay Proxy' ,
+                                                                 closable:true,
+                                                                 width: 400,
+                                                                 height: 300,
+                                                                 plain:true,
+                                                                 layout: 'fit',
+                                                                 items: add_ebay_proxy_form,buttons: [{
+                                                                           text: 'Save',
+                                                                           handler: function(){
+                                                                               Ext.Ajax.request({
+                                                                                   waitMsg: 'Please wait...',
+                                                                                   url: 'service.php?action=addeBayProxy',
+                                                                                   params: {
+                                                                                          account_id: add_ebay_proxy_form.form.findField('account_id').getValue(),
+                                                                                          host: add_ebay_proxy_form.form.findField('host').getValue(),
+                                                                                          port: add_ebay_proxy_form.form.findField('port').getValue()
+                                                                                   },
+                                                                                   success: function(response){
+                                                                                       var result = eval(response.responseText);
+                                                                                       switch (result) {
+                                                                                           case 1:
+                                                                                               store.reload();
+                                                                                               addeBayProxyWindow.close();
+                                                                                               break;
+                                                                                           default:
+                                                                                               Ext.MessageBox.alert('Uh uh...', 'We couldn\'t save him...');
+                                                                                               break;
+                                                                                       }
+                                                                                   },
+                                                                                   failure: function(response){
+                                                                                       var result = response.responseText;
+                                                                                       Ext.MessageBox.alert('error', 'could not connect to the database. retry later');
+                                                                                   }
+                                                                               });		
+                                                                           }
+                                                                       },{
+                                                                           text: 'Close',
+                                                                           handler: function(){
+                                                                                addeBayProxyWindow.close();
+                                                                           }
+                                                                 }]
+                                                            })
+                                                              
+                                                            addeBayProxyWindow.show();
+                                                            
+                                                         }
+                                                     },{
+                                                         text: 'Save Selected eBay Proxy',
+                                                         handler: function(){
+                           
+                                                             var form = Ext.getCmp("ebay-proxy-manage-form").getForm();
+                                                             Ext.Ajax.request({
+                                                                 url: "service.php?action=updateeBayProxy",
+                                                                 params: {
+                                                                     id: form.findField('id').getValue(),
+                                                                     account_id: form.findField('account_id').getValue(),
+                                                                     host: form.findField('host').getValue(),
+                                                                     port: form.findField('port').getValue()
+                                                                 },
+                                                                 success: function(o){
+                                                                     store.reload();
+                                                                 },
+                                                                 failure: function(){
+                                                                     
+                                                                 },
+                                                                 scope: this
+                                                             });
+                                                         }
+                                                     },{
+                                                         text: 'Delete Selected eBay Proxy',
+                                                         handler: function(){
+                                                           
+                                                            var form = Ext.getCmp("ebay-proxy-manage-form").getForm();
+                                                            Ext.Ajax.request({
+                                                                 url: "service.php?action=deleteeBayProxy",
+                                                                 params: {
+                                                                     id: form.findField('id').getValue()
+                                                                 },
+                                                                 success: function(o){
+                                                                     store.reload();
+                                                                 },
+                                                                 failure: function(){
+                                                                    
+                                                                 },
+                                                                 scope: this
+                                                            });
+                                                         }
+                                                     },{
+                                                         text: 'Close',
+                                                         handler: function(){
+                                                            ebayProxyManageWin.close();
+                                                         }
+                                                     }]
+                                                  });
+                                                 
+                                                  var ebayProxyManageWin = new Ext.Window({
+                                                       title: 'eBay Proxy Manage' ,
+                                                       closable:true,
+                                                       width:600,
+                                                       height:500,
+                                                       plain:true,
+                                                       layout: 'fit',
+                                                       items: gridForm
+                                                  })
+                                                 
+                                                  ebayProxyManageWin.show();
+                                             }else{
+                                                  ebayProxyManageWin.show();
+                                             }
+                                        }
+                                        store.on('load', loadComplete);
                                    }
                               }]                      
                          },
                          border:false,
-                         iconCls:'manage',
-                         listeners:{
-                              expand: function(p){
-                                   
-                                   
-                              }
-                         }
+                         iconCls:'manage'
                     },{
                          title:'Log',
                          items:{
                               xtype: 'buttongroup',
                               columns: 1,
                               items: [{
-                                   text: 'Upload Log',
+                                   text: 'System Upload Log',
                                    iconCls: 'upload-log',
                                    handler: function(){
                                         //console.log("test");
@@ -1160,12 +1389,12 @@ Ext.onReady(function(){
                                              selModel: new Ext.grid.RowSelectionModel({}),
                                              columns:[
                                                   {header: "Level", width: 80, align: 'center', sortable: true, dataIndex: 'level'},
-                                                  {header: "Content", width: 300, align: 'center', sortable: true, dataIndex: 'content'},
-                                                  {header: "Time", width: 80, align: 'center', sortable: true, dataIndex: 'time'}
+                                                  {header: "Content", width: 600, align: 'center', sortable: true, dataIndex: 'content'},
+                                                  {header: "Time", width: 110, align: 'center', sortable: true, dataIndex: 'time'}
                                              ],
                                              bbar: new Ext.PagingToolbar({
                                                  pageSize: 20,
-                                                 store: log_grid,
+                                                 store: log_store,
                                                  displayInfo: true
                                              })
                                         })
@@ -1187,7 +1416,7 @@ Ext.onReady(function(){
                                         tabPanel.activate('upload-log-tab');
                                    }
                               },{
-                                   text: 'Template Log',
+                                   text: 'Template Change Log',
                                    iconCls: 'template-log'
                               }]                      
                          },
