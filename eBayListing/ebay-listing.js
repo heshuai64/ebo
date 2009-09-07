@@ -866,8 +866,8 @@ Ext.onReady(function(){
                                         var store = new Ext.data.JsonStore({
                                              root: 'result',
                                              autoLoad: true,
-                                             fields: ['id','email','emailPassword','status','devId','appId','cert','token','tokenExpiry','currency','site'],
-                                             url:'connect.php?moduleId=qo-manage&action=getAllEbaySeller'
+                                             fields: ['id', 'name', 'password', 'token', 'tokenExpiry', 'status'],
+                                             url:'service.php?action=getAlleBayAccount'
                                         });
                                          
                                         var ebayManageForm = new Ext.FormPanel({
@@ -886,7 +886,7 @@ Ext.onReady(function(){
                                                              xtype: 'grid',
                                                              store: store,
                                                              columns:[
-                                                                     {id:'id', header: "id", width: 200, sortable: true, locked:false, dataIndex: 'id'}
+                                                                     {id:'name', header: "Name", width: 200, sortable: true, dataIndex: 'name'}
                                                                  ],
                                                              sm: new Ext.grid.RowSelectionModel({
                                                                  singleSelect: true,
@@ -897,7 +897,7 @@ Ext.onReady(function(){
                                                                  }
                                                              }),
                                                              height: 350,
-                                                             title:'eBay账户列表',
+                                                             title:'eBay Account List',
                                                              border: true,
                                                              listeners: {
                                                                      render: function(g) {
@@ -916,13 +916,13 @@ Ext.onReady(function(){
                                                              layout:"form",
                                                              items:[{
                                                                  xtype:"textfield",
-                                                                 fieldLabel:"ID",
-                                                                 name:"id"
-                                                               }/*,{
+                                                                 fieldLabel:"Name",
+                                                                 name:"name"
+                                                               },{
                                                                  xtype:"textfield",
-                                                                 fieldLabel:"Email",
-                                                                 name:"email"
-                                                               }*/,{
+                                                                 fieldLabel:"Password",
+                                                                 name:"password"
+                                                               },{
                                                                  xtype:"combo",
                                                                  fieldLabel:"Status",
                                                                  name:"status",
@@ -936,29 +936,9 @@ Ext.onReady(function(){
                                                                  xtype:"textfield",
                                                                  fieldLabel:"Token Expiry",
                                                                  name:"tokenExpiry"
-                                                               }/*,{
-                                                                 xtype:"textfield",
-                                                                 fieldLabel:"Site",
-                                                                 name:"site"
-                                                               }*/,{
-                                                                 xtype:"combo",
-                                                                 fieldLabel:"Currency",
-                                                                 name:"currency",
-                                                                 width:80,
-                                                                 hiddenName:"currency"
                                                                }]
                                                            }]
                                                        },{
-                                                         xtype:"textfield",
-                                                         fieldLabel:"Email",
-                                                         width:350,
-                                                         name:"email"
-                                                     },{
-                                                         xtype:"textfield",
-                                                         fieldLabel:"Email Password",
-                                                         width:350,
-                                                         name:"emailPassword"
-                                                     },{
                                                          xtype:"textarea",
                                                          fieldLabel:"Token",
                                                          height:200,
@@ -967,23 +947,17 @@ Ext.onReady(function(){
                                                      }]
                                              }],
                                                  buttons: [{
-                                                     text: '保存选中的eBay账户',
+                                                     text: 'Save Selected eBay Account',
                                                      handler: function(){
                                                          Ext.Ajax.request({
                                                              waitMsg: 'Please wait...',
-                                                             url: 'connect.php?moduleId=qo-manage&action=updateEbaySeller',
+                                                             url: 'service.php?action=updateeBayAccount',
                                                              params: {
                                                                      id: ebayManageForm.form.findField('id').getValue(),
-                                                                     email: ebayManageForm.form.findField('email').getValue(),
-                                                                     emailPassword: ebayManageForm.form.findField('emailPassword').getValue(),
-                                                                     status: ebayManageForm.form.findField('status').getValue(),
-                                                                     tokenExpiry: ebayManageForm.form.findField('tokenExpiry').getValue(),
-                                                                     //site: ebayManageForm.form.findField('site').getValue(),
-                                                                     currency: ebayManageForm.form.findField('currency').getValue(),
-                                                                     //devId: ebayManageForm.form.findField('devId').getValue(),
-                                                                     //appId: ebayManageForm.form.findField('appId').getValue(),
-                                                                     //cert: ebayManageForm.form.findField('cert').getValue(),
-                                                                     token: ebayManageForm.form.findField('token').getValue()
+                                                                     name: ebayManageForm.form.findField('name').getValue(),
+                                                                     password: ebayManageForm.form.findField('password').getValue(),
+                                                                     token: ebayManageForm.form.findField('token').getValue(),
+                                                                     status: ebayManageForm.form.findField('status').getValue()
                                                              },
                                                              success: function(response){
                                                                      var result = eval(response.responseText);
@@ -1003,7 +977,7 @@ Ext.onReady(function(){
                                                          });		
                                                      }
                                                  },{
-                                                     text: '添加eBay账户',
+                                                     text: 'Add eBay Account',
                                                      handler: function(){
                                                          var addEbaySellerForm = new Ext.FormPanel({
                                                              frame: true,
@@ -1017,12 +991,12 @@ Ext.onReady(function(){
                                                                      layout:"form",
                                                                      items:[{
                                                                          xtype:"textfield",
-                                                                         fieldLabel:"ID",
-                                                                         name:"id"
+                                                                         fieldLabel:"Name",
+                                                                         name:"name"
                                                                        },{
                                                                          xtype:"textfield",
-                                                                         fieldLabel:"Email",
-                                                                         name:"email"
+                                                                         fieldLabel:"Password",
+                                                                         name:"password"
                                                                        },{
                                                                          xtype:"combo",
                                                                          fieldLabel:"Status",
@@ -1037,34 +1011,9 @@ Ext.onReady(function(){
                                                                          xtype:"textfield",
                                                                          fieldLabel:"Token Expiry",
                                                                          name:"tokenExpiry"
-                                                                       },{
-                                                                         xtype:"textfield",
-                                                                         fieldLabel:"Site",
-                                                                         name:"site"
-                                                                       },{
-                                                                         xtype:"combo",
-                                                                         fieldLabel:"Currency",
-                                                                         name:"currency",
-                                                                         width:80,
-                                                                         hiddenName:"currency"
                                                                        }]
                                                                    }]
                                                                },{
-                                                                 xtype:"textfield",
-                                                                 fieldLabel:"Dev Id",
-                                                                 width:350,
-                                                                 name:"devId"
-                                                             },{
-                                                                 xtype:"textfield",
-                                                                 fieldLabel:"App Id",
-                                                                 width:350,
-                                                                 name:"appId"
-                                                             },{
-                                                                 xtype:"textfield",
-                                                                 fieldLabel:"Cert",
-                                                                 width:350,
-                                                                 name:"cert"
-                                                             },{
                                                                  xtype:"textarea",
                                                                  fieldLabel:"Token",
                                                                  height:200,
@@ -1072,29 +1021,24 @@ Ext.onReady(function(){
                                                                  name:"token"
                                                              }],
                                                              buttons: [{
-                                                                 text: '保存',
+                                                                 text: 'Save',
                                                                  handler: function(){
                                                                       Ext.Ajax.request({
                                                                          waitMsg: 'Please wait...',
-                                                                         url: 'connect.php?moduleId=qo-manage&action=addEbaySeller',
+                                                                         url: 'service.php?action=addeBayAccount',
                                                                          params: {
-                                                                                 id: addEbaySellerForm.form.findField('id').getValue(),
-                                                                                 email: addEbaySellerForm.form.findField('email').getValue(),
-                                                                                 status: addEbaySellerForm.form.findField('status').getValue(),
-                                                                                 tokenExpiry: addEbaySellerForm.form.findField('tokenExpiry').getValue(),
-                                                                                 site: addEbaySellerForm.form.findField('site').getValue(),
-                                                                                 currency: addEbaySellerForm.form.findField('currency').getValue(),
-                                                                                 devId: addEbaySellerForm.form.findField('devId').getValue(),
-                                                                                 appId: addEbaySellerForm.form.findField('appId').getValue(),
-                                                                                 cert: addEbaySellerForm.form.findField('cert').getValue(),
-                                                                                 token: addEbaySellerForm.form.findField('token').getValue()
+                                                                                name: addEbaySellerForm.form.findField('name').getValue(),
+                                                                                password: addEbaySellerForm.form.findField('password').getValue(),
+                                                                                tokenExpiry: addEbaySellerForm.form.findField('tokenExpiry').getValue(),
+                                                                                token: addEbaySellerForm.form.findField('token').getValue(),
+                                                                                status: addEbaySellerForm.form.findField('status').getValue()
                                                                          },
                                                                          success: function(response){
                                                                              var result = eval(response.responseText);
                                                                              switch (result) {
                                                                                  case 1:
                                                                                      store.reload();
-                                                                                     addEbaySellerWin.close();
+                                                                                     addeBayAccountWin.close();
                                                                                      break;
                                                                                  default:
                                                                                      Ext.MessageBox.alert('Uh uh...', 'We couldn\'t save him...');
@@ -1107,29 +1051,33 @@ Ext.onReady(function(){
                                                                          }
                                                                      });		
                                                                  }
+                                                            },{
+                                                                 text: 'Close',
+                                                                 handler: function(){
+                                                                     addeBayAccountWin.close();
+                                                                 }
                                                              }]
-                                                         });
-                                                         addEbaySellerWin = desktop.createWindow({
-                                                             title:'添加eBay账户',
-                                                             width:600,
-                                                             height:500,
-                                                             iconCls: 'ebay-manage-icon',
-                                                             shim:false,
-                                                             animCollapse:false,
-                                                             constrainHeader:true,
-                                                             layout: 'fit',
-                                                             items:addEbaySellerForm,
-                                                             taskbuttonTooltip: '<b>添加eBay账户</b><br />添加eBay账户'
-                                                         });
-                                                         addEbaySellerWin.show();
+                                                       });
+                                                  
+                                                       var addeBayAccountWin = new Ext.Window({
+                                                            title: 'Add eBay Account' ,
+                                                            closable:true,
+                                                            width: 600,
+                                                            height: 400,
+                                                            plain:true,
+                                                            layout: 'fit',
+                                                            items: addEbaySellerForm
+                                                       })
+                                                       
+                                                       addeBayAccountWin.show();
                                                      }
                                                  },{
-                                                     text: '删除账户',
+                                                     text: 'Delete Selected eBay Account',
                                                      handler: function(){
                                                          //console.log(Ext.getCmp("ebay-manage-grid").getSelectionModel().getSelected());
                                                          Ext.Ajax.request({
                                                              waitMsg: 'Please wait...',
-                                                             url: 'connect.php?moduleId=qo-manage&action=deleteEbaySeller',
+                                                             url: 'service.php?action=deleteeBayAccount',
                                                              params: {
                                                                  id: Ext.getCmp("ebay-manage-grid").getSelectionModel().getSelected().data.id
                                                              },
@@ -1151,7 +1099,7 @@ Ext.onReady(function(){
                                                          });		
                                                      }
                                                  },{
-                                                     text: '关闭',
+                                                     text: 'Close',
                                                      handler: function(){
                                                          ebayManageWin.close();
                                                      }
