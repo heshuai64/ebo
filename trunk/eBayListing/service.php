@@ -2221,7 +2221,39 @@ class eBayListing{
 	}
 	echo "finish";
     }
+    //-------------------- Mange --------------------------------------------------------------------------
+    public function getAlleBayAccount(){
+	$sql = "select * from account";
+	$result = mysql_query($sql);
+	$array = array();
+	while($row = mysql_fetch_assoc($result)){
+		$array[] = $row;
+	}
+	echo json_encode(array('result'=>$array));
+	mysql_free_result($result);
+    }
     
+    public function addeBayAccount(){
+	$sql = "insert into account (name,password,token,tokenExpiry,status) values 
+	('".$_POST['name']."','".$_POST['password']."','".$_POST['token']."','".$_POST['tokenExpiry']."','".$_POST['status']."')";
+	$result = mysql_query($sql);
+	echo $result;
+    }
+	
+    public function updateeBayAccount(){
+	 $sql = "update account set name='".$_POST['name']."',password='".$_POST['password']."',
+	token='".$_POST['token']."',status='".$_POST['status']."' where id = '".$_POST['id']."'";
+	$result = mysql_query($sql);
+	//echo $sql;
+	echo $result;
+    }
+    
+    public function deleteeBayAccount(){
+	$sql = "delete from account where id = '".$_POST['id']."'";
+	$result = mysql_query($sql);
+	echo $result;
+    }
+	
     private function log($type, $content, $level = 'normal'){
 	$sql = "insert into log (level,type,content,account_id) values('".$level."','".$type."','".$content."','".$this->account_id."')";
 	//echo $sql;
