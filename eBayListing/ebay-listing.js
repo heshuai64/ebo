@@ -578,22 +578,15 @@ Ext.onReady(function(){
                expanded: true,
                rootVisible: false,
                children:[ 
-                    {"text" : "Scheduled Listings", "id" : 1, "leaf" : true},
-                    {"text" : "Active Listings", "id" : 2, "leaf" : true},
-                    {"text" : "Ended Listings", "id" : 3, "leaf" : true}
+                    {"text" : "Active Listings", "id" : 1, "leaf" : true},
+                    {"text" : "Ended Listings",  "id" : 2, "leaf" : true}
                ]
- 
- 
           },
           listeners:{
                click: function(n, e){
                     //console.log(n);
                     switch(n.id){
                          case 1:
-                              
-                         break;
-                    
-                         case 2:
                               var activity_store = new Ext.data.JsonStore({
                                    root: 'records',
                                    totalProperty: 'totalCount',
@@ -651,7 +644,7 @@ Ext.onReady(function(){
                               tabPanel.doLayout();
                          break;
                     
-                         case 3:
+                         case 2:
                               
                          break;
                     }
@@ -780,8 +773,8 @@ Ext.onReady(function(){
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
-                                   fields: ['Id', 'SKU', 'Title', 'Price', 'Quantity', 'ListingDuration', 'ListingType', 'UploadTime'],
-                                   url: 'service.php?action=getWaitingUploadTemplate',
+                                   fields: ['Id', 'SKU', 'Title', 'Price', 'Quantity', 'ListingDuration', 'ListingType', 'ScheduleTime'],
+                                   url: 'service.php?action=getWaitingUploadItem',
                                    listeners: {
                                         load: function(t, r){
                                              Ext.getCmp('waiting-to-upload').setTitle('Waiting To Upload ('+t.totalLength+')');
@@ -801,7 +794,7 @@ Ext.onReady(function(){
                                         {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
                                         {header: "Duration", width: 100, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
                                         {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
-                                        {header: "UploadTime", width: 250, align: 'center', sortable: true, dataIndex: 'UploadTime'}
+                                        {header: "UploadTime", width: 250, align: 'center', sortable: true, dataIndex: 'ScheduleTime'}
                                    ],
                                    bbar: new Ext.PagingToolbar({
                                        pageSize: 20,
