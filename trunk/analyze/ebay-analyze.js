@@ -63,7 +63,8 @@ Ext.onReady(function(){
                 autoHeight: true,
                 store: store,
                 autoScroll: true,
-                //width: 600,
+                width: 1300,
+		//height: 768,
                 selModel: new Ext.grid.RowSelectionModel({}),
                 columns:[
                     {header: "Image", width: 100, align: 'center', sortable: true, dataIndex: 'galleryURL', renderer: renderImage},
@@ -522,7 +523,7 @@ Ext.onReady(function(){
                         }
                     }]
             })
-            grid.render(document.body);
+            grid.render("analyze-grid");
            
         }
     });

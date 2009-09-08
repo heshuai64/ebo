@@ -449,12 +449,6 @@ class eBayListing{
 	mysql_free_result($result);
     }
     
-    /*
-    ALTER TABLE `items`
-    DROP `ScheduleStartDate`,
-    DROP `ScheduleEndDate`;
-    */
-    
     private function tempalteChangeToItem($template_id, $time){
 	$sql_1 = "insert into items (AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 	Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
@@ -2265,6 +2259,18 @@ class eBayListing{
 	}
 	echo "finish";
     }
+    //ALTER TABLE `log` ADD `cometStatus` BOOL NOT NULL DEFAULT '0';
+    public function logComet(){
+	$data = "";
+	$sql = "select level,type,content,time from log where cometStatus = '0' and account_id = '".$this->account_id."'";
+	$result = mysql_query($sql);
+	sleep(1);
+	while($row = mysql_fetch_assoc($result)){
+	    $data .= $row['level'].' '.$row['time'].' '.$row['content'].'<br>';
+	}
+	echo $data;
+    }
+    
     //-------------------- Mange --------------------------------------------------------------------------
     public function getAlleBayAccount(){
 	$sql = "select * from account";

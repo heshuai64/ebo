@@ -695,6 +695,7 @@ Ext.onReady(function(){
                    height:32
                },{
                     region:'south',
+                    id:'log-watch',
                     //contentEl: 'south',
                     split:true,
                     height: 100,
@@ -704,7 +705,7 @@ Ext.onReady(function(){
                     collapsible: true,
                     collapsed: true,
                     title:'Log',
-                    html:'test',
+                    //html:'test',
                     margins:'0 0 0 0'
                },{
                     region:'west',
@@ -1476,5 +1477,20 @@ Ext.onReady(function(){
                    }]
                },tabPanel
             ]
+     });
+     
+     Ext.Ajax.request({
+          url: 'service.php?action=logComet',
+          success: function(a, b, c){
+              console.log("success");
+              console.log([a, b, c]);
+              Ext.getCmp("log-watch").body.dom.innerHTML = "11";//a.responseText;
+              //Ext.getCmp("log-watch").doLayout();
+          },
+          failure: function(a, b, c){
+              console.log("failure");
+              console.log([a, b, c]);
+          },
+          timeout:20000
      });
 });
