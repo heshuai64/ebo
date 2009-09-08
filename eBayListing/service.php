@@ -454,97 +454,87 @@ class eBayListing{
     DROP `ScheduleStartDate`,
     DROP `ScheduleEndDate`;
     */
+    
+    private function tempalteChangeToItem($template_id, $time){
+	$sql_1 = "insert into items (AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+	Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
+	PostalCode,PrimaryCategoryCategoryID,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
+	ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,ShippingType,Site,SKU,StartPrice,
+	StoreCategory2ID,StoreCategoryID,SubTitle,Title,UserID,accountId,BoldTitle,Border,
+	Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
+	GalleryURL,PhotoDisplay) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+	Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
+	PostalCode,PrimaryCategoryCategoryID,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
+	ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,ShippingType,Site,SKU,StartPrice,
+	StoreCategory2ID,StoreCategoryID,SubTitle,Title,UserID,accountId,BoldTitle,Border,
+	Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
+	GalleryURL,PhotoDisplay from template where Id = '".$template_id."'";
+	
+	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	$item_id = mysql_insert_id(eBayListing::$database_connect);
+	
+	$sql_2 = "insert into picture_url (ItemID,url)  select '".$item_id."',url from template_picture_url where templateId = '".$template_id."'";
+	$result_2 = mysql_query($sql_2, eBayListing::$database_connect);
+	
+	$sql_3 = "insert into shipping_service_options (ItemID,FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost) select '".$item_id."',FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost from template_shipping_service_options where templateId = '".$template_id."'";
+	$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+	
+	$sql_4 = "insert into international_shipping_service_option (ItemID,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShipToLocation) select '".$item_id."',ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShipToLocation from template_international_shipping_service_option where templateId = '".$template_id."'";
+	$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+	
+	$sql_5 = "select * from template_attribute_set where templateId = '".$template_id."'";
+	$result_5 = mysql_query($sql_5, eBayListing::$database_connect);
+	while($row_5 = mysql_fetch_assoc($result_5)){
+	    $template_attribute_set_id = $row_5['attribute_set_id'];
+	    $sql_6 = "insert into attribute_set (ItemID,attributeSetID) values ('".$item_id."','".$row_5['attributeSetID']."')";
+	    $result_6 = mysql_query($sql_6, eBayListing::$database_connect);
+	    $attribute_set_id = mysql_insert_id(eBayListing::$database_connect);
+	    
+	    $sql_7 = "insert into attribute (attributeID,attribute_set_id,ValueID,ValueLiteral) 
+	    select attributeID,'".$attribute_set_id."',ValueID,ValueLiteral from template_attribute
+	    where attribute_set_id = '".$template_attribute_set_id."'";
+	    $result_7 = mysql_query($sql_7, eBayListing::$database_connect);
+	}
+	
+	if($result_1 && $result_2 && $result_3 && $result_4 && $result_5 && $result_6 && $result_7){
+	    return true;
+	}else{
+	    return false;
+	}
+    }
+    
     public function templateAddToUpload(){
 	if(strpos($_POST['ids'], ',')){
 	    $ids = explode(',', $_POST['ids']);
 	    foreach($ids as $id){
-		$sql_1 = "insert into items (AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
-		Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
-		PostalCode,PrimaryCategoryCategoryID,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
-		ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,ShippingType,Site,SKU,StartPrice,
-		StoreCategory2ID,StoreCategoryID,SubTitle,Title,UserID,accountId,BoldTitle,Border,
-		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-		GalleryURL,PhotoDisplay) values (select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
-		Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
-		PostalCode,PrimaryCategoryCategoryID,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
-		ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,ShippingType,Site,SKU,StartPrice,
-		StoreCategory2ID,StoreCategoryID,SubTitle,Title,UserID,accountId,BoldTitle,Border,
-		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-		GalleryURL,PhotoDisplay from template where Id = '".$id."')";
-		
-		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-		$item_id = mysql_insert_id(eBayListing::$database_connect);
-		
-		$sql_2 = "insert into picture_url (ItemID,url) values (select '".$item_id."',url from template_picture_url where templateId = '".$id."')";
-		$result_2 = mysql_query($sql_2, eBayListing::$database_connect);
-		
-		$sql_3 = "insert into shipping_service_options (ItemID,FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost) values (select '".$item_id."',FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost from template_shipping_service_options where templateId = '".$id."')";
-		$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
-		
-		$sql_4 = "insert into international_shipping_service_option (ItemID,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShipToLocation) vaules (select '".$item_id."',ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShipToLocation from template_international_shipping_service_option where templateId = '".$id."')";
-		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-		
-		$sql_5 = "select * from template_attribute_set where templateId = '".$id."'";
-		$result_5 = mysql_query($sql_5, eBayListing::$database_connect);
-		while($row_5 = mysql_fetch_assoc($result_5)){
-		    $template_attribute_set_id = $row_5['attribute_set_id'];
-		    $sql_6 = "insert into attribute_set (ItemID,attributeSetID) values ('".$item_id."','".$row_5['attributeSetID']."')";
-		    $result_6 = mysql_query($sql_6, eBayListing::$database_connect);
-		    $attribute_set_id = mysql_insert_id(eBayListing::$database_connect);
-		    
-		    $sql_7 = "insert into attribute (attributeID,attribute_set_id,ValueID,ValueLiteral) 
-		    values (select attributeID,'".$attribute_set_id."',ValueID,ValueLiteral from template_attribute
-		    where attribute_set_id = '".$template_attribute_set_id."')";
-		    $result_7 = mysql_query($sql_7, eBayListing::$database_connect);
+		$sql_10 = "select * from schedule where template_id = '$id'";
+		$result_10 = mysql_query($sql_10, eBayListing::$database_connect);
+		while($row_10 = mysql_fetch_assoc($result_10)){
+		    $startTimestamp = strtotime($row_10['startDate']);
+		    $endTimestamp = strtotime($row_10['endDate']);
+		    while($startTimestamp <= $endTimestamp){
+			if(date("D", $startTimestamp) == $row_10['day']){
+			    $result = $this->tempalteChangeToItem($id, date("Y-m-d", $startTimestamp) . ' ' .$row_10['time']);
+			}
+			$startTimestamp += 24 * 60 * 60;
+		    }
 		}
 	    }
 	}else{
-	    $sql_1 = "insert into items (AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
-	    Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
-	    PostalCode,PrimaryCategoryCategoryID,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
-	    ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,ShippingType,Site,SKU,StartPrice,
-	    StoreCategory2ID,StoreCategoryID,SubTitle,Title,UserID,accountId,BoldTitle,Border,
-	    Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-	    GalleryURL,PhotoDisplay) values (select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
-	    Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
-	    PostalCode,PrimaryCategoryCategoryID,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
-	    ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,ShippingType,Site,SKU,StartPrice,
-	    StoreCategory2ID,StoreCategoryID,SubTitle,Title,UserID,accountId,BoldTitle,Border,
-	    Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-	    GalleryURL,PhotoDisplay from template where Id = '".$_POST['ids']."')";
-	    
-	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	    $item_id = mysql_insert_id(eBayListing::$database_connect);
-	    
-	    $sql_2 = "insert into picture_url (ItemID,url) values (select '".$item_id."',url from template_picture_url where templateId = '".$_POST['ids']."')";
-	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
-	    
-	    $sql_3 = "insert into shipping_service_options (ItemID,FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost) values (select '".$item_id."',FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost from template_shipping_service_options where templateId = '".$_POST['ids']."')";
-	    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
-	    
-	    $sql_4 = "insert into international_shipping_service_option (ItemID,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShipToLocation) vaules (select '".$item_id."',ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShipToLocation from template_international_shipping_service_option where templateId = '".$_POST['ids']."')";
-	    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-	    
-	    $sql_5 = "select * from template_attribute_set where templateId = '".$_POST['ids']."'";
-	    $result_5 = mysql_query($sql_5, eBayListing::$database_connect);
-	    while($row_5 = mysql_fetch_assoc($result_5)){
-		$template_attribute_set_id = $row_5['attribute_set_id'];
-		$sql_6 = "insert into attribute_set (ItemID,attributeSetID) values ('".$item_id."','".$row_5['attributeSetID']."')";
-		$result_6 = mysql_query($sql_6, eBayListing::$database_connect);
-		$attribute_set_id = mysql_insert_id(eBayListing::$database_connect);
-		
-		$sql_7 = "insert into attribute (attributeID,attribute_set_id,ValueID,ValueLiteral) 
-		values (select attributeID,'".$attribute_set_id."',ValueID,ValueLiteral from template_attribute
-		where attribute_set_id = '".$template_attribute_set_id."')";
-		$result_7 = mysql_query($sql_7, eBayListing::$database_connect);
+	    $sql_10 = "select * from schedule where template_id = '$id'";
+	    $result_10 = mysql_query($sql_10, eBayListing::$database_connect);
+	    while($row_10 = mysql_fetch_assoc($result_10)){
+		$startTimestamp = strtotime($row_10['startDate']);
+		$endTimestamp = strtotime($row_10['endDate']);
+		while($startTimestamp <= $endTimestamp){
+		    if(date("D", $startTimestamp) == $row_10['day']){
+			$result = $this->tempalteChangeToItem($id, date("Y-m-d", $startTimestamp) . ' ' .$row_10['time']);
+		    }
+		    $startTimestamp += 24 * 60 * 60;
+		}
 	    }
 	}
 	
-	if($result_1 && $result_2 && $result_3 && $result_4 && $result_5 && $result_6 && $result_7){
-	    echo 1;
-	}else{
-	    echo 0;
-	}
     }
     
     public function templateDelete(){
@@ -767,6 +757,10 @@ class eBayListing{
 	    $_POST['BuyItNowPrice'] = 0;
 	}
 	
+	if($_POST['ListingType'] == "Chinese"){
+	    $_POST['Quantity'] = 1;   
+	}
+	
 	//StartTime,EndTime
 	//$PaymentMethods = ($_POST['PayPalPayment'] == 1)?'PayPal':'';
 	$sql = "insert into template (BuyItNowPrice,Country,Currency,Description,DispatchTimeMax,
@@ -779,7 +773,7 @@ class eBayListing{
 	'".$_POST['ListingDuration']."','".$_POST['ListingType']."','".$_POST['Location']."','PayPal',
 	'".$_POST['PayPalEmailAddress']."','".$_POST['PostalCode']."',
 	'".$_POST['PrimaryCategoryCategoryID']."','".$_POST['SecondaryCategoryCategoryID']."',
-	'".$_POST['Quantity']."','".@$_POST['ReservePrice']."','".@$_POST['ShippingType']."',
+	'".@$_POST['Quantity']."','".@$_POST['ReservePrice']."','".@$_POST['ShippingType']."',
 	'".$_POST['Site']."','".$_POST['SKU']."','".$_POST['StartPrice']."','".$_POST['StoreCategory2ID']."',
 	'".$_POST['StoreCategoryID']."','".$_POST['SubTitle']."',
 	'".$_POST['Title']."','".(empty($_POST['BoldTitle'])?0:1)."',
