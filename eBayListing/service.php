@@ -90,7 +90,7 @@ class eBayListing{
 	//file_put_contents("/export/eBayBO/eBayListing/log/".$file_name, $data);
 	file_put_contents("C:\\xampp\\htdocs\\eBayBO\\eBayListing\\log\\".$file_name, $data);
     }
-    
+    //------------------  eBay Category --------------------------------------------------------------------
     private function checkCategoriesVersion($siteId, $categoryVersion){
         try {
                 $client = new eBaySOAP($this->session);
@@ -265,7 +265,7 @@ class eBayListing{
                 print $f; // error handling
         }
     }
-    
+    // ----------------   GET  POST -----------------------------------------------------------------------
     private function get($request){
 	$session = curl_init($request);
 		
@@ -345,115 +345,6 @@ class eBayListing{
     }
     
     //-----------------  Template --------------------------------------------------------------------------
-    /*
-     
-    CREATE TABLE IF NOT EXISTS `template` (
-	`Id` int(11) NOT NULL auto_increment,
-	`AutoPay` int(1) NOT NULL default '0',
-	`BuyItNowPrice` decimal(10,2) NOT NULL,
-	`CategoryMappingAllowed` int(1) NOT NULL default '0',
-	`Country` varchar(20) NOT NULL,
-	`Currency` varchar(5) NOT NULL,
-	`Description` text NOT NULL,
-	`DispatchTimeMax` int(11) NOT NULL,
-	`ListingDuration` varchar(10) NOT NULL,
-	`ListingType` varchar(20) default NULL,
-	`Location` varchar(15) NOT NULL,
-	`PaymentMethods` varchar(20) NOT NULL,
-	`PayPalEmailAddress` varchar(50) NOT NULL,
-	`PostalCode` varchar(10) NOT NULL,
-	`PrimaryCategoryCategoryID` int(11) NOT NULL,
-	`Quantity` int(11) NOT NULL,
-	`ReturnPolicyDescription` text NOT NULL,
-	`ReturnPolicyRefundOption` enum('Exchange','MerchandiseCredit','MoneyBack') NOT NULL,
-	`ReturnPolicyReturnsAcceptedOption` enum('ReturnsAccepted','ReturnsNotAccepted') NOT NULL,
-	`ReturnPolicyReturnsWithinOption` enum('Days_3','Days_7','Days_10','Days_14','Days_30','Days_60') NOT NULL,
-	`ReturnPolicyShippingCostPaidByOption` enum('Buyer','Seller') NOT NULL,
-	`ReservePrice` decimal(10,2) NOT NULL,
-	`CurrentPrice` decimal(10,2) NOT NULL,
-	`ListingStatus` varchar(20) NOT NULL,
-	`ScheduleTime` datetime NOT NULL,
-	`SecondaryCategoryCategoryID` int(11) NOT NULL,
-	`ShippingType` varchar(50) NOT NULL,
-	`Site` varchar(20) NOT NULL,
-	`SKU` varchar(20) NOT NULL,
-	`StartPrice` decimal(10,2) NOT NULL,
-	`StoreCategory2ID` int(11) NOT NULL,
-	`StoreCategoryID` int(11) NOT NULL,
-	`SubTitle` varchar(55) NOT NULL,
-	`Title` varchar(55) NOT NULL,
-	`UserID` varchar(30) NOT NULL,
-	`BoldTitle` tinyint(1) NOT NULL default '0',
-	`Border` tinyint(1) NOT NULL default '0',
-	`Featured` tinyint(1) NOT NULL default '0',
-	`Highlight` tinyint(1) NOT NULL default '0',
-	`HomePageFeatured` tinyint(1) NOT NULL default '0',
-	`GalleryTypeFeatured` tinyint(1) NOT NULL default '0',
-	`GalleryTypeGallery` tinyint(1) NOT NULL default '1',
-	`GalleryTypePlus` tinyint(1) NOT NULL default '0',
-	`GalleryURL` varchar(255) NOT NULL,
-	`PhotoDisplay` enum('PicturePack','SiteHostedPictureShow','SuperSize','SuperSizePictureShow','VendorHostedPictureShow') NOT NULL,
-	`accountId` int(11) NOT NULL,
-	PRIMARY KEY  (`Id`),
-	KEY `Title` (`Title`),
-	KEY `accountId` (`accountId`)
-    );
-      
-      
-      
-    CREATE TABLE IF NOT EXISTS `template_picture_url` (
-      `id` int(11) NOT NULL auto_increment,
-      `templateId` int(11) NOT NULL,
-      `url` varchar(150) NOT NULL,
-      PRIMARY KEY  (`id`),
-      KEY `templateId` (`templateId`)
-    );
-    
-    
-    CREATE TABLE IF NOT EXISTS `template_shipping_service_options` (
-      `id` int(11) NOT NULL auto_increment,
-      `templateId` int(11) NOT NULL,
-      `FreeShipping` tinyint(1) NOT NULL default '0',
-      `ShippingService` varchar(50) NOT NULL,
-      `ShippingServiceCost` decimal(10,2) NOT NULL,
-      `ShippingServiceAdditionalCost` decimal(10,2) NOT NULL default '0.00',
-      PRIMARY KEY  (`id`),
-      KEY `templateId` (`templateId`)
-    );
-    
-    
-    CREATE TABLE IF NOT EXISTS `template_international_shipping_service_option` (
-      `id` int(11) NOT NULL auto_increment,
-      `templateId` int(11) NOT NULL,
-      `ShippingService` varchar(50) NOT NULL,
-      `ShippingServiceCost` decimal(10,2) NOT NULL,
-      `ShippingServiceAdditionalCost` decimal(10,2) NOT NULL default '0.00',
-      `ShipToLocation` varchar(255) NOT NULL,
-      PRIMARY KEY  (`id`),
-      KEY `templateId` (`templateId`)
-    );
-    
-    
-    CREATE TABLE IF NOT EXISTS `template_attribute_set` (
-      `attribute_set_id` int(11) NOT NULL auto_increment,
-      `templateId` int(11) NOT NULL,
-      `attributeSetID` int(11) NOT NULL,
-      PRIMARY KEY  (`attribute_set_id`),
-      KEY `templateId` (`templateId`)
-    );
-    
-    
-    CREATE TABLE IF NOT EXISTS `template_attribute` (
-      `attributeID` int(11) NOT NULL,
-      `attribute_set_id` int(11) NOT NULL,
-      `ValueID` int(11) NOT NULL,
-      `ValueLiteral` varchar(255) NOT NULL,
-      KEY `attributeID` (`attributeID`),
-      KEY `attribute_set_id` (`attribute_set_id`)
-    );
-
-    */ 
-    
     public function getTemplateTree(){
 	$array = array();
 	$i = 0;
@@ -558,18 +449,102 @@ class eBayListing{
 	mysql_free_result($result);
     }
     
+    /*
+    ALTER TABLE `items`
+    DROP `ScheduleStartDate`,
+    DROP `ScheduleEndDate`;
+    */
     public function templateAddToUpload(){
 	if(strpos($_POST['ids'], ',')){
 	    $ids = explode(',', $_POST['ids']);
 	    foreach($ids as $id){
-		$sql = "update items set Status = '1' where Id = '".$id."'";
+		$sql_1 = "insert into items (AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+		Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
+		PostalCode,PrimaryCategoryCategoryID,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
+		ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,ShippingType,Site,SKU,StartPrice,
+		StoreCategory2ID,StoreCategoryID,SubTitle,Title,UserID,accountId,BoldTitle,Border,
+		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
+		GalleryURL,PhotoDisplay) values (select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+		Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
+		PostalCode,PrimaryCategoryCategoryID,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
+		ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,ShippingType,Site,SKU,StartPrice,
+		StoreCategory2ID,StoreCategoryID,SubTitle,Title,UserID,accountId,BoldTitle,Border,
+		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
+		GalleryURL,PhotoDisplay from template where Id = '".$id."')";
+		
+		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+		$item_id = mysql_insert_id(eBayListing::$database_connect);
+		
+		$sql_2 = "insert into picture_url (ItemID,url) values (select '".$item_id."',url from template_picture_url where templateId = '".$id."')";
+		$result_2 = mysql_query($sql_2, eBayListing::$database_connect);
+		
+		$sql_3 = "insert into shipping_service_options (ItemID,FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost) values (select '".$item_id."',FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost from template_shipping_service_options where templateId = '".$id."')";
+		$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+		
+		$sql_4 = "insert into international_shipping_service_option (ItemID,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShipToLocation) vaules (select '".$item_id."',ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShipToLocation from template_international_shipping_service_option where templateId = '".$id."')";
+		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+		
+		$sql_5 = "select * from template_attribute_set where templateId = '".$id."'";
+		$result_5 = mysql_query($sql_5, eBayListing::$database_connect);
+		while($row_5 = mysql_fetch_assoc($result_5)){
+		    $template_attribute_set_id = $row_5['attribute_set_id'];
+		    $sql_6 = "insert into attribute_set (ItemID,attributeSetID) values ('".$item_id."','".$row_5['attributeSetID']."')";
+		    $result_6 = mysql_query($sql_6, eBayListing::$database_connect);
+		    $attribute_set_id = mysql_insert_id(eBayListing::$database_connect);
+		    
+		    $sql_7 = "insert into attribute (attributeID,attribute_set_id,ValueID,ValueLiteral) 
+		    values (select attributeID,'".$attribute_set_id."',ValueID,ValueLiteral from template_attribute
+		    where attribute_set_id = '".$template_attribute_set_id."')";
+		    $result_7 = mysql_query($sql_7, eBayListing::$database_connect);
+		}
 	    }
 	}else{
-	    $sql = "update items set Status = '1' where Id = '".$_POST['ids']."'";
+	    $sql_1 = "insert into items (AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+	    Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
+	    PostalCode,PrimaryCategoryCategoryID,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
+	    ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,ShippingType,Site,SKU,StartPrice,
+	    StoreCategory2ID,StoreCategoryID,SubTitle,Title,UserID,accountId,BoldTitle,Border,
+	    Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
+	    GalleryURL,PhotoDisplay) values (select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+	    Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
+	    PostalCode,PrimaryCategoryCategoryID,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
+	    ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,ShippingType,Site,SKU,StartPrice,
+	    StoreCategory2ID,StoreCategoryID,SubTitle,Title,UserID,accountId,BoldTitle,Border,
+	    Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
+	    GalleryURL,PhotoDisplay from template where Id = '".$_POST['ids']."')";
+	    
+	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	    $item_id = mysql_insert_id(eBayListing::$database_connect);
+	    
+	    $sql_2 = "insert into picture_url (ItemID,url) values (select '".$item_id."',url from template_picture_url where templateId = '".$_POST['ids']."')";
+	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
+	    
+	    $sql_3 = "insert into shipping_service_options (ItemID,FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost) values (select '".$item_id."',FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost from template_shipping_service_options where templateId = '".$_POST['ids']."')";
+	    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+	    
+	    $sql_4 = "insert into international_shipping_service_option (ItemID,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShipToLocation) vaules (select '".$item_id."',ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShipToLocation from template_international_shipping_service_option where templateId = '".$_POST['ids']."')";
+	    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+	    
+	    $sql_5 = "select * from template_attribute_set where templateId = '".$_POST['ids']."'";
+	    $result_5 = mysql_query($sql_5, eBayListing::$database_connect);
+	    while($row_5 = mysql_fetch_assoc($result_5)){
+		$template_attribute_set_id = $row_5['attribute_set_id'];
+		$sql_6 = "insert into attribute_set (ItemID,attributeSetID) values ('".$item_id."','".$row_5['attributeSetID']."')";
+		$result_6 = mysql_query($sql_6, eBayListing::$database_connect);
+		$attribute_set_id = mysql_insert_id(eBayListing::$database_connect);
+		
+		$sql_7 = "insert into attribute (attributeID,attribute_set_id,ValueID,ValueLiteral) 
+		values (select attributeID,'".$attribute_set_id."',ValueID,ValueLiteral from template_attribute
+		where attribute_set_id = '".$template_attribute_set_id."')";
+		$result_7 = mysql_query($sql_7, eBayListing::$database_connect);
+	    }
 	}
-	$result = mysql_query($sql, eBayListing::$database_connect);
 	
-	echo $result;
+	if($result_1 && $result_2 && $result_3 && $result_4 && $result_5 && $result_6 && $result_7){
+	    echo 1;
+	}else{
+	    echo 0;
+	}
     }
     
     public function templateDelete(){
@@ -649,13 +624,13 @@ class eBayListing{
     }
     
     public function templateImportCsv(){
-	echo '{success:true, test:"'.print_r($_FILES, true).'"}';
-	exit;
-	$handle = fopen($_FILES['userfile']['tmp_name'], "r");
-	var_dump($handle);
-	exit;
+	//echo '{success:true, test:"'.print_r($_FILES, true).'"}';
+	//exit;
+	$handle = fopen($_FILES['csv']['tmp_name'], "r");
 	while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-	    print_r($data);
+	    //$data[0]
+	    //$data[1]
+	    $sql = "";
 	}
 	fclose($handle);
 	echo "{success:true}";
@@ -758,6 +733,258 @@ class eBayListing{
         
         echo json_encode($array);
     }
+    
+    public function addToTemplate(){
+	/*
+	CREATE TABLE IF NOT EXISTS `ship_to_location` (
+	  `SiteID` int(11) NOT NULL,
+	  `ShippingLocation` varchar(25) NOT NULL,
+	  `Description` varchar(50) NOT NULL,
+	  KEY `SiteID` (`SiteID`)
+	);
+	1> 分类属性
+	2> 生成导入sp的文件
+	3> 模板
+	4> 查询后显示的图片可自己输入  *
+	5> 隐藏拍卖用户ID
+	5> 运费政策     *
+	6> 输入保险费用
+	*/
+	//ScheduleStartDate,ScheduleEndDate
+	//ShippingType
+	//ShipToLocations
+	//print_r($_POST);
+	//exit;
+	if(!empty($_POST['UseStandardFooter']) && $_POST['UseStandardFooter'] == 1){
+	    $sql = "select footer from account_footer where accountId = '".$this->account_id."'";
+	    $result = mysql_query($sql, eBayListing::$database_connect);
+	    $row = mysql_fetch_assoc($result);
+	    $_POST['Description'] .= $row['footer'];
+	}
+	
+	if($_POST['ListingType'] == "FixedPriceItem" || $_POST['ListingType'] == "StoresFixedPrice"){
+	    $_POST['StartPrice'] = $_POST['BuyItNowPrice'];
+	    $_POST['BuyItNowPrice'] = 0;
+	}
+	
+	//StartTime,EndTime
+	//$PaymentMethods = ($_POST['PayPalPayment'] == 1)?'PayPal':'';
+	$sql = "insert into template (BuyItNowPrice,Country,Currency,Description,DispatchTimeMax,
+	ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,PostalCode,
+	PrimaryCategoryCategoryID,SecondaryCategoryCategoryID,Quantity,ReservePrice,
+	ShippingType,Site,SKU,StartPrice,StoreCategory2ID,StoreCategoryID,SubTitle,Title,
+	BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypePlus,accountId) values (
+	'".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
+	'".$_POST['Description']."','".$_POST['DispatchTimeMax']."',
+	'".$_POST['ListingDuration']."','".$_POST['ListingType']."','".$_POST['Location']."','PayPal',
+	'".$_POST['PayPalEmailAddress']."','".$_POST['PostalCode']."',
+	'".$_POST['PrimaryCategoryCategoryID']."','".$_POST['SecondaryCategoryCategoryID']."',
+	'".$_POST['Quantity']."','".@$_POST['ReservePrice']."','".@$_POST['ShippingType']."',
+	'".$_POST['Site']."','".$_POST['SKU']."','".$_POST['StartPrice']."','".$_POST['StoreCategory2ID']."',
+	'".$_POST['StoreCategoryID']."','".$_POST['SubTitle']."',
+	'".$_POST['Title']."','".(empty($_POST['BoldTitle'])?0:1)."',
+	'".(empty($_POST['Border'])?0:1)."','".(empty($_POST['Featured'])?0:1)."','".(empty($_POST['Highlight'])?0:1)."',
+	'".(empty($_POST['HomePageFeatured'])?0:1)."','".(empty($_POST['GalleryTypeFeatured'])?0:1)."','".(empty($_POST['GalleryTypePlus'])?0:1)."','".$this->account_id."')";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	
+	//echo $sql;
+	//exit;
+	
+	$id = mysql_insert_id(eBayListing::$database_connect);
+	
+	$i = 1;
+	while(!empty($_POST['picture_'.$i])){
+	    $sql_1 = "insert into template_picture_url (templateId,url) values 
+	    ('".$id."','".$_POST['picture_'.$i]."')";
+	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	    $i++;
+	}
+	
+	$i = 1;
+	while(!empty($_POST['ShippingService-'.$i])){
+	    $sql_1 = "insert into template_shipping_service_options (templateId,FreeShipping,ShippingService,ShippingServiceCost) values
+	    ('".$id."','".@$_POST['FreeShipping-'.$i]."','".$_POST['ShippingService-'.$i]."','".$_POST['ShippingServiceCost-'.$i]."')";
+	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	    $i++;
+	}
+	
+	$i = 1;
+	while(!empty($_POST['InternationalShippingService-'.$i])){
+	    $ShipToLocation = '';
+	    if($_POST['InternationalShippingToLocations-'.$i] == 'Custom Locations'){
+		if(!empty($_POST['Americas_'.$i]) && $_POST['Americas_'.$i] == 1){
+		    $ShipToLocation .= ',Americas';
+		}
+		
+		if(!empty($_POST['Europe_'.$i]) && $_POST['Europe_'.$i] == 1){
+		    $ShipToLocation .= ',Europe';
+		}
+		
+		if(!empty($_POST['Asia_'.$i]) && $_POST['Asia_'.$i] == 1){
+		    $ShipToLocation .= ',Asia';
+		}
+		
+		if(!empty($_POST['Canada_'.$i]) && $_POST['Canada_'.$i] == 1){
+		    $ShipToLocation .= ',CA';
+		}
+		
+		if(!empty($_POST['UK_'.$i]) && $_POST['UK_'.$i] == 1){
+		    $ShipToLocation .= ',GB';
+		}
+		
+		if(!empty($_POST['AU_'.$i]) && $_POST['AU_'.$i] == 1){
+		    $ShipToLocation .= ',AU';
+		}
+		
+		if(!empty($_POST['Mexico_'.$i]) && $_POST['Mexico_'.$i] == 1){
+		    $ShipToLocation .= ',MX';
+		}
+		
+		if(!empty($_POST['Germany_'.$i]) && $_POST['Germany_'.$i] == 1){
+		    $ShipToLocation .= ',DE';
+		}
+		
+		if(!empty($_POST['Japan_'.$i]) && $_POST['Japan_'.$i] == 1){
+		    $ShipToLocation .= ',JP';
+		}
+		
+		$ShipToLocation = substr($ShipToLocation, 1);
+	    }else{
+		$ShipToLocation = 'Worldwide';
+	    }
+	    $sql_2 = "insert into template_international_shipping_service_option (templateId,ShippingService,ShippingServiceCost,ShipToLocation) values
+	    ('".$id."','".$_POST['InternationalShippingService-'.$i]."','".$_POST['InternationalShippingServiceCost-'.$i]."','".$ShipToLocation."')";
+	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
+	    $i++;
+	}
+	
+	/*
+	英,美,法,澳,
+	Europe/London       +0100  -8h
+	America/New_York    -0400  -12h
+	Europe/Paris        +0200  -7h
+	Australia/Canberra  +1000  +2h
+	
+	Asia/Shanghai       +0800
+	
+	Array
+	(
+	    [LB00009-Mon-am-1] => Array
+		(
+		    [0] => 1:00 AM
+		    [1] => 1:01 AM
+		    [2] => 1:02 AM
+		)
+	)
+
+	*/
+	session_start();
+	if(!empty($_SESSION['Schedule'])){
+	    switch($_POST['Site']){
+		case "US":
+		    foreach($_SESSION['Schedule'] as $key=>$value){
+			$keyArray = explode("-", $key);
+			//if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
+			    foreach($value as $name){
+				//$sku = $keyArray[0];
+				$day = date("D", strtotime("-12 hour ".$keyArray[1]." ".$name));
+				$time = date("H:i:s", strtotime("-12 hour ".$name));
+				$china_time = date("H:i:s", strtotime($name));
+				$sql_3 = "insert into schedule (template_id,startDate,endDate,day,time,china_day,china_time,account_id) values 
+				('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."','".$this->account_id."')";
+				//echo $sql_3;
+				$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+			    }
+			//}
+		    }
+		break;
+	    
+		case "UK":
+		    foreach($_SESSION['Schedule'] as $key=>$value){
+			$keyArray = explode("-", $key);
+			//if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
+			    foreach($value as $name){
+				//$sku = $keyArray[0];
+				$day = date("D", strtotime("-8 hour ".$keyArray[1]." ".$name));
+				$time = date("H:i:s", strtotime("-8 hour ".$name));
+				$china_time = date("H:i:s", strtotime($name));
+				$sql_3 = "insert into schedule (template_id,startDate,endDate,day,time,china_day,china_time,account_id) values 
+				('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."','".$this->account_id."')";
+				$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+			    }
+			//}
+		    }
+		break;
+	    
+		case "AU":
+		    foreach($_SESSION['Schedule'] as $key=>$value){
+			$keyArray = explode("-", $key);
+			//if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
+			    foreach($value as $name){
+				//$sku = $keyArray[0];
+				$day = date("D", strtotime("+2 hour ".$keyArray[1]." ".$name));
+				$time = date("H:i:s", strtotime("+2 hour ".$name));
+				$china_time = date("H:i:s", strtotime($name));
+				$sql_3 = "insert into schedule (template_id,startDate,endDate,day,time,china_day,china_time,account_id) values 
+				('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."','".$this->account_id."')";
+				$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+			    }
+			//}
+		    }
+		break;
+	    
+		case "FR":
+		    foreach($_SESSION['Schedule'] as $key=>$value){
+			$keyArray = explode("-", $key);
+			//if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
+			    foreach($value as $name){
+				//$sku = $keyArray[0];
+				$day = date("D", strtotime("-7 hour ".$keyArray[1]." ".$name));
+				$time = date("H:i:s", strtotime("-7 hour ".$name));
+				$china_time = date("H:i:s", strtotime($name));
+				$sql_3 = "insert into schedule (template_id,startDate,endDate,day,time,china_day,china_time,account_id) values 
+				('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."','".$this->account_id."')";
+				$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+			    }
+			//}
+		    }
+		break;
+	    }
+	}
+	
+	if(!empty($_SESSION['AttributeSet'])){
+	    foreach($_SESSION['AttributeSet'][$_POST['SKU']] as $attributeSetID=>$Attribute){
+		$sql_4 = "insert into template_attribute_set (templateId,attributeSetID) values ('".$id."', '".$attributeSetID."')";
+		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+		
+		$attribute_set_id = mysql_insert_id(eBayListing::$database_connect);
+		
+		foreach($Attribute as $attributeID=>$ValueID){
+		    if(!empty($ValueID)){
+			$sql_4 = "insert into template_attribute (attributeID,attribute_set_id,ValueID) values 
+			('".$attributeID."', '".$attribute_set_id."', '".$ValueID."')";
+			$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+		    }
+		}
+	    }
+	}
+	
+	$sql_5 = "insert into template_to_template_cateogry (template_id,template_category_id) values ('".$id."','".$_POST['template_category_id']."')";
+	$result_5 = mysql_query($sql_5, eBayListing::$database_connect);
+	
+	if($result && $result_1 && $result_2){
+	    unset($_SESSION['Schedule']);
+	    unset($_SESSION['AttributeSet']);
+	    echo '{success: true}';
+	    $this->log("template", $_POST['SKU'] . " add to template.");
+	}else{
+	    echo '{success: false,
+		    errors: {message: "can\'t create."}
+		}';
+	    $this->log("template", $_POST['SKU'] . " add to template failure.", "error");
+	}
+    }
+    
     //-------------------------------------------------------------------------------------------------------
     public function getAllInventorySkus(){
 	$result = $this->get(self::INVENTORY_SERVICE."?action=getAllSkus");
@@ -1134,286 +1361,6 @@ class eBayListing{
     }
     
     //-----------------  Item Specifics -----------------------------------------------
-    /*
-    CREATE TABLE IF NOT EXISTS `CharacteristicsSets` (
-	`SiteID` int(11) NOT NULL,
-	`CategoryID` int(11) NOT NULL,
-	`Name` varchar(255) NOT NULL,
-	`AttributeSetID` int(11) NOT NULL,
-	`AttributeSetVersion` int(11) NOT NULL,
-	KEY `CategoryID` (`CategoryID`),
-	KEY `SiteID` (`SiteID`)
-    )
-    
-    CREATE TABLE IF NOT EXISTS `CharacteristicsLists` (
-	`CharacteristicsSetId` int(11) NOT NULL,
-	`AttributeId` int(11) NOT NULL,
-	`Label` varchar(50) character set latin1 NOT NULL,
-	`Type` varchar(20) character set latin1 NOT NULL,
-	KEY `CharacteristicsSetId` (`CharacteristicsSetId`)
-    )
-    
-    CREATE TABLE IF NOT EXISTS `CharacteristicsAttributeValueLists` (
-	`CharacteristicsSetId` int(11) NOT NULL,
-	`AttributeId` int(11) NOT NULL,
-	`id` int(11) NOT NULL,
-	`name` varchar(255) NOT NULL,
-	KEY `CharacteristicsSetId` (`CharacteristicsSetId`),
-	KEY `AttributeId` (`AttributeId`)
-    ) 
-    */
-    
-    public function addToTemplate(){
-	/*
-	CREATE TABLE IF NOT EXISTS `ship_to_location` (
-	  `SiteID` int(11) NOT NULL,
-	  `ShippingLocation` varchar(25) NOT NULL,
-	  `Description` varchar(50) NOT NULL,
-	  KEY `SiteID` (`SiteID`)
-	);
-	1> 分类属性
-	2> 生成导入sp的文件
-	3> 模板
-	4> 查询后显示的图片可自己输入  *
-	5> 隐藏拍卖用户ID
-	5> 运费政策     *
-	6> 输入保险费用
-	*/
-	//ScheduleStartDate,ScheduleEndDate
-	//ShippingType
-	//ShipToLocations
-	//print_r($_POST);
-	//exit;
-	if(!empty($_POST['UseStandardFooter']) && $_POST['UseStandardFooter'] == 1){
-	    $sql = "select footer from account_footer where accountId = '".$this->account_id."'";
-	    $result = mysql_query($sql, eBayListing::$database_connect);
-	    $row = mysql_fetch_assoc($result);
-	    $_POST['Description'] .= $row['footer'];
-	}
-	
-	if($_POST['ListingType'] == "FixedPriceItem" || $_POST['ListingType'] == "StoresFixedPrice"){
-	    $_POST['StartPrice'] = $_POST['BuyItNowPrice'];
-	    $_POST['BuyItNowPrice'] = 0;
-	}
-	
-	//StartTime,EndTime
-	//$PaymentMethods = ($_POST['PayPalPayment'] == 1)?'PayPal':'';
-	$sql = "insert into template (BuyItNowPrice,Country,Currency,Description,DispatchTimeMax,
-	ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,PostalCode,
-	PrimaryCategoryCategoryID,SecondaryCategoryCategoryID,Quantity,ReservePrice,
-	ShippingType,Site,SKU,StartPrice,StoreCategory2ID,StoreCategoryID,SubTitle,Title,
-	BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypePlus,accountId) values (
-	'".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
-	'".$_POST['Description']."','".$_POST['DispatchTimeMax']."',
-	'".$_POST['ListingDuration']."','".$_POST['ListingType']."','".$_POST['Location']."','PayPal',
-	'".$_POST['PayPalEmailAddress']."','".$_POST['PostalCode']."',
-	'".$_POST['PrimaryCategoryCategoryID']."','".$_POST['SecondaryCategoryCategoryID']."',
-	'".$_POST['Quantity']."','".@$_POST['ReservePrice']."','".@$_POST['ShippingType']."',
-	'".$_POST['Site']."','".$_POST['SKU']."','".$_POST['StartPrice']."','".$_POST['StoreCategory2ID']."',
-	'".$_POST['StoreCategoryID']."','".$_POST['SubTitle']."',
-	'".$_POST['Title']."','".(empty($_POST['BoldTitle'])?0:1)."',
-	'".(empty($_POST['Border'])?0:1)."','".(empty($_POST['Featured'])?0:1)."','".(empty($_POST['Highlight'])?0:1)."',
-	'".(empty($_POST['HomePageFeatured'])?0:1)."','".(empty($_POST['GalleryTypeFeatured'])?0:1)."','".(empty($_POST['GalleryTypePlus'])?0:1)."','".$this->account_id."')";
-	$result = mysql_query($sql, eBayListing::$database_connect);
-	
-	//echo $sql;
-	//exit;
-	
-	$id = mysql_insert_id(eBayListing::$database_connect);
-	
-	$i = 1;
-	while(!empty($_POST['picture_'.$i])){
-	    $sql_1 = "insert into template_picture_url (templateId,url) values 
-	    ('".$id."','".$_POST['picture_'.$i]."')";
-	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	    $i++;
-	}
-	
-	$i = 1;
-	while(!empty($_POST['ShippingService-'.$i])){
-	    $sql_1 = "insert into template_shipping_service_options (templateId,FreeShipping,ShippingService,ShippingServiceCost) values
-	    ('".$id."','".@$_POST['FreeShipping-'.$i]."','".$_POST['ShippingService-'.$i]."','".$_POST['ShippingServiceCost-'.$i]."')";
-	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	    $i++;
-	}
-	
-	$i = 1;
-	while(!empty($_POST['InternationalShippingService-'.$i])){
-	    $ShipToLocation = '';
-	    if($_POST['InternationalShippingToLocations-'.$i] == 'Custom Locations'){
-		if(!empty($_POST['Americas_'.$i]) && $_POST['Americas_'.$i] == 1){
-		    $ShipToLocation .= ',Americas';
-		}
-		
-		if(!empty($_POST['Europe_'.$i]) && $_POST['Europe_'.$i] == 1){
-		    $ShipToLocation .= ',Europe';
-		}
-		
-		if(!empty($_POST['Asia_'.$i]) && $_POST['Asia_'.$i] == 1){
-		    $ShipToLocation .= ',Asia';
-		}
-		
-		if(!empty($_POST['Canada_'.$i]) && $_POST['Canada_'.$i] == 1){
-		    $ShipToLocation .= ',CA';
-		}
-		
-		if(!empty($_POST['UK_'.$i]) && $_POST['UK_'.$i] == 1){
-		    $ShipToLocation .= ',GB';
-		}
-		
-		if(!empty($_POST['AU_'.$i]) && $_POST['AU_'.$i] == 1){
-		    $ShipToLocation .= ',AU';
-		}
-		
-		if(!empty($_POST['Mexico_'.$i]) && $_POST['Mexico_'.$i] == 1){
-		    $ShipToLocation .= ',MX';
-		}
-		
-		if(!empty($_POST['Germany_'.$i]) && $_POST['Germany_'.$i] == 1){
-		    $ShipToLocation .= ',DE';
-		}
-		
-		if(!empty($_POST['Japan_'.$i]) && $_POST['Japan_'.$i] == 1){
-		    $ShipToLocation .= ',JP';
-		}
-		
-		$ShipToLocation = substr($ShipToLocation, 1);
-	    }else{
-		$ShipToLocation = 'Worldwide';
-	    }
-	    $sql_2 = "insert into template_international_shipping_service_option (templateId,ShippingService,ShippingServiceCost,ShipToLocation) values
-	    ('".$id."','".$_POST['InternationalShippingService-'.$i]."','".$_POST['InternationalShippingServiceCost-'.$i]."','".$ShipToLocation."')";
-	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
-	    $i++;
-	}
-	
-	/*
-	英,美,法,澳,
-	Europe/London       +0100  -8h
-	America/New_York    -0400  -12h
-	Europe/Paris        +0200  -7h
-	Australia/Canberra  +1000  +2h
-	
-	Asia/Shanghai       +0800
-	
-	Array
-	(
-	    [LB00009-Mon-am-1] => Array
-		(
-		    [0] => 1:00 AM
-		    [1] => 1:01 AM
-		    [2] => 1:02 AM
-		)
-	)
-
-	*/
-	session_start();
-	if(!empty($_SESSION['Schedule'])){
-	    switch($_POST['Site']){
-		case "US":
-		    foreach($_SESSION['Schedule'] as $key=>$value){
-			$keyArray = explode("-", $key);
-			//if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
-			    foreach($value as $name){
-				//$sku = $keyArray[0];
-				$day = date("D", strtotime("-12 hour ".$keyArray[1]." ".$name));
-				$time = date("H:i:s", strtotime("-12 hour ".$name));
-				$china_time = date("H:i:s", strtotime($name));
-				$sql_3 = "insert into schedule (template_id,startDate,endDate,day,time,china_day,china_time,account_id) values 
-				('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."','".$this->account_id."')";
-				//echo $sql_3;
-				$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
-			    }
-			//}
-		    }
-		break;
-	    
-		case "UK":
-		    foreach($_SESSION['Schedule'] as $key=>$value){
-			$keyArray = explode("-", $key);
-			//if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
-			    foreach($value as $name){
-				//$sku = $keyArray[0];
-				$day = date("D", strtotime("-8 hour ".$keyArray[1]." ".$name));
-				$time = date("H:i:s", strtotime("-8 hour ".$name));
-				$china_time = date("H:i:s", strtotime($name));
-				$sql_3 = "insert into schedule (template_id,startDate,endDate,day,time,china_day,china_time,account_id) values 
-				('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."','".$this->account_id."')";
-				$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
-			    }
-			//}
-		    }
-		break;
-	    
-		case "AU":
-		    foreach($_SESSION['Schedule'] as $key=>$value){
-			$keyArray = explode("-", $key);
-			//if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
-			    foreach($value as $name){
-				//$sku = $keyArray[0];
-				$day = date("D", strtotime("+2 hour ".$keyArray[1]." ".$name));
-				$time = date("H:i:s", strtotime("+2 hour ".$name));
-				$china_time = date("H:i:s", strtotime($name));
-				$sql_3 = "insert into schedule (template_id,startDate,endDate,day,time,china_day,china_time,account_id) values 
-				('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."','".$this->account_id."')";
-				$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
-			    }
-			//}
-		    }
-		break;
-	    
-		case "FR":
-		    foreach($_SESSION['Schedule'] as $key=>$value){
-			$keyArray = explode("-", $key);
-			//if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
-			    foreach($value as $name){
-				//$sku = $keyArray[0];
-				$day = date("D", strtotime("-7 hour ".$keyArray[1]." ".$name));
-				$time = date("H:i:s", strtotime("-7 hour ".$name));
-				$china_time = date("H:i:s", strtotime($name));
-				$sql_3 = "insert into schedule (template_id,startDate,endDate,day,time,china_day,china_time,account_id) values 
-				('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."','".$this->account_id."')";
-				$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
-			    }
-			//}
-		    }
-		break;
-	    }
-	}
-	
-	if(!empty($_SESSION['AttributeSet'])){
-	    foreach($_SESSION['AttributeSet'][$_POST['SKU']] as $attributeSetID=>$Attribute){
-		$sql_4 = "insert into template_attribute_set (templateId,attributeSetID) values ('".$id."', '".$attributeSetID."')";
-		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-		
-		$attribute_set_id = mysql_insert_id(eBayListing::$database_connect);
-		
-		foreach($Attribute as $attributeID=>$ValueID){
-		    if(!empty($ValueID)){
-			$sql_4 = "insert into template_attribute (attributeID,attribute_set_id,ValueID) values 
-			('".$attributeID."', '".$attribute_set_id."', '".$ValueID."')";
-			$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-		    }
-		}
-	    }
-	}
-	
-	$sql_5 = "insert into template_to_template_cateogry (template_id,template_category_id) values ('".$id."','".$_POST['template_category_id']."')";
-	$result_5 = mysql_query($sql_5, eBayListing::$database_connect);
-	
-	if($result && $result_1 && $result_2){
-	    unset($_SESSION['Schedule']);
-	    unset($_SESSION['AttributeSet']);
-	    echo '{success: true}';
-	    $this->log("template", $_POST['SKU'] . " add to template.");
-	}else{
-	    echo '{success: false,
-		    errors: {message: "can\'t create."}
-		}';
-	    $this->log("template", $_POST['SKU'] . " add to template failure.", "error");
-	}
-    }
-    
     //http://127.0.0.1:6666/eBayBO/eBaylisting/service.php?action=getAllCategory2CS
     public function getCategory2CS(){
 	try {
@@ -1612,7 +1559,7 @@ class eBayListing{
 	mysql_free_result($result);
     }
     
-    
+    //-------------------------- Upload  -------------------------------------------------------------------
     public function uploadItem(){
 	$date = date("Y-m-d");
 	$day = date("D");
@@ -2315,7 +2262,7 @@ class eBayListing{
 	*/
     }
     
-    //-----------------   Schedule  -----------------------------------------------------------------------------
+    //-----------------    Login  -----------------------------------------------------------------------------
     public function login(){
 	/*
 	ALTER TABLE `account` ADD `role` ENUM( 'user', 'admin' ) NOT NULL DEFAULT 'user' AFTER `password` ;

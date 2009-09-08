@@ -332,11 +332,11 @@ Ext.onReady(function(){
                               },
                               items:[{
                                    xtype: 'fileuploadfield',
-                                   id: 'csv-file',
+                                   id: 'csv',
                                    emptyText: 'Select an csv file',
                                    fieldLabel: 'CSV',
                                    //hideLabel:true,
-                                   name: 'csv-file',
+                                   name: 'csv',
                                    buttonText: '',
                                    buttonCfg: {
                                        iconCls: 'upload-icon'
@@ -882,29 +882,29 @@ Ext.onReady(function(){
                                                      columnWidth: 0.3,
                                                      layout: 'fit',
                                                      items: {
-                                                             id:'ebay-manage-grid',
-                                                             xtype: 'grid',
-                                                             store: store,
-                                                             columns:[
-                                                                     {id:'name', header: "Name", width: 200, sortable: true, dataIndex: 'name'}
-                                                                 ],
-                                                             sm: new Ext.grid.RowSelectionModel({
+                                                            id:'ebay-manage-grid',
+                                                            xtype: 'grid',
+                                                            store: store,
+                                                            columns:[
+                                                                    {id:'name', header: "Name", width: 200, sortable: true, dataIndex: 'name'}
+                                                                ],
+                                                            sm: new Ext.grid.RowSelectionModel({
                                                                  singleSelect: true,
                                                                  listeners: {
-                                                                     rowselect: function(sm, row, rec) {
-                                                                         Ext.getCmp("ebay-manage-form").getForm().loadRecord(rec);
-                                                                     }
+                                                                      rowselect: function(sm, row, rec) {
+                                                                          Ext.getCmp("ebay-manage-form").getForm().loadRecord(rec);
+                                                                      }
                                                                  }
-                                                             }),
-                                                             height: 350,
-                                                             title:'eBay Account List',
-                                                             border: true,
-                                                             listeners: {
-                                                                     render: function(g) {
-                                                                             g.getSelectionModel().selectRow(0);
-                                                                     },
-                                                                     delay: 10 // Allow rows to be rendered.
-                                                             }
+                                                            }),
+                                                            height: 350,
+                                                            title:'eBay Account List',
+                                                            border: true,
+                                                            listeners: {
+                                                                      render: function(g) {
+                                                                            g.getSelectionModel().selectRow(0);
+                                                                      },
+                                                                      delay: 10 // Allow rows to be rendered.
+                                                            }
                                                          }
                                                  },{
                                                      columnWidth:0.7,
