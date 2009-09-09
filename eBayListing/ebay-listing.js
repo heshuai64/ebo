@@ -227,6 +227,7 @@ Ext.onReady(function(){
           autoHeight: true,
           selModel: new Ext.grid.RowSelectionModel({}),
           columns:[
+               {header: "Id", width: 40, align: 'center', sortable: true, dataIndex: 'Id'},
                {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
                {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title'},
                {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
@@ -789,6 +790,7 @@ Ext.onReady(function(){
                                    autoHeight: true,
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
+                                        {header: "Id", width: 40, align: 'center', sortable: true, dataIndex: 'Id'},
                                         {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
                                         {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title'},
                                         {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
