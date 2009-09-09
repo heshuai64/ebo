@@ -87,8 +87,8 @@ class eBayListing{
     }
     
     private function saveFetchData($file_name, $data){
-	//file_put_contents("/export/eBayBO/eBayListing/log/".$file_name, $data);
-	file_put_contents("C:\\xampp\\htdocs\\eBayBO\\eBayListing\\log\\".$file_name, $data);
+	file_put_contents("/export/eBayBO/eBayListing/log/".$file_name, $data);
+	//file_put_contents("C:\\xampp\\htdocs\\eBayBO\\eBayListing\\log\\".$file_name, $data);
     }
     //------------------  eBay Category --------------------------------------------------------------------
     private function checkCategoriesVersion($siteId, $categoryVersion){
@@ -699,6 +699,8 @@ class eBayListing{
 	  `Description` varchar(50) NOT NULL,
 	  KEY `SiteID` (`SiteID`)
 	);
+	ALTER TABLE `attribute` CHANGE `ValueID` `ValueID` VARCHAR( 100 ) NOT NULL;
+	ALTER TABLE `template_attribute` CHANGE `ValueID` `ValueID` VARCHAR( 100 ) NOT NULL  
 	1> 分类属性
 	2> 生成导入sp的文件
 	3> 模板
@@ -913,17 +915,47 @@ class eBayListing{
 	    }
 	}
 	
+	$temp_array = array();
 	if(!empty($_SESSION['AttributeSet'])){
+	    //print_r($_SESSION['AttributeSet']);
+	    //exit;
+	    
 	    foreach($_SESSION['AttributeSet'][$_POST['SKU']] as $attributeSetID=>$Attribute){
 		$sql_4 = "insert into template_attribute_set (templateId,attributeSetID) values ('".$id."', '".$attributeSetID."')";
 		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
 		
 		$attribute_set_id = mysql_insert_id(eBayListing::$database_connect);
-		
+		$temp_array = array();
 		foreach($Attribute as $attributeID=>$ValueID){
 		    if(!empty($ValueID)){
+			if(strpos($ValueID, "on") != false){
+			    $tempAttributeID = $attributeID;
+			    $attributeID = substr($ValueID, 0, -3);
+			    $ValueID = substr($tempAttributeID, 0, -9);
+			    //echo $attributeID.":".$ValueID;
+			    //echo "\n";
+			    $temp_array[$attributeID][] = $ValueID;
+			}else{
+				$sql_4 = "insert into template_attribute (attributeID,attribute_set_id,ValueID) values 
+				('".$attributeID."', '".$attribute_set_id."', '".$ValueID."')";
+				$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+				
+				//echo $sql_4;
+				//echo "\n";
+			}
+		    }
+		}
+		
+		//print_r($temp_array);
+		if(count($temp_array) > 0){
+		    foreach($temp_array as $key=>$value){
+			$ValueID = "";
+			foreach($value as $id=>$name){
+			    $ValueID .= $name.',';
+			}
+			$ValueID = substr($ValueID, 0, -1);
 			$sql_4 = "insert into template_attribute (attributeID,attribute_set_id,ValueID) values 
-			('".$attributeID."', '".$attribute_set_id."', '".$ValueID."')";
+			('".$key."', '".$attribute_set_id."', '".$ValueID."')";
 			$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
 		    }
 		}
@@ -944,6 +976,14 @@ class eBayListing{
 		}';
 	    $this->log("template", $_POST['SKU'] . " add to template failure.", "error");
 	}
+    }
+    
+    public function getTemplate(){
+	$sql = "select * from template where Id = '".$_GET['id']."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	echo '['.json_encode($row).']';
+	mysql_free_result($result);
     }
     
     //-------------------------------------------------------------------------------------------------------
@@ -1345,7 +1385,7 @@ class eBayListing{
 	    
 	    echo "\n****************************************************************\n";
 	    flush();
-	    //exit();
+	    exit();
 	} catch (SOAPFault $f) {
             print $f; // error handling
         }
@@ -1371,6 +1411,9 @@ class eBayListing{
 	    $results = $client->GetAttributesCS($params);
 	    
 	    file_put_contents("GetAttributesCS-".$this->site_id.".xml", $results->AttributeData);
+	    echo "\n******************   getAttributesCS Site ".$this->site_id." **************************\n";
+	    flush();
+	    exit();
 	} catch (SOAPFault $f) {
             print $f; // error handling
         }
@@ -1383,7 +1426,6 @@ class eBayListing{
 	    $this->setSite($row['id']);
 	    $this->configEbay();
 	    $this->getAttributesCS();
-	    exit();
 	}
     }
     
@@ -1417,9 +1459,10 @@ class eBayListing{
 		case "checkbox":
 		    $array['Attribute'][$i]['xtype'] = "checkboxgroup";
 		    $array['Attribute'][$i]['fieldLabel'] = $row['Label'];
+		    //$array['Attribute'][$i]['name'] = $row['AttributeId'];
 		    $array['Attribute'][$i]['items'] = "[";
 		    while($row_1 = mysql_fetch_array($result_1, MYSQL_ASSOC)){
-			$array['Attribute'][$i]['items'] .= "{id: '".$row_1['id']."', boxLabel: '".$row_1['name']."', name: '".$row_1['id']."'},";
+			$array['Attribute'][$i]['items'] .= "{id: '".$row_1['id']."_checkbox"."', boxLabel: '".$row_1['name']."', name: '".$row_1['id']."_checkbox"."', inputValue: '".$row['AttributeId']."_on'},";
 		    }
 		    $array['Attribute'][$i]['items'] = substr($array['Attribute'][$i]['items'], 0, -1);
 		    $array['Attribute'][$i]['items'] .= "]";
@@ -1525,7 +1568,7 @@ class eBayListing{
 	$date = date("Y-m-d");
 	$day = date("D");
 	$time = date("H:i:00");
-	
+	/*
 	$sql = "select item_id from schedule where startDate <= '".$date."' and endDate => '".$date."' and day = '".$day."' and time ='".$time."'";
 	//$sql = "select item_id from schedule where day = '".$day."' and time ='".$time."'";
 	//$sql = "select item_id from schedule where day = '".$day."'";
@@ -1533,6 +1576,8 @@ class eBayListing{
 	
 	$result = mysql_query($sql);
 	while($row = mysql_fetch_assoc($result)){
+	*/
+	    $row['item_id'] = 18;
 	    $sql_1 = "select * from items where Id = '".$row['item_id']."'";
 	    $result_1 = mysql_query($sql_1);
 	    $row_1 = mysql_fetch_assoc($result_1);
@@ -1560,11 +1605,12 @@ class eBayListing{
 		$PictureURL[] = $row_4['url'];
 	    } 
 	    
-	    $sql_5 = "select * from attribute_set where item_id = '".$row['item_id']."'";
+	    $sql_5 = "select * from attribute_set where ItemID = '".$row['item_id']."'";
 	    $result_5 = mysql_query($sql_5);
 	    $AttributeSetArray = array();
 	    $i = 0;
 	    while($row_5 = mysql_fetch_assoc($result_5)){
+		/*
 		$AttributeSetArray[$i]['AttributeSet']['attributeSetID'] = $row_5['attributeSetID'];
 		
 		$sql_6 = "select * from attribute where attribute_set_id = '".$row_5['attribute_set_id']."'";
@@ -1579,6 +1625,30 @@ class eBayListing{
 		    $j++;
 		}
 		$i++;
+		*/
+		$AttributeSetArray['AttributeSet']['attributeSetID'] = $row_5['attributeSetID'];
+		
+		$sql_6 = "select * from attribute where attribute_set_id = '".$row_5['attribute_set_id']."'";
+		$result_6 = mysql_query($sql_6);
+		$j = 0;
+		while($row_6 = mysql_fetch_assoc($result_6)){
+		    $AttributeSetArray['AttributeSet']['Attribute'][$j]['attributeID'] = $row_6['attributeID'];
+		    if(strpos($row_6['ValueID'], ",") != false){
+			$ValueIDArray = explode(",", $row_6['ValueID']);
+			$k = 0;
+			//print_r($ValueIDArray);
+			foreach($ValueIDArray as $ValueID){
+			    $AttributeSetArray['AttributeSet']['Attribute'][$j]['Value'][$k]['ValueID'] = $ValueID;
+			    $k++;
+			}
+		    }else{
+			$AttributeSetArray['AttributeSet']['Attribute'][$j]['Value']['ValueID'] = $row_6['ValueID'];
+		    }
+		    if(!empty($row_6['ValueLiteral'])){
+			$AttributeSetArray['AttributeSet']['Attribute'][$j]['Value']['ValueLiteral'] = $row_6['ValueLiteral'];
+		    }
+		    $j++;
+		}
 	    }
 	    
 	    $row_1['AttributeSetArray'] = $AttributeSetArray;
@@ -1586,10 +1656,10 @@ class eBayListing{
 	    $row_1['InternationalShippingServiceOption'] = $InternationalShippingServiceOption;
 	    $row_1['PictureURL'] = $PictureURL;
 	    
-	    print_r($row_1);
-	    exit;
+	    //print_r($row_1);
+	    //exit;
 	    $this->addItem($row_1);
-	}
+	//}
     }
     
     private function addItem($item){
@@ -1869,11 +1939,11 @@ class eBayListing{
 		//echo $results->ItemID;
 		//echo $results->StartTime;
 		//echo $results->EndTime;
-		$sql = "update items set ItemID = '".$results->ItemID."',Status='2',StartTime='".$results->StartTime."',
+		$sql = "update items set ItemID = '".$results->ItemID."',Status='1',StartTime='".$results->StartTime."',
 		EndTime='".$results->EndTime."' where Id = '".$item['Id']."'";
 		echo $sql;
 		$result = mysql_query($sql);
-		$this->log("upload", "XXX");
+		$this->log("upload", $sql);
 	    }
 	    //----------   debug --------------------------------
 	    //print "Request: \n".$client->__getLastRequest() ."\n";

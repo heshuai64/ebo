@@ -29,6 +29,7 @@ class Lists {
     public function shipmentRegistered(){
         $this->content = '<table border="1">
             <tr>
+            <th>No</th>
             <th>Shipment Method</th>
             <th>Tracking Number</th>
             <th>Country</th>

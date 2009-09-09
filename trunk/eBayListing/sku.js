@@ -428,7 +428,7 @@ Ext.onReady(function(){
                                                 //console.log(temp);
                                                 for(var i in temp[0]){
                                                     //console.log(i);
-                                                    if(temp[0][i] == "on"){
+                                                    if(temp[0][i].indexOf("on") != -1){
                                                         Ext.getCmp(i).setValue(1);
                                                     }
                                                 }

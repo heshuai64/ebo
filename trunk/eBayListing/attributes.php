@@ -173,17 +173,21 @@ class Attributes  {
     }
     
     public function dealData(){
-    	print_r($this->array);
-    	exit;
+    	//print_r($this->array);
+    	//exit;
     	foreach ($this->array as $key1=>$value1){
             foreach ($value1 as $key2=>$value2){
                 $sql_1 = "insert into CharacteristicsLists (CharacteristicsSetId,AttributeId,Label,Type) values ('".$key1."','".$key2."','".$value2['Label']."','".$value2['Type']."')";
                 $result_1 = mysql_query($sql_1, Attributes::$database_connect);
+                echo $sql_1;
+                echo "\n";
                 
                 foreach ($value2['ValueList'] as $key3=>$value3){
                     $sql_2 = "insert into CharacteristicsAttributeValueLists (CharacteristicsSetId,AttributeId,id,name) values 
                     ('".$key1."','".$key2."','".$key3."','".$value3."')";
                     $result_2 = mysql_query($sql_2, Attributes::$database_connect);
+                    echo $sql_2;
+                    echo "\n";
                 }
             }
         }
@@ -191,8 +195,21 @@ class Attributes  {
 
 }
 
+$conn = mysql_connect("localhost", "root", "5333533");
+
+if (!$conn) {
+    echo "Unable to connect to DB: " . mysql_error();
+    exit;
+}
+  
+if (!mysql_select_db("ebaylisting")) {
+    echo "Unable to select mydbname: " . mysql_error();
+    exit;
+}
+
+
 $sql = "select id from site where status = 1";
-$result = mysql_query($sql, eBayListing::$database_connect);
+$result = mysql_query($sql);
 while ($row = mysql_fetch_assoc($result)){
     $a = new Attributes();
     $f = fopen('GetAttributesCS-'.$row['id'].'.xml', 'r' );
@@ -200,6 +217,7 @@ while ($row = mysql_fetch_assoc($result)){
         $a->parse($data);
     }
     $a->dealData();
+    exit;
 }
 
 ?>
