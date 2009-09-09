@@ -699,8 +699,7 @@ class eBayListing{
 	  `Description` varchar(50) NOT NULL,
 	  KEY `SiteID` (`SiteID`)
 	);
-	ALTER TABLE `attribute` CHANGE `ValueID` `ValueID` VARCHAR( 100 ) NOT NULL;
-	ALTER TABLE `template_attribute` CHANGE `ValueID` `ValueID` VARCHAR( 100 ) NOT NULL  
+	
 	1> 分类属性
 	2> 生成导入sp的文件
 	3> 模板
