@@ -469,8 +469,8 @@ Ext.onReady(function(){
                                 xtype:"combo",
                                 fieldLabel:"Category",
                                 editable:false,
-                                //name:"combovalue",
-                                //hiddenName:"combovalue",
+                                name:"PrimaryCategoryCategoryName",
+                                hiddenName:"PrimaryCategoryCategoryName",
                                 width: 600,
                                 listWidth: 600,
                                 allowBlank:false
@@ -559,8 +559,8 @@ Ext.onReady(function(){
                                 xtype:"combo",
                                 fieldLabel:"2nd Category",
                                 editable:false,
-                                //name:"combovalue",
-                                //hiddenName:"combovalue",
+                                name:"SecondaryCategoryCategoryName",
+                                hiddenName:"SecondaryCategoryCategoryName",
                                 width: 600,
                                 listWidth: 600
                             }]
@@ -648,8 +648,8 @@ Ext.onReady(function(){
                                 xtype:"combo",
                                 fieldLabel:"Store Category",
                                 editable:false,
-                                //name:"combovalue",
-                                //hiddenName:"combovalue",
+                                name:"StoreCategoryName",
+                                hiddenName:"StoreCategoryName",
                                 width: 600,
                                 listWidth: 600
                             }]
@@ -737,8 +737,8 @@ Ext.onReady(function(){
                                 xtype:"combo",
                                 fieldLabel:"2nd Store Category",
                                 editable:false,
-                                //name:"combovalue",
-                                //hiddenName:"combovalue",
+                                name:"StoreCategory2Name",
+                                hiddenName:"StoreCategory2Name",
                                 width: 600,
                                 listWidth: 600
                             }]

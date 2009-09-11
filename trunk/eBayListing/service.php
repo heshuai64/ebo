@@ -452,15 +452,15 @@ class eBayListing{
     private function tempalteChangeToItem($template_id, $time){
 	$sql_1 = "insert into items (AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 	Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
-	PostalCode,PrimaryCategoryCategoryID,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
-	ReservePrice,CurrentPrice,ScheduleTime,SecondaryCategoryCategoryID,ShippingType,Site,SKU,StartPrice,
+	PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
+	ReservePrice,CurrentPrice,ScheduleTime,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 	StoreCategory2ID,StoreCategoryID,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 	Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 	GalleryURL,PhotoDisplay,Status) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 	Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
-	PostalCode,PrimaryCategoryCategoryID,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
-	ReservePrice,CurrentPrice,'".$time."',SecondaryCategoryCategoryID,ShippingType,Site,SKU,StartPrice,
-	StoreCategory2ID,StoreCategoryID,SubTitle,Title,UserID,accountId,BoldTitle,Border,
+	PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
+	ReservePrice,CurrentPrice,'".$time."',SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
+	StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 	Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 	GalleryURL,PhotoDisplay,'0' from template where Id = '".$template_id."'";
 	
@@ -700,6 +700,16 @@ class eBayListing{
 	  KEY `SiteID` (`SiteID`)
 	);
 	
+	ALTER TABLE `template` ADD `PrimaryCategoryCategoryName` VARCHAR( 200 ) NOT NULL AFTER `PrimaryCategoryCategoryID` ;
+	ALTER TABLE `template` ADD `SecondaryCategoryCategoryName` VARCHAR( 200 ) NOT NULL AFTER `SecondaryCategoryCategoryID` ;
+	ALTER TABLE `template` ADD `StoreCategoryName` VARCHAR( 200 ) NOT NULL AFTER `StoreCategoryID` ;
+	ALTER TABLE `template` ADD `StoreCategory2Name` VARCHAR( 200 ) NOT NULL AFTER `StoreCategory2ID` ;
+	
+	ALTER TABLE `items` ADD `PrimaryCategoryCategoryName` VARCHAR( 200 ) NOT NULL AFTER `PrimaryCategoryCategoryID` ;
+	ALTER TABLE `items` ADD `SecondaryCategoryCategoryName` VARCHAR( 200 ) NOT NULL AFTER `SecondaryCategoryCategoryID` ;
+	ALTER TABLE `items` ADD `StoreCategoryName` VARCHAR( 200 ) NOT NULL AFTER `StoreCategoryID` ;
+	ALTER TABLE `items` ADD `StoreCategory2Name` VARCHAR( 200 ) NOT NULL AFTER `StoreCategory2ID` ;
+	
 	1> 分类属性
 	2> 生成导入sp的文件
 	3> 模板
@@ -733,17 +743,17 @@ class eBayListing{
 	//$PaymentMethods = ($_POST['PayPalPayment'] == 1)?'PayPal':'';
 	$sql = "insert into template (BuyItNowPrice,Country,Currency,Description,DispatchTimeMax,
 	ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,PostalCode,
-	PrimaryCategoryCategoryID,SecondaryCategoryCategoryID,Quantity,ReservePrice,
-	ShippingType,Site,SKU,StartPrice,StoreCategory2ID,StoreCategoryID,SubTitle,Title,
+	PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,Quantity,ReservePrice,
+	ShippingType,Site,SKU,StartPrice,StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,
 	BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypePlus,accountId) values (
 	'".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
 	'".$_POST['Description']."','".$_POST['DispatchTimeMax']."',
 	'".$_POST['ListingDuration']."','".$_POST['ListingType']."','".$_POST['Location']."','PayPal',
 	'".$_POST['PayPalEmailAddress']."','".$_POST['PostalCode']."',
-	'".$_POST['PrimaryCategoryCategoryID']."','".$_POST['SecondaryCategoryCategoryID']."',
+	'".$_POST['PrimaryCategoryCategoryID']."','".$_POST['PrimaryCategoryCategoryName']."','".$_POST['SecondaryCategoryCategoryID']."','".$_POST['SecondaryCategoryCategoryName']."',
 	'".@$_POST['Quantity']."','".@$_POST['ReservePrice']."','".@$_POST['ShippingType']."',
-	'".$_POST['Site']."','".$_POST['SKU']."','".$_POST['StartPrice']."','".$_POST['StoreCategory2ID']."',
-	'".$_POST['StoreCategoryID']."','".$_POST['SubTitle']."',
+	'".$_POST['Site']."','".$_POST['SKU']."','".$_POST['StartPrice']."','".$_POST['StoreCategory2ID']."','".$_POST['StoreCategory2Name']."',
+	'".$_POST['StoreCategoryID']."','".$_POST['StoreCategoryName']."','".$_POST['SubTitle']."',
 	'".$_POST['Title']."','".(empty($_POST['BoldTitle'])?0:1)."',
 	'".(empty($_POST['Border'])?0:1)."','".(empty($_POST['Featured'])?0:1)."','".(empty($_POST['Highlight'])?0:1)."',
 	'".(empty($_POST['HomePageFeatured'])?0:1)."','".(empty($_POST['GalleryTypeFeatured'])?0:1)."','".(empty($_POST['GalleryTypePlus'])?0:1)."','".$this->account_id."')";
