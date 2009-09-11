@@ -128,6 +128,51 @@ Ext.onReady(function(){
         url:'service.php?action=getAllCountries'
     })
     
+    var listTypeCombo = new Ext.form.ComboBox({
+        mode: 'local',
+        store: new Ext.data.JsonStore({
+            autoLoad: true,
+            fields: ['id', 'name'],
+            url: "service.php?action=getListingDurationType"
+        }),
+        valueField:'id',
+        displayField:'name',
+        triggerAction: 'all',
+        editable: false,
+        selectOnFocus:true,
+        //name: 'ListingTypeCombo',
+        //hiddenName:'ListingTypeCombo',
+        width: 150,
+        allowBlank:false,
+        listeners: {
+            "select": function(c, r, i){
+                switch(r.data.name){
+                    case "Chinese":
+                        Ext.getCmp("StartPrice").setDisabled(0);
+                        Ext.getCmp("ReservePrice").setDisabled(0);
+                        Ext.getCmp("Quantity").setValue(1);
+                        Ext.getCmp("Quantity").setDisabled(1);
+                    break;
+                
+                    case "FixedPriceItem":
+                        Ext.getCmp("Quantity").setDisabled(0);
+                        Ext.getCmp("StartPrice").setDisabled(1);
+                        Ext.getCmp("ReservePrice").setDisabled(1);
+                    break;
+                
+                    case "StoresFixedPrice":
+                        Ext.getCmp("Quantity").setDisabled(0);
+                        Ext.getCmp("StartPrice").setDisabled(1);
+                        Ext.getCmp("ReservePrice").setDisabled(1);
+                    break;
+                }
+                
+                //document.getElementById("ListingType").value = r.data.name;
+                listingDurationStore.load({params: {id: r.data.id}});
+            }
+        }
+    });
+    
     var schedule = new Ext.Panel({                              
         //title:"Schedule",
         layout:"table",
@@ -475,8 +520,8 @@ Ext.onReady(function(){
                                 xtype:"combo",
                                 fieldLabel:"Category",
                                 editable:false,
-                                //name:"combovalue",
-                                //hiddenName:"combovalue",
+                                name:"PrimaryCategoryCategoryName",
+                                hiddenName:"PrimaryCategoryCategoryName",
                                 width: 600,
                                 listWidth: 600,
                                 allowBlank:false
@@ -565,8 +610,8 @@ Ext.onReady(function(){
                                 xtype:"combo",
                                 fieldLabel:"2nd Category",
                                 editable:false,
-                                //name:"combovalue",
-                                //hiddenName:"combovalue",
+                                name:"SecondaryCategoryCategoryName",
+                                hiddenName:"SecondaryCategoryCategoryName",
                                 width: 600,
                                 listWidth: 600
                             }]
@@ -654,8 +699,8 @@ Ext.onReady(function(){
                                 xtype:"combo",
                                 fieldLabel:"Store Category",
                                 editable:false,
-                                //name:"combovalue",
-                                //hiddenName:"combovalue",
+                                name:"StoreCategoryName",
+                                hiddenName:"StoreCategoryName",
                                 width: 600,
                                 listWidth: 600
                             }]
@@ -743,8 +788,8 @@ Ext.onReady(function(){
                                 xtype:"combo",
                                 fieldLabel:"2nd Store Category",
                                 editable:false,
-                                //name:"combovalue",
-                                //hiddenName:"combovalue",
+                                name:"StoreCategory2Name",
+                                hiddenName:"StoreCategory2Name",
                                 width: 600,
                                 listWidth: 600
                             }]
@@ -1270,53 +1315,58 @@ Ext.onReady(function(){
                         style: 'margin: 10px;',
                         listeners: {
                             render: function(c){
+                                /*
                                 var combo = new Ext.form.ComboBox({
-                                        mode: 'local',
-                                        store: new Ext.data.JsonStore({
-                                            autoLoad: true,
-                                            fields: ['id', 'name'],
-                                            url: "service.php?action=getListingDurationType"
-                                        }),
-                                        valueField:'id',
-                                        displayField:'name',
-                                        triggerAction: 'all',
-                                        editable: false,
-                                        selectOnFocus:true,
-                                        //name: 'ListingTypeCombo',
-                                        //hiddenName:'ListingTypeCombo',
-                                        width: 150,
-                                        allowBlank:false,
-                                        listeners: {
-                                            "select": function(c, r, i){
-                                                switch(r.data.name){
-                                                    case "Chinese":
-                                                        Ext.getCmp("StartPrice").setDisabled(0);
-                                                        Ext.getCmp("ReservePrice").setDisabled(0);
-                                                        Ext.getCmp("Quantity").setValue(1);
-                                                        Ext.getCmp("Quantity").setDisabled(1);
-                                                    break;
-                                                
-                                                    case "FixedPriceItem":
-                                                        Ext.getCmp("Quantity").setDisabled(0);
-                                                        Ext.getCmp("StartPrice").setDisabled(1);
-                                                        Ext.getCmp("ReservePrice").setDisabled(1);
-                                                    break;
-                                                
-                                                    case "StoresFixedPrice":
-                                                        Ext.getCmp("Quantity").setDisabled(0);
-                                                        Ext.getCmp("StartPrice").setDisabled(1);
-                                                        Ext.getCmp("ReservePrice").setDisabled(1);
-                                                    break;
-                                                }
-                                                
-                                                document.getElementById("ListingType").value = r.data.name;
-                                                listingDurationStore.load({params: {id: r.data.id}});
+                                    mode: 'local',
+                                    store: new Ext.data.JsonStore({
+                                        autoLoad: true,
+                                        fields: ['id', 'name'],
+                                        url: "service.php?action=getListingDurationType"
+                                    }),
+                                    valueField:'id',
+                                    displayField:'name',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    selectOnFocus:true,
+                                    //name: 'ListingTypeCombo',
+                                    //hiddenName:'ListingTypeCombo',
+                                    name: 'ListingType',
+                                    hiddenName:'ListingType',
+                                    width: 150,
+                                    allowBlank:false,
+                                    listeners: {
+                                        "select": function(c, r, i){
+                                            switch(r.data.name){
+                                                case "Chinese":
+                                                    Ext.getCmp("StartPrice").setDisabled(0);
+                                                    Ext.getCmp("ReservePrice").setDisabled(0);
+                                                    Ext.getCmp("Quantity").setValue(1);
+                                                    Ext.getCmp("Quantity").setDisabled(1);
+                                                break;
+                                            
+                                                case "FixedPriceItem":
+                                                    Ext.getCmp("Quantity").setDisabled(0);
+                                                    Ext.getCmp("StartPrice").setDisabled(1);
+                                                    Ext.getCmp("ReservePrice").setDisabled(1);
+                                                break;
+                                            
+                                                case "StoresFixedPrice":
+                                                    Ext.getCmp("Quantity").setDisabled(0);
+                                                    Ext.getCmp("StartPrice").setDisabled(1);
+                                                    Ext.getCmp("ReservePrice").setDisabled(1);
+                                                break;
                                             }
+                                            
+                                            //document.getElementById("ListingType").value = r.data.name;
+                                            listingDurationStore.load({params: {id: r.data.id}});
                                         }
+                                    }
                                 });
-                                combo.render(c.header, 1);
+                                */
+                                
+                                listTypeCombo.render(c.header, 1);
                                 c.on('destroy', function(){
-                                        combo.destroy();
+                                        listTypeCombo.destroy();
                                 }, c, {single: true});
                             }
                         }
@@ -2621,14 +2671,6 @@ Ext.onReady(function(){
             }]
     })
     
-    itemForm.getForm().load({
-        url:'service.php?action=getTemplate', 
-        method:'GET', 
-        params: {id: template_id}, 
-        waitMsg:'Please wait...'
-        }
-    );
-    
     var itemPanel = new Ext.Panel({
         autoScroll: true,
         //height:750,
@@ -2637,6 +2679,18 @@ Ext.onReady(function(){
     
     itemPanel.render(document.body);
     
+    itemForm.getForm().load({
+            url:'service.php?action=getTemplate', 
+            method:'GET', 
+            params: {id: template_id}, 
+            waitMsg:'Please wait...',
+            success: function(f, a){
+                //console.log(a.result.data);
+                listTypeCombo.setValue(a.result.data.ListingType);
+            }
+        }
+    );
+        
     //Schedule Time  --------------------------------------------------------------------------------
     Ext.select(".schedule-time").on("click",function(e, el){
         var tempArray = el.childNodes[0].id.split("-");

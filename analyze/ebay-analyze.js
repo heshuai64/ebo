@@ -8,6 +8,7 @@ Ext.onReady(function(){
     });
     Ext.state.Manager.setProvider(cp);
    
+    var myMask = new Ext.LoadMask(Ext.getBody(), {msg:"Please wait..."});
     //http://open.api.ebay.com/shopping?callname=FindItems&callbackname=com.ebay.shoppingservice.Shopping.findItemsClosure0&responseencoding=JSON&callback=true&version=607&appId=eBayAPID-73f4-45f2-b9a3-c8f6388b38d8&QueryKeywords=ipod&MaxEntries=1&client=js
     //http://open.api.ebay.com/shopping?callname=GetSingleItem&callbackname=com.ebay.shoppingservice.Shopping.getSingleItemClosure1&responseencoding=JSON&callback=true&version=607&appId=eBayAPID-73f4-45f2-b9a3-c8f6388b38d8&ItemID=390059143734&IncludeSelector=Details%2CShippingCosts&client=js
     //http://open.api.ebay.com/shopping?callname=FindItemsAdvanced&callbackname=com.ebay.shoppingservice.Shopping.findItemsAdvancedClosure0&responseencoding=JSON&callback=true&version=607&appId=eBayAPID-73f4-45f2-b9a3-c8f6388b38d8&QueryKeywords=Battery&ItemSort=CurrentBid&SellerID(0)=%20libra.studio&SellerID(1)=easybattery&MaxEntries=10&client=js
@@ -487,18 +488,21 @@ Ext.onReady(function(){
 					//console.log(itemArray);
                                         //console.log("store load data.");
                                         store.loadData(itemArray);
+                                        myMask.hide();
                                     }
                                 }
                                 
                                 //---------------------------------  getSingleItemFailure  -----------------------------------------------------
                                 var getSingleItemFailure = function(errors){
+                                    myMask.hide();
                                     //console.log(errors);
                                     Ext.Msg.alert('Warn', errors.longMessage);
                                 }
                         
-                                if(Ext.isArray(data.searchResult[0].itemArray.item)){
+                                if(!Ext.isEmpty(data.searchResult) && Ext.isArray(data.searchResult[0].itemArray.item)){
                                     itemTotalNum = data.searchResult[0].itemArray.item.length;
                                     //console.log("item is array, count " + itemTotalNum);
+                                    myMask.show();
                                     for(j in data.searchResult[0].itemArray.item){
                                         if(!Ext.isEmpty(data.searchResult[0].itemArray.item[j].itemID)){
                                             var config = new com.ebay.shoppingservice.ShoppingConfig({appId: 'eBayAPID-73f4-45f2-b9a3-c8f6388b38d8'});
@@ -508,7 +512,10 @@ Ext.onReady(function(){
                                             shopping.getSingleItem(request, callback);
                                         }
                                     }
+                                    
                                 }else{
+                                    Ext.Msg.alert('Warn', 'No Result!');
+                                    store.removeAll();
                                     /*
                                     console.log("item is single");
                                     itemTotalNum = 1;
@@ -524,6 +531,7 @@ Ext.onReady(function(){
                             }
                         
                             function findItemsAdvancedFailure(errors) {
+                                myMask.hide();
                                 //console.log(errors);
                                 Ext.Msg.alert(errors[0].severityCode.value, errors[0].longMessage);
                             }
@@ -531,7 +539,7 @@ Ext.onReady(function(){
                             //console.log({QueryKeywords: Ext.getCmp('keyword').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 10, EndTimeFrom: Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.getCmp('to').getValue().format('Y-m-d')});
                             var config = new com.ebay.shoppingservice.ShoppingConfig({appId: 'eBayAPID-73f4-45f2-b9a3-c8f6388b38d8'});
                             var shopping = new com.ebay.shoppingservice.Shopping(config);
-                            var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType({ItemsLocatedIn: countryCombo.getValue(), QueryKeywords: Ext.getCmp('keyword').getValue(), StoreName: Ext.getCmp('storeName').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 10, EndTimeFrom: Ext.isEmpty(Ext.getCmp('from').getValue())?null:Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.isEmpty(Ext.getCmp('to').getValue())?null:Ext.getCmp('to').getValue().format('Y-m-d')});
+                            var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType({ItemsAvailableTo: countryCombo.getValue(), QueryKeywords: Ext.getCmp('keyword').getValue(), StoreName: Ext.getCmp('storeName').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 10, EndTimeFrom: Ext.isEmpty(Ext.getCmp('from').getValue())?null:Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.isEmpty(Ext.getCmp('to').getValue())?null:Ext.getCmp('to').getValue().format('Y-m-d')});
                             var callback = new com.ebay.shoppingservice.ShoppingCallback({success: findItemsAdvancedSuccess, failure: findItemsAdvancedFailure});
                             shopping.findItemsAdvanced(request, callback);
                                 
