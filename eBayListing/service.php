@@ -710,6 +710,11 @@ class eBayListing{
 	ALTER TABLE `items` ADD `StoreCategoryName` VARCHAR( 200 ) NOT NULL AFTER `StoreCategoryID` ;
 	ALTER TABLE `items` ADD `StoreCategory2Name` VARCHAR( 200 ) NOT NULL AFTER `StoreCategory2ID` ;
 	
+	ALTER TABLE `template` ADD `ShippingServiceOptionsType` VARCHAR( 15 ) NOT NULL AFTER `PhotoDisplay` ,
+	ADD `InternationalShippingServiceOptionType` VARCHAR( 15 ) NOT NULL AFTER `ShippingServiceOptionsType` ;
+	
+	ALTER TABLE `template` CHANGE `ShippingServiceOptionsType` `ShippingServiceOptionsType` ENUM( "Flat", "Calculated" ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
+	CHANGE `InternationalShippingServiceOptionType` `InternationalShippingServiceOptionType` ENUM( "Flat", "Calculated" );
 	1> 分类属性
 	2> 生成导入sp的文件
 	3> 模板
@@ -991,6 +996,18 @@ class eBayListing{
 	$sql = "select * from template where Id = '".$_GET['id']."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
+	$sql_1 = "select url from template_picture_url where templateId = '".$row['Id']."'";
+	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	$i = 1;
+	while($row_1 = mysql_fetch_assoc($result_1)){
+	    $row['picture_'.$i] = $row_1['url'];
+	    $i++;
+	}
+	$sql_2 = "select template_category_id from template_to_template_cateogry where template_id = '".$row['Id']."'";
+	$result_2 = mysql_query($sql_2, eBayListing::$database_connect);
+	$row_2 = mysql_fetch_assoc($result_2);
+	$row['template_category_id'] = $row_2['template_category_id'];
+	
 	echo '['.json_encode($row).']';
 	mysql_free_result($result);
     }
