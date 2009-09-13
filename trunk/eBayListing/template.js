@@ -12,52 +12,102 @@ Ext.onReady(function(){
                 id:"picture_value_1",
                 xtype:"textfield",
                 fieldLabel:"Picture 1  (used for Gallery)",
-                name:"picture_value_1"
+                name:"picture_value_1",
+                listeners: {
+                    render: function(t){
+                       t.setValue(Ext.getCmp("picture_1").getValue());
+                    }
+                }
               },{
                 id:"picture_value_2",
                 xtype:"textfield",
                 fieldLabel:"Picture 2",
-                name:"picture_value_2"
+                name:"picture_value_2",
+                listeners: {
+                    render: function(t){
+                       t.setValue(Ext.getCmp("picture_2").getValue());
+                    }
+                }
               },{
                 id:"picture_value_3",
                 xtype:"textfield",
                 fieldLabel:"Picture 3",
-                name:"picture_value_3"
+                name:"picture_value_3",
+                listeners: {
+                    render: function(t){
+                       t.setValue(Ext.getCmp("picture_3").getValue());
+                    }
+                }
               },{
                 id:"picture_value_4",
                 xtype:"textfield",
                 fieldLabel:"Picture 4",
-                name:"picture_value_4"
+                name:"picture_value_4",
+                listeners: {
+                    render: function(t){
+                       t.setValue(Ext.getCmp("picture_4").getValue());
+                    }
+                }
               },{
                 id:"picture_value_5",
                 xtype:"textfield",
                 fieldLabel:"Picture 5",
-                name:"picture_value_5"
+                name:"picture_value_5",
+                listeners: {
+                    render: function(t){
+                       t.setValue(Ext.getCmp("picture_5").getValue());
+                    }
+                }
               },{
                 id:"picture_value_6",
                 xtype:"textfield",
                 fieldLabel:"Picture 6",
-                name:"picture_value_6"
+                name:"picture_value_6",
+                listeners: {
+                    render: function(t){
+                       t.setValue(Ext.getCmp("picture_6").getValue());
+                    }
+                }
               },{
                 id:"picture_value_7",
                 xtype:"textfield",
                 fieldLabel:"Picture 7",
-                name:"picture_value_7"
+                name:"picture_value_7",
+                listeners: {
+                    render: function(t){
+                       t.setValue(Ext.getCmp("picture_7").getValue());
+                    }
+                }
               },{
                 id:"picture_value_8",
                 xtype:"textfield",
                 fieldLabel:"Picture 8",
-                name:"picture_value_8"
+                name:"picture_value_8",
+                listeners: {
+                    render: function(t){
+                       t.setValue(Ext.getCmp("picture_8").getValue());
+                    }
+                }
               },{
                 id:"picture_value_9",
                 xtype:"textfield",
                 fieldLabel:"Picture 9",
-                name:"picture_value_9"
+                name:"picture_value_9",
+                listeners: {
+                    render: function(t){
+                       t.setValue(Ext.getCmp("picture_9").getValue());
+                    }
+                }
               },{
                 id:"picture_value_10",
                 xtype:"textfield",
                 fieldLabel:"Picture 10",
-                name:"picture_value_10"
+                name:"picture_value_10",
+                listeners: {
+                    render: function(t){
+                       t.setValue(Ext.getCmp("picture_10").getValue());
+                    }
+                }
             }],
             buttons:[{
                 text: 'OK',
@@ -173,6 +223,42 @@ Ext.onReady(function(){
         }
     });
     
+    var ShippingServiceOptionsTypeCombo = new Ext.form.ComboBox({
+            store: ['Flat', 'Calculated'],
+            triggerAction: 'all',
+            editable: false,
+            width: 150,
+            listWidth: 150,
+            listeners: {
+                "select": function(c, r, i){
+                    //console.log(c);
+                    if(Ext.isEmpty(Ext.getCmp("SiteID").getValue())){
+                        Ext.Msg.alert('Warn', 'Please choice Site.');
+                    }else{
+                        shippingServiceStore.load({params: {serviceType: c.value, SiteID: Ext.getCmp("SiteID").getValue()}});
+                    }
+                }
+            }
+    });
+    
+    var InternationalShippingServiceOptionTypeCombo = new Ext.form.ComboBox({
+            store: ['Flat', 'Calculated'],
+            triggerAction: 'all',
+            editable: false,
+            width: 150,
+            listWidth: 150,
+            listeners: {
+                "select": function(c, r, i){
+                    //console.log(r);
+                    if(Ext.isEmpty(Ext.getCmp("SiteID").getValue())){
+                        Ext.Msg.alert('Warn', 'Please choice Site.');
+                    }else{
+                        internationalShippingServiceStore.load({params: {serviceType: c.value, SiteID: Ext.getCmp("SiteID").getValue()}});
+                    }
+                }
+            }
+    });
+    
     var schedule = new Ext.Panel({                              
         //title:"Schedule",
         layout:"table",
@@ -273,9 +359,11 @@ Ext.onReady(function(){
         buttonAlign:"center",
         reader:new Ext.data.JsonReader({
             }, ['Id','AutoPay','BuyItNowPrice','CategoryMappingAllowed','Country','Currency','Description','DispatchTimeMax','ListingDuration','ListingType','Location','PaymentMethods','PayPalEmailAddress',
-                'PostalCode','PrimaryCategoryCategoryID','Quantity','ReturnPolicyDescription','ReturnPolicyReturnsAcceptedOption','ReturnPolicyReturnsAcceptedOption','ReturnPolicyReturnsWithinOption',
-                'ReturnPolicyShippingCostPaidByOption','ReservePrice','CurrentPrice','ListingStatus','ScheduleTime','SecondaryCategoryCategoryID','ShippingType','Site','SKU','StartPrice',
-                'StoreCategory2ID','StoreCategoryID','SubTitle','Title','UserID','BoldTitle','Border','Featured','Highlight','HomePageFeatured','GalleryTypeFeatured','GalleryTypeGallery','GalleryTypePlus','GalleryURL','PhotoDisplay','accountId'
+                'PostalCode','PrimaryCategoryCategoryID','PrimaryCategoryCategoryName','Quantity','ReturnPolicyDescription','ReturnPolicyReturnsAcceptedOption','ReturnPolicyReturnsAcceptedOption','ReturnPolicyReturnsWithinOption',
+                'ReturnPolicyShippingCostPaidByOption','ReservePrice','CurrentPrice','ListingStatus','ScheduleTime','SecondaryCategoryCategoryID','SecondaryCategoryCategoryName','ShippingType','Site','SKU','StartPrice',
+                'StoreCategory2ID','StoreCategory2Name','StoreCategoryID','StoreCategoryName','SubTitle','Title','UserID','BoldTitle','Border','Featured','Highlight','HomePageFeatured','GalleryTypeFeatured','GalleryTypeGallery','GalleryTypePlus','GalleryURL',
+                'picture_1','picture_2','picture_3','picture_4','picture_5','picture_6','picture_7','picture_8',
+                'picture_9','picture_10','template_category_id','PhotoDisplay','ShippingServiceOptionsType','InternationalShippingServiceOptionType','accountId'
         ]),
         items:[{
                 xtype:"combo",
@@ -884,7 +972,13 @@ Ext.onReady(function(){
                                     labelStyle:"width:50px;",
                                     id:"gallery-url",
                                     style:"padding-left:0px;",
-                                    width:300
+                                    width:300,
+                                    listeners: {
+                                        "render": function(t){
+                                            //console.log(Ext.getCmp("GalleryURL").getValue());
+                                            t.setValue(Ext.getCmp("GalleryURL").getValue());
+                                        }
+                                    }
                                 }],
                                 buttons:[{
                                     text:"OK",
@@ -1768,28 +1862,9 @@ Ext.onReady(function(){
                         style: 'margin: 10px;',
                         listeners: {
                             render: function(c){
-                                var combo = new Ext.form.ComboBox({
-                                        store: ['Flat', 'Calculated'],
-                                        triggerAction: 'all',
-                                        editable: false,
-                                        width: 150,
-                                        listWidth: 150,
-                                        name: 'shippingType',
-                                        hiddenName:'shippingType',
-                                        listeners: {
-                                            "select": function(c, r, i){
-                                                //console.log(c);
-                                                if(Ext.isEmpty(Ext.getCmp("SiteID").getValue())){
-                                                    Ext.Msg.alert('Warn', 'Please choice Site.');
-                                                }else{
-                                                    shippingServiceStore.load({params: {serviceType: c.value, SiteID: Ext.getCmp("SiteID").getValue()}});
-                                                }
-                                            }
-                                        }
-                                });
-                                combo.render(c.header, 1);
+                                ShippingServiceOptionsTypeCombo.render(c.header, 1);
                                 c.on('destroy', function(){
-                                        combo.destroy();
+                                        ShippingServiceOptionsTypeCombo.destroy();
                                 }, c, {single: true});
                             }
                         }
@@ -2529,26 +2604,9 @@ Ext.onReady(function(){
                         style: 'margin: 10px;',
                         listeners: {
                             render: function(c){
-                                var combo = new Ext.form.ComboBox({
-                                        store: ['Flat', 'Calculated'],
-                                        triggerAction: 'all',
-                                        editable: false,
-                                        width: 150,
-                                        listWidth: 150,
-                                        listeners: {
-                                            "select": function(c, r, i){
-                                                //console.log(r);
-                                                if(Ext.isEmpty(Ext.getCmp("SiteID").getValue())){
-                                                    Ext.Msg.alert('Warn', 'Please choice Site.');
-                                                }else{
-                                                    internationalShippingServiceStore.load({params: {serviceType: c.value, SiteID: Ext.getCmp("SiteID").getValue()}});
-                                                }
-                                            }
-                                        }
-                                });
-                                combo.render(c.header, 1);
+                                InternationalShippingServiceOptionTypeCombo.render(c.header, 1);
                                 c.on('destroy', function(){
-                                        combo.destroy();
+                                        InternationalShippingServiceOptionTypeCombo.destroy();
                                 }, c, {single: true});
                             }
                         }
@@ -2687,6 +2745,18 @@ Ext.onReady(function(){
             success: function(f, a){
                 //console.log(a.result.data);
                 listTypeCombo.setValue(a.result.data.ListingType);
+                ShippingServiceOptionsTypeCombo.setValue(a.result.data.ShippingServiceOptionsType);
+                shippingServiceStore.load({params: {serviceType: a.result.data.ShippingServiceOptionsType, SiteID: Ext.getCmp("SiteID").getValue()}});
+                
+                InternationalShippingServiceOptionTypeCombo.setValue(a.result.data.InternationalShippingServiceOptionType);
+                internationalShippingServiceStore.load({params: {serviceType: a.result.data.InternationalShippingServiceOptionType, SiteID: Ext.getCmp("SiteID").getValue()}});
+                
+                for(var i = 1; i <= 10; i++){
+                    //console.log(document.getElementById("picture_"+i).value);
+                    if(!Ext.isEmpty(document.getElementById("picture_"+i).value)){
+                        Ext.getCmp("picture_panel_"+i).body.dom.innerHTML = '<img width="60" height="60" src="' + document.getElementById("picture_"+i).value + '"/>';
+                    }
+                }
             }
         }
     );
