@@ -355,9 +355,9 @@ class Service{
             $service_result = json_decode($json_result);
             $skuCost = $service_result->skuCost;
             $skuTitle = $service_result->skuTitle;
-            
+            $skuWeight = $service_result->skuWeight;
             if(!empty($skuCost)){
-                $sql_1 = "update qo_orders_detail set skuTitle = '".mysql_escape_string($skuTitle)."',skuCost = '".$skuCost."',skuInfoStatus = '1' where id = '".$row['id']."'";
+                $sql_1 = "update qo_orders_detail set skuTitle = '".mysql_escape_string($skuTitle)."',skuCost = '".$skuCost."',skuWeight = '".$skuWeight."' skuInfoStatus = '1' where id = '".$row['id']."'";
                 $result_1 = mysql_query($sql_1, Service::$database_connect);
                 //echo $sql_1;
             	//echo "\n";
