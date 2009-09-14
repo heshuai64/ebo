@@ -1,6 +1,6 @@
 <?php
-require_once '../class/PHPExcel.php';
-require_once '../class/PHPExcel/IOFactory.php';
+require_once '/export/eBayBO/class/PHPExcel.php';
+require_once '/export/eBayBO/class/PHPExcel/IOFactory.php';
 
 class eBayBOExcel{
 	private static $database_connect;
@@ -31,8 +31,8 @@ class eBayBOExcel{
 		$this->php_excel = new PHPExcel();
 
 
-		//$this->startTime = date("Y-m-d 14:10:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
-		$this->startTime = date("Y-m-d 14:10:00",mktime(0, 0, 0, date("m"), date("d")-3, date("Y")));
+		$this->startTime = date("Y-m-d 14:10:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
+		//$this->startTime = date("Y-m-d 14:10:00",mktime(0, 0, 0, date("m"), date("d")-3, date("Y")));
 		$this->endTime = date("Y-m-d 14:10:00");
 		
 	}
@@ -106,8 +106,8 @@ class eBayBOExcel{
 		$start = $this->startTime;
 		$end = $this->endTime;
 		
-		$sql = "select s.id,o.buyerId,s.shipmentMethod from qo_shipments as s left join qo_orders as o on s.ordersId = o.id 
-		where s.modifiedOn between '".$start."' and '".$end."'";// and s.status = 'N'";
+		$sql = "select s.id,o.buyerId,s.shipmentMethod,s.ordersId from qo_shipments as s left join qo_orders as o on s.ordersId = o.id 
+		where s.modifiedOn between '".$start."' and '".$end."' and s.status = 'N'";
 		$result = mysql_query($sql, eBayBOExcel::$database_connect);
 		
 		$this->php_excel->setActiveSheetIndex(0);
@@ -122,7 +122,8 @@ class eBayBOExcel{
 		$i = 2;
 		while($row = mysql_fetch_assoc($result)){
 			$j = 0;
-			$sql_1 = "select skuId,skuTitle,quantity from qo_shipments_detail where shipmentsId = '".$row['id']."'";
+			//$sql_1 = "select skuId,skuTitle,quantity from qo_shipments_detail where shipmentsId = '".$row['id']."'";
+			$sql_1 = "select skuId,skuTitle,quantity from qo_orders_detail where ordersId = '".$row['ordersId']."'";
 			$result_1 = mysql_query($sql_1, eBayBOExcel::$database_connect);
 			$sku = '';
 			$skuTitle = '';
@@ -230,11 +231,11 @@ class eBayBOExcel{
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(21, 1, '是否保险');
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(22, 1, '自定义配货信息1');
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(23, 1, '自定义配货信息2');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(24, 1, 'Shipment ID');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(25, 1, 'Shipment URL');
+		//$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(24, 1, 'Shipment ID');
+		//$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(25, 1, 'Shipment URL');
 		
 		$sql = "select id,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,
-		shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where modifiedOn between '".$start."' and '".$end."'";// and shipmentMethod = 'R' ";
+		shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where modifiedOn between '".$start."' and '".$end."' and shipmentMethod = 'R' ";
 		$result = mysql_query($sql, eBayBOExcel::$database_connect);
 		$i = 2;
 		while($row = mysql_fetch_assoc($result)){
@@ -249,11 +250,11 @@ class eBayBOExcel{
 			$row['shipToPostalCode'];
 			
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, $i, $i-1);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, $i, $row['id']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(10, $i, $row['shipToName']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(11, $i, $address);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(12, $i, $row_1['countries_iso_code_2']);
-			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(24, $i, $row['id']);
-			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(25, $i, "http://heshuai64.3322.org/eBayBO/cron/image.php?code=code39&o=1&t=30&r=1&text=".$row['id']."&f1=Arial.ttf&f2=8&a1=&a2=&a3=");
+			//$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(25, $i, "http://heshuai64.3322.org/eBayBO/cron/image.php?code=code39&o=1&t=30&r=1&text=".$row['id']."&f1=Arial.ttf&f2=8&a1=&a2=&a3=");
 			$i++;
 		}
 		$writer = PHPExcel_IOFactory::createWriter($this->php_excel, 'Excel5');

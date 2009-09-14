@@ -349,15 +349,15 @@ class Service{
     	$sql = "select id,skuId from qo_orders_detail where skuInfoStatus = 0";
     	$result = mysql_query($sql, Service::$database_connect);
         while($row = mysql_fetch_assoc($result)){
-        	$json_result = $this->getService(self::INVENTORY_SERVICE."?action=getSkuInfo&data=".urlencode($row['skuId']));
+            $json_result = $this->getService(self::INVENTORY_SERVICE."?action=getSkuInfo&data=".urlencode($row['skuId']));
             echo $json_result;
             echo "\n";
             $service_result = json_decode($json_result);
             $skuCost = $service_result->skuCost;
             $skuTitle = $service_result->skuTitle;
             $skuWeight = $service_result->skuWeight;
-            if(!empty($skuCost)){
-                $sql_1 = "update qo_orders_detail set skuTitle = '".mysql_escape_string($skuTitle)."',skuCost = '".$skuCost."',skuWeight = '".$skuWeight."' skuInfoStatus = '1' where id = '".$row['id']."'";
+            if(!empty($service_result)){
+                $sql_1 = "update qo_orders_detail set skuTitle = '".mysql_escape_string($skuTitle)."',skuCost = '".$skuCost."',skuWeight = '".$skuWeight."',skuInfoStatus = 1 where id = '".$row['id']."'";
                 $result_1 = mysql_query($sql_1, Service::$database_connect);
                 //echo $sql_1;
             	//echo "\n";
