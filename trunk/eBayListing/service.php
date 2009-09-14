@@ -710,11 +710,8 @@ class eBayListing{
 	ALTER TABLE `items` ADD `StoreCategoryName` VARCHAR( 200 ) NOT NULL AFTER `StoreCategoryID` ;
 	ALTER TABLE `items` ADD `StoreCategory2Name` VARCHAR( 200 ) NOT NULL AFTER `StoreCategory2ID` ;
 	
-	ALTER TABLE `template` ADD `ShippingServiceOptionsType` VARCHAR( 15 ) NOT NULL AFTER `PhotoDisplay` ,
-	ADD `InternationalShippingServiceOptionType` VARCHAR( 15 ) NOT NULL AFTER `ShippingServiceOptionsType` ;
-	
-	ALTER TABLE `template` CHANGE `ShippingServiceOptionsType` `ShippingServiceOptionsType` ENUM( "Flat", "Calculated" ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
-	CHANGE `InternationalShippingServiceOptionType` `InternationalShippingServiceOptionType` ENUM( "Flat", "Calculated" );
+	ALTER TABLE `template` ADD `ShippingServiceOptionsType` ENUM( "Flat", "Calculated" ) NOT NULL AFTER `PhotoDisplay` ,
+	ADD `InternationalShippingServiceOptionType` ENUM( "Flat", "Calculated" ) NOT NULL AFTER `ShippingServiceOptionsType` ;
 	1> 分类属性
 	2> 生成导入sp的文件
 	3> 模板
@@ -1007,6 +1004,23 @@ class eBayListing{
 	$result_2 = mysql_query($sql_2, eBayListing::$database_connect);
 	$row_2 = mysql_fetch_assoc($result_2);
 	$row['template_category_id'] = $row_2['template_category_id'];
+	
+	$sql_3 = "select * from template_shipping_service_options where templateId = '".$row['Id']."'";
+	$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+	$i = 1;
+	while($row_3 = mysql_fetch_assoc($result_3)){
+	    $row['ShippingService-'.$i] = $row_3['ShippingService'];
+	    $row['ShippingServiceCost-'.$i] = $row_3['ShippingServiceCost'];
+	    $row['ShippingServiceFree-'.$i] = $row_3['FreeShipping'];
+	}
+	
+	$sql_4 = "select * from template_international_shipping_service_option where templateId = '".$row['Id']."'";
+	$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+	$i = 1;
+	while($row_4 = mysql_fetch_assoc($result_4)){
+	    $row['InternationalShippingService-'.$i] = $row_4['ShippingService'];
+	    $row['InternationalShippingServiceCost-'.$i] = $row_4['ShippingServiceCost'];
+	}
 	
 	echo '['.json_encode($row).']';
 	mysql_free_result($result);

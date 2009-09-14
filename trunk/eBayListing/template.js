@@ -363,7 +363,14 @@ Ext.onReady(function(){
                 'ReturnPolicyShippingCostPaidByOption','ReservePrice','CurrentPrice','ListingStatus','ScheduleTime','SecondaryCategoryCategoryID','SecondaryCategoryCategoryName','ShippingType','Site','SKU','StartPrice',
                 'StoreCategory2ID','StoreCategory2Name','StoreCategoryID','StoreCategoryName','SubTitle','Title','UserID','BoldTitle','Border','Featured','Highlight','HomePageFeatured','GalleryTypeFeatured','GalleryTypeGallery','GalleryTypePlus','GalleryURL',
                 'picture_1','picture_2','picture_3','picture_4','picture_5','picture_6','picture_7','picture_8',
-                'picture_9','picture_10','template_category_id','PhotoDisplay','ShippingServiceOptionsType','InternationalShippingServiceOptionType','accountId'
+                'picture_9','picture_10','template_category_id','PhotoDisplay','ShippingServiceOptionsType','InternationalShippingServiceOptionType',
+                'ShippingService-1','ShippingServiceCost-1','ShippingServiceFree-1',
+                'ShippingService-2','ShippingServiceCost-2','ShippingServiceFree-2',
+                'ShippingService-3','ShippingServiceCost-3','ShippingServiceFree-3',
+                'InternationalShippingService-1','InternationalShippingServiceCost-1',
+                'InternationalShippingService-2','InternationalShippingServiceCost-2',
+                'InternationalShippingService-3','InternationalShippingServiceCost-3',
+                'accountId'
         ]),
         items:[{
                 xtype:"combo",
@@ -1743,7 +1750,7 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     fieldLabel:"",
                                     boxLabel:"Free",
-                                    name:"FreeShipping",
+                                    name:"ShippingServiceFree-1",
                                     inputValue:"1"
                                   }]
                               },{
@@ -1790,7 +1797,7 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     fieldLabel:"",
                                     boxLabel:"Free",
-                                    name:"FreeShipping",
+                                    name:"ShippingServiceFree-2",
                                     inputValue:"1"
                                   }]
                               },{
@@ -1837,7 +1844,7 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     fieldLabel:"",
                                     boxLabel:"Free",
-                                    name:"FreeShipping",
+                                    name:"ShippingServiceFree-3",
                                     inputValue:"1"
                                   }]
                               }]
@@ -2750,6 +2757,19 @@ Ext.onReady(function(){
                 
                 InternationalShippingServiceOptionTypeCombo.setValue(a.result.data.InternationalShippingServiceOptionType);
                 internationalShippingServiceStore.load({params: {serviceType: a.result.data.InternationalShippingServiceOptionType, SiteID: Ext.getCmp("SiteID").getValue()}});
+                
+                console.log(a.result.data.InternationalShippingService_1);
+                if(!Ext.isEmpty(a.result.data.InternationalShippingService_1)){
+                    Ext.getCmp("InternationalShippingCustom-1").show();
+                }
+                
+                if(!Ext.isEmpty(a.result.data.InternationalShippingService_2)){
+                    Ext.getCmp("InternationalShippingCustom-2").show();
+                }
+                
+                if(!Ext.isEmpty(a.result.data.InternationalShippingService_3)){
+                    Ext.getCmp("InternationalShippingCustom-3").show();
+                }
                 
                 for(var i = 1; i <= 10; i++){
                     //console.log(document.getElementById("picture_"+i).value);

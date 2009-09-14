@@ -748,7 +748,12 @@ Ext.onReady(function(){
                                         tabPanel.activate('template-tab');
                                    }else{
                                         //console.log("test2");
-                                        template_store.load();
+                                        //template_store.load();
+                                        template_store.baseParams = {
+                                             parent_id: 0
+                                        };
+                                        template_store.load({params:{start:0, limit:20}});
+                                        
                                         tabPanel.add({
                                              id:'template-tab',
                                              iconCls: 'template',
