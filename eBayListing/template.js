@@ -360,7 +360,7 @@ Ext.onReady(function(){
         reader:new Ext.data.JsonReader({
             }, ['Id','AutoPay','BuyItNowPrice','CategoryMappingAllowed','Country','Currency','Description','DispatchTimeMax','ListingDuration','ListingType','Location','PaymentMethods','PayPalEmailAddress',
                 'PostalCode','PrimaryCategoryCategoryID','PrimaryCategoryCategoryName','Quantity','ReturnPolicyDescription','ReturnPolicyReturnsAcceptedOption','ReturnPolicyReturnsAcceptedOption','ReturnPolicyReturnsWithinOption',
-                'ReturnPolicyShippingCostPaidByOption','ReservePrice','CurrentPrice','ListingStatus','ScheduleTime','SecondaryCategoryCategoryID','SecondaryCategoryCategoryName','ShippingType','Site','SiteID','SKU','StartPrice',
+                'ReturnPolicyShippingCostPaidByOption','ReservePrice','CurrentPrice','ListingStatus','ScheduleTime','SecondaryCategoryCategoryID','SecondaryCategoryCategoryName','Site','SiteID','SKU','StartPrice',
                 'StoreCategory2ID','StoreCategory2Name','StoreCategoryID','StoreCategoryName','SubTitle','Title','UserID','BoldTitle','Border','Featured','Highlight','HomePageFeatured','GalleryTypeFeatured','GalleryTypeGallery','GalleryTypePlus','GalleryURL',
                 'picture_1','picture_2','picture_3','picture_4','picture_5','picture_6','picture_7','picture_8',
                 'picture_9','picture_10','template_category_id','PhotoDisplay','ShippingServiceOptionsType','InternationalShippingServiceOptionType',
@@ -2801,7 +2801,7 @@ Ext.onReady(function(){
         var timeStore = new Ext.data.JsonStore({
             //root:"timeList",
             autoLoad:true,
-            url:'service.php?action=getSkuScheduleTime&sku='+sku+'&dayTime='+el.childNodes[0].id,
+            url:'service.php?action=getTemplateScheduleTime&template_id='+template_id+'&dayTime='+el.childNodes[0].id,
             fields: [{name:'time', type:'string'}],
             sortInfo: {
                 field: 'time',
@@ -2860,14 +2860,14 @@ Ext.onReady(function(){
                         handler: function(){
                             if(Ext.getCmp("nowStartTime").getValue != ""){
                                 Ext.Ajax.request({
-                                    url: 'service.php?action=addSkuScheduleTime',
+                                    url: 'service.php?action=addTemplateScheduleTime',
                                     success: function(){
                                             timeStore.reload();
                                         },
                                     failure: function(){},
                                     params: {
                                             dayTime: el.childNodes[0].id,
-                                            sku: sku,
+                                            template_id: template_id,
                                             time: Ext.getCmp("nowStartTime").getValue()
                                         }
                                 });
@@ -2894,14 +2894,14 @@ Ext.onReady(function(){
                                 }
                                 //console.log(id);
                                 Ext.Ajax.request({
-                                    url: 'service.php?action=deleteSkuScheduleTime',
+                                    url: 'service.php?action=deleteTemplateScheduleTime',
                                     success: function(){
                                             timeStore.reload();
                                         },
                                     failure: function(){},
                                     params: {
                                             dayTime: el.childNodes[0].id,
-                                            sku: sku,
+                                            template_id: template_id,
                                             id: id
                                         }
                                 });
@@ -2918,14 +2918,14 @@ Ext.onReady(function(){
                         text:"Delete All",
                         handler: function(){
                             Ext.Ajax.request({
-                                url: 'service.php?action=deleteAllSkuScheduleTime',
+                                url: 'service.php?action=deleteAllTemplateScheduleTime',
                                 success: function(){
                                         timeStore.reload();
                                     },
                                 failure: function(){},
                                 params: {
                                         dayTime: el.childNodes[0].id,
-                                        sku: sku
+                                        template_id: template_id
                                     }
                             });
                         }
@@ -2938,7 +2938,7 @@ Ext.onReady(function(){
                         text:"Ok",
                         handler: function(){
                             Ext.Ajax.request({
-                                url: 'service.php?action=saveSkuScheduleTime',
+                                url: 'service.php?action=saveTemplateScheduleTime',
                                 success: function(){
                                         if(timeStore.getCount() > 0){
                                             Ext.getCmp(el.childNodes[0].id + "-panel").body.applyStyles("background-color:red;");
@@ -2952,7 +2952,7 @@ Ext.onReady(function(){
                                 failure: function(){},
                                 params: {
                                         dayTime: el.childNodes[0].id,
-                                        sku: sku
+                                        template_id: template_id
                                     }
                             });
                         }

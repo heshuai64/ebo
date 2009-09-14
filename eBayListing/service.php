@@ -2,6 +2,14 @@
 
 require_once 'eBaySOAP.php';
 
+function ErrorLogFunction($errno, $errstr, $errfile, $errline){
+    //echo "<b>Custom error:</b> [$errno] $errstr<br />";
+    //echo " Error on line $errline in $errfile<br />";
+    eBayListing::log('system', $errno. ' : '.$errstr.' on line '.$errline.' in '.$errfile, 'error');
+}
+
+set_error_handler("ErrorLogFunction");
+
 class eBayListing{
     private static $database_connect;
     const DATABASE_HOST = 'localhost';
@@ -961,7 +969,7 @@ class eBayListing{
 		if(count($temp_array) > 0){
 		    foreach($temp_array as $key=>$value){
 			$ValueID = "";
-			foreach($value as $id=>$name){
+			foreach($value as $name){
 			    $ValueID .= $name.',';
 			}
 			$ValueID = substr($ValueID, 0, -1);
@@ -980,12 +988,12 @@ class eBayListing{
 	    unset($_SESSION['Schedule']);
 	    unset($_SESSION['AttributeSet']);
 	    echo '{success: true}';
-	    $this->log("template", $_POST['SKU'] . " add to template.");
+	    eBayListing::log("template", $_POST['SKU'] . " add to template.");
 	}else{
 	    echo '{success: false,
 		    errors: {message: "can\'t create."}
 		}';
-	    $this->log("template", $_POST['SKU'] . " add to template failure.", "error");
+	    eBayListing::log("template", $_POST['SKU'] . " add to template failure.", "error");
 	}
     }
     
@@ -1114,7 +1122,7 @@ class eBayListing{
 	PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
 	PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
 	SecondaryCategoryCategoryID='".$_POST['SecondaryCategoryCategoryID']."',SecondaryCategoryCategoryName='".$_POST['SecondaryCategoryCategoryName']."',
-	Quantity='".@$_POST['Quantity']."',ReservePrice='".@$_POST['ReservePrice']."',ShippingType='".@$_POST['ShippingType']."',
+	Quantity='".@$_POST['Quantity']."',ReservePrice='".@$_POST['ReservePrice']."',
 	Site='".$_POST['Site']."',SKU='".$_POST['SKU']."',StartPrice='".$_POST['StartPrice']."',StoreCategory2ID='".$_POST['StoreCategory2ID']."',StoreCategory2Name='".$_POST['StoreCategory2Name']."',
 	StoreCategoryID='".$_POST['StoreCategoryID']."',StoreCategoryName='".$_POST['StoreCategoryName']."',SubTitle='".$_POST['SubTitle']."',
 	Title='".mysql_real_escape_string($_POST['Title'])."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
@@ -1139,9 +1147,9 @@ class eBayListing{
 	$sql_1 = "delete from template_shipping_service_options where templateId = '".$id."'";
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$i = 1;
-	while(!empty($_POST['ShippingService-'.$i])){
+	while(!empty($_POST['ShippingService_'.$i])){
 	    $sql_1 = "insert into template_shipping_service_options (templateId,FreeShipping,ShippingService,ShippingServiceCost) values
-	    ('".$id."','".@$_POST['FreeShipping-'.$i]."','".$_POST['ShippingService-'.$i]."','".$_POST['ShippingServiceCost-'.$i]."')";
+	    ('".$id."','".@$_POST['FreeShipping_'.$i]."','".$_POST['ShippingService_'.$i]."','".$_POST['ShippingServiceCost_'.$i]."')";
 	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	    $i++;
 	}
@@ -1149,9 +1157,9 @@ class eBayListing{
 	$sql_1 = "delete from template_international_shipping_service_option where templateId = '".$id."'";
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$i = 1;
-	while(!empty($_POST['InternationalShippingService-'.$i])){
+	while(!empty($_POST['InternationalShippingService_'.$i])){
 	    $ShipToLocation = '';
-	    if($_POST['InternationalShippingToLocations-'.$i] == 'Custom Locations'){
+	    if($_POST['InternationalShippingToLocations_'.$i] == 'Custom Locations'){
 		if(!empty($_POST['Americas_'.$i]) && $_POST['Americas_'.$i] == 1){
 		    $ShipToLocation .= ',Americas';
 		}
@@ -1193,7 +1201,7 @@ class eBayListing{
 		$ShipToLocation = 'Worldwide';
 	    }
 	    $sql_2 = "insert into template_international_shipping_service_option (templateId,ShippingService,ShippingServiceCost,ShipToLocation) values
-	    ('".$id."','".$_POST['InternationalShippingService-'.$i]."','".$_POST['InternationalShippingServiceCost-'.$i]."','".$ShipToLocation."')";
+	    ('".$id."','".$_POST['InternationalShippingService_'.$i]."','".$_POST['InternationalShippingServiceCost_'.$i]."','".$ShipToLocation."')";
 	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
 	    $i++;
 	}
@@ -1308,7 +1316,7 @@ class eBayListing{
 	    $sql_4 = "delete from template_attribute_set where templateId = '".$id."'";
 	    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
 	
-	    foreach($_SESSION['AttributeSet'][$_POST['SKU']] as $attributeSetID=>$Attribute){
+	    foreach($_SESSION['AttributeSet'][$id] as $attributeSetID=>$Attribute){
 		$sql_4 = "insert into template_attribute_set (templateId,attributeSetID) values ('".$id."', '".$attributeSetID."')";
 		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
 		
@@ -1338,7 +1346,7 @@ class eBayListing{
 		if(count($temp_array) > 0){
 		    foreach($temp_array as $key=>$value){
 			$ValueID = "";
-			foreach($value as $id=>$name){
+			foreach($value as $name){
 			    $ValueID .= $name.',';
 			}
 			$ValueID = substr($ValueID, 0, -1);
@@ -1350,24 +1358,82 @@ class eBayListing{
 	    }
 	}
 	
-	$sql_5 = "delete from template_to_template_cateogry where template_id = '".$id."'";
-	$result_5 = mysql_query($sql_5, eBayListing::$database_connect);
-	$sql_5 = "insert into template_to_template_cateogry (template_id,template_category_id) values ('".$id."','".$_POST['template_category_id']."')";
+	$sql_5 = "update template_to_template_cateogry set template_category_id = '".$_POST['template_category_id']."' where template_id = '".$id."'";
 	$result_5 = mysql_query($sql_5, eBayListing::$database_connect);
 	
-	if($result && $result_1 && $result_2){
+	if($result && $result_1 && $result_5){
 	    unset($_SESSION['Schedule']);
 	    unset($_SESSION['AttributeSet']);
 	    echo '{success: true}';
-	    $this->log("template", $_POST['SKU'] . " add to template.");
+	    eBayListing::log("template", "update template ".$id." success.");
 	}else{
 	    echo '{success: false,
 		    errors: {message: "can\'t create."}
 		}';
-	    $this->log("template", $_POST['SKU'] . " add to template failure.", "error");
+	    eBayListing::log("template", "update template ".$id." failure.", "error");
 	}
     }
     
+    //-----------------   Template Schedule  -----------------------------------------------------------------
+   
+    public function addTemplateScheduleTime(){
+	if(!empty($_POST['time'])){
+	    session_start();
+	    if(@!is_array($_SESSION['Schedule'][$_POST['template_id'].'-'.$_POST['dayTime']])){
+		$_SESSION['Schedule'][$_POST['template_id'].'-'.$_POST['dayTime']] = array();
+	    }
+	    if(@!in_array($_POST['time'], $_SESSION['Schedule'][$_POST['sku'].'-'.$_POST['dayTime']])){
+		$_SESSION['Schedule'][$_POST['template_id'].'-'.$_POST['dayTime']][] = $_POST['time'];
+	    }
+	}
+	print_r($_SESSION['Schedule'][$_POST['template_id'].'-'.$_POST['dayTime']]);
+    }
+    
+    public function deleteTemplateScheduleTime(){
+	session_start();
+	$id_array = explode(",", $_POST['id']);
+	print_r($id_array);
+	foreach($id_array as $id){
+	    unset($_SESSION['Schedule'][$_POST['template_id'].'-'.$_POST['dayTime']][$id]);
+	}
+	/*
+	$i = 0;
+	foreach($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']] as $s){
+	    $_SESSION[$_POST['sku'].'-'.$_POST['dayTime']][$i] = $s;
+	    $i++;
+	}
+	*/
+	//sort($_SESSION[$_POST['sku'].'-'.$_POST['dayTime']]);
+	print_r($_SESSION['Schedule'][$_POST['template_id'].'-'.$_POST['dayTime']]);
+    }
+    
+    public function deleteAllTemplateScheduleTime(){
+	session_start();
+	unset($_SESSION['Schedule'][$_POST['template_id'].'-'.$_POST['dayTime']]);
+    }
+    
+    public function getTemplateScheduleTime(){
+	session_start();
+	//print_r($_SESSION[$_GET['sku'].'-'.$_GET['dayTime']]);
+	//$array = array(array("time"=>"13:21"), array("time"=>"13:30"));
+	if(@is_array($_SESSION['Schedule'][$_GET['template_id'].'-'.$_GET['dayTime']])){
+	    sort($_SESSION['Schedule'][$_GET['template_id'].'-'.$_GET['dayTime']]);
+	    $data = array();
+	    $i = 0;
+	    foreach($_SESSION['Schedule'][$_GET['template_id'].'-'.$_GET['dayTime']] as $s){
+		$data[$i]['time'] = $s;
+		$i++;
+	    }
+	    echo json_encode($data);
+	}else{
+	    echo json_encode(array());
+	}
+	//print_r($_SESSION['Schedule']);
+    }
+    
+    public function saveTemplateScheduleTime(){
+	
+    }
     //-------------------------------------------------------------------------------------------------------
     public function getAllInventorySkus(){
 	$result = $this->get(self::INVENTORY_SERVICE."?action=getAllSkus");
@@ -2311,11 +2377,11 @@ class eBayListing{
 			echo $error->LongMessage."<br>";
 			$temp .= $error->LongMessage;
 		    }
-		    $this->log("upload", $temp, "error");
+		    eBayListing::log("upload", $temp, "error");
 		}else{
 		    echo $results->Errors->ShortMessage." : ";
 		    echo $results->Errors->LongMessage."<br>";
-		    $this->log("upload", $results->Errors->LongMessage, "error");
+		    eBayListing::log("upload", $results->Errors->LongMessage, "error");
 		}
 	    }else{
 		//echo $results->ItemID;
@@ -2325,7 +2391,7 @@ class eBayListing{
 		EndTime='".$results->EndTime."' where Id = '".$item['Id']."'";
 		echo $sql;
 		$result = mysql_query($sql);
-		$this->log("upload", $sql);
+		eBayListing::log("upload", $sql);
 	    }
 	    //----------   debug --------------------------------
 	    //print "Request: \n".$client->__getLastRequest() ."\n";
@@ -2685,8 +2751,8 @@ class eBayListing{
 	
 	//$_SESSION['account_id'] = $row['id'];
 	if(!empty($row['id'])){
-	    setcookie("account_id", $row['id'], time() + (60 * 60 * 24));
-	    setcookie("role", $row['role'], time() + (60 * 60 * 24));
+	    setcookie("account_id", $row['id'], time() + (60 * 60 * 24), '/');
+	    setcookie("role", $row['role'], time() + (60 * 60 * 24), '/');
 	    echo "{success: true}";
 	}else{
 	    echo "{success: false}";
@@ -2814,8 +2880,9 @@ class eBayListing{
     }
     
     //------------------------------- Log ---------------------------------------------------------------
-    private function log($type, $content, $level = 'normal'){
-	$sql = "insert into log (level,type,content,account_id) values('".$level."','".$type."','".$content."','".$this->account_id."')";
+    public static function log($type, $content, $level = 'normal'){
+	//print_r($_COOKIE);
+	$sql = "insert into log (level,type,content,account_id) values('".$level."','".$type."','".mysql_real_escape_string($content)."','".$_COOKIE['account_id']."')";
 	//echo $sql;
 	$result = mysql_query($sql, eBayListing::$database_connect);
     }
