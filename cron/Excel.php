@@ -4,35 +4,110 @@ require_once '../class/PHPExcel/IOFactory.php';
 
 class eBayBOExcel{
 	private static $database_connect;
-    const DATABASE_HOST = 'localhost';
-    const DATABASE_USER = 'root';
-    const DATABASE_PASSWORD = '5333533';
-    const DATABASE_NAME = 'ebaybo';
-    private static $php_excel;
-    
+	const DATABASE_HOST = 'localhost';
+	const DATABASE_USER = 'root';
+	const DATABASE_PASSWORD = '5333533';
+	const DATABASE_NAME = 'ebaybo';
+	const FILE_PATH = '/export/eBayBO/excel/';
+	private static $php_excel;
+	private $startTime;
+	private $endTime;
+	
 	public function __construct(){
 		eBayBOExcel::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
 
-        if (!eBayBOExcel::$database_connect) {
-            echo "Unable to connect to DB: " . mysql_error(eBayBOExcel::$database_connect);
-            exit;
-        }
+		if (!eBayBOExcel::$database_connect) {
+		    echo "Unable to connect to DB: " . mysql_error(eBayBOExcel::$database_connect);
+		    exit;
+		}
+		
+		mysql_query("SET NAMES 'UTF8'", eBayBOExcel::$database_connect);
+		
+		if (!mysql_select_db(self::DATABASE_NAME, eBayBOExcel::$database_connect)) {
+		    echo "Unable to select mydbname: " . mysql_error(eBayBOExcel::$database_connect);
+		    exit;
+		}
+		
+		$this->php_excel = new PHPExcel();
+
+
+		//$this->startTime = date("Y-m-d 14:10:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
+		$this->startTime = date("Y-m-d 14:10:00",mktime(0, 0, 0, date("m"), date("d")-3, date("Y")));
+		$this->endTime = date("Y-m-d 14:10:00");
+		
+	}
 	
-        mysql_query("SET NAMES 'UTF8'", eBayBOExcel::$database_connect);
+	private function getFilePath($fileName){
+		if(!file_exists(self::FILE_PATH.date("Ym"))){
+		    mkdir(self::FILE_PATH.date("Ym"), 0777);
+		}
+		
+		if(!file_exists(self::FILE_PATH.date("Ym")."/".date("d"))){
+		    mkdir(self::FILE_PATH.date("Ym")."/".date("d"), 0777);
+		}
+		
+		$fileName = self::FILE_PATH.date("Ym")."/".date("d").'/'.$fileName;
+		return $fileName;
+	}
 	
-        if (!mysql_select_db(self::DATABASE_NAME, eBayBOExcel::$database_connect)) {
-            echo "Unable to select mydbname: " . mysql_error(eBayBOExcel::$database_connect);
-            exit;
-        }
-        
-        $this->php_excel = new PHPExcel();
+	private function getShipmentMethod($method){
+		switch($method){
+			case "B":
+				return "Bulk";
+			break;
+		
+			case "S":
+				return "SpeedPost";
+			break;
+		
+			case "R":
+				return "Registered";
+			break;
+		
+			case "U":
+				return "UPS";
+			break;
+		}
+	}
+	
+	private function getShipmentReason($reason){
+		switch($reason){
+			case "L":
+				return "Lost in transit";
+			break;
+		
+			case "D":
+				return "Damaged item returned";
+			break;
+		
+			case "F":
+				return "Defective item returned";
+			break;
+		
+			case "W":
+				return "Wrong item returned";
+			break;
+		
+			case "N":
+				return "Normal item returned";
+			break;
+		
+			case "B":
+				return "Bounced back";
+			break;
+		
+			case "M":
+				return "Missing item";
+			break;
+		}
 	}
 	
 	public function shipmentList(){
-		$start = '2009-01-12';
-		$end = '2009-09-13';
+		$start = $this->startTime;
+		$end = $this->endTime;
+		
 		$sql = "select s.id,o.buyerId,s.shipmentMethod from qo_shipments as s left join qo_orders as o on s.ordersId = o.id 
-		where s.modifiedOn between '".$start."' and '".$end."' and s.status = 'N'";
+		where s.modifiedOn between '".$start."' and '".$end."'";// and s.status = 'N'";
 		$result = mysql_query($sql, eBayBOExcel::$database_connect);
 		
 		$this->php_excel->setActiveSheetIndex(0);
@@ -61,23 +136,27 @@ class eBayBOExcel{
 			$skuTitle = substr($skuTitle, 0, -2);
 			$quantity = substr($quantity, 0, -2);
 			
-			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $i);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $i-1);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['id']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['buyerId']);
-			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['shipmentMethod']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $this->getShipmentMethod($row['shipmentMethod']));
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $sku);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $skuTitle);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $quantity);
 			$i++;
 		}
 		$writer = PHPExcel_IOFactory::createWriter($this->php_excel, 'Excel5');
-		$writer->save('address-list.xls');
+		$writer->save($this->getFilePath('address-list.xls'));
 	} 
 	
 	public function reSentShipment(){
-		$start = '2009-01-12';
-		$end = '2009-09-13';
-		
+		if(!empty($_GET['start']) && !empty($_GET['end'])){
+			$start = $_GET['start'];
+			$end = $_GET['end'];
+		}else{
+			echo "<font color='red'>Please input start and end parameter in browser address url.</font>";
+			return 0;
+		}
 		$this->php_excel->setActiveSheetIndex(0);
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, 'No');
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, 'Shipment Id');
@@ -85,7 +164,7 @@ class eBayBOExcel{
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, 'Country');
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 1, 'Shipping Method');
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, 1, 'Sku');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(6, 1, 'Resend Date');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(6, 1, 'Resent Date');
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(7, 1, 'Cost');
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(8, 1, 'Weight(KG)');
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(9, 1, 'Postage');
@@ -95,33 +174,36 @@ class eBayBOExcel{
 		$i = 2;
 		while($row = mysql_fetch_assoc($result)){
 			$j = 0;
-			$sql_1 = "select od.skuId,od.skuCost,od.skuWeight from qo_orders as o left join qo_orders_detail on o.id = od.ordersId where o.id = '".$row['ordersId']."'";
+			$sql_1 = "select od.skuId,od.skuCost,od.skuWeight from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.id = '".$row['ordersId']."'";
 			$result_1 = mysql_query($sql_1, eBayBOExcel::$database_connect);
 			$sku = '';
 			$cost = 0;
 			$weight = 0;
 			while($row_1 = mysql_fetch_assoc($result_1)){
-				$sku = $row_1['skuId'];
+				$sku .= $row_1['skuId'] . ', ';
 				$cost += $row_1['skuCost'];
 				$weight += $row_1['skuWeight'];
 			}
-			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $i);
+			$sku = substr($sku, 0, -2);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $i-1);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['id']);
-			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['shipmentReason']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $this->getShipmentReason($row['shipmentReason']));
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['shipToCountry']);
-			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['shipmentMethod']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $this->getShipmentMethod($row['shipmentMethod']));
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $sku);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['modifiedOn']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $cost);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $weight);
+			$i++;
 		}
 		$writer = PHPExcel_IOFactory::createWriter($this->php_excel, 'Excel5');
-		$writer->save('resent-list.xls');
+		$writer->save('/export/eBayBO/excel/resent-list('.$start.' -- '.$end.').xls');
+		echo "From ".$start." to ". $end." resend shipment generate Success!<br><a href='http://heshuai64.3322.org/eBayBO/excel/resent-list(".$start." -- ".$end.").xls'>please click download</a>";
 	}
 	
 	public function registerShipment(){
-		$start = '2009-01-12';
-		$end = '2009-09-13';
+		$start = $this->startTime;
+		$end = $this->endTime;
 		
 		$this->php_excel->setActiveSheetIndex(0);
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, '序号');
@@ -152,7 +234,7 @@ class eBayBOExcel{
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(25, 1, 'Shipment URL');
 		
 		$sql = "select id,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,
-		shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments";// where shipmentMethod = 'R' and modifiedOn between '".$start."' and '".$end."'";
+		shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where modifiedOn between '".$start."' and '".$end."'";// and shipmentMethod = 'R' ";
 		$result = mysql_query($sql, eBayBOExcel::$database_connect);
 		$i = 2;
 		while($row = mysql_fetch_assoc($result)){
@@ -166,7 +248,7 @@ class eBayBOExcel{
 			$row['shipToStateOrProvince']."\n".
 			$row['shipToPostalCode'];
 			
-			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, $i, $i);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, $i, $i-1);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(10, $i, $row['shipToName']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(11, $i, $address);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(12, $i, $row_1['countries_iso_code_2']);
@@ -175,7 +257,7 @@ class eBayBOExcel{
 			$i++;
 		}
 		$writer = PHPExcel_IOFactory::createWriter($this->php_excel, 'Excel5');
-		$writer->save('register.xls');
+		$writer->save($this->getFilePath('register.xls'));
 	}
 	
 	public function __destruct(){
