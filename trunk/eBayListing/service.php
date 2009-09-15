@@ -462,7 +462,7 @@ class eBayListing{
 	Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
 	PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
 	ReservePrice,CurrentPrice,ScheduleTime,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
-	StoreCategory2ID,StoreCategoryID,SubTitle,Title,UserID,accountId,BoldTitle,Border,
+	StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 	Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 	GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InternationalShippingServiceOptionType,Status) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 	Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
@@ -472,9 +472,13 @@ class eBayListing{
 	Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 	GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InternationalShippingServiceOptionType,'0' from template where Id = '".$template_id."'";
 	
+	//echo $sql_1."\n";
+	
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$item_id = mysql_insert_id(eBayListing::$database_connect);
 	
+	//var_dump($item_id);
+	//exit;
 	$sql_2 = "insert into picture_url (ItemID,url)  select '".$item_id."',url from template_picture_url where templateId = '".$template_id."'";
 	$result_2 = mysql_query($sql_2, eBayListing::$database_connect);
 	
@@ -488,17 +492,19 @@ class eBayListing{
 	$result_5 = mysql_query($sql_5, eBayListing::$database_connect);
 	while($row_5 = mysql_fetch_assoc($result_5)){
 	    $template_attribute_set_id = $row_5['attribute_set_id'];
-	    $sql_6 = "insert into attribute_set (ItemID,attributeSetID) values ('".$item_id."','".$row_5['attributeSetID']."')";
+	    $sql_6 = "insert into attribute_set (item_id,attributeSetID) values ('".$item_id."','".$row_5['attributeSetID']."')";
+	    //echo $sql_6."\n";
 	    $result_6 = mysql_query($sql_6, eBayListing::$database_connect);
 	    $attribute_set_id = mysql_insert_id(eBayListing::$database_connect);
 	    
 	    $sql_7 = "insert into attribute (attributeID,attribute_set_id,ValueID,ValueLiteral) 
-	    select attributeID,'".$attribute_set_id."',ValueID,ValueLiteral from template_attribute
+	    select attributeID,'".$attribute_set_id."',ValueID,ValueLiteral from template_attribute 
 	    where attribute_set_id = '".$template_attribute_set_id."'";
 	    $result_7 = mysql_query($sql_7, eBayListing::$database_connect);
 	}
-	
-	if($result_1 && $result_2 && $result_3 && $result_4 && $result_5 && $result_6 && $result_7){
+	//var_dump(array($result_1, $result_2, $result_3, $result_4, $result_6, $result_7));
+
+	if($result_1 && $result_2 && $result_3 && $result_4 && $result_6 && $result_7){
 	    return true;
 	}else{
 	    return false;
@@ -530,7 +536,9 @@ class eBayListing{
 		$endTimestamp = strtotime($row_10['endDate']);
 		while($startTimestamp <= $endTimestamp){
 		    if(date("D", $startTimestamp) == $row_10['day']){
+			//echo date("Y-m-d", $startTimestamp) . ' ' .$row_10['time']."\n";
 			$result = $this->tempalteChangeToItem($_POST['ids'], date("Y-m-d", $startTimestamp) . ' ' .$row_10['time']);
+			//var_dump($result);
 		    }
 		    $startTimestamp += 24 * 60 * 60;
 		}
