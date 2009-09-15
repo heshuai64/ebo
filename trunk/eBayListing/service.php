@@ -464,13 +464,13 @@ class eBayListing{
 	ReservePrice,CurrentPrice,ScheduleTime,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 	StoreCategory2ID,StoreCategoryID,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 	Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-	GalleryURL,PhotoDisplay,Status) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+	GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InternationalShippingServiceOptionType,Status) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 	Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
 	PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
 	ReservePrice,CurrentPrice,'".$time."',SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 	StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 	Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-	GalleryURL,PhotoDisplay,'0' from template where Id = '".$template_id."'";
+	GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InternationalShippingServiceOptionType,'0' from template where Id = '".$template_id."'";
 	
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$item_id = mysql_insert_id(eBayListing::$database_connect);
@@ -719,6 +719,9 @@ class eBayListing{
 	ALTER TABLE `items` ADD `StoreCategory2Name` VARCHAR( 200 ) NOT NULL AFTER `StoreCategory2ID` ;
 	
 	ALTER TABLE `template` ADD `ShippingServiceOptionsType` ENUM( "Flat", "Calculated" ) NOT NULL AFTER `PhotoDisplay` ,
+	ADD `InternationalShippingServiceOptionType` ENUM( "Flat", "Calculated" ) NOT NULL AFTER `ShippingServiceOptionsType` ;
+	
+	ALTER TABLE `items` ADD `ShippingServiceOptionsType` ENUM( "Flat", "Calculated" ) NOT NULL AFTER `PhotoDisplay` ,
 	ADD `InternationalShippingServiceOptionType` ENUM( "Flat", "Calculated" ) NOT NULL AFTER `ShippingServiceOptionsType` ;
 	1> 分类属性
 	2> 生成导入sp的文件
@@ -1375,7 +1378,6 @@ class eBayListing{
     }
     
     //-----------------   Template Schedule  -----------------------------------------------------------------
-   
     public function addTemplateScheduleTime(){
 	if(!empty($_POST['time'])){
 	    session_start();
@@ -2403,13 +2405,30 @@ class eBayListing{
         }
     }
     
-    //-------------------------   Listing ---------------------------------------------------------------------
+    //-------------------------  ReviseItem --------------------------------------------------------------
+    public function modifyItem(){
+	$sql_1 = "select * from items where Status = 3";
+	$result_1 = mysql_query($sql_1);
+	while($row_1 = mysql_fetch_assoc($result_1)){
+	    
+	}
+    }
+    
+    private function reviseItem($item){
+	
+	$params = array('Version' => $Version,
+			'Item' => $itemArray);
+	$results = $client->ReviseItem($params);
+	print_r($results);
+    }
+    //-------------------------   Listing ----------------------------------------------------------------
     /*
     	Status
 	0 : uploading
 	1 : selling
 	2 : sold
-	3 : sold end
+	3 : revise
+	4 : sold end
     */
     private function checkItem($itemId){
 	$sql = "select count(*) as count from items where ItemID = '$itemId->ItemID'";

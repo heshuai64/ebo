@@ -235,7 +235,7 @@ class eBayBOExcel{
 		//$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(25, 1, 'Shipment URL');
 		
 		$sql = "select id,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,
-		shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where modifiedOn between '".$start."' and '".$end."' and shipmentMethod = 'R' ";
+		shipToStateOrProvince,shipToPostalCode,shipToCountry,shipToPhoneNo from qo_shipments where status = 'N' and modifiedOn between '".$start."' and '".$end."' and shipmentMethod = 'R' ";
 		$result = mysql_query($sql, eBayBOExcel::$database_connect);
 		$i = 2;
 		while($row = mysql_fetch_assoc($result)){
@@ -245,15 +245,24 @@ class eBayBOExcel{
 			
 			$address = $row['shipToAddressLine1']."\n".
 			(!empty($row['shipToAddressLine2'])?$row['shipToAddressLine2']."\n":'').
-			$row['shipToCity']."\n".
-			$row['shipToStateOrProvince']."\n".
-			$row['shipToPostalCode'];
+			(!empty($row['shipToCity'])?$row['shipToCity']."\n":'').
+			(!empty($row['shipToStateOrProvince'])?$row['shipToStateOrProvince']."\n":'').
+			(!empty($row['shipToPostalCode'])?$row['shipToPostalCode']:'');
 			
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, $i, $i-1);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, $i, $row['id']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, $i, '新加坡小包挂号');
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, $i, 'Richart');
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(8, $i, (($row['shipToPhoneNo'] != 'Invalid Request')?$row['shipToPhoneNo']:''));
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(10, $i, $row['shipToName']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(11, $i, $address);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(12, $i, $row_1['countries_iso_code_2']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(13, $i, 'Computer Parts');
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(14, $i, 1);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(15, $i, 'USD');
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(16, $i, 20);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(20, $i, 20);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(21, $i, 'N');
 			//$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(25, $i, "http://heshuai64.3322.org/eBayBO/cron/image.php?code=code39&o=1&t=30&r=1&text=".$row['id']."&f1=Arial.ttf&f2=8&a1=&a2=&a3=");
 			$i++;
 		}
