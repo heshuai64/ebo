@@ -261,7 +261,7 @@ Ext.onReady(function(){
                                   template_store.reload();
                                   break;
                                 default:
-                                  Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
+                                  Ext.MessageBox.alert('Warning','data error, please check template data.');
                                   break;
                              }
                          },
