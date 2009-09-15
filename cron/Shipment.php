@@ -53,8 +53,7 @@ class Shipment{
         }
     }
     
-    private function getShipmentId(){
-        $type = 'SHA';
+    private function getShipmentId($type = 'SHA'){
         $today = date("Ym");
         $sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
         $result = mysql_query($sql, Shipment::$database_connect);
@@ -92,13 +91,17 @@ class Shipment{
             $result_0 = mysql_query($sql_0, Shipment::$database_connect);
             $row_0 = mysql_fetch_assoc($result_0);
             if($row_0['num'] == 0){
-                $shipmentId = $this->getShipmentId();
+                if($orders['shippingMethod'] == 'R'){
+                    $shipmentId = $this->getShipmentId('SHR');
+                }else{
+                    $shipmentId = $this->getShipmentId();
+                }
                 print_r($orders, true);
                 echo "<br>";
-                $sql = "insert into qo_shipments (id,ordersId,status,shippingFeeCurrency,shippingFeeValue,shipToName,
+                $sql = "insert into qo_shipments (id,ordersId,status,shipmentMethod,shippingFeeCurrency,shippingFeeValue,shipToName,
                 shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,
                 shipToCountry,shipToPhoneNo,createdBy,createdOn,modifiedBy,modifiedOn) values ('".$shipmentId."','".$orders['id']."',
-                'N','".$orders['shippingFeeCurrency']."','".$orders['shippingFeeValue']."','".mysql_escape_string($orders['ebayName'])."',
+                'N','".$orders['shippingMethod']."','".$orders['shippingFeeCurrency']."','".$orders['shippingFeeValue']."','".mysql_escape_string($orders['ebayName'])."',
                 '".mysql_escape_string($orders['ebayEmail'])."','".mysql_escape_string($orders['ebayAddress1'])."','".mysql_escape_string($orders['ebayAddress2'])."','".mysql_escape_string($orders['ebayCity'])."',
                 '".mysql_escape_string($orders['ebayStateOrProvince'])."','".mysql_escape_string($orders['ebayPostalCode'])."','".mysql_escape_string($orders['ebayCountry'])."','".$orders['ebayPhone']."',
                 'System','".date("Y-m-d H:i:s")."','System','".date("Y-m-d H:i:s")."')";

@@ -267,9 +267,9 @@ class Service{
                 $this->log("updateShippingMethod", "ordersId: ".$id.", orders: ".$sql_2."<br>");
                 $result_2 = mysql_query($sql_2, Service::$database_connect);
                 
-                $sql_3 = "update qo_shipments set shipmentMethod = '".$shippingMethod."' where ordersId = '".$id."'";
-                $this->log("updateShippingMethod", "ordersId: ".$id.", shipments: ".$sql_3."<br>");
-                $result_3 = mysql_query($sql_3, Service::$database_connect);
+                //$sql_3 = "update qo_shipments set shipmentMethod = '".$shippingMethod."' where ordersId = '".$id."'";
+                //$this->log("updateShippingMethod", "ordersId: ".$id.", shipments: ".$sql_3."<br>");
+                //$result_3 = mysql_query($sql_3, Service::$database_connect);
                 //sleep(1);
                 //exit;
             }else{
