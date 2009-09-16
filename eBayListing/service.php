@@ -2443,7 +2443,7 @@ class eBayListing{
     
     //-------------------------  ReviseItem --------------------------------------------------------------
     public function modifyItem(){
-	$sql_1 = "select * from items where Status = 2";
+	$sql_1 = "select * from items where Status = 3";
 	$result_1 = mysql_query($sql_1);
 	while($row_1 = mysql_fetch_assoc($result_1)){
 	    $this->reviseItem($row_1);
@@ -2451,19 +2451,45 @@ class eBayListing{
     }
     
     private function reviseItem($item){
+	$client = new eBaySOAP($this->session);
+	$Version = 607;
+	$itemArray['ItemID'] = '110040874941';//$item['ItemID'];
+	$itemArray['StartPrice'] = 50;
 	
 	$params = array('Version' => $Version,
 			'Item' => $itemArray);
 	$results = $client->ReviseItem($params);
 	print_r($results);
     }
+    
+    public function reUploadItem(){
+	$sql_1 = "select * from items where Status = 3";
+	$result_1 = mysql_query($sql_1);
+	while($row_1 = mysql_fetch_assoc($result_1)){
+	    $this->reListItem($row_1);
+	}
+    }
+    
+    private function reListItem($item){
+	$client = new eBaySOAP($this->session);
+	$Version = 607;
+	$itemArray['ItemID'] = $item['ItemID'];
+	
+	$params = array('Version' => $Version,
+			'Item' => $itemArray);
+	$results = $client->RelistItem($params);
+	print_r($results);
+    }
+    
     //-------------------------   Listing ----------------------------------------------------------------
     /*
     	Status
 	0 : uploading
 	1 : selling
 	2 : revise
-	3 : end
+	3 : relist
+	4 : end
+	
     */
     private function checkItem($itemId){
 	$sql = "select count(*) as count from items where ItemID = '$itemId->ItemID'";

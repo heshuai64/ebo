@@ -603,7 +603,11 @@ Ext.onReady(function(){
                rootVisible: false,
                children:[ 
                     {"text" : "Active Listings", "id" : 1, "leaf" : true},
-                    {"text" : "Ended Listings",  "id" : 2, "leaf" : true}
+                    {"text" : "Ended Listings",  "id" : 2, "leaf" : false,
+                              children: [
+                                   {"text": "Sold", "id" : 21, "leaf" : true},
+                                   {"text": "Unsold", "id" : 22, "leaf" : true}
+                              ]}
                ]
           },
           listeners:{
@@ -775,7 +779,7 @@ Ext.onReady(function(){
                },{
                     region:'west',
                     id:'west-panel',
-                    title:'West',
+                    title:'Function Palette',
                     split:true,
                     width: 200,
                     minSize: 175,
@@ -1492,7 +1496,7 @@ Ext.onReady(function(){
                                    
                               }
                          }
-                    },{
+                    }/*,{
                          title:'Sales Report',
                          border:false,
                          iconCls:'sales-report',
@@ -1545,7 +1549,7 @@ Ext.onReady(function(){
                                    tabPanel.activate('sales-report-tab');
                               }
                          }
-                   }]
+                   }*/]
                },tabPanel
             ]
      });
