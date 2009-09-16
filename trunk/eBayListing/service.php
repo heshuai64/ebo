@@ -353,6 +353,20 @@ class eBayListing{
     }
     
     //-----------------  Template --------------------------------------------------------------------------
+    public function saveFooter(){
+	$sql_1 = "select count(*) as num from account_footer where accountId = '".$this->account_id."'";
+	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	$row_1 = mysql_fetch_assoc($result_1);
+	
+	if($row_1['num'] > 0){
+	    $sql_2 = "update account_footer set footer = '".$_POST['elm1']."' where accountId = '".$this->account_id."'";
+	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);	
+	}else{
+	    $sql_2 = "insert into account_footer (accountId,footer) values ('".$this->account_id."','".$_POST['elm1']."')";
+	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);	
+	}
+    }
+    
     public function getTemplateTree(){
 	$array = array();
 	$i = 0;
@@ -415,7 +429,11 @@ class eBayListing{
             $result = mysql_query($sql, eBayListing::$database_connect);
             
 	}else{
-	    $where = " where tttc.template_category_id = '".$_POST['parent_id']."' and t.accountId = '".$this->account_id."' ";
+	    $where = " where 1 = 1 ";
+	    if(!empty($_POST['parent_id'])){
+		$where .= " and tttc.template_category_id = '".$_POST['parent_id']."'";
+	    }
+	    $where .= "and t.accountId = '".$this->account_id."' ";
 		
 	    if(empty($_POST['start']) && empty($_POST['limit'])){
                 $_POST['start'] = 0;
@@ -423,11 +441,11 @@ class eBayListing{
             }
 	    
             if(!empty($_POST['SKU'])){
-                $where .= " and SKU like '%".$_POST['SKU']."%'";
+                $where .= " and t.SKU like '%".$_POST['SKU']."%'";
             }
             
             if(!empty($_POST['Title'])){
-                $where .= " and Title like '%".$_POST['Title']."%'";
+                $where .= " and t.Title like '%".$_POST['Title']."%'";
             }
                 
             $sql = "select count(*) as count from template as t left join template_to_template_cateogry as tttc on t.Id = tttc.template_id  ".$where;
@@ -1449,55 +1467,7 @@ class eBayListing{
 	$result = $this->get(self::INVENTORY_SERVICE."?action=getAllSkus");
 	echo $result;
     }
-    
-    public function getActiveItem(){
-	if(empty($_POST['start']) && empty($_POST['limit'])){
-	       $_POST['start'] = 0;
-	       $_POST['limit'] = 20;
-	}
 
-	//Active Completed Ended
-	$sql = "select count(*) as count from items";// where ListingStatus = 'Active' and EndTime > NOW()";
-	$result = mysql_query($sql, eBayListing::$database_connect);
-	$row = mysql_fetch_assoc($result);
-	$totalCount = $row['count'];
-	
-	$sql_1 = "select * from items limit ".$_POST['start'].",".$_POST['limit'];// where ListingStatus = 'Active' and EndTime > NOW() limit ".$_POST['start'].",".$_POST['limit'];
-	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	$data = array();
-	while($row_1 = mysql_fetch_assoc($result_1)){
-	    $data[] = $row_1;
-	}
-	
-	echo json_encode(array('totalCount'=>$totalCount, 'records'=>$data));
-	mysql_free_result($result);
-	mysql_free_result($result_1);
-    }
-    
-    public function getEndItem(){
-	if(empty($_POST['start']) && empty($_POST['limit'])){
-	       $_POST['start'] = 0;
-	       $_POST['limit'] = 20;
-	}
-
-	//Active Completed Ended
-	$sql = "select count(*) as count from items where (ListingStatus = 'Completed' or ListingStatus = 'Ended') or EndTime < NOW()";
-	$result = mysql_query($sql, Service::$database_connect);
-	$row = mysql_fetch_assoc($result);
-	$totalCount = $row['count'];
-	
-	$sql_1 = "select count(*) as count from items where (ListingStatus = 'Completed' or ListingStatus = 'Ended') or EndTime < NOW() limit ".$_POST['start'].",".$_POST['limit'];
-	$result_1 = mysql_query($sql_1, Service::$database_connect);
-	$data = array();
-	while($row_1 = mysql_fetch_assoc($result_1)){
-	    $data[] = $row_1;
-	}
-	
-	echo json_encode(array('totalCount'=>$totalCount, 'records'=>$data));
-	mysql_free_result($result);
-	mysql_free_result($result_1);
-    }
-    
     public function getCategoriesTree(){
 	if($_POST['node'] == "0"){
 	    $sql = "select CategoryID,CategoryName,LeafCategory from categories where CategoryID = CategoryParentID";
@@ -2021,7 +1991,65 @@ class eBayListing{
 	mysql_free_result($result);
     }
     
-    //-------------------------- Upload  -------------------------------------------------------------------
+    //-------------------------- Item  -------------------------------------------------------------------
+    public function getActiveItem(){
+	if(empty($_POST['start']) && empty($_POST['limit'])){
+	       $_POST['start'] = 0;
+	       $_POST['limit'] = 20;
+	}
+
+	//Active, Completed, Ended
+	$sql = "select count(*) as count from items where ListingStatus = 'Active' or Status = 1";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	$totalCount = $row['count'];
+	
+	$sql_1 = "select * from items where ListingStatus = 'Active' or Status = 1 limit ".$_POST['start'].",".$_POST['limit'];
+	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	$data = array();
+	while($row_1 = mysql_fetch_assoc($result_1)){
+	    if($row_1['ListingType'] == "FixedPriceItem" || $row_1['ListingType'] == "StoresFixedPrice"){
+		$row_1['Price'] = $row_1['StartPrice'];
+	    }else{
+		$row_1['Price'] = $row_1['BuyItNowPrice'];
+	    }
+	    $data[] = $row_1;
+	}
+	
+	echo json_encode(array('totalCount'=>$totalCount, 'records'=>$data));
+	mysql_free_result($result);
+	mysql_free_result($result_1);
+    }
+    
+    public function getEndItem(){
+	if(empty($_POST['start']) && empty($_POST['limit'])){
+	       $_POST['start'] = 0;
+	       $_POST['limit'] = 20;
+	}
+
+	//Active, Completed, Ended
+	$sql = "select count(*) as count from items where ListingStatus = 'Completed' or ListingStatus = 'Ended'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	$totalCount = $row['count'];
+	
+	$sql_1 = "select * from items where ListingStatus = 'Completed' or ListingStatus = 'Ended' limit ".$_POST['start'].",".$_POST['limit'];
+	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	$data = array();
+	while($row_1 = mysql_fetch_assoc($result_1)){
+	    if($row_1['ListingType'] == "FixedPriceItem" || $row_1['ListingType'] == "StoresFixedPrice"){
+		$row_1['Price'] = $row_1['StartPrice'];
+	    }else{
+		$row_1['Price'] = $row_1['BuyItNowPrice'];
+	    }
+	    $data[] = $row_1;
+	}
+	
+	echo json_encode(array('totalCount'=>$totalCount, 'records'=>$data));
+	mysql_free_result($result);
+	mysql_free_result($result_1);
+    }
+    //-------------------------- Upload  -----------------------------------------------------------------
     public function uploadItem(){
 	$date = date("Y-m-d");
 	$day = date("D");
@@ -2415,10 +2443,10 @@ class eBayListing{
     
     //-------------------------  ReviseItem --------------------------------------------------------------
     public function modifyItem(){
-	$sql_1 = "select * from items where Status = 3";
+	$sql_1 = "select * from items where Status = 2";
 	$result_1 = mysql_query($sql_1);
 	while($row_1 = mysql_fetch_assoc($result_1)){
-	    
+	    $this->reviseItem($row_1);
 	}
     }
     
@@ -2434,9 +2462,8 @@ class eBayListing{
     	Status
 	0 : uploading
 	1 : selling
-	2 : sold
-	3 : revise
-	4 : sold end
+	2 : revise
+	3 : end
     */
     private function checkItem($itemId){
 	$sql = "select count(*) as count from items where ItemID = '$itemId->ItemID'";
@@ -2486,7 +2513,7 @@ class eBayListing{
 	*/
 	switch($item->SellingStatus->ListingStatus){
 	    case "Active":
-		$Status = 2;
+		$Status = 1;
 	    break;
 	
 	    case "Completed":
@@ -2494,14 +2521,14 @@ class eBayListing{
 	    break;
 	
 	    case "Ended":
-		$Status = 2;
+		$Status = 3;
 	    break;
 	}
 	$sql = "update items set CurrentPrice='".$item->SellingStatus->CurrentPrice."',QuantitySold='".$item->SellingStatus->QuantitySold."',ListingStatus='".$item->SellingStatus->ListingStatus.",Status='".$Status."'' 
 	where ItemID = '".$item->ItemID."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
     }
-    
+    /*
     private function deleteShippingServiceOptions($itemId, $d = false){
 	if($d == true){
 	    $sql = "delete from shipping_service_options where ItemID = '".$itemId."'";
@@ -2531,8 +2558,7 @@ class eBayListing{
 	echo "<br>";
 	$result = mysql_query($sql, eBayListing::$database_connect);
     }
-    
-    
+    */
     //http://127.0.0.1:6666/eBayBO/eBaylisting/service.php?action=getSellerList&EndTimeFrom=2009-05-29&EndTimeTo=2009-05-30
     public function getSellerList(){
 	try {
@@ -2546,10 +2572,10 @@ class eBayListing{
 	    $EndTimeFrom = $_GET['EndTimeFrom'];
 	    $EndTimeTo = $_GET['EndTimeTo'];
 	    
-	    $StartTimeFrom = $_GET['StartTimeFrom'];
-	    $StartTimeTo = $_GET['StartTimeTo'];
+	    //$StartTimeFrom = $_GET['StartTimeFrom'];
+	    //$StartTimeTo = $_GET['StartTimeTo'];
 	    
-	    $params = array('Version' => $Version, 'DetailLevel' => $DetailLevel, 'Pagination' => $Pagination, 'StartTimeFrom' => $StartTimeFrom, 'StartTimeTo' => $StartTimeTo/*'EndTimeFrom' => $EndTimeFrom, 'EndTimeTo' => $EndTimeTo*/);
+	    //$params = array('Version' => $Version, 'DetailLevel' => $DetailLevel, 'Pagination' => $Pagination, /*'StartTimeFrom' => $StartTimeFrom, 'StartTimeTo' => $StartTimeTo*/'EndTimeFrom' => $EndTimeFrom, 'EndTimeTo' => $EndTimeTo);
 	    //$results = $client->GetSellerList($params);
 	    
 	    //----------   debug --------------------------------
@@ -2571,11 +2597,11 @@ class eBayListing{
 	    
 		if(is_array($results->ItemArray->Item)){
 		    foreach($results->ItemArray->Item as $item){
-			if($this->checkItem($item->ItemID) == 0){
-			    $this->insertItem($item, $results->Seller->UserID);
-			}else{
+			//if($this->checkItem($item->ItemID) == 0){
+			//    $this->insertItem($item, $results->Seller->UserID);
+			//}else{
 			    $this->updateItem($item, $results->Seller->UserID);
-			}
+			//}
 			/*
 			//ShippingServiceOptions
 			$d = true;
@@ -2604,11 +2630,11 @@ class eBayListing{
 			*/
 		    }
 		}else{
-		    if($this->checkItem($results->ItemArray->Item->ItemID) == 0){
-			$this->insertItem($results->ItemArray->Item, $results->Seller->UserID);
-		    }else{
+		    //if($this->checkItem($results->ItemArray->Item->ItemID) == 0){
+		    //	$this->insertItem($results->ItemArray->Item, $results->Seller->UserID);
+		    //}else{
 			$this->updateItem($results->ItemArray->Item, $results->Seller->UserID);
-		    }
+		    //}
 		    /*
 		    //ShippingServiceOptions
 		    $d = true;
@@ -2675,21 +2701,6 @@ class eBayListing{
 	}
 	print_r($array);
     }
-    
-    public function saveFooter(){
-	$sql_1 = "select count(*) as num from account_footer where accountId = '".$this->account_id."'";
-	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	$row_1 = mysql_fetch_assoc($result_1);
-	
-	if($row_1['num'] > 0){
-	    $sql_2 = "update account_footer set footer = '".$_POST['elm1']."' where accountId = '".$this->account_id."'";
-	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);	
-	}else{
-	    $sql_2 = "insert into account_footer (accountId,footer) values ('".$this->account_id."','".$_POST['elm1']."')";
-	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);	
-	}
-    }
-    
     //-----------------   Schedule  -----------------------------------------------------------------------------
     /*
     ALTER TABLE `schedule` ADD `account_id` INT NOT NULL ;
