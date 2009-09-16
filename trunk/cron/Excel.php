@@ -9,6 +9,7 @@ class eBayBOExcel{
 	const DATABASE_PASSWORD = '5333533';
 	const DATABASE_NAME = 'ebaybo';
 	const FILE_PATH = '/export/eBayBO/excel/';
+	const INVENTORY_SERVICE = 'http://192.168.1.169:8080/inventory/service.php';
 	private static $php_excel;
 	private $startTime;
 	private $endTime;
@@ -37,6 +38,39 @@ class eBayBOExcel{
 		
 	}
 	
+	private function getService($request){
+        
+		//$request =  'http://search.yahooapis.com/ImageSearchService/V1/imageSearch?appid=YahooDemo&query='.urlencode('Al Gore').'&results=1';
+		
+		// Make the request
+		$json = file_get_contents($request);
+		//var_dump($json);
+		//echo $request;
+		// Retrieve HTTP status code
+		list($version,$status_code,$msg) = explode(' ',$http_response_header[0], 3);
+		
+		// Check the HTTP Status code
+		switch($status_code) {
+			case 200:
+				return $json;
+				// Success
+				break;
+			case 503:
+				echo('Your call to Web Services failed and returned an HTTP status of 503. That means: Service unavailable. An internal problem prevented us from returning data to you.');
+				break;
+			case 403:
+				echo('Your call to Web Services failed and returned an HTTP status of 403. That means: Forbidden. You do not have permission to access this resource, or are over your rate limit.');
+				break;
+			case 400:
+				// You may want to fall through here and read the specific XML error
+				echo('Your call to Web Services failed and returned an HTTP status of 400. That means:  Bad request. The parameters passed to the service did not match as expected. The exact error is returned in the JSON response.');
+				break;
+			default:
+				echo('Your call to Web Services returned an unexpected HTTP status of:' . $status_code);
+				return false;
+		}
+	    }
+    
 	private function getFilePath($fileName){
 		if(!file_exists(self::FILE_PATH.date("Ym"))){
 		    mkdir(self::FILE_PATH.date("Ym"), 0777);
@@ -178,17 +212,20 @@ class eBayBOExcel{
 		$i = 2;
 		while($row = mysql_fetch_assoc($result)){
 			$j = 0;
-			//$sql_1 = "select skuId,skuCost,skuWeight,quantity from qo_shipments_detail where shipmentsId = '".$row['id']."'";
-			$sql_1 = "select od.skuId,od.skuCost,od.skuWeight,od.quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.id = '".$row['ordersId']."'";
+			$sql_1 = "select skuId,quantity from qo_shipments_detail where shipmentsId = '".$row['id']."'";
+			//$sql_1 = "select od.skuId,od.skuCost,od.skuWeight,od.quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.id = '".$row['ordersId']."'";
 			$result_1 = mysql_query($sql_1, eBayBOExcel::$database_connect);
 			$sku = '';
 			$cost = 0;
 			$weight = 0;
 			$quantity = 0;
 			while($row_1 = mysql_fetch_assoc($result_1)){
+				$json_result = $this->getService(self::INVENTORY_SERVICE."?action=getSkuInfo&data=".urlencode($row_1['skuId']));
+				//echo $json_result;
+				$service_result = json_decode($json_result);
 				$sku .= $row_1['skuId'] . ', ';
-				$cost += $row_1['skuCost'];
-				$weight += $row_1['skuWeight'];
+				$cost += $service_result->skuCost;
+				$weight += $service_result->skuWeight;
 				$quantity += $row_1['quantity'];
 			}
 			$sku = substr($sku, 0, -2);
