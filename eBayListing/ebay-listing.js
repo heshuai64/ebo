@@ -316,7 +316,7 @@ Ext.onReady(function(){
                          title: 'Import CSV File' ,
                          closable:true,
                          width: 320,
-                         height: 150,
+                         height: 200,
                          plain:true,
                          layout: 'fit',
                          items: [{
@@ -326,21 +326,44 @@ Ext.onReady(function(){
                               frame: true,
                               autoHeight: true,
                               bodyStyle: 'padding: 10px 10px 0 10px;',
-                              labelWidth: 50,
+                              labelWidth: 80,
                               defaults: {
                                   anchor: '95%',
                                   allowBlank: false
                               },
                               items:[{
                                    xtype: 'fileuploadfield',
-                                   id: 'csv',
+                                   id: 'skcsv',
                                    emptyText: 'Select an csv file',
-                                   fieldLabel: 'CSV',
+                                   fieldLabel: 'Sku and Title',
                                    //hideLabel:true,
-                                   name: 'csv',
+                                   name: 'skcsv',
                                    buttonText: '',
                                    buttonCfg: {
                                        iconCls: 'upload-icon'
+                                   }
+                              },{
+                                   xtype: 'button',
+                                   text: 'Upload',
+                                   handler: function(){
+                                        
+                                   }
+                              },{
+                                   xtype: 'fileuploadfield',
+                                   id: 'spcsv',
+                                   emptyText: 'Select an csv file',
+                                   fieldLabel: 'Sku and Price',
+                                   //hideLabel:true,
+                                   name: 'spcsv',
+                                   buttonText: '',
+                                   buttonCfg: {
+                                       iconCls: 'upload-icon'
+                                   }
+                              },{
+                                   xtype: 'button',
+                                   text: 'Upload',
+                                   handler: function(){
+                                        
                                    }
                               }]
                          }],                                           
@@ -593,7 +616,7 @@ Ext.onReady(function(){
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
-                                   fields: ['SKU', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'StartPrice', 'BuyItNowPrice', 'Description', 'SubTitle', 'CategoryID', 'SecondaryCategory', 'StoreCategoryID', 'StoreCategory2ID'],
+                                   fields: ['SKU', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price'],
                                    //url: 'service.php?action=getWait'
                                    url: 'service.php?action=getActiveItem'
                               })
@@ -601,7 +624,7 @@ Ext.onReady(function(){
                               var activity_grid = new Ext.grid.GridPanel({
                                    //title: 'Waiting To Upload SKU List',
                                    store: activity_store,
-                                   //autoHeight: true,
+                                   autoHeight: true,
                                    //autoScroll: true,
                                    //width: 600,
                                    //height: 500,
@@ -613,13 +636,7 @@ Ext.onReady(function(){
                                        {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                        {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
                                        {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
-                                       {header: "Start Price", width: 60, align: 'center', sortable: true, dataIndex: 'StartPrice'},
-                                       {header: "Buy It Now Price", width: 120, align: 'center', sortable: true, dataIndex: 'BuyItNowPrice'},
-                                       {header: "Sub Title", width: 120, align: 'center', sortable: true, dataIndex: 'SubTitle'},
-                                       {header: "Category 1", width: 120, align: 'center', sortable: true, dataIndex: 'CategoryID'},
-                                       {header: "Category 2", width: 120, align: 'center', sortable: true, dataIndex: 'SecondaryCategory'},
-                                       {header: "Store Category 1", width: 120, align: 'center', sortable: true, dataIndex: 'StoreCategoryID'},
-                                       {header: "Store Category 2", width: 120, align: 'center', sortable: true, dataIndex: 'StoreCategory2ID'}
+                                       {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'}
                                    ],
                                    bbar: new Ext.PagingToolbar({
                                        pageSize: 20,
@@ -646,7 +663,54 @@ Ext.onReady(function(){
                          break;
                     
                          case 2:
+                              var end_item_store = new Ext.data.JsonStore({
+                                   root: 'records',
+                                   totalProperty: 'totalCount',
+                                   idProperty: 'id',
+                                   //autoLoad:true,
+                                   fields: ['SKU', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price'],
+                                   url: 'service.php?action=getEndItem'
+                              })
                               
+                              var end_item_grid = new Ext.grid.GridPanel({
+                                   //title: 'Waiting To Upload SKU List',
+                                   store: end_item_store,
+                                   autoHeight: true,
+                                   //autoScroll: true,
+                                   //width: 600,
+                                   //height: 500,
+                                   selModel: new Ext.grid.RowSelectionModel({}),
+                                   columns:[
+                                       {header: "SKU", width: 120, align: 'center', sortable: true, dataIndex: 'SKU'},
+                                       {header: "Item Title", width: 120, align: 'center', sortable: true, dataIndex: 'Title'},
+                                       {header: "Site", width: 50, align: 'center', sortable: true, dataIndex: 'Site'},
+                                       {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
+                                       {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
+                                       {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
+                                       {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'}
+                                   ],
+                                   bbar: new Ext.PagingToolbar({
+                                       pageSize: 20,
+                                       store: end_item_store,
+                                       displayInfo: true
+                                   })
+                              })
+                              
+                              if(tabPanel.isVisible('end-item-tab'))
+                                   tabPanel.remove('end-item-tab');
+
+                              end_item_store.load();
+                              tabPanel.add({
+                                   id:'end-item-tab',
+                                   iconCls: 'listing-activity',
+                                   title: "Listing Activity",
+                                   items: end_item_grid,
+                                   closable: true,
+                                   autoScroll:true
+                              })
+                              
+                              tabPanel.activate('end-item-tab');
+                              tabPanel.doLayout();
                          break;
                     }
                }

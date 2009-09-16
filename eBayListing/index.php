@@ -7,7 +7,7 @@ if(empty($_COOKIE['account_id'])){
 <html lang="en">
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <title>eBay Listing</title>
+    <!--<title>eBay Listing</title>-->
     <link rel="stylesheet" type="text/css" href="../../ext-3.0.0/resources/css/ext-all.css" />
     <script src="../../ext-3.0.0/adapter/ext/ext-base.js"></script>
     <script src="../../ext-3.0.0/ext-all.js"></script>

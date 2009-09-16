@@ -122,8 +122,8 @@ class eBayBOExcel{
 		$i = 2;
 		while($row = mysql_fetch_assoc($result)){
 			$j = 0;
-			//$sql_1 = "select skuId,skuTitle,quantity from qo_shipments_detail where shipmentsId = '".$row['id']."'";
-			$sql_1 = "select skuId,skuTitle,quantity from qo_orders_detail where ordersId = '".$row['ordersId']."'";
+			$sql_1 = "select skuId,skuTitle,quantity from qo_shipments_detail where shipmentsId = '".$row['id']."'";
+			//$sql_1 = "select skuId,skuTitle,quantity from qo_orders_detail where ordersId = '".$row['ordersId']."'";
 			$result_1 = mysql_query($sql_1, eBayBOExcel::$database_connect);
 			$sku = '';
 			$skuTitle = '';
@@ -160,38 +160,47 @@ class eBayBOExcel{
 		}
 		$this->php_excel->setActiveSheetIndex(0);
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, 'No');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, 'Shipment Id');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, 'Resend Reason');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, 'Country');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 1, 'Shipping Method');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, 1, 'Sku');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(6, 1, 'Resent Date');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(7, 1, 'Cost');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(8, 1, 'Weight(KG)');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(9, 1, 'Postage');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, 'Account');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, 'Shipment Id');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, 'Resend Reason');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 1, 'Country');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, 1, 'Shipping Method');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(6, 1, 'Sku');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(7, 1, 'Quantity');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(8, 1, 'Created Date');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(9, 1, 'Resent Date');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(10, 1, 'Cost');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(11, 1, 'Weight(KG)');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(12, 1, 'Postage');
 		
-		$sql = "select id,ordersId,shipmentReason,shipmentMethod,modifiedOn,shipToCountry from qo_shipments where shipmentReason <> '' and shipmentReason <> '1' and modifiedOn between '".$start."' and '".$end."'";
+		$sql = "select s.id,o.sellerId,s.ordersId,s.shipmentReason,s.shipmentMethod,s.createdOn,s.modifiedOn,s.shipToCountry from qo_shipments as s left join qo_orders as o on s.ordersId = o.id where s.shipmentReason <> '' and s.shipmentReason <> '1' and s.modifiedOn between '".$start."' and '".$end."'";
 		$result = mysql_query($sql, eBayBOExcel::$database_connect);
 		$i = 2;
 		while($row = mysql_fetch_assoc($result)){
 			$j = 0;
-			$sql_1 = "select od.skuId,od.skuCost,od.skuWeight from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.id = '".$row['ordersId']."'";
+			//$sql_1 = "select skuId,skuCost,skuWeight,quantity from qo_shipments_detail where shipmentsId = '".$row['id']."'";
+			$sql_1 = "select od.skuId,od.skuCost,od.skuWeight,od.quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.id = '".$row['ordersId']."'";
 			$result_1 = mysql_query($sql_1, eBayBOExcel::$database_connect);
 			$sku = '';
 			$cost = 0;
 			$weight = 0;
+			$quantity = 0;
 			while($row_1 = mysql_fetch_assoc($result_1)){
 				$sku .= $row_1['skuId'] . ', ';
 				$cost += $row_1['skuCost'];
 				$weight += $row_1['skuWeight'];
+				$quantity += $row_1['quantity'];
 			}
 			$sku = substr($sku, 0, -2);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $i-1);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['sellerId']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['id']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $this->getShipmentReason($row['shipmentReason']));
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['shipToCountry']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $this->getShipmentMethod($row['shipmentMethod']));
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $sku);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $quantity);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['createdOn']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['modifiedOn']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $cost);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $weight);
