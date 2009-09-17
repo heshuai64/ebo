@@ -1140,8 +1140,8 @@ Ext.onReady(function(){
                                         triggerAction: 'all',
                                         editable: false,
                                         selectOnFocus:true,
-                                        format : 'Y-m-d',
-                                        allowBlank:false
+                                        format : 'Y-m-d'
+                                        //allowBlank:false
                                     }]
                             },{
                                 columnWidth:0.5,
@@ -1158,8 +1158,8 @@ Ext.onReady(function(){
                                         triggerAction: 'all',
                                         editable: false,
                                         selectOnFocus:true,
-                                        format : 'Y-m-d',
-                                        allowBlank:false
+                                        format : 'Y-m-d'
+                                        //allowBlank:false
                                     }]
                             }]
                     },{
@@ -1719,8 +1719,8 @@ Ext.onReady(function(){
                                         editable: false,
                                         width: 150,
                                         listWidth: 150,
-                                        name: 'shippingType',
-                                        hiddenName:'shippingType',
+                                        name: 'ShippingServiceOptionsType',
+                                        hiddenName:'ShippingServiceOptionsType',
                                         listeners: {
                                             "select": function(c, r, i){
                                                 //console.log(c);
@@ -2479,6 +2479,8 @@ Ext.onReady(function(){
                                         triggerAction: 'all',
                                         editable: false,
                                         width: 150,
+                                        name: 'InternationalShippingServiceOptionType',
+                                        hiddenName:'InternationalShippingServiceOptionType',
                                         listWidth: 150,
                                         listeners: {
                                             "select": function(c, r, i){
@@ -2590,7 +2592,7 @@ Ext.onReady(function(){
                         clientValidation: true,
                         url: 'service.php?action=addToTemplate',
                         success: function(form, action) {
-                            console.log(action);
+                            //console.log(action);
                             Ext.Msg.alert("Success", action.result.msg);
                         },
                         failure: function(form, action) {

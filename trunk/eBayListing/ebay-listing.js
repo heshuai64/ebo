@@ -236,7 +236,7 @@ Ext.onReady(function(){
                {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'}
           ],
           tbar:[{
-               text: 'Add to upload',
+               text: 'Add To Upload',
                icon: './images/arrow_up.png',
                tooltip:'add selected template to upload queue',
                handler: function(){
@@ -461,7 +461,7 @@ Ext.onReady(function(){
                }]
           
           },{
-               text:'submit',
+               text:'Submit',
                handler: function(){
                     var selections = template_grid.selModel.getSelections();
                     var ids = "";
@@ -480,15 +480,14 @@ Ext.onReady(function(){
                               minute: Ext.getCmp('interval-minute').getValue()
                          }, 
                          success: function(response){
-                             var result=eval(response.responseText);
-                             switch(result){
-                                case 1:  // Success : simply reload
-                                  
-                                  break;
-                                default:
-                                  Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
-                                  break;
-                             }
+                              //console.log(response);
+                              var result = eval(response.responseText);
+                              //console.log(result);
+                              if(result[0].success){
+                                   Ext.MessageBox.alert('Success', result[0].msg);
+                              }else{
+                                   Ext.MessageBox.alert('Warning', 'Could not interval upload.');
+                              }
                          },
                          failure: function(response){
                              var result=response.responseText;
@@ -634,7 +633,7 @@ Ext.onReady(function(){
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
-                                   fields: ['SKU', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price'],
+                                   fields: ['SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price', 'EndTime'],
                                    //url: 'service.php?action=getWait'
                                    url: 'service.php?action=getActiveItem'
                               })
@@ -649,13 +648,21 @@ Ext.onReady(function(){
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
                                        {header: "SKU", width: 120, align: 'center', sortable: true, dataIndex: 'SKU'},
+                                       {header: "Item ID", width: 120, align: 'center', sortable: true, dataIndex: 'ItemID'},
                                        {header: "Item Title", width: 120, align: 'center', sortable: true, dataIndex: 'Title'},
                                        {header: "Site", width: 50, align: 'center', sortable: true, dataIndex: 'Site'},
                                        {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                        {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
                                        {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
-                                       {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'}
+                                       {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
+                                       {header: "End Time", width: 120, align: 'center', sortable: true, dataIndex: 'EndTime'}
                                    ],
+                                   tbar:[{
+                                        text: "Revise",
+                                        handler: function(){
+                                             
+                                        }
+                                   }],
                                    bbar: new Ext.PagingToolbar({
                                        pageSize: 20,
                                        store: activity_store,
@@ -686,7 +693,7 @@ Ext.onReady(function(){
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
-                                   fields: ['SKU', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price'],
+                                   fields: ['SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price', 'EndTime'],
                                    url: 'service.php?action=getSoldItem'
                               })
                               
@@ -700,12 +707,14 @@ Ext.onReady(function(){
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
                                        {header: "SKU", width: 120, align: 'center', sortable: true, dataIndex: 'SKU'},
+                                       {header: "Item ID", width: 120, align: 'center', sortable: true, dataIndex: 'ItemID'},
                                        {header: "Item Title", width: 120, align: 'center', sortable: true, dataIndex: 'Title'},
                                        {header: "Site", width: 50, align: 'center', sortable: true, dataIndex: 'Site'},
                                        {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                        {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
                                        {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
-                                       {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'}
+                                       {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
+                                       {header: "End Time", width: 120, align: 'center', sortable: true, dataIndex: 'EndTime'}
                                    ],
                                    tbar:[{
                                         text: "Relist",
@@ -773,7 +782,7 @@ Ext.onReady(function(){
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
-                                   fields: ['SKU', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price'],
+                                   fields: ['SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price'],
                                    url: 'service.php?action=getSoldItem'
                               })
                               
@@ -787,6 +796,7 @@ Ext.onReady(function(){
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
                                        {header: "SKU", width: 120, align: 'center', sortable: true, dataIndex: 'SKU'},
+                                       {header: "Item ID", width: 120, align: 'center', sortable: true, dataIndex: 'ItemID'},
                                        {header: "Item Title", width: 120, align: 'center', sortable: true, dataIndex: 'Title'},
                                        {header: "Site", width: 50, align: 'center', sortable: true, dataIndex: 'Site'},
                                        {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
@@ -1539,7 +1549,7 @@ Ext.onReady(function(){
                               xtype: 'buttongroup',
                               columns: 1,
                               items: [{
-                                   text: 'System Upload Log',
+                                   text: 'Upload Log',
                                    iconCls: 'upload-log',
                                    handler: function(){
                                         //console.log("test");
@@ -1586,7 +1596,10 @@ Ext.onReady(function(){
                                         tabPanel.activate('upload-log-tab');
                                    }
                               },{
-                                   text: 'Template Change Log',
+                                   text: 'Template Log',
+                                   iconCls: 'template-log'
+                              },{
+                                   text: 'System Log',
                                    iconCls: 'template-log'
                               }]                      
                          },
