@@ -1296,8 +1296,8 @@ Ext.onReady(function(){
                                         triggerAction: 'all',
                                         editable: false,
                                         selectOnFocus:true,
-                                        format : 'Y-m-d',
-                                        allowBlank:false
+                                        format : 'Y-m-d'
+                                        //allowBlank:false
                                     }]
                             },{
                                 columnWidth:0.5,
@@ -1314,8 +1314,8 @@ Ext.onReady(function(){
                                         triggerAction: 'all',
                                         editable: false,
                                         selectOnFocus:true,
-                                        format : 'Y-m-d',
-                                        allowBlank:false
+                                        format : 'Y-m-d'
+                                        //allowBlank:false
                                     }]
                             }]
                     },{
@@ -2714,7 +2714,7 @@ Ext.onReady(function(){
                         clientValidation: true,
                         url: 'service.php?action=saveTemplate&template_id='+template_id,
                         success: function(form, action) {
-                            console.log(action);
+                            //console.log(action);
                             Ext.Msg.alert("Success", action.result.msg);
                         },
                         failure: function(form, action) {
