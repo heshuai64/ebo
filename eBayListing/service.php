@@ -2021,19 +2021,48 @@ class eBayListing{
 	mysql_free_result($result_1);
     }
     
-    public function getEndItem(){
+    public function getSoldItem(){
 	if(empty($_POST['start']) && empty($_POST['limit'])){
 	       $_POST['start'] = 0;
 	       $_POST['limit'] = 20;
 	}
 
 	//Active, Completed, Ended
-	$sql = "select count(*) as count from items where ListingStatus = 'Completed' or ListingStatus = 'Ended'";
+	$sql = "select count(*) as count from items where Status = 5";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
 	$totalCount = $row['count'];
 	
-	$sql_1 = "select * from items where ListingStatus = 'Completed' or ListingStatus = 'Ended' limit ".$_POST['start'].",".$_POST['limit'];
+	$sql_1 = "select * from items where Status = 5 limit ".$_POST['start'].",".$_POST['limit'];
+	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	$data = array();
+	while($row_1 = mysql_fetch_assoc($result_1)){
+	    if($row_1['ListingType'] == "FixedPriceItem" || $row_1['ListingType'] == "StoresFixedPrice"){
+		$row_1['Price'] = $row_1['StartPrice'];
+	    }else{
+		$row_1['Price'] = $row_1['BuyItNowPrice'];
+	    }
+	    $data[] = $row_1;
+	}
+	
+	echo json_encode(array('totalCount'=>$totalCount, 'records'=>$data));
+	mysql_free_result($result);
+	mysql_free_result($result_1);
+    }
+    
+    public function getUnSoldItem(){
+	if(empty($_POST['start']) && empty($_POST['limit'])){
+	       $_POST['start'] = 0;
+	       $_POST['limit'] = 20;
+	}
+
+	//Active, Completed, Ended
+	$sql = "select count(*) as count from items where Status = 4";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	$totalCount = $row['count'];
+	
+	$sql_1 = "select * from items where Status = 4 limit ".$_POST['start'].",".$_POST['limit'];
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$data = array();
 	while($row_1 = mysql_fetch_assoc($result_1)){
@@ -2488,7 +2517,8 @@ class eBayListing{
 	1 : selling
 	2 : revise
 	3 : relist
-	4 : end
+	4 : unsold
+	5:  sold
 	
     */
     private function checkItem($itemId){
@@ -2543,13 +2573,22 @@ class eBayListing{
 	    break;
 	
 	    case "Completed":
-		$Status = 3;
+		if($item->SellingStatus->QuantitySold > 0){
+		    $Status = 5;
+		}else{
+		    $Status = 4;
+		}
 	    break;
 	
 	    case "Ended":
-		$Status = 3;
+		if($item->SellingStatus->QuantitySold > 0){
+		    $Status = 5;
+		}else{
+		    $Status = 4;
+		}
 	    break;
 	}
+	
 	$sql = "update items set CurrentPrice='".$item->SellingStatus->CurrentPrice."',QuantitySold='".$item->SellingStatus->QuantitySold."',ListingStatus='".$item->SellingStatus->ListingStatus.",Status='".$Status."'' 
 	where ItemID = '".$item->ItemID."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);

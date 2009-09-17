@@ -308,9 +308,9 @@ Ext.onReady(function(){
                     });
                }
           },'-',{
-               text: 'Import Csv',
+               text: 'Import CSV',
                icon: './images/folder_database.png',
-               tooltip:'Import csv file, include sku and tiitle',
+               tooltip:'Import csv file, sku and tiitle / sku and price',
                handler: function(){
                     var  importCsvWindow = new Ext.Window({
                          title: 'Import CSV File' ,
@@ -391,7 +391,21 @@ Ext.onReady(function(){
                     })
                     importCsvWindow.show();   
                }
-          },'-',/*{
+          },'-',{
+               text: 'Export CSV',
+               icon: './images/server_go.png',
+               tooltip:'export csv file',
+               handler: function(){
+                    var selections = template_grid.selModel.getSelections();
+                    var ids = "";
+                    for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    //console.log(ids);
+                    
+               }
+          },/*{
                xtype:"datefield",
                id:"11",
                name:"11",
@@ -666,19 +680,106 @@ Ext.onReady(function(){
                               tabPanel.doLayout();
                          break;
                     
-                         case 2:
-                              var end_item_store = new Ext.data.JsonStore({
+                         case 21:
+                              var sold_item_store = new Ext.data.JsonStore({
                                    root: 'records',
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
                                    fields: ['SKU', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price'],
-                                   url: 'service.php?action=getEndItem'
+                                   url: 'service.php?action=getSoldItem'
                               })
                               
-                              var end_item_grid = new Ext.grid.GridPanel({
+                              var sold_item_grid = new Ext.grid.GridPanel({
                                    //title: 'Waiting To Upload SKU List',
-                                   store: end_item_store,
+                                   store: sold_item_store,
+                                   autoHeight: true,
+                                   //autoScroll: true,
+                                   //width: 600,
+                                   //height: 500,
+                                   selModel: new Ext.grid.RowSelectionModel({}),
+                                   columns:[
+                                       {header: "SKU", width: 120, align: 'center', sortable: true, dataIndex: 'SKU'},
+                                       {header: "Item Title", width: 120, align: 'center', sortable: true, dataIndex: 'Title'},
+                                       {header: "Site", width: 50, align: 'center', sortable: true, dataIndex: 'Site'},
+                                       {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
+                                       {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
+                                       {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
+                                       {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'}
+                                   ],
+                                   tbar:[{
+                                        text: "Relist",
+                                        icon: './images/arrow_redo.png',
+                                        tooltip:'Relist item to eBay',
+                                        handler: function(){
+                                             var selections = sold_item_grid.selModel.getSelections();
+                                             var ids = "";
+                                             for(var i = 0; i< sold_item_grid.selModel.getCount(); i++){
+                                                  ids += selections[i].data.Id + ","
+                                             }
+                                             ids = ids.slice(0,-1);
+                                             
+                                             Ext.Ajax.request({  
+                                                  waitMsg: 'Please Wait',
+                                                  url: 'service.php?action=addToRelist', 
+                                                  params: {
+                                                       ids: ids
+                                                  }, 
+                                                  success: function(response){
+                                                      var result=eval(response.responseText);
+                                                      switch(result){
+                                                         case 1:  // Success : simply reload
+                                                           
+                                                           break;
+                                                         default:
+                                                           Ext.MessageBox.alert('Warning','');
+                                                           break;
+                                                      }
+                                                  },
+                                                  failure: function(response){
+                                                      var result=response.responseText;
+                                                      Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                  }
+                                             });
+                                        }
+                                   }],
+                                   bbar: new Ext.PagingToolbar({
+                                       pageSize: 20,
+                                       store: sold_item_store,
+                                       displayInfo: true
+                                   })
+                              })
+                              
+                              if(tabPanel.isVisible('sold-item-tab'))
+                                   tabPanel.remove('sold-item-tab');
+
+                              sold_item_store.load();
+                              tabPanel.add({
+                                   id:'sold-item-tab',
+                                   iconCls: 'sold-item-tab',
+                                   title: "Sold Item",
+                                   items: sold_item_grid,
+                                   closable: true,
+                                   autoScroll:true
+                              })
+                              
+                              tabPanel.activate('sold-item-tab');
+                              tabPanel.doLayout();
+                         break;
+                    
+                         case 22:
+                              var unsold_item_store = new Ext.data.JsonStore({
+                                   root: 'records',
+                                   totalProperty: 'totalCount',
+                                   idProperty: 'id',
+                                   //autoLoad:true,
+                                   fields: ['SKU', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price'],
+                                   url: 'service.php?action=getSoldItem'
+                              })
+                              
+                              var unsold_item_grid = new Ext.grid.GridPanel({
+                                   //title: 'Waiting To Upload SKU List',
+                                   store: unsold_item_store,
                                    autoHeight: true,
                                    //autoScroll: true,
                                    //width: 600,
@@ -695,25 +796,25 @@ Ext.onReady(function(){
                                    ],
                                    bbar: new Ext.PagingToolbar({
                                        pageSize: 20,
-                                       store: end_item_store,
+                                       store: unsold_item_store,
                                        displayInfo: true
                                    })
                               })
                               
-                              if(tabPanel.isVisible('end-item-tab'))
-                                   tabPanel.remove('end-item-tab');
+                              if(tabPanel.isVisible('unsold-item-tab'))
+                                   tabPanel.remove('unsold-item-tab');
 
-                              end_item_store.load();
+                              unsold_item_store.load();
                               tabPanel.add({
-                                   id:'end-item-tab',
-                                   iconCls: 'listing-activity',
-                                   title: "Listing Activity",
-                                   items: end_item_grid,
+                                   id:'unsold-item-tab',
+                                   iconCls: 'unsold-item-tab',
+                                   title: "UnSold Item",
+                                   items: unsold_item_grid,
                                    closable: true,
                                    autoScroll:true
                               })
                               
-                              tabPanel.activate('end-item-tab');
+                              tabPanel.activate('unsold-item-tab');
                               tabPanel.doLayout();
                          break;
                     }
