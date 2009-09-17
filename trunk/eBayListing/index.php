@@ -39,6 +39,12 @@ if(empty($_COOKIE['account_id'])){
         .listing-activity {
             background-image:url(./images/money_dollar.png);
         }
+	.sold-item-tab{
+	    background-image:url(./images/money_add.png);
+	}
+	.unsold-item-tab{
+	    background-image:url(./images/money_delete.png);
+	}
 	.upload-icon{
 	    background: url(./images/database.png) no-repeat 0 0 !important;
 	}
