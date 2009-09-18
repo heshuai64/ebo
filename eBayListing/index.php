@@ -39,6 +39,9 @@ if(empty($_COOKIE['account_id'])){
         .listing-activity {
             background-image:url(./images/money_dollar.png);
         }
+	.active-item-tab{
+	    background-image:url(./images/hourglass.png);
+	}
 	.sold-item-tab{
 	    background-image:url(./images/money_add.png);
 	}
@@ -48,7 +51,9 @@ if(empty($_COOKIE['account_id'])){
 	.upload-icon{
 	    background: url(./images/database.png) no-repeat 0 0 !important;
 	}
-	
+	.interval-upload{
+	    background-image:url(./images/clock_add.png) !important;
+	}
 	.manage{
 	    background-image:url(./images/wrench.png) !important;
 	}

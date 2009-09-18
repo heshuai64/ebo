@@ -416,16 +416,16 @@ Ext.onReady(function(){
                name:"22"
           }*/{
                xtype:'form',
-               width: 400,
+               width: 480,
                labelWidth: 50,
                layout: 'column',
                items: [{
-                    columnWidth:0.4,
+                    columnWidth:0.35,
                     layout:"form",
                     border:false,
                     items:[{
                          id:'interval-date',
-                         fieldLabel:'Start Time',
+                         fieldLabel:'Start',
                          xtype:'datefield',
                          format:'Y-m-d'
                     }]
@@ -445,7 +445,7 @@ Ext.onReady(function(){
                          width:80
                     }]
                },{
-                    columnWidth:0.35,
+                    columnWidth:0.3,
                     layout:"form",
                     border:false,
                     labelWidth: 40,
@@ -458,43 +458,50 @@ Ext.onReady(function(){
                          listWidth:60,
                          width:60
                     }]
+               },{
+                    columnWidth:0.1,
+                    layout:"form",
+                    border:false,
+                    items:[{
+                         xtype:'button',
+                         //text:'Submit',
+                         iconCls:'interval-upload',
+                         handler: function(){
+                              var selections = template_grid.selModel.getSelections();
+                              var ids = "";
+                              for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                                   ids += selections[i].data.Id + ","
+                              }
+                              ids = ids.slice(0,-1);
+                              
+                              Ext.Ajax.request({  
+                                   waitMsg: 'Please Wait',
+                                   url: 'service.php?action=templateIntervalUpload', 
+                                   params: {
+                                        ids: ids,
+                                        date: Ext.getCmp('interval-date').getValue(),
+                                        time: Ext.getCmp('interval-time').getValue(),
+                                        minute: Ext.getCmp('interval-minute').getValue()
+                                   }, 
+                                   success: function(response){
+                                        //console.log(response);
+                                        var result = eval(response.responseText);
+                                        //console.log(result);
+                                        if(result[0].success){
+                                             Ext.MessageBox.alert('Success', result[0].msg);
+                                        }else{
+                                             Ext.MessageBox.alert('Warning', 'Could not interval upload.');
+                                        }
+                                   },
+                                   failure: function(response){
+                                       var result=response.responseText;
+                                       Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                   }
+                              });
+                         }
+                    }]
                }]
           
-          },{
-               text:'Submit',
-               handler: function(){
-                    var selections = template_grid.selModel.getSelections();
-                    var ids = "";
-                    for(var i = 0; i< template_grid.selModel.getCount(); i++){
-                         ids += selections[i].data.Id + ","
-                    }
-                    ids = ids.slice(0,-1);
-                    
-                    Ext.Ajax.request({  
-                         waitMsg: 'Please Wait',
-                         url: 'service.php?action=templateIntervalUpload', 
-                         params: {
-                              ids: ids,
-                              date: Ext.getCmp('interval-date').getValue(),
-                              time: Ext.getCmp('interval-time').getValue(),
-                              minute: Ext.getCmp('interval-minute').getValue()
-                         }, 
-                         success: function(response){
-                              //console.log(response);
-                              var result = eval(response.responseText);
-                              //console.log(result);
-                              if(result[0].success){
-                                   Ext.MessageBox.alert('Success', result[0].msg);
-                              }else{
-                                   Ext.MessageBox.alert('Warning', 'Could not interval upload.');
-                              }
-                         },
-                         failure: function(response){
-                             var result=response.responseText;
-                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
-                         }
-                    });
-               }
           }],
           bbar: new Ext.PagingToolbar({
               pageSize: 20,
@@ -615,11 +622,11 @@ Ext.onReady(function(){
                expanded: true,
                rootVisible: false,
                children:[ 
-                    {"text" : "Active Listings", "id" : 1, "leaf" : true},
+                    {"text" : "Active Listings", "id" : 1, "icon": "./images/hourglass.png", "leaf" : true},
                     {"text" : "Ended Listings",  "id" : 2, "leaf" : false,
                               children: [
-                                   {"text": "Sold", "id" : 21, "leaf" : true},
-                                   {"text": "Unsold", "id" : 22, "leaf" : true}
+                                   {"text": "Sold", "id" : 21, "icon": "./images/money_add.png", "leaf" : true},
+                                   {"text": "Unsold", "id" : 22, "icon": "./images/money_delete.png", "leaf" : true}
                               ]}
                ]
           },
@@ -670,13 +677,13 @@ Ext.onReady(function(){
                                    })
                               })
                               
-                              if(tabPanel.isVisible('activity-tab'))
-                                   tabPanel.remove('activity-tab');
+                              if(tabPanel.isVisible('active-item-tab'))
+                                   tabPanel.remove('active-item-tab');
 
                               activity_store.load();
                               tabPanel.add({
                                    id:'activity-tab',
-                                   iconCls: 'listing-activity',
+                                   iconCls: 'active-item-tab',
                                    title: "Listing Activity",
                                    items: activity_grid,
                                    closable: true,
@@ -1616,51 +1623,29 @@ Ext.onReady(function(){
                          iconCls:'sales-report',
                          listeners:{
                               expand: function(p){
-                                   var sales_report_store = new Ext.data.JsonStore({
-                                        root: 'records',
-                                        totalProperty: 'totalCount',
-                                        idProperty: 'id',
-                                        //autoLoad:true,
-                                        fields: ['inventory_model_code', 'short_description', 'long_description', 'category', 'manufacturer', 'Weight', 'Cost'],
-                                        //url: 'service.php?action=getWait'
-                                        url: inventory_service_address + '?action=getSalesReport'
-                                   })
-                                   
-                                   var sales_report_grid = new Ext.grid.GridPanel({
-                                        title: 'Sales Report',
-                                        store: sales_report_store,
-                                        autoHeight: true,
-                                        selModel: new Ext.grid.RowSelectionModel({}),
-                                        columns:[
-                                            {header: "Sku", width: 120, align: 'center', sortable: true, dataIndex: 'inventory_model_code'},
-                                            {header: "Model", width: 120, align: 'center', sortable: true, dataIndex: 'short_description'},
-                                            {header: "Description", width: 180, align: 'center', sortable: true, dataIndex: 'long_description'},
-                                            {header: "Categpru", width: 100, align: 'center', sortable: true, dataIndex: 'category'},
-                                            {header: "Supplier", width: 120, align: 'center', sortable: true, dataIndex: 'manufacturer'},
-                                            {header: "Weight", width: 60, align: 'center', sortable: true, dataIndex: 'Weight'},
-                                            {header: "Cost", width: 60, align: 'center', sortable: true, dataIndex: 'Cost'}
-                                        ],
-                                        bbar: new Ext.PagingToolbar({
-                                            pageSize: 20,
-                                            store: sales_report_store,
-                                            displayInfo: true
-                                        })
-                                   })
-                                   
-                                   if(tabPanel.isVisible('sales-report-tab'))
-                                        tabPanel.remove('sales-report-tab');
-
-                                   sales_report_store.load();
-                                   tabPanel.add({
-                                        id:'sales-report-tab',
-                                        iconCls: 'sales-report',
-                                        title: "Sales Report",
-                                        items: sales_report_grid,
-                                        closable: true,
-                                        autoScroll:true
-                                   })
-                                   tabPanel.doLayout();
-                                   tabPanel.activate('sales-report-tab');
+                                   Ext.chart.Chart.CHART_URL = '../../ext-3.0.0/resources/charts.swf';
+                                   Ext.Ajax.request({
+                                        url: 'service.php?action=skuSaleStatistics',
+                                        success: function(a, b, c){
+                                             //console.log([a, b, c]);
+                                             eval(a.responseText);
+                                             
+                                             //console.log(chart);
+                                             if(tabPanel.isVisible('sales-report'))
+                                                  tabPanel.remove('sales-report');
+                                                  
+                                             
+                                             tabPanel.add({
+                                                  id:'sales-report',
+                                                  title: "Sold Time",
+                                                  items: chart,
+                                                  closable: true,
+                                                  autoScroll:true
+                                             })
+                                             tabPanel.doLayout();
+                                             tabPanel.activate('sales-report');
+                                        }
+                                   });
                               }
                          }
                    }*/]
@@ -1671,8 +1656,8 @@ Ext.onReady(function(){
      Ext.Ajax.request({
           url: 'service.php?action=logComet',
           success: function(a, b, c){
-              console.log("success");
-              console.log([a, b, c]);
+              //console.log("success");
+              //console.log([a, b, c]);
               Ext.getCmp("log-watch").body.dom.innerHTML = "11";//a.responseText;
               //Ext.getCmp("log-watch").doLayout();
           },

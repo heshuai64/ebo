@@ -3028,6 +3028,125 @@ class eBayListing{
 	echo json_encode(array('totalCount'=>$totalCount, 'records'=>$array));
 	mysql_free_result($result);
     }
+    
+    /*
+    CREATE TABLE IF NOT EXISTS `sku_sales_statistics` (
+	`account_id` int( 11 ) NOT NULL ,
+	`sku` varchar( 30 ) NOT NULL ,
+	`clock` enum( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23' ) NOT NULL ,
+	`quantity` int( 11 ) NOT NULL ,
+	PRIMARY KEY ( `account_id` , `sku` , `clock` )
+    );
+    */
+    
+    public function calculateSkuSales(){
+	$sql = "select accountId,SKU,sum(QuantitySold) as total from items where EndTime between '".date("Y-m-d H:i:s", time() - 60 * 60)."' and now() and QuantitySold > 0 group by accountId,SKU";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	while($row = mysql_fetch_assoc($result)){
+	    $sql_1 = "update sku_sales_statistics set set quantity = quantity + ".$row['total']." where account_id = '".$row['accountId']."' and sku = '".$row['SKU']."' and clock = '".date("H", time() - 30 * 60)."'";
+	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	}
+    }
+    
+    public function skuSaleStatistics(){
+	$fields = array('clock');
+	$data = array();
+	
+	for($i=0; $i<24; $i++){
+	    $sql = "select * from ebaylisting.sku_sales_statistics where account_id = '".$this->account_id."' and clock = '".$i."'";
+	    //echo $sql;
+	    //echo "<br>";
+	    $result = mysql_query($sql, eBayListing::$database_connect);
+	    while($row = mysql_fetch_assoc($result)){
+		if(!in_array($row['sku'], $fields)){
+		    array_push($fields, $row['sku']);
+		}
+		$data[$row['clock']][$row['sku']] = $row['quantity'];;
+	    }
+	}
+
+	//var_dump($fields);
+	//var_dump($data);
+	
+	$js_fields = "[";
+	$js_series = "[";
+	foreach($fields as $f){
+	    $js_fields .= "'".$f."', ";
+	    if($f != "clock"){
+	    $js_series .= "{
+                xField: '".$f."',
+		displayName: '".$f."'},";
+	    }
+	}
+	$js_fields = substr($js_fields, 0, -2);
+	$js_fields .= "]";
+	
+	$js_series = substr($js_series, 0, -1);
+	$js_series .= "]";
+	
+	$js_data = "[";
+	foreach($data as $key=>$value){
+	    $js_data .= "{clock: ".$key.", ";
+	    foreach($value as $id=>$name){
+		$js_data .= $id.": ".$name.",";
+	    }
+	    $js_data = substr($js_data, 0, -1);
+	    $js_data .=  "},";
+	}
+	$js_data = substr($js_data, 0, -1);
+	$js_data .= "]";
+	
+	/*
+	var store = new Ext.data.JsonStore({
+	    fields: ['year', 'comedy', 'action', 'drama', 'thriller'],
+	    data: [
+		    {year: 2005, comedy: 34000000, action: 23890000, drama: 18450000, thriller: 20060000},
+		    {year: 2006, comedy: 56703000, action: 38900000, drama: 12650000, thriller: 21000000},
+		    {year: 2007, comedy: 42100000, action: 50410000, drama: 25780000, thriller: 23040000},
+		    {year: 2008, comedy: 38910000, action: 56070000, drama: 24810000, thriller: 26940000}
+		  ]
+	});
+	
+	var chart = Ext.chart.StackedBarChart({
+	    store: store,
+            yField: 'clock',
+            xAxis: new Ext.chart.NumericAxis({
+                stackingEnabled: true
+            }),
+            series: [{
+                xField: 'comedy',
+                displayName: 'Comedy'
+            },{
+                xField: 'action',
+                displayName: 'Action'
+            },{
+                xField: 'drama',
+                displayName: 'Drama'
+            },{
+                xField: 'thriller',
+                displayName: 'Thriller'
+            }]
+	})
+	*/
+	$js = "var store = new Ext.data.JsonStore({
+	    fields: ".$js_fields.",
+	    data: ".$js_data."
+	});
+	
+	var chart = new Ext.chart.StackedBarChart({
+	    store: store,
+            yField: 'clock',
+            xAxis: new Ext.chart.NumericAxis({
+                stackingEnabled: true
+            }),
+            series: ".$js_series."
+	});";
+	
+	echo $js;
+	
+    }
+    
     public function __destruct(){
         mysql_close(eBayListing::$database_connect);
     }
