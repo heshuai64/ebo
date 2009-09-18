@@ -71,8 +71,7 @@ class QoOrders {
             return $TransactionId;
         }
 	
-	private function getShipmentId(){
-            $type = 'SHM';
+	private function getShipmentId($type = 'SHM'){
             $today = date("Ym");
             $sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
             $result = mysql_query($sql);
@@ -345,10 +344,16 @@ class QoOrders {
 	public function addOrderShipment(){
 		//print_r($_POST);
 		//exit;
-		$shipmentId = $this->getShipmentId();
+		
 		$sql = "select id,shippingMethod,shippingFeeCurrency,shippingFeeValue,ebayName,ebayEmail,ebayAddress1,ebayAddress2,ebayCity,ebayStateOrProvince,ebayPostalCode,ebayCountry,ebayPhone from qo_orders where id='".$_POST['id']."'";
 		$result = mysql_query($sql);
 		$row = mysql_fetch_assoc($result);
+		
+		if($row['shippingMethod'] == 'R'){
+			$shipmentId = $this->getShipmentId('SHR');
+		}else{
+			$shipmentId = $this->getShipmentId();
+		}
 		$sql = "insert into qo_shipments (id,ordersId,shipmentMethod,shipmentReason,status,shippingFeeCurrency,shippingFeeValue,shipToName,
 		shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,
 		shipToCountry,shipToPhoneNo,createdBy,createdOn,modifiedBy,modifiedOn) values ('".$shipmentId."','".$row['id']."','".$row['shippingMethod']."','".$_POST['shipmentReason']."',

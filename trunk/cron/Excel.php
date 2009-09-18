@@ -211,6 +211,11 @@ class eBayBOExcel{
 		$result = mysql_query($sql, eBayBOExcel::$database_connect);
 		$i = 2;
 		while($row = mysql_fetch_assoc($result)){
+			$sql_2 = "select createdOn from qo_shipments where status = 'S' and ordersId = '".$row['ordersId']."' order by createdOn";
+			$result_2 = mysql_query($sql_2, eBayBOExcel::$database_connect);
+			$row_2 = mysql_fetch_assoc($result_2);
+			$createdOn = $row_2['createdOn'];
+			
 			$j = 0;
 			$sql_1 = "select skuId,quantity from qo_shipments_detail where shipmentsId = '".$row['id']."'";
 			//$sql_1 = "select od.skuId,od.skuCost,od.skuWeight,od.quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.id = '".$row['ordersId']."'";
@@ -237,7 +242,7 @@ class eBayBOExcel{
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $this->getShipmentMethod($row['shipmentMethod']));
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $sku);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $quantity);
-			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['createdOn']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $createdOn);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['modifiedOn']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $cost);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $weight);
