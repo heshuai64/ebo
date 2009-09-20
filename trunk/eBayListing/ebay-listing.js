@@ -236,11 +236,72 @@ Ext.onReady(function(){
                {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'}
           ],
           tbar:[{
+                    text:'Copy',
+                    icon: './images/plugin_go.png',
+                    tooltip:'copy template',
+                    handler: function(){
+                         var selections = template_grid.selModel.getSelections();
+                         if(template_grid.selModel.getCount() == 0){
+                              Ext.MessageBox.alert('Warning','Please select the template you want to copy.');
+                              return 0;
+                         }
+                         var ids = "";
+                         for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                              ids += selections[i].data.Id + ","
+                         }
+                         ids = ids.slice(0,-1);
+                         Ext.Ajax.request({  
+                              waitMsg: 'Please Wait',
+                              url: 'service.php?action=copyTemplate', 
+                              params: { 
+                                   ids: ids
+                              }, 
+                              success: function(response){
+                                  var result=eval(response.responseText);
+                                  switch(result){
+                                     case 1:  // Success : simply reload
+                                       template_store.reload();
+                                       break;
+                                     default:
+                                       Ext.MessageBox.alert('Warning','Data error, please check template data.');
+                                       break;
+                                  }
+                              },
+                              failure: function(response){
+                                  var result=response.responseText;
+                                  Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                              }
+                         });
+                         return 1;
+                    }
+               },'-',{
+                    text:'Edit',
+                    icon: './images/plugin_edit.png',
+                    tooltip:'edit multi template',
+                    handler: function(){
+                         var selections = template_grid.selModel.getSelections();
+                         if(template_grid.selModel.getCount() == 0){
+                              Ext.MessageBox.alert('Warning','Please select the template you want to edit.');
+                              return 0;
+                         }
+                         var ids = "";
+                         for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                              ids += selections[i].data.Id + ","
+                         }
+                         ids = ids.slice(0,-1);
+                         window.open("/eBayBO/eBayListing/template.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                         return 1;
+                    }     
+               },'-',{
                text: 'Add To Upload',
                icon: './images/arrow_up.png',
                tooltip:'add selected template to upload queue',
                handler: function(){
                     var selections = template_grid.selModel.getSelections();
+                    if(template_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','Please select the template you want to upload.');
+                         return 0;
+                    }
                     var ids = "";
                     for(var i = 0; i< template_grid.selModel.getCount(); i++){
                          ids += selections[i].data.Id + ","
@@ -270,6 +331,7 @@ Ext.onReady(function(){
                              Ext.MessageBox.alert('error','could not connect to the database. retry later');      
                          }
                     });
+                    return 1;
                }
           },'-',{
                text: 'Delete',
@@ -277,6 +339,10 @@ Ext.onReady(function(){
                tooltip:'Delete selected template',
                handler: function(){
                     var selections = template_grid.selModel.getSelections();
+                    if(template_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','Please select template.');
+                         return 0;
+                    }
                     var ids = "";
                     for(var i = 0; i< template_grid.selModel.getCount(); i++){
                          ids += selections[i].data.Id + ","
@@ -306,6 +372,7 @@ Ext.onReady(function(){
                              Ext.MessageBox.alert('error','could not connect to the database. retry later');      
                          }
                     });
+                    return 1;
                }
           },'-',{
                text: 'Import CSV',
@@ -335,9 +402,9 @@ Ext.onReady(function(){
                                    xtype: 'fileuploadfield',
                                    id: 'skcsv',
                                    emptyText: 'Select an csv file',
-                                   fieldLabel: 'Sku and Title',
+                                   fieldLabel: 'Sku and Price',
                                    //hideLabel:true,
-                                   name: 'skcsv',
+                                   name: 'spcsv',
                                    buttonText: '',
                                    buttonCfg: {
                                        iconCls: 'upload-icon'
@@ -352,9 +419,9 @@ Ext.onReady(function(){
                                    xtype: 'fileuploadfield',
                                    id: 'spcsv',
                                    emptyText: 'Select an csv file',
-                                   fieldLabel: 'Sku and Price',
+                                   fieldLabel: 'Sku and Qty',
                                    //hideLabel:true,
-                                   name: 'spcsv',
+                                   name: 'sqcsv',
                                    buttonText: '',
                                    buttonCfg: {
                                        iconCls: 'upload-icon'
@@ -645,7 +712,7 @@ Ext.onReady(function(){
                                    url: 'service.php?action=getActiveItem'
                               })
                               
-                              var activity_grid = new Ext.grid.GridPanel({
+                              var activity_grid = new Ext.grid.EditorGridPanel({
                                    //title: 'Waiting To Upload SKU List',
                                    store: activity_store,
                                    autoHeight: true,
@@ -656,7 +723,7 @@ Ext.onReady(function(){
                                    columns:[
                                        {header: "SKU", width: 120, align: 'center', sortable: true, dataIndex: 'SKU'},
                                        {header: "Item ID", width: 120, align: 'center', sortable: true, dataIndex: 'ItemID'},
-                                       {header: "Item Title", width: 120, align: 'center', sortable: true, dataIndex: 'Title'},
+                                       {header: "Item Title", width: 120, align: 'center', sortable: true, dataIndex: 'Title', editor: new Ext.form.TextField({allowBlank: false})},
                                        {header: "Site", width: 50, align: 'center', sortable: true, dataIndex: 'Site'},
                                        {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                        {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
@@ -664,6 +731,7 @@ Ext.onReady(function(){
                                        {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
                                        {header: "End Time", width: 120, align: 'center', sortable: true, dataIndex: 'EndTime'}
                                    ],
+                                   clicksToEdit: 1,
                                    tbar:[{
                                         text: "Revise",
                                         handler: function(){
@@ -990,6 +1058,13 @@ Ext.onReady(function(){
                                         {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                         {header: "UploadTime", width: 250, align: 'center', sortable: true, dataIndex: 'ScheduleTime'}
                                    ],
+                                   tbar: [{
+                                        text:'Reset Time',
+                                        icon: './images/clock_edit.png',
+                                        tooltip:'Reset upload time',
+                                        handler: function(){
+                                        }
+                                   }],
                                    bbar: new Ext.PagingToolbar({
                                        pageSize: 20,
                                        store: wait_store,
@@ -1617,7 +1692,7 @@ Ext.onReady(function(){
                                    
                               }
                          }
-                    }/*,{
+                    },{
                          title:'Sales Report',
                          border:false,
                          iconCls:'sales-report',
@@ -1648,7 +1723,7 @@ Ext.onReady(function(){
                                    });
                               }
                          }
-                   }*/]
+                   }]
                },tabPanel
             ]
      });
