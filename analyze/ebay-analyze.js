@@ -539,7 +539,24 @@ Ext.onReady(function(){
                             //console.log({QueryKeywords: Ext.getCmp('keyword').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 10, EndTimeFrom: Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.getCmp('to').getValue().format('Y-m-d')});
                             var config = new com.ebay.shoppingservice.ShoppingConfig({appId: 'eBayAPID-73f4-45f2-b9a3-c8f6388b38d8'});
                             var shopping = new com.ebay.shoppingservice.Shopping(config);
-                            var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType({ItemsAvailableTo: countryCombo.getValue(), QueryKeywords: Ext.getCmp('keyword').getValue(), StoreName: Ext.getCmp('storeName').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 10, EndTimeFrom: Ext.isEmpty(Ext.getCmp('from').getValue())?null:Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.isEmpty(Ext.getCmp('to').getValue())?null:Ext.getCmp('to').getValue().format('Y-m-d')});
+			    switch(countryCombo.getValue()){
+				case "US":
+				    var currency = "USD";
+				break;
+			    
+				case "GB":
+				    var currency = "GBP";
+				break;
+			    
+				case "AU":
+				    var currency = "AUD";
+				break;
+			    
+				case "FR":
+				    var currency = "EUR";
+				break;
+			    }
+                            var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType({Currency: currency, ItemsAvailableTo: countryCombo.getValue(), QueryKeywords: Ext.getCmp('keyword').getValue(), StoreName: Ext.getCmp('storeName').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 10, EndTimeFrom: Ext.isEmpty(Ext.getCmp('from').getValue())?null:Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.isEmpty(Ext.getCmp('to').getValue())?null:Ext.getCmp('to').getValue().format('Y-m-d')});
                             var callback = new com.ebay.shoppingservice.ShoppingCallback({success: findItemsAdvancedSuccess, failure: findItemsAdvancedFailure});
                             shopping.findItemsAdvanced(request, callback);
                                 
