@@ -395,12 +395,12 @@ Ext.onReady(function(){
                               bodyStyle: 'padding: 10px 10px 0 10px;',
                               labelWidth: 80,
                               defaults: {
-                                  anchor: '95%',
-                                  allowBlank: false
+                                  anchor: '95%'
+                                  //allowBlank: false
                               },
                               items:[{
                                    xtype: 'fileuploadfield',
-                                   id: 'skcsv',
+                                   id: 'spcsv',
                                    emptyText: 'Select an csv file',
                                    fieldLabel: 'Sku and Price',
                                    //hideLabel:true,
@@ -413,11 +413,21 @@ Ext.onReady(function(){
                                    xtype: 'button',
                                    text: 'Upload',
                                    handler: function(){
-                                        
+                                        var fp = Ext.getCmp("csv-form");
+                                        if(fp.getForm().isValid()){
+                                             fp.getForm().submit({
+                                                  url: 'service.php?action=templateImportCsv&type=spcsv',
+                                                  waitMsg: 'Uploading your csv...',
+                                                  success: function(fp, o){
+                                                       template_store.reload();
+                                                       Ext.MessageBox.alert('Success','Update template sku price success!');
+                                                  }
+                                             });
+                                        }
                                    }
                               },{
                                    xtype: 'fileuploadfield',
-                                   id: 'spcsv',
+                                   id: 'sqcsv',
                                    emptyText: 'Select an csv file',
                                    fieldLabel: 'Sku and Qty',
                                    //hideLabel:true,
@@ -430,30 +440,26 @@ Ext.onReady(function(){
                                    xtype: 'button',
                                    text: 'Upload',
                                    handler: function(){
-                                        
+                                        var fp = Ext.getCmp("csv-form");
+                                        if(fp.getForm().isValid()){
+                                             fp.getForm().submit({
+                                                  url: 'service.php?action=templateImportCsv&type=sqcsv',
+                                                  waitMsg: 'Uploading your csv...',
+                                                  success: function(fp, o){
+                                                       template_store.reload();
+                                                       Ext.MessageBox.alert('Success','Update template sku quantiry success!');
+                                                  }
+                                             });
+                                        }
                                    }
                               }]
                          }],                                           
                          buttons: [{
-                                        text: 'OK',
-                                        handler: function(){
-                                             fp = Ext.getCmp("csv-form");
-                                             if(fp.getForm().isValid()){
-                                                  fp.getForm().submit({
-                                                       url: 'service.php?action=templateImportCsv',
-                                                       waitMsg: 'Uploading your csv...',
-                                                       success: function(fp, o){
-                                                           console.log(o);
-                                                       }
-                                                  });
-                                             }
-                                        }
-                                 },{
-                                        text: 'Cancel',
+                                        text: 'Close',
                                         handler: function(){
                                              importCsvWindow.close();
                                         }
-                                 }]
+                                   }]
                                    
                     })
                     importCsvWindow.show();   
@@ -1063,6 +1069,88 @@ Ext.onReady(function(){
                                         icon: './images/clock_edit.png',
                                         tooltip:'Reset upload time',
                                         handler: function(){
+                                             var selections = template_grid.selModel.getSelections();
+                                             if(template_grid.selModel.getCount() == 0){
+                                                  Ext.MessageBox.alert('Warning','Please select the need to modify.');
+                                                  return 0;
+                                             }
+                                             var ids = "";
+                                             for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                                                  ids += selections[i].data.Id + ","
+                                             }
+                                             ids = ids.slice(0,-1);
+                                             
+                                             var  resetTimeWindow = new Ext.Window({
+                                                  title: 'Reset Upload Time' ,
+                                                  closable:true,
+                                                  width: 300,
+                                                  height: 180,
+                                                  plain:true,
+                                                  layout: 'form',
+                                                  items: [{
+                                                            id:'interval-date',
+                                                            fieldLabel:'Date',
+                                                            xtype:'datefield',
+                                                            format:'Y-m-d'
+                                                       },{
+                                                            id:'interval-time',
+                                                            fieldLabel:'Time',
+                                                            xtype:'timefield',
+                                                            increment:1,
+                                                            triggerAction: 'all',
+                                                            editable: false,
+                                                            selectOnFocus:true,
+                                                            listWidth:80,
+                                                            width:80  
+                                                       },{
+                                                            id:'interval-minute',
+                                                            fieldLabel:'Interval',
+                                                            xtype:"combo",
+                                                            store:[1,2,3,4,5,6,7,8,9,10],
+                                                            listWidth:60,
+                                                            width:60
+                                                       }
+                                                  ],
+                                                  buttons: [{
+                                                                 text: 'Ok',
+                                                                 handler: function(){
+                                                                      Ext.Ajax.request({  
+                                                                           waitMsg: 'Please Wait',
+                                                                           url: 'service.php?action=templateIntervalUpload', 
+                                                                           params: {
+                                                                                ids: ids,
+                                                                                date: Ext.getCmp('interval-date').getValue(),
+                                                                                time: Ext.getCmp('interval-time').getValue(),
+                                                                                minute: Ext.getCmp('interval-minute').getValue()
+                                                                           }, 
+                                                                           success: function(response){
+                                                                                //console.log(response);
+                                                                                var result = eval(response.responseText);
+                                                                                //console.log(result);
+                                                                                if(result[0].success){
+                                                                                     Ext.MessageBox.alert('Success', result[0].msg);
+                                                                                }else{
+                                                                                     Ext.MessageBox.alert('Warning', 'Could not reset upload time, please notice admin.');
+                                                                                }
+                                                                           },
+                                                                           failure: function(response){
+                                                                               var result=response.responseText;
+                                                                               Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                                           }
+                                                                      });
+                                                                      resetTimeWindow.close();
+                                                                 }
+                                                            },{
+                                                                 text: 'Close',
+                                                                 handler: function(){
+                                                                      resetTimeWindow.close();
+                                                                 }
+                                                            }]
+                                                            
+                                             })
+                                             
+                                             resetTimeWindow.show();
+                                             return 1;
                                         }
                                    }],
                                    bbar: new Ext.PagingToolbar({
