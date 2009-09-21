@@ -236,63 +236,6 @@ Ext.onReady(function(){
                {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'}
           ],
           tbar:[{
-                    text:'Copy',
-                    icon: './images/plugin_go.png',
-                    tooltip:'copy template',
-                    handler: function(){
-                         var selections = template_grid.selModel.getSelections();
-                         if(template_grid.selModel.getCount() == 0){
-                              Ext.MessageBox.alert('Warning','Please select the template you want to copy.');
-                              return 0;
-                         }
-                         var ids = "";
-                         for(var i = 0; i< template_grid.selModel.getCount(); i++){
-                              ids += selections[i].data.Id + ","
-                         }
-                         ids = ids.slice(0,-1);
-                         Ext.Ajax.request({  
-                              waitMsg: 'Please Wait',
-                              url: 'service.php?action=copyTemplate', 
-                              params: { 
-                                   ids: ids
-                              }, 
-                              success: function(response){
-                                  var result=eval(response.responseText);
-                                  switch(result){
-                                     case 1:  // Success : simply reload
-                                       template_store.reload();
-                                       break;
-                                     default:
-                                       Ext.MessageBox.alert('Warning','Data error, please check template data.');
-                                       break;
-                                  }
-                              },
-                              failure: function(response){
-                                  var result=response.responseText;
-                                  Ext.MessageBox.alert('error','could not connect to the database. retry later');      
-                              }
-                         });
-                         return 1;
-                    }
-               },'-',{
-                    text:'Edit',
-                    icon: './images/plugin_edit.png',
-                    tooltip:'edit multi template',
-                    handler: function(){
-                         var selections = template_grid.selModel.getSelections();
-                         if(template_grid.selModel.getCount() == 0){
-                              Ext.MessageBox.alert('Warning','Please select the template you want to edit.');
-                              return 0;
-                         }
-                         var ids = "";
-                         for(var i = 0; i< template_grid.selModel.getCount(); i++){
-                              ids += selections[i].data.Id + ","
-                         }
-                         ids = ids.slice(0,-1);
-                         window.open("/eBayBO/eBayListing/template.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
-                         return 1;
-                    }     
-               },'-',{
                text: 'Add To Upload',
                icon: './images/arrow_up.png',
                tooltip:'add selected template to upload queue',
@@ -334,6 +277,63 @@ Ext.onReady(function(){
                     return 1;
                }
           },'-',{
+                    text:'Copy',
+                    icon: './images/plugin_go.png',
+                    tooltip:'copy template',
+                    handler: function(){
+                         var selections = template_grid.selModel.getSelections();
+                         if(template_grid.selModel.getCount() == 0){
+                              Ext.MessageBox.alert('Warning','Please select the template you want to copy.');
+                              return 0;
+                         }
+                         var ids = "";
+                         for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                              ids += selections[i].data.Id + ","
+                         }
+                         ids = ids.slice(0,-1);
+                         Ext.Ajax.request({  
+                              waitMsg: 'Please Wait',
+                              url: 'service.php?action=copyTemplate', 
+                              params: { 
+                                   ids: ids
+                              }, 
+                              success: function(response){
+                                  var result=eval(response.responseText);
+                                  switch(result){
+                                     case 1:  // Success : simply reload
+                                       template_store.reload();
+                                       break;
+                                     default:
+                                       Ext.MessageBox.alert('Warning','Data error, please check template data.');
+                                       break;
+                                  }
+                              },
+                              failure: function(response){
+                                  var result=response.responseText;
+                                  Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                              }
+                         });
+                         return 1;
+                    }
+               },/*'-',{
+                    text:'Edit',
+                    icon: './images/plugin_edit.png',
+                    tooltip:'edit multi template',
+                    handler: function(){
+                         var selections = template_grid.selModel.getSelections();
+                         if(template_grid.selModel.getCount() == 0){
+                              Ext.MessageBox.alert('Warning','Please select the template you want to edit.');
+                              return 0;
+                         }
+                         var ids = "";
+                         for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                              ids += selections[i].data.Id + ","
+                         }
+                         ids = ids.slice(0,-1);
+                         window.open("/eBayBO/eBayListing/template.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                         return 1;
+                    }     
+               },*/'-',{
                text: 'Delete',
                icon: './images/cancel.png',
                tooltip:'Delete selected template',
@@ -480,6 +480,9 @@ Ext.onReady(function(){
                          }
                          ids = ids.slice(0,-1);
                          
+                         //var today = new Date();
+                         //console.log(today.getFullYear()+'-'+minMonth+'-'+minDay);
+                         
                          var  intervalUploadWindow = new Ext.Window({
                               title: 'Interval Upload Set' ,
                               closable:true,
@@ -491,7 +494,9 @@ Ext.onReady(function(){
                                         id:'interval-date',
                                         fieldLabel:'Date',
                                         xtype:'datefield',
-                                        format:'Y-m-d'
+                                        format:'Y-m-d',
+                                        minValue: new Date(),
+                                        selectOnFocus:true
                                    },{
                                         id:'interval-time',
                                         fieldLabel:'Time',
@@ -553,95 +558,7 @@ Ext.onReady(function(){
                          intervalUploadWindow.show();
                          return 1;
                     }
-          }/*,{
-               xtype:'form',
-               width: 480,
-               labelWidth: 50,
-               layout: 'column',
-               items: [{
-                    columnWidth:0.35,
-                    layout:"form",
-                    border:false,
-                    items:[{
-                         id:'interval-date',
-                         fieldLabel:'Start',
-                         xtype:'datefield',
-                         format:'Y-m-d'
-                    }]
-               },{
-                    columnWidth:0.25,
-                    layout:"form",
-                    border:false,
-                    items:[{
-                         id:'interval-time',
-                         hideLabel:true,
-                         xtype:'timefield',
-                         increment:1,
-                         triggerAction: 'all',
-                         editable: false,
-                         selectOnFocus:true,
-                         listWidth:80,
-                         width:80
-                    }]
-               },{
-                    columnWidth:0.3,
-                    layout:"form",
-                    border:false,
-                    labelWidth: 40,
-                    items:[{
-                         //hideLabel:true,
-                         id:'interval-minute',
-                         fieldLabel:'Interval',
-                         xtype:"combo",
-                         store:[1,2,3,4,5,6,7,8,9,10],
-                         listWidth:60,
-                         width:60
-                    }]
-               },{
-                    columnWidth:0.1,
-                    layout:"form",
-                    border:false,
-                    items:[{
-                         xtype:'button',
-                         //text:'Submit',
-                         iconCls:'interval-upload',
-                         handler: function(){
-                              var selections = template_grid.selModel.getSelections();
-                              var ids = "";
-                              for(var i = 0; i< template_grid.selModel.getCount(); i++){
-                                   ids += selections[i].data.Id + ","
-                              }
-                              ids = ids.slice(0,-1);
-                              
-                              Ext.Ajax.request({  
-                                   waitMsg: 'Please Wait',
-                                   url: 'service.php?action=templateIntervalUpload', 
-                                   params: {
-                                        ids: ids,
-                                        date: Ext.getCmp('interval-date').getValue(),
-                                        time: Ext.getCmp('interval-time').getValue(),
-                                        minute: Ext.getCmp('interval-minute').getValue()
-                                   }, 
-                                   success: function(response){
-                                        //console.log(response);
-                                        var result = eval(response.responseText);
-                                        //console.log(result);
-                                        if(result[0].success){
-                                             Ext.MessageBox.alert('Success', result[0].msg);
-                                        }else{
-                                             Ext.MessageBox.alert('Warning', 'Could not interval upload.');
-                                        }
-                                   },
-                                   failure: function(response){
-                                       var result=response.responseText;
-                                       Ext.MessageBox.alert('error','could not connect to the database. retry later');      
-                                   }
-                              });
-                         }
-                    }]
-               }]
-          
-          }*/],
+          }],
           bbar: new Ext.PagingToolbar({
               pageSize: 20,
               store: template_store,
@@ -1121,7 +1038,7 @@ Ext.onReady(function(){
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
-                                   fields: ['Id', 'SKU', 'Title', 'Price', 'Quantity', 'ListingDuration', 'ListingType', 'ScheduleTime'],
+                                   fields: ['Id', 'SKU', 'Title', 'Price', 'Quantity', 'ListingDuration', 'ListingType', 'ScheduleTime', 'Site'],
                                    url: 'service.php?action=getWaitingUploadItem',
                                    listeners: {
                                         load: function(t, r){
@@ -1130,6 +1047,10 @@ Ext.onReady(function(){
                                    }
                               })
                               
+                              function renderFlag(v, p, r){
+                                   return "<img src='./images/"+v.toLowerCase()+".gif'>";
+                              }
+            
                               var wait_grid = new Ext.grid.GridPanel({
                                    title: 'Waiting To Upload SKU List',
                                    store: wait_store,
@@ -1137,6 +1058,7 @@ Ext.onReady(function(){
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
                                         {header: "Id", width: 40, align: 'center', sortable: true, dataIndex: 'Id'},
+                                        {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                                         {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
                                         {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title'},
                                         {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
@@ -1146,6 +1068,103 @@ Ext.onReady(function(){
                                         {header: "UploadTime", width: 250, align: 'center', sortable: true, dataIndex: 'ScheduleTime'}
                                    ],
                                    tbar: [{
+                                             text:'Copy',
+                                             icon: './images/page_copy.png',
+                                             tooltip:'Copy before uploading',
+                                             handler: function(){
+                                                  var selections = wait_grid.selModel.getSelections();
+                                                  if(wait_grid.selModel.getCount() == 0){
+                                                       Ext.MessageBox.alert('Warning','Please select the you want to copy.');
+                                                       return 0;
+                                                  }
+                                                  var ids = "";
+                                                  for(var i = 0; i< wait_grid.selModel.getCount(); i++){
+                                                       ids += selections[i].data.Id + ","
+                                                  }
+                                                  ids = ids.slice(0,-1);
+                                                  Ext.Ajax.request({  
+                                                       waitMsg: 'Please Wait',
+                                                       url: 'service.php?action=copyItem', 
+                                                       params: { 
+                                                            ids: ids
+                                                       }, 
+                                                       success: function(response){
+                                                           var result=eval(response.responseText);
+                                                           switch(result){
+                                                              case 1:  // Success : simply reload
+                                                                wait_store.reload();
+                                                                break;
+                                                              default:
+                                                                Ext.MessageBox.alert('Warning','Copy failure, please notice admin.');
+                                                                break;
+                                                           }
+                                                       },
+                                                       failure: function(response){
+                                                           var result=response.responseText;
+                                                           Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                       }
+                                                  });
+                                                  return 1;
+                                             }
+                                        },'-',{
+                                             text:'Edit',
+                                             icon: './images/page_edit.png',
+                                             tooltip:'Editing before uploading',
+                                             handler:function(){
+                                                  var selections = wait_grid.selModel.getSelections();
+                                                  if(wait_grid.selModel.getCount() == 0){
+                                                       Ext.MessageBox.alert('Warning','Please select the template you want to edit.');
+                                                       return 0;
+                                                  }
+                                                  var ids = "";
+                                                  for(var i = 0; i< wait_grid.selModel.getCount(); i++){
+                                                       ids += selections[i].data.Id + ","
+                                                  }
+                                                  ids = ids.slice(0,-1);
+                                                  window.open("/eBayBO/eBayListing/mitem.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                                  return 1;
+                                             }
+                                        },'-',{
+                                             text:'Delete',
+                                             icon: './images/page_delete.png',
+                                             tooltip:'Delete before uploading',
+                                             handler:function(){
+                                                  var selections = wait_grid.selModel.getSelections();
+                                                  if(wait_grid.selModel.getCount() == 0){
+                                                       Ext.MessageBox.alert('Warning','Please select the need to modify.');
+                                                       return 0;
+                                                  }
+                                                  var ids = "";
+                                                  for(var i = 0; i< wait_grid.selModel.getCount(); i++){
+                                                       ids += selections[i].data.Id + ","
+                                                  }
+                                                  ids = ids.slice(0,-1);
+                                                  
+                                                  Ext.Ajax.request({  
+                                                       waitMsg: 'Please Wait',
+                                                       url: 'service.php?action=waitUploadItemDelete', 
+                                                       params: { 
+                                                              ids: ids
+                                                       }, 
+                                                       success: function(response){
+                                                           var result=eval(response.responseText);
+                                                           switch(result){
+                                                              case 1:  // Success : simply reload
+                                                                wait_store.reload();
+                                                                break;
+                                                              default:
+                                                                Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
+                                                                break;
+                                                           }
+                                                       },
+                                                       failure: function(response){
+                                                           var result=response.responseText;
+                                                           Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                       }
+                                                  });
+                                                  return 1;
+                                             }
+                                        },'-',{
                                         text:'Reset Time',
                                         icon: './images/clock_edit.png',
                                         tooltip:'Reset upload time',
@@ -1172,7 +1191,9 @@ Ext.onReady(function(){
                                                             id:'interval-date',
                                                             fieldLabel:'Date',
                                                             xtype:'datefield',
-                                                            format:'Y-m-d'
+                                                            format:'Y-m-d',
+                                                            minValue: new Date(),
+                                                            selectOnFocus:true
                                                        },{
                                                             id:'interval-time',
                                                             fieldLabel:'Time',
@@ -1898,6 +1919,7 @@ Ext.onReady(function(){
             ]
      });
      
+     /*
      Ext.Ajax.request({
           url: 'service.php?action=logComet',
           success: function(a, b, c){
@@ -1912,4 +1934,5 @@ Ext.onReady(function(){
           },
           timeout:20000
      });
+    */
 });
