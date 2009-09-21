@@ -32,7 +32,8 @@ Ext.onReady(function(){
                 {name: 'startTime'},
                 {name: 'endTime', type: 'date', dateFormat: 'y-m-d H:i:s'},
                 {name: 'listingType'},
-                {name: 'listingStatus'}
+                {name: 'listingStatus'},
+		{name: 'ViewItemURLForNaturalSearch'}
             ]);
                    
             var store = new Ext.data.Store({
@@ -71,12 +72,24 @@ Ext.onReady(function(){
                 width:50
             })
             
+	    var locatedCombo = new Ext.form.ComboBox({
+                mode: 'local',
+                store: ['US','GB','AU','FR'],
+                triggerAction: 'all',
+                editable: false,
+                selectOnFocus:true,
+                name:'located',
+                hiddenName:'located',
+                listWidth: 50,
+                width:50
+            })
+	    
             var grid = new Ext.grid.GridPanel({
                 title: 'eBay Item Analyze (<font color="red">you want to specify multiple Seller, use a comma.</font>)',
                 autoHeight: true,
                 store: store,
                 autoScroll: true,
-                width: 1300,
+                width: 1400,
 		//height: 768,
                 selModel: new Ext.grid.RowSelectionModel({}),
                 columns:[
@@ -98,6 +111,9 @@ Ext.onReady(function(){
                         xtype: 'tbtext',
                         text: 'Country:'
                     },countryCombo,{
+                        xtype: 'tbtext',
+                        text: 'Located:'
+                    },locatedCombo,{
                         xtype: 'tbtext',
                         text: 'Store Name:'
                     },{
@@ -446,7 +462,7 @@ Ext.onReady(function(){
                                     //console.log("getSingleItemSuccess (" + i + ")");
                                     //console.log(data);
                                     var item = new Array();
-                                    item[0] = data.item.itemID
+                                    item[0] = data.item.itemID;
                                     item[1] = data.item.seller.userID;
                                     item[2] = data.item.title;
                                     item[3] = data.item.buyItNowAvailable;
@@ -458,9 +474,10 @@ Ext.onReady(function(){
                                     item[9] = data.item.startTime;
                                     item[10] = data.item.endTime;
                                     item[11] = data.item.listingType.value;
-                                    item[12] = data.item.listingStatus.value
-                                    
-                                    itemArray.push(item);
+                                    item[12] = data.item.listingStatus.value;
+                                    item[13] = data.item.viewItemURLForNaturalSearch;
+                                    //console.log(item);
+				    itemArray.push(item);
                                     /*
                                     data.item.buyItNowAvailable
                                     data.item.buyItNowPrice
@@ -556,13 +573,19 @@ Ext.onReady(function(){
 				    var currency = "EUR";
 				break;
 			    }
-                            var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType({Currency: currency, ItemsAvailableTo: countryCombo.getValue(), QueryKeywords: Ext.getCmp('keyword').getValue(), StoreName: Ext.getCmp('storeName').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 10, EndTimeFrom: Ext.isEmpty(Ext.getCmp('from').getValue())?null:Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.isEmpty(Ext.getCmp('to').getValue())?null:Ext.getCmp('to').getValue().format('Y-m-d')});
+                            var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType({Currency: currency, ItemsAvailableTo: countryCombo.getValue(), ItemsLocatedIn: locatedCombo.getValue(), QueryKeywords: Ext.getCmp('keyword').getValue(), StoreName: Ext.getCmp('storeName').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 10, EndTimeFrom: Ext.isEmpty(Ext.getCmp('from').getValue())?null:Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.isEmpty(Ext.getCmp('to').getValue())?null:Ext.getCmp('to').getValue().format('Y-m-d')});
                             var callback = new com.ebay.shoppingservice.ShoppingCallback({success: findItemsAdvancedSuccess, failure: findItemsAdvancedFailure});
                             shopping.findItemsAdvanced(request, callback);
                                 
                         }
                     }]
             })
+	    
+	    grid.on("rowdblclick", function(oGrid){
+		var oRecord = oGrid.getSelectionModel().getSelected();
+		//console.log(oRecord);
+		window.open(oRecord.data['ViewItemURLForNaturalSearch'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+	   })
             grid.render("analyze-grid");
            
         }
