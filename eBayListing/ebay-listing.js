@@ -465,29 +465,95 @@ Ext.onReady(function(){
                     importCsvWindow.show();   
                }
           },'-',{
-               text: 'Export CSV',
-               icon: './images/server_go.png',
-               tooltip:'export csv file',
-               handler: function(){
-                    var selections = template_grid.selModel.getSelections();
-                    var ids = "";
-                    for(var i = 0; i< template_grid.selModel.getCount(); i++){
-                         ids += selections[i].data.Id + ","
+                    text:'Interval Upload',
+                    icon: './images/clock_add.png',
+                    tooltip:'set interval upload time',
+                    handler: function(){
+                         var selections = template_grid.selModel.getSelections();
+                         if(template_grid.selModel.getCount() == 0){
+                              Ext.MessageBox.alert('Warning','Please select template.');
+                              return 0;
+                         }
+                         var ids = "";
+                         for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                              ids += selections[i].data.Id + ","
+                         }
+                         ids = ids.slice(0,-1);
+                         
+                         var  intervalUploadWindow = new Ext.Window({
+                              title: 'Interval Upload Set' ,
+                              closable:true,
+                              width: 300,
+                              height: 180,
+                              plain:true,
+                              layout: 'form',
+                              items: [{
+                                        id:'interval-date',
+                                        fieldLabel:'Date',
+                                        xtype:'datefield',
+                                        format:'Y-m-d'
+                                   },{
+                                        id:'interval-time',
+                                        fieldLabel:'Time',
+                                        xtype:'timefield',
+                                        increment:1,
+                                        triggerAction: 'all',
+                                        editable: false,
+                                        selectOnFocus:true,
+                                        listWidth:80,
+                                        width:80  
+                                   },{
+                                        id:'interval-minute',
+                                        fieldLabel:'Interval',
+                                        xtype:"combo",
+                                        store:[1,2,3,4,5,6,7,8,9,10],
+                                        listWidth:60,
+                                        width:60
+                                   }
+                              ],
+                              buttons: [{
+                                             text: 'Ok',
+                                             handler: function(){
+                                                  Ext.Ajax.request({  
+                                                       waitMsg: 'Please Wait',
+                                                       url: 'service.php?action=templateIntervalUpload', 
+                                                       params: {
+                                                            ids: ids,
+                                                            date: Ext.getCmp('interval-date').getValue(),
+                                                            time: Ext.getCmp('interval-time').getValue(),
+                                                            minute: Ext.getCmp('interval-minute').getValue()
+                                                       }, 
+                                                       success: function(response){
+                                                            //console.log(response);
+                                                            var result = eval(response.responseText);
+                                                            //console.log(result);
+                                                            if(result[0].success){
+                                                                 //template_store.reload();
+                                                                 intervalUploadWindow.close();
+                                                                 Ext.MessageBox.alert('Success', result[0].msg);
+                                                            }else{
+                                                                 Ext.MessageBox.alert('Warning', 'Could not interval upload, please notice admin.');
+                                                            }
+                                                       },
+                                                       failure: function(response){
+                                                           var result=response.responseText;
+                                                           Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                       }
+                                                  });
+                                             }
+                                        },{
+                                             text: 'Close',
+                                             handler: function(){
+                                                  intervalUploadWindow.close();
+                                             }
+                                        }]
+                                        
+                         })
+                         
+                         intervalUploadWindow.show();
+                         return 1;
                     }
-                    ids = ids.slice(0,-1);
-                    //console.log(ids);
-                    
-               }
-          },/*{
-               xtype:"datefield",
-               id:"11",
-               name:"11",
-               format:'Y-m-d'
-          },'-',{
-               xtype:"tbtext",
-               id:"22",
-               name:"22"
-          }*/{
+          }/*,{
                xtype:'form',
                width: 480,
                labelWidth: 50,
@@ -575,7 +641,7 @@ Ext.onReady(function(){
                     }]
                }]
           
-          }],
+          }*/],
           bbar: new Ext.PagingToolbar({
               pageSize: 20,
               store: template_store,
@@ -740,7 +806,22 @@ Ext.onReady(function(){
                                    clicksToEdit: 1,
                                    tbar:[{
                                         text: "Revise",
+                                        icon: "./images/building_edit.png",
                                         handler: function(){
+                                             
+                                        }
+                                   },'-',{
+                                        text: 'Export CSV',
+                                        icon: './images/server_go.png',
+                                        tooltip:'export csv file',
+                                        handler: function(){
+                                             var selections = template_grid.selModel.getSelections();
+                                             var ids = "";
+                                             for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                                                  ids += selections[i].data.Id + ","
+                                             }
+                                             ids = ids.slice(0,-1);
+                                             //console.log(ids);
                                              
                                         }
                                    }],
@@ -1069,13 +1150,13 @@ Ext.onReady(function(){
                                         icon: './images/clock_edit.png',
                                         tooltip:'Reset upload time',
                                         handler: function(){
-                                             var selections = template_grid.selModel.getSelections();
-                                             if(template_grid.selModel.getCount() == 0){
+                                             var selections = wait_grid.selModel.getSelections();
+                                             if(wait_grid.selModel.getCount() == 0){
                                                   Ext.MessageBox.alert('Warning','Please select the need to modify.');
                                                   return 0;
                                              }
                                              var ids = "";
-                                             for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                                             for(var i = 0; i< wait_grid.selModel.getCount(); i++){
                                                   ids += selections[i].data.Id + ","
                                              }
                                              ids = ids.slice(0,-1);
@@ -1116,7 +1197,7 @@ Ext.onReady(function(){
                                                                  handler: function(){
                                                                       Ext.Ajax.request({  
                                                                            waitMsg: 'Please Wait',
-                                                                           url: 'service.php?action=templateIntervalUpload', 
+                                                                           url: 'service.php?action=updateItemUploadTime', 
                                                                            params: {
                                                                                 ids: ids,
                                                                                 date: Ext.getCmp('interval-date').getValue(),
@@ -1128,6 +1209,8 @@ Ext.onReady(function(){
                                                                                 var result = eval(response.responseText);
                                                                                 //console.log(result);
                                                                                 if(result[0].success){
+                                                                                     wait_store.reload();
+                                                                                     resetTimeWindow.close();
                                                                                      Ext.MessageBox.alert('Success', result[0].msg);
                                                                                 }else{
                                                                                      Ext.MessageBox.alert('Warning', 'Could not reset upload time, please notice admin.');
@@ -1138,7 +1221,6 @@ Ext.onReady(function(){
                                                                                Ext.MessageBox.alert('error','could not connect to the database. retry later');      
                                                                            }
                                                                       });
-                                                                      resetTimeWindow.close();
                                                                  }
                                                             },{
                                                                  text: 'Close',

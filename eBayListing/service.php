@@ -2148,6 +2148,74 @@ class eBayListing{
     }
     
     //-------------------------- Item  -------------------------------------------------------------------
+    public function updateItemUploadTime(){
+	$temp = "";
+	$_POST['date'] = substr($_POST['date'], 0, -24);
+	$ids = explode(',', $_POST['ids']);
+	if(count($ids) > 1){
+	    $i = 0;
+	    foreach($ids as $id){
+		$sql = "select Site from items where Id = '".$id."'";
+		$result = mysql_query($sql, eBayListing::$database_connect);
+		$row = mysql_fetch_assoc($result);
+		
+		switch($row['Site']){
+		    case "US":
+			$time = date("Y-m-d H:i:s", strtotime("-12 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
+		    break;
+		
+		    case "UK":
+			$time = date("Y-m-d H:i:s", strtotime("-8 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
+		    break;
+		
+		    case "AU":
+			$time = date("Y-m-d H:i:s", strtotime("+2 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
+		    break;
+		
+		    case "FR":
+			$time = date("Y-m-d H:i:s", strtotime("-7 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
+		    break;
+		}
+		$temp .= $id. " : ". $time . "<br>";
+		$sql_1 = "update items set ScheduleTime = '".$time."' where Id = '".$id."'";
+		$result_2 = mysql_query($sql_1, eBayListing::$database_connect);
+		$i++;
+	    }
+	    //$temp = substr($temp, 0, -2);
+	}else{
+	    $sql = "select Site from items where Id = '".$_POST['ids']."'";
+	    $result = mysql_query($sql, eBayListing::$database_connect);
+	    $row = mysql_fetch_assoc($result);
+
+	    switch($row['Site']){
+		case "US":
+		    $time = date("Y-m-d H:i:s", strtotime("-12 hour ".$_POST['date'].' '.$_POST['time']));
+		break;
+	    
+		case "UK":
+		    $time = date("Y-m-d H:i:s", strtotime("-8 hour ".$_POST['date'].' '.$_POST['time']));
+		break;
+	    
+		case "AU":
+		    $time = date("Y-m-d H:i:s", strtotime("+2 hour ".$_POST['date'].' '.$_POST['time']));
+		break;
+	    
+		case "FR":
+		    $time = date("Y-m-d H:i:s", strtotime("-7 hour ".$_POST['date'].' '.$_POST['time']));
+		break;
+	    }
+	    
+	    $temp .= $_POST['ids'] . " : " . $time;
+	    $sql_1 = "update items set ScheduleTime = '".$time."' where Id = '".$_POST['ids']."'";
+	    $result_2 = mysql_query($sql_1, eBayListing::$database_connect);
+	}
+	if($result){
+	    echo '[{success: true, msg: "'.$temp.'"}]';
+	}else{
+	    echo '[{success: false, msg: "Update Upload Time Failure, Please Notice Admin."}]';
+	}
+    }
+    
     public function getActiveItem(){
 	if(empty($_POST['start']) && empty($_POST['limit'])){
 	       $_POST['start'] = 0;
