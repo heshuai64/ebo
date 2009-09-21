@@ -640,14 +640,32 @@ class eBayListing{
     public function templateImportCsv(){
 	//echo '{success:true, test:"'.print_r($_FILES, true).'"}';
 	//exit;
-	$handle = fopen($_FILES['csv']['tmp_name'], "r");
-	while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-	    //$data[0]
-	    //$data[1]
-	    $sql = "";
+	switch($_GET['type']){
+	    case "spcsv":
+		$handle = fopen($_FILES['spcsv']['tmp_name'], "r");
+		while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+		    //print_r($data);
+		    $sql = "update template set BuyItNowPrice='".$data[1]."',StartPrice='".$data[1]."' where SKU = '".$data[0]."'";
+		    $result = mysql_query($sql, eBayListing::$database_connect);
+		}
+		fclose($handle);
+	    break;
+	
+	    case "sqcsv":
+		$handle = fopen($_FILES['sqcsv']['tmp_name'], "r");
+		while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+		    //print_r($data);
+		    $sql = "update template set Quantity='".$data[1]."' where SKU = '".$data[0]."'";
+		    $result = mysql_query($sql, eBayListing::$database_connect);
+		}
+		fclose($handle);
+	    break;
 	}
-	fclose($handle);
-	echo "{success:true}";
+	if($result){
+	    echo "{success:true}";
+	}else{
+	    echo "{success:false}";
+	}
     }
     
     public function templateIntervalUpload(){
@@ -1169,10 +1187,11 @@ class eBayListing{
 	    }
 	    //var_dump(array($result_1, $result_2, $result_3, $result_4, $result_6, $result_7));
 	    
-	    $sql_8 = "insert into template_to_template_cateogry (template_id,template_category_id) values select '".$template_id."',template_category_id from template_to_template_cateogry where template_id = '".$_POST['ids']."'";
+	    $sql_8 = "insert into template_to_template_cateogry (template_id,template_category_id) select '".$template_id."',template_category_id from template_to_template_cateogry where template_id = '".$_POST['ids']."'";
+	    //echo $sql_8;
 	    $result_8 = mysql_query($sql_8, eBayListing::$database_connect);
 	    
-	    if($result_1){
+	    if($result_1 && $result_2 && $result_3 && $result_4 && $result_5 && $result_8){
 		echo 1;
 	    }else{
 		echo 0;
@@ -1514,10 +1533,20 @@ class eBayListing{
 	    }
 	}
 	
-	$sql_5 = "update template_to_template_cateogry set template_category_id = '".$_POST['template_category_id']."' where template_id = '".$id."'";
+	$sql_5 = "select count(*) as num from template_to_template_cateogry where template_id = '".$id."'";
 	$result_5 = mysql_query($sql_5, eBayListing::$database_connect);
+	$row_5 = mysql_fetch_assoc($result_5);
 	
-	if($result && $result_1 && $result_5){
+	if($row_5['num'] > 0){
+	    $sql_6 = "update template_to_template_cateogry set template_category_id = '".$_POST['template_category_id']."' where template_id = '".$id."'";
+	    $result_6 = mysql_query($sql_6, eBayListing::$database_connect);
+	}else{
+	    $sql_6 = "insert into template_to_template_cateogry (template_id,template_category_id) values ('".$id."','".$_POST['template_category_id']."')";
+	    $result_6 = mysql_query($sql_6, eBayListing::$database_connect);
+	}
+	
+	
+	if($result && $result_1 && $result_6){
 	    //unset($_SESSION['Schedule']);
 	    //unset($_SESSION['AttributeSet']);
 	    echo '{success: true, msg: "Save Template Success!"}';
