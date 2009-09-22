@@ -2420,14 +2420,57 @@ class eBayListing{
 	if(strpos($_POST['ids'], ',')){
 	    $ids = explode(',', $_POST['ids']);
 	    foreach($ids as $id){
-		$sql = "delete from items where Id = '".$id."'";
-		$result = mysql_query($sql, eBayListing::$database_connect);
+		$sql_1 = "delete from items where Id = '".$id."'";
+		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+		
+		$sql_2 = "delete from picture_url where ItemID = '".$id."'";
+		$result_2 = mysql_query($sql_2, eBayListing::$database_connect);
+		
+		$sql_3 = "delete from shipping_service_options where ItemID = '".$id."'";
+		$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+		
+		$sql_4 = "delete from international_shipping_service_option where ItemID = '".$id."'";
+		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+		
+		$sql_5 = "select * from attribute_set where item_id = '".$id."'";
+		$result_5 = mysql_query($sql_5, eBayListing::$database_connect);
+		while($row_5 = mysql_fetch_assoc($result_5)){
+		    $sql_6 = "delete from attribute where attribute_set_id = '".$row_5['attribute_set_id']."'";
+		    $result_6 = mysql_query($sql_6, eBayListing::$database_connect);
+		}
+
+		$sql_7 = "delete from attribute_set where item_id = '".$id."'";
+		$result_7 = mysql_query($sql_7, eBayListing::$database_connect);
 	    }
 	}else{
-	    $sql = "delete from items where Id = '".$_POST['ids']."'";
-	    $result = mysql_query($sql, eBayListing::$database_connect);
+	    $id = $_POST['ids'];
+	    $sql_1 = "delete from items where Id = '".$id."'";
+	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	    
+	    $sql_2 = "delete from picture_url where ItemID = '".$id."'";
+	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
+	    
+	    $sql_3 = "delete from shipping_service_options where ItemID = '".$id."'";
+	    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+	    
+	    $sql_4 = "delete from international_shipping_service_option where ItemID = '".$id."'";
+	    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+	    
+	    $sql_5 = "select * from attribute_set where item_id = '".$id."'";
+	    $result_5 = mysql_query($sql_5, eBayListing::$database_connect);
+	    while($row_5 = mysql_fetch_assoc($result_5)){
+		$sql_6 = "delete from attribute where attribute_set_id = '".$row_5['attribute_set_id']."'";
+		$result_6 = mysql_query($sql_6, eBayListing::$database_connect);
+	    }
+
+	    $sql_7 = "delete from attribute_set where item_id = '".$id."'";
+	    $result_7 = mysql_query($sql_7, eBayListing::$database_connect);
 	}
-	echo $result;
+	if($result_1 && $result_2 && $result_3 && $result_4 && $result_5 && $result_7){
+	    echo 1;   
+	}else{
+	    echo 0;
+	}
     }
     
     public function saveMItem(){
