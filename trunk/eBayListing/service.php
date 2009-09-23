@@ -32,6 +32,7 @@ class eBayListing{
     private $account_id;
     
     public function __construct(){
+	
         eBayListing::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
 
         if (!eBayListing::$database_connect) {
@@ -45,6 +46,10 @@ class eBayListing{
             echo "Unable to select mydbname: " . mysql_error(eBayListing::$database_connect);
             exit;
         }
+	
+	if(strpos($_SERVER['HTTP_HOST'], "heshuai64") == false){
+	    exit;
+	}
     }
     
     public  function setAccount($account_id){

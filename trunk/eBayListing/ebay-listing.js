@@ -1,5 +1,5 @@
 Ext.onReady(function(){
-     Ext.BLANK_IMAGE_URL = "../../ext-3.0.0/resources/images/default/s.gif";
+     Ext.BLANK_IMAGE_URL = "../ext-3.0.0/resources/images/default/s.gif";
      
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
@@ -141,7 +141,7 @@ Ext.onReady(function(){
      inventory_grid.on("rowdblclick", function(oGrid){
           var oRecord = oGrid.getSelectionModel().getSelected();
           //console.log(oRecord);
-          window.open("/eBayBO/eBayListing/sku.php?id="+oRecord.data['inventory_model_code'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+          window.open("/eBayListing/sku.php?id="+oRecord.data['inventory_model_code'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
      })
      
      var inventory_categories_tree = new Ext.tree.TreePanel({
@@ -632,7 +632,7 @@ Ext.onReady(function(){
      template_grid.on("rowdblclick", function(oGrid){
           var oRecord = oGrid.getSelectionModel().getSelected();
           //console.log(oRecord);
-          window.open("/eBayBO/eBayListing/template.php?id="+oRecord.data['Id'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+          window.open("/eBayListing/template.php?id="+oRecord.data['Id'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
      })
                                    
      var template_category_tree = new Ext.tree.TreePanel({
@@ -1184,7 +1184,7 @@ Ext.onReady(function(){
                                                        ids += selections[i].data.Id + ","
                                                   }
                                                   ids = ids.slice(0,-1);
-                                                  window.open("/eBayBO/eBayListing/mitem.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                                  window.open("/eBayListing/mitem.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                                   return 1;
                                              }
                                         },'-',{
