@@ -1,5 +1,5 @@
 Ext.onReady(function(){
-    Ext.BLANK_IMAGE_URL = "../../ext-3.0.0/resources/images/default/s.gif";
+    Ext.BLANK_IMAGE_URL = "../ext-3.0.0/resources/images/default/s.gif";
     //var categoryPath = "";
     var today = new Date();
     var pictureForm = new Ext.form.FormPanel({
