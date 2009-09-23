@@ -12,7 +12,7 @@ if(empty($_COOKIE['account_id'])){
     <script src="../../ext-3.0.0/adapter/ext/ext-base.js"></script>
     <script src="../../ext-3.0.0/ext-all.js"></script>
     <script src="FileUploadField.js"></script>
-    <script src="ebay-listing.js"></script>
+    <script src="ebay-listing-min.js"></script>
     <link rel="stylesheet" type="text/css" href="fileuploadfield.css"/>
     <style type="text/css">
 	html, body {
