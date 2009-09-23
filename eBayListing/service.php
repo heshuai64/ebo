@@ -1561,6 +1561,276 @@ class eBayListing{
 	}
     }
     
+    public function templateImportAie(){
+	$handle = fopen($_FILES['aie']['tmp_name'], "r");
+	if ($handle) {
+	    $data = array ();
+	    $data['PaymentMethods'] = 'PayPal';
+	    while (!feof($handle)) {
+		$buffer = trim(fgets($handle, 4096));
+		//echo $buffer;
+		if(!empty($buffer) && $buffer[0] == "[" && $buffer[strlen($buffer)-1] == "]"){
+		    $var_name = substr($buffer, 1, -1);
+		    //$count++;
+		    //echo $var_name;
+		    //echo "<br>";
+		}else{
+		    //@$data[$var_name] .= $buffer;
+		    switch($var_name){
+			case "SELLING SITE":
+			    $pos = strripos($buffer, " ");
+			    $data['Site'] = substr($buffer, 0, $pos-1);
+			    $data['ListingType'] = substr($buffer, $pos+1);
+			break;
+		    
+			case "MINIMUM BID PRICE":
+			    $data['StartPrice'] = $buffer;
+			break;
+		    
+			case "RESERVE PRICE":
+			    $data['ReservePrice'] = $buffer;
+			break;
+		    
+			case "BUY PRICE":
+			    $data['BuyItNowPrice'] = $buffer;
+			break;
+			
+			case "COUNTRY":
+			    $data['Country'] = $buffer;
+			break;
+		    
+			case "CURRENCY":
+			    $data['Currency'] = $buffer;
+			break;
+		    
+			case "DESCRIPTION":
+			    $data['Description'] = $buffer;
+			break;
+		    
+			case "DOMESTIC HANDLING TIME":
+			    $data['DispatchTimeMax'] = $buffer;
+			break;
+		    
+			case "AUCTION DURATION":
+			    $data['ListingDuration'] = $buffer;
+			break;
+		    
+			case "LOCATION":
+			    $data['Location'] = $buffer;
+			break;
+		    
+			case "PAYPAL EMAIL":
+			    $data['PayPalEmailAddress'] = $buffer;
+			break;
+		    
+			case ""://
+			    $data['PostalCode'] = $buffer;
+			break;
+		    
+			case "CATEGORY 1":
+			    $data['PrimaryCategoryCategoryID'] = $buffer;
+			break;
+		    
+			case "CATEGORYDES 1":
+			    $data['PrimaryCategoryCategoryName'] = $buffer;
+			break;
+			
+			case "QUANTITY":
+			    $data['Quantity'] = $buffer;
+			break;
+		    
+			case "RETURN POLICY"://
+			    $data['ReturnPolicyDescription'] = $buffer;
+			break;
+		    
+			case "RETURN POLICY REFUND":
+			    $data['ReturnPolicyRefundOption'] = $buffer;
+			break;
+		    
+			case "RETURN POLICY ENABLED":
+			    if($buffer == "TRUE"){
+				$data['ReturnPolicyReturnsAcceptedOption'] = "ReturnsAccepted";
+			    }else{
+				$data['ReturnPolicyReturnsAcceptedOption'] = "ReturnsNotAccepted";
+			    }
+			break;
+		    
+			case "RETURN POLICY DAYS WITHIN":
+			    switch($buffer){
+				case "3 Days":
+				    $data['ReturnPolicyReturnsWithinOption'] = "Days_3";
+				break;
+			    
+				case "7 Days":
+				    $data['ReturnPolicyReturnsWithinOption'] = "Days_7";
+				break;
+			    
+				case "10 Days":
+				    $data['ReturnPolicyReturnsWithinOption'] = "Days_10";
+				break;
+			    
+				case "14 Days":
+				    $data['ReturnPolicyReturnsWithinOption'] = "Days_14";
+				break;
+			    
+				case "30 Days":
+				    $data['ReturnPolicyReturnsWithinOption'] = "Days_30";
+				break;
+			    
+				case "60 Days":
+				    $data['ReturnPolicyReturnsWithinOption'] = "Days_60";
+				break;
+			    }
+			break;
+		    
+			case "RETURN POLICY SHIPPING PAID BY":
+			    $data['ReturnPolicyShippingCostPaidByOption'] = $buffer;
+			break;
+		    
+			case "CATEGORY 2":
+			    $data['SecondaryCategoryCategoryID'] = $buffer;
+			break;
+		    
+			case "CATEGORYDES 2":
+			    $data['SecondaryCategoryCategoryName'] = $buffer;
+			break;
+		    
+			case "SKU CODE":
+			    $data['SKU'] = $buffer;
+			break;
+		    
+			case "STORE CATEGORY 2":
+			    $data['StoreCategory2ID'] = $buffer;
+			break;
+		    
+			case "STORECATEGORYDES 2":
+			    $data['StoreCategory2Name'] = $buffer;
+			break;
+		    
+			case "STORE CATEGORY":
+			    $data['StoreCategoryID'] = $buffer;
+			break;
+		    
+			case "STORECATEGORYDES":
+			    $data['StoreCategoryName'] = $buffer;
+			break;
+		    
+			case "SUBTITLE":
+			    $data['SubTitle'] = $buffer;
+			break;
+		    
+			case "TITLE":
+			    $data['Title'] = $buffer;
+			break;
+		    
+			case "GALLERY URL":
+			    $data['GalleryURL'] = $buffer;
+			break;
+		    //-------------------------- shipping service options  ----------------------------------------   
+			case "FREE SHIPPING":
+			    $data['shipping_service_options'][1]['FreeShipping'] = ($buffer=="TRUE")?1:0;
+			break;
+		    
+			case "SHIPPING SERVICE NAME":
+			    $data['shipping_service_options'][1]['ShippingService'] = $buffer;
+			break;
+		    
+			case "SHIPPING COST":
+			    $data['shipping_service_options'][1]['ShippingServiceCost'] = $buffer;
+			break;
+		    
+			case "ADDITIONAL SHIPPING COST":
+			    $data['shipping_service_options'][1]['ShippingServiceAdditionalCost'] = $buffer;
+			break;
+		    
+			case "SHIPPING SERVICE NAME2":
+			    $data['shipping_service_options'][2]['ShippingService'] = $buffer;
+			break;
+		    
+			case "SHIPPING COST2":
+			    $data['shipping_service_options'][2]['ShippingServiceCost'] = $buffer;
+			break;
+		    
+			case "ADDITIONAL SHIPPING COST2":
+			    $data['shipping_service_options'][2]['ShippingServiceAdditionalCost'] = $buffer;
+			break;
+		    
+			case "SHIPPING SERVICE NAME3":
+			    $data['shipping_service_options'][3]['ShippingService'] = $buffer;
+			break;
+		    
+			case "SHIPPING COST3":
+			    $data['shipping_service_options'][3]['ShippingServiceCost'] = $buffer;
+			break;
+		    
+			case "ADDITIONAL SHIPPING COST3":
+			    $data['shipping_service_options'][3]['ShippingServiceAdditionalCost'] = $buffer;
+			break;
+		    //--------------------------  international shipping service option --------------------------
+			case "INTERNATIONAL SHIPPING SERVICE NAME":
+			    $data['international_shipping_service_option'][1]['ShippingService'] = $buffer;
+			break;
+		    
+			case "INTERNATIONAL SHIPPING COST":
+			    $data['international_shipping_service_option'][1]['ShippingServiceCost'] = $buffer;
+			break;
+		    
+			case "INTERNATIONAL ADDITIONAL SHIPPING COST":
+			    $data['international_shipping_service_option'][1]['ShippingServiceAdditionalCost'] = $buffer;
+			break;
+		    
+			case "INTERNATIONAL SHIP TO LOCATIONS":
+			    $data['international_shipping_service_option'][1]['ShipToLocation'] = $buffer;
+			break;
+		    
+			case "INTERNATIONAL SHIPPING SERVICE NAME2":
+			    $data['international_shipping_service_option'][2]['ShippingService'] = $buffer;
+			break;
+		    
+			case "INTERNATIONAL SHIPPING COST2":
+			    $data['international_shipping_service_option'][2]['ShippingServiceCost'] = $buffer;
+			break;
+		    
+			case "INTERNATIONAL ADDITIONAL SHIPPING COST2":
+			    $data['international_shipping_service_option'][2]['ShippingServiceAdditionalCost'] = $buffer;
+			break;
+		     
+			case "INTERNATIONAL SHIP TO LOCATIONS2":
+			    $data['international_shipping_service_option'][2]['ShipToLocation'] = $buffer;
+			break;
+		    
+			case "INTERNATIONAL SHIPPING SERVICE NAME3":
+			    $data['international_shipping_service_option'][3]['ShippingService'] = $buffer;
+			break;
+		    
+			case "INTERNATIONAL SHIPPING COST3":
+			    $data['international_shipping_service_option'][3]['ShippingServiceCost'] = $buffer;
+			break;
+		    
+			case "INTERNATIONAL ADDITIONAL SHIPPING COST3":
+			    $data['international_shipping_service_option'][3]['ShippingServiceAdditionalCost'] = $buffer;
+			break;
+		    
+			case "INTERNATIONAL SHIP TO LOCATIONS3":
+			    $data['international_shipping_service_option'][3]['ShipToLocation'] = $buffer;
+			break;
+		    
+			//--------------------  attribute  ----------------------------------------------------
+			case "ATTRIBUTE FOR CATEGORY 1":
+			    $xml = new SimpleXMLElement($buffer);
+			    print_r($xml);
+			    //$data['attribute_set'][$xml->@attributes] = $buffer;
+			    //$data[''] = $buffer;
+			break;
+		    }
+		    $var_name = "";
+		}
+	    }
+	    fclose($handle);
+	    //print_r($data);
+	}
+    }
+    
     //-----------------   Template Schedule  -----------------------------------------------------------------
     public function addTemplateScheduleTime(){
 	if(!empty($_POST['time'])){

@@ -465,6 +465,69 @@ Ext.onReady(function(){
                     importCsvWindow.show();   
                }
           },'-',{
+               text: 'Import SpoonFeeder Template',
+               icon: './images/spoon.png',
+               tooltip:'Import SpoonFeeder template file',
+               handler: function(){
+                    var  importAieWindow = new Ext.Window({
+                         title: 'Import SpoonFeeder Template' ,
+                         closable:true,
+                         width: 320,
+                         height: 150,
+                         plain:true,
+                         layout: 'fit',
+                         items: [{
+                              xtype:'form',
+                              id:'aie-form',
+                              fileUpload: true,
+                              frame: true,
+                              autoHeight: true,
+                              bodyStyle: 'padding: 10px 10px 0 10px;',
+                              labelWidth: 80,
+                              defaults: {
+                                  anchor: '95%',
+                                  allowBlank: false
+                              },
+                              items:[{
+                                   xtype: 'fileuploadfield',
+                                   id: 'aie',
+                                   emptyText: 'Select an aie file',
+                                   fieldLabel: 'Template',
+                                   //hideLabel:true,
+                                   name: 'aie',
+                                   buttonText: '',
+                                   buttonCfg: {
+                                       iconCls: 'upload-icon'
+                                   }
+                              }/*,{
+                                   xtype: 'button',
+                                   text: 'Upload',
+                                   handler: function(){
+                                        var fp = Ext.getCmp("aie-form");
+                                        if(fp.getForm().isValid()){
+                                             fp.getForm().submit({
+                                                  url: 'service.php?action=templateImportAie',
+                                                  waitMsg: 'Uploading Your Template...',
+                                                  success: function(fp, o){
+                                                       template_store.reload();
+                                                       Ext.MessageBox.alert('Success','Update template sku price success!');
+                                                  }
+                                             });
+                                        }
+                                   }
+                              }*/]
+                         }],                                           
+                         buttons: [{
+                                        text: 'Close',
+                                        handler: function(){
+                                             importAieWindow.close();
+                                        }
+                                   }]
+                                   
+                    })
+                    importAieWindow.show();   
+               }
+          },'-',{
                     text:'Interval Upload',
                     icon: './images/clock_add.png',
                     tooltip:'set interval upload time',
