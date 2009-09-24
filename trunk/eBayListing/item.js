@@ -12,52 +12,102 @@ Ext.onReady(function(){
                 id:"picture_value_1",
                 xtype:"textfield",
                 fieldLabel:"Picture 1  (used for Gallery)",
-                name:"picture_value_1"
+                name:"picture_value_1",
+                listeners: {
+                    render: function(t){
+                       t.setValue(Ext.getCmp("picture_1").getValue());
+                    }
+                }
               },{
                 id:"picture_value_2",
                 xtype:"textfield",
                 fieldLabel:"Picture 2",
-                name:"picture_value_2"
+                name:"picture_value_2",
+                listeners: {
+                    render: function(t){
+                       t.setValue(Ext.getCmp("picture_2").getValue());
+                    }
+                }
               },{
                 id:"picture_value_3",
                 xtype:"textfield",
                 fieldLabel:"Picture 3",
-                name:"picture_value_3"
+                name:"picture_value_3",
+                listeners: {
+                    render: function(t){
+                       t.setValue(Ext.getCmp("picture_3").getValue());
+                    }
+                }
               },{
                 id:"picture_value_4",
                 xtype:"textfield",
                 fieldLabel:"Picture 4",
-                name:"picture_value_4"
+                name:"picture_value_4",
+                listeners: {
+                    render: function(t){
+                       t.setValue(Ext.getCmp("picture_4").getValue());
+                    }
+                }
               },{
                 id:"picture_value_5",
                 xtype:"textfield",
                 fieldLabel:"Picture 5",
-                name:"picture_value_5"
+                name:"picture_value_5",
+                listeners: {
+                    render: function(t){
+                       t.setValue(Ext.getCmp("picture_5").getValue());
+                    }
+                }
               },{
                 id:"picture_value_6",
                 xtype:"textfield",
                 fieldLabel:"Picture 6",
-                name:"picture_value_6"
+                name:"picture_value_6",
+                listeners: {
+                    render: function(t){
+                       t.setValue(Ext.getCmp("picture_6").getValue());
+                    }
+                }
               },{
                 id:"picture_value_7",
                 xtype:"textfield",
                 fieldLabel:"Picture 7",
-                name:"picture_value_7"
+                name:"picture_value_7",
+                listeners: {
+                    render: function(t){
+                       t.setValue(Ext.getCmp("picture_7").getValue());
+                    }
+                }
               },{
                 id:"picture_value_8",
                 xtype:"textfield",
                 fieldLabel:"Picture 8",
-                name:"picture_value_8"
+                name:"picture_value_8",
+                listeners: {
+                    render: function(t){
+                       t.setValue(Ext.getCmp("picture_8").getValue());
+                    }
+                }
               },{
                 id:"picture_value_9",
                 xtype:"textfield",
                 fieldLabel:"Picture 9",
-                name:"picture_value_9"
+                name:"picture_value_9",
+                listeners: {
+                    render: function(t){
+                       t.setValue(Ext.getCmp("picture_9").getValue());
+                    }
+                }
               },{
                 id:"picture_value_10",
                 xtype:"textfield",
                 fieldLabel:"Picture 10",
-                name:"picture_value_10"
+                name:"picture_value_10",
+                listeners: {
+                    render: function(t){
+                       t.setValue(Ext.getCmp("picture_10").getValue());
+                    }
+                }
             }],
             buttons:[{
                 text: 'OK',
@@ -108,6 +158,14 @@ Ext.onReady(function(){
         url:'service.php?action=getShippingService'
     })
     
+    var internationalShippingServiceStore = new Ext.data.JsonStore({
+        //root: 'records',
+        //totalProperty: 'totalCount',
+        //idProperty: 'id',
+        fields: ['id', 'name'],
+        url:'service.php?action=getInternationalShippingService'
+    })
+    
     var siteStore = new Ext.data.JsonStore({
         autoLoad :true,
         fields: ['id', 'name'],
@@ -119,6 +177,87 @@ Ext.onReady(function(){
         fields: ['id', 'name'],
         url:'service.php?action=getAllCountries'
     })
+    
+    var listTypeCombo = new Ext.form.ComboBox({
+        mode: 'local',
+        store: new Ext.data.JsonStore({
+            autoLoad: true,
+            fields: ['id', 'name'],
+            url: "service.php?action=getListingDurationType"
+        }),
+        valueField:'id',
+        displayField:'name',
+        triggerAction: 'all',
+        editable: false,
+        selectOnFocus:true,
+        //name: 'ListingTypeCombo',
+        //hiddenName:'ListingTypeCombo',
+        width: 150,
+        allowBlank:false,
+        listeners: {
+            "select": function(c, r, i){
+                switch(r.data.name){
+                    case "Chinese":
+                        Ext.getCmp("StartPrice").setDisabled(0);
+                        Ext.getCmp("ReservePrice").setDisabled(0);
+                        Ext.getCmp("Quantity").setValue(1);
+                        Ext.getCmp("Quantity").setDisabled(1);
+                    break;
+                
+                    case "FixedPriceItem":
+                        Ext.getCmp("Quantity").setDisabled(0);
+                        Ext.getCmp("StartPrice").setDisabled(1);
+                        Ext.getCmp("ReservePrice").setDisabled(1);
+                    break;
+                
+                    case "StoresFixedPrice":
+                        Ext.getCmp("Quantity").setDisabled(0);
+                        Ext.getCmp("StartPrice").setDisabled(1);
+                        Ext.getCmp("ReservePrice").setDisabled(1);
+                    break;
+                }
+                
+                document.getElementById("ListingType").value = r.data.name;
+                listingDurationStore.load({params: {id: r.data.id}});
+            }
+        }
+    });
+    
+    var ShippingServiceOptionsTypeCombo = new Ext.form.ComboBox({
+            store: ['Flat', 'Calculated'],
+            triggerAction: 'all',
+            editable: false,
+            width: 150,
+            listWidth: 150,
+            listeners: {
+                "select": function(c, r, i){
+                    //console.log(c);
+                    if(Ext.isEmpty(Ext.getCmp("SiteID").getValue())){
+                        Ext.Msg.alert('Warn', 'Please choice Site.');
+                    }else{
+                        shippingServiceStore.load({params: {serviceType: c.value, SiteID: Ext.getCmp("SiteID").getValue()}});
+                    }
+                }
+            }
+    });
+    
+    var InternationalShippingServiceOptionTypeCombo = new Ext.form.ComboBox({
+            store: ['Flat', 'Calculated'],
+            triggerAction: 'all',
+            editable: false,
+            width: 150,
+            listWidth: 150,
+            listeners: {
+                "select": function(c, r, i){
+                    //console.log(r);
+                    if(Ext.isEmpty(Ext.getCmp("SiteID").getValue())){
+                        Ext.Msg.alert('Warn', 'Please choice Site.');
+                    }else{
+                        internationalShippingServiceStore.load({params: {serviceType: c.value, SiteID: Ext.getCmp("SiteID").getValue()}});
+                    }
+                }
+            }
+    });
     
     var schedule = new Ext.Panel({                              
         //title:"Schedule",
@@ -218,6 +357,25 @@ Ext.onReady(function(){
         labelAlign:"top",
         //height: 600,
         buttonAlign:"center",
+        reader:new Ext.data.JsonReader({
+            }, ['Id','AutoPay','BuyItNowPrice','CategoryMappingAllowed','Country','Currency','Description','DispatchTimeMax','ListingDuration','ListingType','Location','PaymentMethods','PayPalEmailAddress',
+                'PostalCode','PrimaryCategoryCategoryID','PrimaryCategoryCategoryName','Quantity','ReturnPolicyDescription','ReturnPolicyReturnsAcceptedOption','ReturnPolicyReturnsAcceptedOption','ReturnPolicyReturnsWithinOption',
+                'ReturnPolicyShippingCostPaidByOption','ReservePrice','CurrentPrice','ListingStatus','ScheduleTime','SecondaryCategoryCategoryID','SecondaryCategoryCategoryName','Site','SiteID','SKU','StartPrice',
+                'StoreCategory2ID','StoreCategory2Name','StoreCategoryID','StoreCategoryName','SubTitle','Title','UserID','BoldTitle','Border','Featured','Highlight','HomePageFeatured','GalleryTypeFeatured','GalleryTypeGallery','GalleryTypePlus','GalleryURL',
+                'picture_1','picture_2','picture_3','picture_4','picture_5','picture_6','picture_7','picture_8',
+                'picture_9','picture_10','template_category_id','PhotoDisplay','ShippingServiceOptionsType','InternationalShippingServiceOptionType',
+                'ShippingService_1','ShippingServiceCost_1','ShippingServiceFree_1',
+                'ShippingService_2','ShippingServiceCost_2','ShippingServiceFree_2',
+                'ShippingService_3','ShippingServiceCost_3','ShippingServiceFree_3',
+                'InternationalShippingService_1','InternationalShippingServiceCost_1',
+                'InternationalShippingService_2','InternationalShippingServiceCost_2',
+                'InternationalShippingService_3','InternationalShippingServiceCost_3',
+                'InternationalShippingToLocations_1','InternationalShippingToLocations_2','InternationalShippingToLocations_3',
+                'Americas_1','Europe_1','Asia_1','CA_1','GB_1','AU_1','MX_1','DE_1','JP_1',
+                'Americas_2','Europe_2','Asia_2','CA_2','GB_2','AU_2','MX_2','DE_2','JP_2',
+                'Americas_3','Europe_3','Asia_3','CA_3','GB_3','AU_3','MX_3','DE_3','JP_3',
+                'accountId'
+        ]),
         items:[{
                 xtype:"combo",
                 labelAlign:"left",
@@ -381,7 +539,7 @@ Ext.onReady(function(){
                                                 handler:function(){
                                                     itemSpecificsForm.getForm().submit({
                                                         clientValidation: true,
-                                                        url: 'service.php?action=saveItemSpecifics&sku='+sku,
+                                                        url: 'service.php?action=saveTemplateItemSpecifics&template_id='+template_id,
                                                         success: function(form, action) {
                                                             itemSpecificsWindow.close();
                                                             //console.log(action);
@@ -412,7 +570,7 @@ Ext.onReady(function(){
                                         itemSpecificsWindow.show();
                                         
                                         itemSpecificsForm.getForm().load({
-                                            url: 'service.php?action=loadItemSpecifics&AttributeSetID='+temp.CharacteristicsSetId+'&sku='+sku,
+                                            url: 'service.php?action=loadTemplateItemSpecifics&AttributeSetID='+temp.CharacteristicsSetId+'&template_id='+template_id,
                                             waitMsg:'Please wait...',
                                             success: function(form, action){
                                                 //console.log(action);
@@ -420,7 +578,7 @@ Ext.onReady(function(){
                                                 //console.log(temp);
                                                 for(var i in temp[0]){
                                                     //console.log(i);
-                                                    if(temp[0][i] == "on"){
+                                                    if(temp[0][i].indexOf("on") != -1){
                                                         Ext.getCmp(i).setValue(1);
                                                     }
                                                 }
@@ -461,8 +619,8 @@ Ext.onReady(function(){
                                 xtype:"combo",
                                 fieldLabel:"Category",
                                 editable:false,
-                                //name:"combovalue",
-                                //hiddenName:"combovalue",
+                                name:"PrimaryCategoryCategoryName",
+                                hiddenName:"PrimaryCategoryCategoryName",
                                 width: 600,
                                 listWidth: 600,
                                 allowBlank:false
@@ -551,8 +709,8 @@ Ext.onReady(function(){
                                 xtype:"combo",
                                 fieldLabel:"2nd Category",
                                 editable:false,
-                                //name:"combovalue",
-                                //hiddenName:"combovalue",
+                                name:"SecondaryCategoryCategoryName",
+                                hiddenName:"SecondaryCategoryCategoryName",
                                 width: 600,
                                 listWidth: 600
                             }]
@@ -640,8 +798,8 @@ Ext.onReady(function(){
                                 xtype:"combo",
                                 fieldLabel:"Store Category",
                                 editable:false,
-                                //name:"combovalue",
-                                //hiddenName:"combovalue",
+                                name:"StoreCategoryName",
+                                hiddenName:"StoreCategoryName",
                                 width: 600,
                                 listWidth: 600
                             }]
@@ -729,8 +887,8 @@ Ext.onReady(function(){
                                 xtype:"combo",
                                 fieldLabel:"2nd Store Category",
                                 editable:false,
-                                //name:"combovalue",
-                                //hiddenName:"combovalue",
+                                name:"StoreCategory2Name",
+                                hiddenName:"StoreCategory2Name",
                                 width: 600,
                                 listWidth: 600
                             }]
@@ -825,7 +983,13 @@ Ext.onReady(function(){
                                     labelStyle:"width:50px;",
                                     id:"gallery-url",
                                     style:"padding-left:0px;",
-                                    width:300
+                                    width:300,
+                                    listeners: {
+                                        "render": function(t){
+                                            //console.log(Ext.getCmp("GalleryURL").getValue());
+                                            t.setValue(Ext.getCmp("GalleryURL").getValue());
+                                        }
+                                    }
                                 }],
                                 buttons:[{
                                     text:"OK",
@@ -1132,8 +1296,8 @@ Ext.onReady(function(){
                                         triggerAction: 'all',
                                         editable: false,
                                         selectOnFocus:true,
-                                        format : 'Y-m-d',
-                                        allowBlank:false
+                                        format : 'Y-m-d'
+                                        //allowBlank:false
                                     }]
                             },{
                                 columnWidth:0.5,
@@ -1150,8 +1314,8 @@ Ext.onReady(function(){
                                         triggerAction: 'all',
                                         editable: false,
                                         selectOnFocus:true,
-                                        format : 'Y-m-d',
-                                        allowBlank:false
+                                        format : 'Y-m-d'
+                                        //allowBlank:false
                                     }]
                             }]
                     },{
@@ -1159,11 +1323,26 @@ Ext.onReady(function(){
                             items: schedule
                         }]
                   },{
-                    xtype:"textfield",
-                    fieldLabel:"<font color='red'>SKU</font>",
-                    name:"SKU",
-                    value: sku,
-                    readOnly: true
+                        xtype:"textfield",
+                        fieldLabel:"<font color='red'>SKU</font>",
+                        name:"SKU",
+                        readOnly: true
+                    },{
+                        xtype: 'combo',
+                        fieldLabel:"Template Category",
+                        mode: 'local',
+                        store: new Ext.data.JsonStore({
+                            autoLoad: true,
+                            fields: ['id', 'name'],
+                            url: "service.php?action=getTemplateCategory"
+                        }),
+                        valueField:'id',
+                        displayField:'name',
+                        triggerAction: 'all',
+                        editable: false,
+                        selectOnFocus:true,
+                        name: 'template_category_id',
+                        hiddenName:'template_category_id'
                     }]
               },{
                 columnWidth:0.3,
@@ -1241,53 +1420,58 @@ Ext.onReady(function(){
                         style: 'margin: 10px;',
                         listeners: {
                             render: function(c){
+                                /*
                                 var combo = new Ext.form.ComboBox({
-                                        mode: 'local',
-                                        store: new Ext.data.JsonStore({
-                                            autoLoad: true,
-                                            fields: ['id', 'name'],
-                                            url: "service.php?action=getListingDurationType"
-                                        }),
-                                        valueField:'id',
-                                        displayField:'name',
-                                        triggerAction: 'all',
-                                        editable: false,
-                                        selectOnFocus:true,
-                                        //name: 'ListingTypeCombo',
-                                        //hiddenName:'ListingTypeCombo',
-                                        width: 150,
-                                        allowBlank:false,
-                                        listeners: {
-                                            "select": function(c, r, i){
-                                                switch(r.data.name){
-                                                    case "Chinese":
-                                                        Ext.getCmp("StartPrice").setDisabled(0);
-                                                        Ext.getCmp("ReservePrice").setDisabled(0);
-                                                        Ext.getCmp("Quantity").setValue(1);
-                                                        Ext.getCmp("Quantity").setDisabled(1);
-                                                    break;
-                                                
-                                                    case "FixedPriceItem":
-                                                        Ext.getCmp("Quantity").setDisabled(0);
-                                                        Ext.getCmp("StartPrice").setDisabled(1);
-                                                        Ext.getCmp("ReservePrice").setDisabled(1);
-                                                    break;
-                                                
-                                                    case "StoresFixedPrice":
-                                                        Ext.getCmp("Quantity").setDisabled(0);
-                                                        Ext.getCmp("StartPrice").setDisabled(1);
-                                                        Ext.getCmp("ReservePrice").setDisabled(1);
-                                                    break;
-                                                }
-                                                
-                                                document.getElementById("ListingType").value = r.data.name;
-                                                listingDurationStore.load({params: {id: r.data.id}});
+                                    mode: 'local',
+                                    store: new Ext.data.JsonStore({
+                                        autoLoad: true,
+                                        fields: ['id', 'name'],
+                                        url: "service.php?action=getListingDurationType"
+                                    }),
+                                    valueField:'id',
+                                    displayField:'name',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    selectOnFocus:true,
+                                    //name: 'ListingTypeCombo',
+                                    //hiddenName:'ListingTypeCombo',
+                                    name: 'ListingType',
+                                    hiddenName:'ListingType',
+                                    width: 150,
+                                    allowBlank:false,
+                                    listeners: {
+                                        "select": function(c, r, i){
+                                            switch(r.data.name){
+                                                case "Chinese":
+                                                    Ext.getCmp("StartPrice").setDisabled(0);
+                                                    Ext.getCmp("ReservePrice").setDisabled(0);
+                                                    Ext.getCmp("Quantity").setValue(1);
+                                                    Ext.getCmp("Quantity").setDisabled(1);
+                                                break;
+                                            
+                                                case "FixedPriceItem":
+                                                    Ext.getCmp("Quantity").setDisabled(0);
+                                                    Ext.getCmp("StartPrice").setDisabled(1);
+                                                    Ext.getCmp("ReservePrice").setDisabled(1);
+                                                break;
+                                            
+                                                case "StoresFixedPrice":
+                                                    Ext.getCmp("Quantity").setDisabled(0);
+                                                    Ext.getCmp("StartPrice").setDisabled(1);
+                                                    Ext.getCmp("ReservePrice").setDisabled(1);
+                                                break;
                                             }
+                                            
+                                            //document.getElementById("ListingType").value = r.data.name;
+                                            listingDurationStore.load({params: {id: r.data.id}});
                                         }
+                                    }
                                 });
-                                combo.render(c.header, 1);
+                                */
+                                
+                                listTypeCombo.render(c.header, 1);
                                 c.on('destroy', function(){
-                                        combo.destroy();
+                                        listTypeCombo.destroy();
                                 }, c, {single: true});
                             }
                         }
@@ -1545,8 +1729,8 @@ Ext.onReady(function(){
                                     //listWidth: 156,
                                     //width: 156,
                                     title:'Select a Shipping Service',
-                                    name: 'ShippingService-1',
-                                    hiddenName:'ShippingService-1',
+                                    name: 'ShippingService_1',
+                                    hiddenName:'ShippingService_1',
                                     //allowBlank: false,
                                     width:150,
                                     listWidth:300
@@ -1557,7 +1741,7 @@ Ext.onReady(function(){
                                 items:[{
                                     xtype:"numberfield",
                                     fieldLabel:"Cost",
-                                    name:"ShippingServiceCost-1",
+                                    name:"ShippingServiceCost_1",
                                     width:60
                                   }]
                               },{
@@ -1570,7 +1754,7 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     fieldLabel:"",
                                     boxLabel:"Free",
-                                    name:"FreeShipping",
+                                    name:"ShippingServiceFree_1",
                                     inputValue:"1"
                                   }]
                               },{
@@ -1583,8 +1767,8 @@ Ext.onReady(function(){
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
                                     title:'Select a Shipping Service',
-                                    name:"ShippingService-2",
-                                    hiddenName:"ShippingService-2",
+                                    name:"ShippingService_2",
+                                    hiddenName:"ShippingService_2",
                                     mode: 'local',
                                     store: shippingServiceStore,
                                     valueField:'id',
@@ -1604,7 +1788,7 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
-                                    name:"ShippingServiceCost-2",
+                                    name:"ShippingServiceCost_2",
                                     width:60
                                   }]
                               },{
@@ -1617,7 +1801,7 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     fieldLabel:"",
                                     boxLabel:"Free",
-                                    name:"FreeShipping",
+                                    name:"ShippingServiceFree_2",
                                     inputValue:"1"
                                   }]
                               },{
@@ -1630,8 +1814,8 @@ Ext.onReady(function(){
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
                                     title:'Select a Shipping Service',
-                                    name:"ShippingService-3",
-                                    hiddenName:"ShippingService-3",
+                                    name:"ShippingService_3",
+                                    hiddenName:"ShippingService_3",
                                     mode: 'local',
                                     store: shippingServiceStore,
                                     valueField:'id',
@@ -1651,7 +1835,7 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
-                                    name:"ShippingServiceCost-3",
+                                    name:"ShippingServiceCost_3",
                                     width:60
                                   }]
                               },{
@@ -1664,7 +1848,7 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     fieldLabel:"",
                                     boxLabel:"Free",
-                                    name:"FreeShipping",
+                                    name:"ShippingServiceFree_3",
                                     inputValue:"1"
                                   }]
                               }]
@@ -1689,24 +1873,9 @@ Ext.onReady(function(){
                         style: 'margin: 10px;',
                         listeners: {
                             render: function(c){
-                                var combo = new Ext.form.ComboBox({
-                                        store: ['Flat', 'Calculated'],
-                                        triggerAction: 'all',
-                                        editable: false,
-                                        width: 150,
-                                        listWidth: 150,
-                                        name: 'shippingType',
-                                        hiddenName:'shippingType',
-                                        listeners: {
-                                            "select": function(c, r, i){
-                                                //console.log(c);
-                                                shippingServiceStore.load({params: {InternationalService: 0, serviceType: c.value, SiteID: Ext.getCmp("SiteID").getValue()}});
-                                            }
-                                        }
-                                });
-                                combo.render(c.header, 1);
+                                ShippingServiceOptionsTypeCombo.render(c.header, 1);
                                 c.on('destroy', function(){
-                                        combo.destroy();
+                                        ShippingServiceOptionsTypeCombo.destroy();
                                 }, c, {single: true});
                             }
                         }
@@ -1736,10 +1905,10 @@ Ext.onReady(function(){
                                     xtype:"combo",
                                     fieldLabel:"International Services",
                                     title:'Select a Shipping Service',
-                                    name:"InternationalShippingService-1",
-                                    hiddenName:"InternationalShippingService-1",
+                                    name:"InternationalShippingService_1",
+                                    hiddenName:"InternationalShippingService_1",
                                     mode: 'local',
-                                    store: shippingServiceStore,
+                                    store: internationalShippingServiceStore,
                                     valueField:'id',
                                     displayField:'name',
                                     triggerAction: 'all',
@@ -1749,21 +1918,21 @@ Ext.onReady(function(){
                                     listWidth:300,
                                     listeners: {
                                                 "select": function(c, r, i){
-                                                    Ext.getCmp("InternationalShippingTo-1").show();
+                                                    Ext.getCmp("InternationalShippingTo_1").show();
                                                 }
-                                            }
-                                  }]
+                                    }
+                                }]
                               },{
                                 layout:"form",
                                 border:false,
                                 items:[{
                                     xtype:"numberfield",
                                     fieldLabel:"Cost",
-                                    name:"InternationalShippingServiceCost-1",
+                                    name:"InternationalShippingServiceCost_1",
                                     width:60
                                   }]
                               },{
-                                id:"InternationalShippingTo-1",
+                                id:"InternationalShippingTo_1",
                                 hidden:true,
                                 layout:"form",
                                 colspan: 2,
@@ -1783,36 +1952,49 @@ Ext.onReady(function(){
                                             selectOnFocus:true,
                                             width: 150,
                                             listWidth: 150,
+                                            name:'InternationalShippingToLocations_1',
+                                            hiddenName:"InternationalShippingToLocations_1",
                                             listeners: {
                                                 "select": function(c, r, i){
                                                     //console.log(c);
                                                     if(c.value == "Custom Locations"){
-                                                        Ext.getCmp("InternationalShippingCustom-1").show();
+                                                        Ext.getCmp("InternationalShippingCustom_1").show();
+                                                        /*
                                                         Ext.Ajax.request({
                                                             url: 'service.php?action=getShippingLocation&SiteID='+Ext.getCmp("SiteID").getValue(),
                                                             success: function(a, b){
                                                                 var temp = Ext.decode(a.responseText);
+                                                                //console.log(temp);
+                                                                var items = new Array();
+                                                                for(var i in temp){
+                                                                    if(!Ext.isFunction(temp[i])){
+                                                                        items.push(temp[i]);
+                                                                    }
+                                                                }
                                                                 
+                                                                var checkboxGroup = new Ext.form.CheckboxGroup({
+                                                                    id: "InternationalShippingCustomCheckboxGroup-1",
+                                                                    items: items,
+                                                                    columns: 3
+                                                                })
+                                                                
+                                                                //console.log(checkboxGroup);
+                                                                Ext.getCmp("InternationalShippingCustomForm-1").add(checkboxGroup);
+                                                                Ext.getCmp("InternationalShippingCustomForm-1").doLayout();
                                                             },
                                                             failure: function(){
                                                                 
                                                             }
                                                         })
+                                                        */
                                                     }else{
-                                                        Ext.getCmp("InternationalShippingCustom-1").hide();
+                                                        Ext.getCmp("InternationalShippingCustom_1").hide();
                                                     }
                                                     
                                                 }
                                             }
                                         },{
-                                            xtype:"form",
-                                            item:[{
-                                                id: "InternationalShippingCustomCheckboxGroup-1",
-                                                xtype: 'checkboxgroup'
-                                                //fieldLabel: 'Auto Layout',
-                                            }]
-                                        },{
-                                            id:"InternationalShippingCustom-1",
+                                            id:"InternationalShippingCustom_1",
                                             hidden:true,
                                             border:false,
                                             layout:"column",
@@ -1831,7 +2013,7 @@ Ext.onReady(function(){
                                                     labelStyle: 'height:0px;padding:0px;',
                                                     style:"padding:0px;",
                                                     boxLabel:"Americas",
-                                                    name:"UseStandardFooter",
+                                                    name:"Americas_1",
                                                     inputValue:1
                                                 }]
                                             },{
@@ -1849,7 +2031,7 @@ Ext.onReady(function(){
                                                     labelStyle: 'height:0px;padding:0px;',
                                                     style:"padding:0px;",
                                                     boxLabel:"Europe",
-                                                    name:"UseStandardFooter",
+                                                    name:"Europe_1",
                                                     inputValue:1
                                                 }]
                                             },{
@@ -1867,7 +2049,7 @@ Ext.onReady(function(){
                                                     labelStyle: 'height:0px;padding:0px;',
                                                     style:"padding:0px;",
                                                     boxLabel:"Asia",
-                                                    name:"UseStandardFooter",
+                                                    name:"Asia_1",
                                                     inputValue:1
                                                 }]
                                             },{
@@ -1882,7 +2064,7 @@ Ext.onReady(function(){
                                                     fieldLabel:"",
                                                     labelStyle: 'height:0px;padding:0px;',
                                                     boxLabel:"Canada",
-                                                    name:"UseStandardFooter",
+                                                    name:"CA_1",
                                                     inputValue:1
                                                 }]
                                             },{
@@ -1898,7 +2080,7 @@ Ext.onReady(function(){
                                                     labelStyle: 'height:0px;padding:0px;',
                                                     style:"padding:0px;",
                                                     boxLabel:"UK",
-                                                    name:"UseStandardFooter",
+                                                    name:"GB_1",
                                                     inputValue:1
                                                 }]
                                             },{
@@ -1913,8 +2095,8 @@ Ext.onReady(function(){
                                                     fieldLabel:"",
                                                     labelStyle: 'height:0px;padding:0px;',
                                                     style:"padding:0px;",
-                                                    boxLabel:"Australia",
-                                                    name:"UseStandardFooter",
+                                                    boxLabel:"AU",
+                                                    name:"AU_1",
                                                     inputValue:1
                                                 }]
                                             },{
@@ -1930,7 +2112,7 @@ Ext.onReady(function(){
                                                     labelStyle: 'height:0px;padding:0px;',
                                                     style:"padding:0px;",
                                                     boxLabel:"Mexico",
-                                                    name:"UseStandardFooter",
+                                                    name:"MX_1",
                                                     inputValue:1
                                                 }]
                                             },{
@@ -1946,7 +2128,7 @@ Ext.onReady(function(){
                                                     labelStyle: 'height:0px;padding:0px;',
                                                     style:"padding:0px;",
                                                     boxLabel:"Germany",
-                                                    name:"UseStandardFooter",
+                                                    name:"DE_1",
                                                     inputValue:1
                                                 }]
                                             },{
@@ -1962,7 +2144,7 @@ Ext.onReady(function(){
                                                     labelStyle: 'height:0px;padding:0px;',
                                                     style:"padding:0px;",
                                                     boxLabel:"Japan",
-                                                    name:"UseStandardFooter",
+                                                    name:"JP_1",
                                                     inputValue:1
                                                 }]
                                             }]
@@ -1978,17 +2160,22 @@ Ext.onReady(function(){
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
                                     title:'Select a Shipping Service',
-                                    name:"InternationalShippingService-2",
-                                    hiddenName:"InternationalShippingService-2",
+                                    name:"InternationalShippingService_2",
+                                    hiddenName:"InternationalShippingService_2",
                                     mode: 'local',
-                                    store: shippingServiceStore,
+                                    store: internationalShippingServiceStore,
                                     valueField:'id',
                                     displayField:'name',
                                     triggerAction: 'all',
                                     editable: false,
                                     selectOnFocus:true,
                                     width:220,
-                                    listWidth:300
+                                    listWidth:300,
+                                    listeners: {
+                                                "select": function(c, r, i){
+                                                    Ext.getCmp("InternationalShippingTo_2").show();
+                                                }
+                                    }
                                   }]
                               },{
                                 layout:"form",
@@ -1999,14 +2186,199 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
-                                    name:"InternationalShippingServiceCost-2",
+                                    name:"InternationalShippingServiceCost_2",
                                     width:60
                                   }]
                               },{
+                                id:"InternationalShippingTo_2",
+                                hidden:true,
                                 layout:"form",
                                 colspan: 2,
                                 items:[{
-                                
+                                    xtype:"fieldset",
+                                    title: 'To',
+                                    style: 'margin: 5px;',
+                                    items:[{
+                                            xtype:"combo",
+                                            labelWidth: 0,
+                                            labelSeparator: '',
+                                            labelStyle:'height:0px;padding:0px;',
+                                            fieldLabel:"",
+                                            store: ['Custom Locations', 'Worldwide'],
+                                            triggerAction: 'all',
+                                            editable: false,
+                                            selectOnFocus:true,
+                                            width: 150,
+                                            listWidth: 150,
+                                            name:'InternationalShippingToLocations_2',
+                                            hiddenName:"InternationalShippingToLocations_2",
+                                            listeners: {
+                                                "select": function(c, r, i){
+                                                    //console.log(c);
+                                                    if(c.value == "Custom Locations"){
+                                                        Ext.getCmp("InternationalShippingCustom_2").show();
+                                                    }else{
+                                                        Ext.getCmp("InternationalShippingCustom_2").hide();
+                                                    }
+                                                    
+                                                }
+                                            }
+                                        },{
+                                            id:"InternationalShippingCustom_2",
+                                            hidden:true,
+                                            border:false,
+                                            layout:"column",
+                                            items:[{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                defaults:{
+                                                    
+                                                },
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"Americas",
+                                                    name:"Americas_2",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.4,
+                                                layout:"form",
+                                                defaults:{
+                                                    
+                                                },
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"Europe",
+                                                    name:"Europe_2",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                defaults:{
+                                                    
+                                                },
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"Asia",
+                                                    name:"Asia_2",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    boxLabel:"Canada",
+                                                    name:"CA_2",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.4,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"UK",
+                                                    name:"GB_2",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"AU",
+                                                    name:"AU_2",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"Mexico",
+                                                    name:"MX_2",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.4,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"Germany",
+                                                    name:"DE_2",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"Japan",
+                                                    name:"JP_2",
+                                                    inputValue:1
+                                                }]
+                                            }]
+                                        }]
                                 }]
                               },{
                                 layout:"form",
@@ -2018,17 +2390,22 @@ Ext.onReady(function(){
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
                                     title:'Select a Shipping Service',
-                                    name:"InternationalShippingService-3",
-                                    hiddenName:"InternationalShippingService-3",
+                                    name:"InternationalShippingService_3",
+                                    hiddenName:"InternationalShippingService_3",
                                     mode: 'local',
-                                    store: shippingServiceStore,
+                                    store: internationalShippingServiceStore,
                                     valueField:'id',
                                     displayField:'name',
                                     triggerAction: 'all',
                                     editable: false,
                                     selectOnFocus:true,
                                     width:220,
-                                    listWidth:300
+                                    listWidth:300,
+                                    listeners: {
+                                                "select": function(c, r, i){
+                                                    Ext.getCmp("InternationalShippingTo_3").show();
+                                                }
+                                    }
                                   }]
                               },{
                                 layout:"form",
@@ -2039,14 +2416,198 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
-                                    name:"InternationalShippingServiceCost-3",
+                                    name:"InternationalShippingServiceCost_3",
                                     width:60
                                   }]
                               },{
+                                id:"InternationalShippingTo_3",
+                                hidden:true,
                                 layout:"form",
                                 colspan: 2,
                                 items:[{
-                                
+                                    xtype:"fieldset",
+                                    title: 'To',
+                                    style: 'margin: 5px;',
+                                    items:[{
+                                            xtype:"combo",
+                                            labelWidth: 0,
+                                            labelSeparator: '',
+                                            labelStyle:'height:0px;padding:0px;',
+                                            fieldLabel:"",
+                                            store: ['Custom Locations', 'Worldwide'],
+                                            triggerAction: 'all',
+                                            editable: false,
+                                            selectOnFocus:true,
+                                            width: 150,
+                                            listWidth: 150,
+                                            name:'InternationalShippingToLocations_3',
+                                            hiddenName:"InternationalShippingToLocations_3",
+                                            listeners: {
+                                                "select": function(c, r, i){
+                                                    //console.log(c);
+                                                    if(c.value == "Custom Locations"){
+                                                        Ext.getCmp("InternationalShippingCustom_3").show();
+                                                    }else{
+                                                        Ext.getCmp("InternationalShippingCustom_3").hide();
+                                                    }
+                                                }
+                                            }
+                                        },{
+                                            id:"InternationalShippingCustom_3",
+                                            hidden:true,
+                                            border:false,
+                                            layout:"column",
+                                            items:[{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                defaults:{
+                                                    
+                                                },
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"Americas",
+                                                    name:"Americas_3",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.4,
+                                                layout:"form",
+                                                defaults:{
+                                                    
+                                                },
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"Europe",
+                                                    name:"Europe_3",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                defaults:{
+                                                    
+                                                },
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"Asia",
+                                                    name:"Asia_3",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    boxLabel:"Canada",
+                                                    name:"CA_3",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.4,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"UK",
+                                                    name:"UK_3",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"AU",
+                                                    name:"AU_3",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"Mexico",
+                                                    name:"MX_3",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.4,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"Germany",
+                                                    name:"DE_3",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"Japan",
+                                                    name:"JP_3",
+                                                    inputValue:1
+                                                }]
+                                            }]
+                                        }]
                                 }]
                               }]
                         }],
@@ -2054,22 +2615,9 @@ Ext.onReady(function(){
                         style: 'margin: 10px;',
                         listeners: {
                             render: function(c){
-                                var combo = new Ext.form.ComboBox({
-                                        store: ['Flat', 'Calculated'],
-                                        triggerAction: 'all',
-                                        editable: false,
-                                        width: 150,
-                                        listWidth: 150,
-                                        listeners: {
-                                            "select": function(c, r, i){
-                                                //console.log(r);
-                                                shippingServiceStore.load({params: {InternationalService: 1, serviceType: c.value, SiteID: Ext.getCmp("SiteID").getValue()}});
-                                            }
-                                        }
-                                });
-                                combo.render(c.header, 1);
+                                InternationalShippingServiceOptionTypeCombo.render(c.header, 1);
                                 c.on('destroy', function(){
-                                        combo.destroy();
+                                        InternationalShippingServiceOptionTypeCombo.destroy();
                                 }, c, {single: true});
                             }
                         }
@@ -2160,13 +2708,13 @@ Ext.onReady(function(){
                 }]
             }],
             buttons: [{
-                text: "Save",
+                text: "Save Template",
                 handler: function(){
                     itemForm.getForm().submit({
                         clientValidation: true,
-                        url: 'service.php?action=saveItem',
+                        url: 'service.php?action=saveTemplate&template_id='+template_id,
                         success: function(form, action) {
-                            console.log(action);
+                            //console.log(action);
                             Ext.Msg.alert("Success", action.result.msg);
                         },
                         failure: function(form, action) {
@@ -2200,6 +2748,52 @@ Ext.onReady(function(){
     
     itemPanel.render(document.body);
     
+    itemForm.getForm().load({
+            url:'service.php?action=getTemplate', 
+            method:'GET', 
+            params: {id: template_id}, 
+            waitMsg:'Please wait...',
+            success: function(f, a){
+                //console.log(a.result.data);
+                listTypeCombo.setValue(a.result.data.ListingType);
+                ShippingServiceOptionsTypeCombo.setValue(a.result.data.ShippingServiceOptionsType);
+                shippingServiceStore.load({params: {serviceType: a.result.data.ShippingServiceOptionsType, SiteID: Ext.getCmp("SiteID").getValue()}});
+                
+                InternationalShippingServiceOptionTypeCombo.setValue(a.result.data.InternationalShippingServiceOptionType);
+                internationalShippingServiceStore.load({params: {serviceType: a.result.data.InternationalShippingServiceOptionType, SiteID: Ext.getCmp("SiteID").getValue()}});
+                
+                //console.log(a.result.data.InternationalShippingService_1);
+                if(!Ext.isEmpty(a.result.data.InternationalShippingService_1)){
+                    Ext.getCmp("InternationalShippingTo_1").show();
+                    if(a.result.data.InternationalShippingToLocations_1 == "Custom Locations"){
+                        Ext.getCmp("InternationalShippingCustom_1").show();
+                    }
+                }
+                
+                if(!Ext.isEmpty(a.result.data.InternationalShippingService_2)){
+                    Ext.getCmp("InternationalShippingTo_2").show();
+                    if(a.result.data.InternationalShippingToLocations_2 == "Custom Locations"){
+                        Ext.getCmp("InternationalShippingCustom_2").show();
+                    }
+                }
+                
+                if(!Ext.isEmpty(a.result.data.InternationalShippingService_3)){
+                    Ext.getCmp("InternationalShippingTo_3").show();
+                    if(a.result.data.InternationalShippingToLocations_3 == "Custom Locations"){
+                        Ext.getCmp("InternationalShippingCustom_3").show();
+                    }
+                }
+                
+                for(var i = 1; i <= 10; i++){
+                    //console.log(document.getElementById("picture_"+i).value);
+                    if(!Ext.isEmpty(document.getElementById("picture_"+i).value)){
+                        Ext.getCmp("picture_panel_"+i).body.dom.innerHTML = '<img width="60" height="60" src="' + document.getElementById("picture_"+i).value + '"/>';
+                    }
+                }
+            }
+        }
+    );
+        
     //Schedule Time  --------------------------------------------------------------------------------
     Ext.select(".schedule-time").on("click",function(e, el){
         var tempArray = el.childNodes[0].id.split("-");
@@ -2207,7 +2801,7 @@ Ext.onReady(function(){
         var timeStore = new Ext.data.JsonStore({
             //root:"timeList",
             autoLoad:true,
-            url:'service.php?action=getSkuScheduleTime&sku='+sku+'&dayTime='+el.childNodes[0].id,
+            url:'service.php?action=getTemplateScheduleTime&template_id='+template_id+'&dayTime='+el.childNodes[0].id,
             fields: [{name:'time', type:'string'}],
             sortInfo: {
                 field: 'time',
@@ -2266,14 +2860,14 @@ Ext.onReady(function(){
                         handler: function(){
                             if(Ext.getCmp("nowStartTime").getValue != ""){
                                 Ext.Ajax.request({
-                                    url: 'service.php?action=addSkuScheduleTime',
+                                    url: 'service.php?action=addTemplateScheduleTime',
                                     success: function(){
                                             timeStore.reload();
                                         },
                                     failure: function(){},
                                     params: {
                                             dayTime: el.childNodes[0].id,
-                                            sku: sku,
+                                            template_id: template_id,
                                             time: Ext.getCmp("nowStartTime").getValue()
                                         }
                                 });
@@ -2300,14 +2894,14 @@ Ext.onReady(function(){
                                 }
                                 //console.log(id);
                                 Ext.Ajax.request({
-                                    url: 'service.php?action=deleteSkuScheduleTime',
+                                    url: 'service.php?action=deleteTemplateScheduleTime',
                                     success: function(){
                                             timeStore.reload();
                                         },
                                     failure: function(){},
                                     params: {
                                             dayTime: el.childNodes[0].id,
-                                            sku: sku,
+                                            template_id: template_id,
                                             id: id
                                         }
                                 });
@@ -2324,14 +2918,14 @@ Ext.onReady(function(){
                         text:"Delete All",
                         handler: function(){
                             Ext.Ajax.request({
-                                url: 'service.php?action=deleteAllSkuScheduleTime',
+                                url: 'service.php?action=deleteAllTemplateScheduleTime',
                                 success: function(){
                                         timeStore.reload();
                                     },
                                 failure: function(){},
                                 params: {
                                         dayTime: el.childNodes[0].id,
-                                        sku: sku
+                                        template_id: template_id
                                     }
                             });
                         }
@@ -2344,7 +2938,7 @@ Ext.onReady(function(){
                         text:"Ok",
                         handler: function(){
                             Ext.Ajax.request({
-                                url: 'service.php?action=saveSkuScheduleTime',
+                                url: 'service.php?action=saveTemplateScheduleTime',
                                 success: function(){
                                         if(timeStore.getCount() > 0){
                                             Ext.getCmp(el.childNodes[0].id + "-panel").body.applyStyles("background-color:red;");
@@ -2358,7 +2952,7 @@ Ext.onReady(function(){
                                 failure: function(){},
                                 params: {
                                         dayTime: el.childNodes[0].id,
-                                        sku: sku
+                                        template_id: template_id
                                     }
                             });
                         }

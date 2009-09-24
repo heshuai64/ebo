@@ -4,6 +4,7 @@ Ext.onReady(function(){
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      
+     var path = "/eBayBO/eBayListing/";
      /*
      var cp = new Ext.state.CookieProvider({
           path: "/eBayBO/eBayListing/"
@@ -141,7 +142,7 @@ Ext.onReady(function(){
      inventory_grid.on("rowdblclick", function(oGrid){
           var oRecord = oGrid.getSelectionModel().getSelected();
           //console.log(oRecord);
-          window.open("/eBayListing/sku.php?id="+oRecord.data['inventory_model_code'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+          window.open(path + "sku.php?id="+oRecord.data['inventory_model_code'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
      })
      
      var inventory_categories_tree = new Ext.tree.TreePanel({
@@ -632,7 +633,7 @@ Ext.onReady(function(){
      template_grid.on("rowdblclick", function(oGrid){
           var oRecord = oGrid.getSelectionModel().getSelected();
           //console.log(oRecord);
-          window.open("/eBayListing/template.php?id="+oRecord.data['Id'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+          window.open(path + "template.php?id="+oRecord.data['Id'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
      })
                                    
      var template_category_tree = new Ext.tree.TreePanel({
@@ -1174,6 +1175,7 @@ Ext.onReady(function(){
                                              icon: './images/page_edit.png',
                                              tooltip:'Editing before uploading',
                                              handler:function(){
+                                                  var multi = false;
                                                   var selections = wait_grid.selModel.getSelections();
                                                   if(wait_grid.selModel.getCount() == 0){
                                                        Ext.MessageBox.alert('Warning','Please select the template you want to edit.');
@@ -1181,10 +1183,15 @@ Ext.onReady(function(){
                                                   }
                                                   var ids = "";
                                                   for(var i = 0; i< wait_grid.selModel.getCount(); i++){
-                                                       ids += selections[i].data.Id + ","
+                                                       ids += selections[i].data.Id + ",";
+                                                       multi = true;
                                                   }
                                                   ids = ids.slice(0,-1);
-                                                  window.open("/eBayListing/mitem.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                                  if(multi){
+                                                       window.open(path + "mitem.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768"); 
+                                                  }else{
+                                                       window.open(path + "item.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768"); 
+                                                  }
                                                   return 1;
                                              }
                                         },'-',{
