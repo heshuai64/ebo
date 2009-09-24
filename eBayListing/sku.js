@@ -249,10 +249,14 @@ Ext.onReady(function(){
                         switch(r.data.name){
                             case "US":
                                Ext.getCmp("Currency").setValue("USD");
+                               Ext.getCmp("currency-icon").icon = "./images/money_dollar.png";
+                               Ext.getCmp("currency-icon").body.doLayout();
                             break;
                         
                             case "UK":
                                Ext.getCmp("Currency").setValue("GBP");
+                               Ext.getCmp("currency-icon").icon = "./images/money_pound.png";
+                               Ext.getCmp("currency-icon").body.doLayout();
                             break;
                         
                             case "Australia":
@@ -1242,7 +1246,7 @@ Ext.onReady(function(){
                                     fieldLabel:"Reserve Price",
                                     id:"ReservePrice",
                                     name:"ReservePrice"
-                                  },{
+                                },{
                                     xtype:"combo",
                                     fieldLabel:"Duration",
                                     mode: 'local',
@@ -1258,7 +1262,11 @@ Ext.onReady(function(){
                                     //allowBlank: false,
                                     hiddenName:'ListingDuration',
                                     allowBlank:false
-                                  }]
+                                },{
+                                    id:"currency-icon",
+                                    xtype:"button",
+                                    icon:"./images/money_dollar.png"
+                                }]
                               }]
                         }],
                         cls: 'my-fieldset',

@@ -8,7 +8,7 @@
     <script src="../ext-3.0.0/ext-all.js"></script>
     <script src="item-min.js"></script>
     <script type="text/javascript">
-            var sku = "<?=$_GET['id']?>";
+            var item_id = "<?=$_GET['id']?>";
     </script>
     <style type="text/css">
 	html, body {

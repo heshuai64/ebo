@@ -48,9 +48,9 @@ class eBayListing{
         }
 	
 	if(isset($_SERVER['HTTP_HOST'])){
-	    if(strpos($_SERVER['HTTP_HOST'], "shuai64") == false){
-		exit;
-	    }
+	    //if(strpos($_SERVER['HTTP_HOST'], "shuai64") == false){
+		//exit;
+	    //}
 	}
     }
     
@@ -542,6 +542,12 @@ class eBayListing{
 	    foreach($ids as $id){
 		$sql_10 = "select * from schedule where template_id = '$id'";
 		$result_10 = mysql_query($sql_10, eBayListing::$database_connect);
+		$num_rows = mysql_num_rows($result_10);
+		if($num_rows == 0){
+		    echo 1;
+		    return 1;
+		}
+		
 		while($row_10 = mysql_fetch_assoc($result_10)){
 		    $startTimestamp = strtotime($row_10['startDate']);
 		    $endTimestamp = strtotime($row_10['endDate']);
@@ -556,6 +562,12 @@ class eBayListing{
 	}else{
 	    $sql_10 = "select * from schedule where template_id = '".$_POST['ids']."'";
 	    $result_10 = mysql_query($sql_10, eBayListing::$database_connect);
+	    $num_rows = mysql_num_rows($result_10);
+	    if($num_rows == 0){
+		echo 1;
+		return 1;
+	    }
+	    
 	    while($row_10 = mysql_fetch_assoc($result_10)){
 		$startTimestamp = strtotime($row_10['startDate']);
 		$endTimestamp = strtotime($row_10['endDate']);
@@ -2955,7 +2967,7 @@ class eBayListing{
 	//$sql = "select item_id from schedule where startDate <= '".$date."' and endDate => '".$date."' and day = '".$day."' and time ='".$time."'";
 	//$sql = "select item_id from schedule where day = '".$day."' and time ='".$time."'";
 	//$sql = "select item_id from schedule where day = '".$day."'";
-	$sql = "select Id from items where ScheduleTime <= now() and status = 0";
+	$sql = "select Id from items where ScheduleTime <> '' and ScheduleTime <= now() and status = 0";
 	
 	$result = mysql_query($sql);
 	while($row = mysql_fetch_assoc($result)){
@@ -3346,7 +3358,7 @@ class eBayListing{
     
     //-------------------------  ReviseItem --------------------------------------------------------------
     public function modifyItem(){
-	$sql_1 = "select * from items where Status = 3";
+	$sql_1 = "select * from items where Status = 2";
 	$result_1 = mysql_query($sql_1);
 	while($row_1 = mysql_fetch_assoc($result_1)){
 	    $this->reviseItem($row_1);
