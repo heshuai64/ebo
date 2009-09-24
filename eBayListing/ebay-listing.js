@@ -127,7 +127,7 @@ Ext.onReady(function(){
               {header: "Model", width: 120, align: 'center', sortable: true, dataIndex: 'short_description'},
               {header: "Description", width: 180, align: 'center', sortable: true, dataIndex: 'long_description'},
               {header: "Categpru", width: 100, align: 'center', sortable: true, dataIndex: 'category'},
-              {header: "Supplier", width: 120, align: 'center', sortable: true, dataIndex: 'manufacturer'},
+              //{header: "Supplier", width: 120, align: 'center', sortable: true, dataIndex: 'manufacturer'},
               {header: "Weight", width: 60, align: 'center', sortable: true, dataIndex: 'Weight'},
               {header: "Cost", width: 60, align: 'center', sortable: true, dataIndex: 'Cost'}
           ],

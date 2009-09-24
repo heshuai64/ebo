@@ -47,8 +47,10 @@ class eBayListing{
             exit;
         }
 	
-	if(strpos($_SERVER['HTTP_HOST'], "heshuai64") == false){
-	    exit;
+	if(isset($_SERVER['HTTP_HOST'])){
+	    if(strpos($_SERVER['HTTP_HOST'], "shuai64") == false){
+		exit;
+	    }
 	}
     }
     
@@ -100,8 +102,8 @@ class eBayListing{
     }
     
     private function saveFetchData($file_name, $data){
-	//file_put_contents("/export/eBayBO/eBayListing/log/".$file_name, $data);
-	file_put_contents("C:\\xampp\\htdocs\\eBayBO\\eBayListing\\log\\".$file_name, $data);
+	file_put_contents("/export/eBayListing/log/".$file_name, $data);
+	//file_put_contents("C:\\xampp\\htdocs\\eBayBO\\eBayListing\\log\\".$file_name, $data);
     }
     //------------------  eBay Category --------------------------------------------------------------------
     private function checkCategoriesVersion($siteId, $categoryVersion){
@@ -694,19 +696,19 @@ class eBayListing{
 		
 		switch($row['Site']){
 		    case "US":
-			$time = date("Y-m-d H:i:s", strtotime("-12 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
+			$time = date("Y-m-d H:i:s", strtotime("+12 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
 		    break;
 		
 		    case "UK":
-			$time = date("Y-m-d H:i:s", strtotime("-8 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
+			$time = date("Y-m-d H:i:s", strtotime("+8 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
 		    break;
 		
 		    case "AU":
-			$time = date("Y-m-d H:i:s", strtotime("+2 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
+			$time = date("Y-m-d H:i:s", strtotime("-2 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
 		    break;
 		
 		    case "FR":
-			$time = date("Y-m-d H:i:s", strtotime("-7 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
+			$time = date("Y-m-d H:i:s", strtotime("+7 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
 		    break;
 		}
 		$temp .= $id. " : ". $time . "<br>";
@@ -721,19 +723,19 @@ class eBayListing{
 
 	    switch($row['Site']){
 		case "US":
-		    $time = date("Y-m-d H:i:s", strtotime("-12 hour ".$_POST['date'].' '.$_POST['time']));
+		    $time = date("Y-m-d H:i:s", strtotime("+12 hour ".$_POST['date'].' '.$_POST['time']));
 		break;
 	    
 		case "UK":
-		    $time = date("Y-m-d H:i:s", strtotime("-8 hour ".$_POST['date'].' '.$_POST['time']));
+		    $time = date("Y-m-d H:i:s", strtotime("+8 hour ".$_POST['date'].' '.$_POST['time']));
 		break;
 	    
 		case "AU":
-		    $time = date("Y-m-d H:i:s", strtotime("+2 hour ".$_POST['date'].' '.$_POST['time']));
+		    $time = date("Y-m-d H:i:s", strtotime("-2 hour ".$_POST['date'].' '.$_POST['time']));
 		break;
 	    
 		case "FR":
-		    $time = date("Y-m-d H:i:s", strtotime("-7 hour ".$_POST['date'].' '.$_POST['time']));
+		    $time = date("Y-m-d H:i:s", strtotime("+7 hour ".$_POST['date'].' '.$_POST['time']));
 		break;
 	    }
 	    
@@ -932,8 +934,8 @@ class eBayListing{
 			//if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
 			    foreach($value as $name){
 				//$sku = $keyArray[0];
-				$day = date("D", strtotime("-12 hour ".$keyArray[1]." ".$name));
-				$time = date("H:i:s", strtotime("-12 hour ".$name));
+				$day = date("D", strtotime("+12 hour ".$keyArray[1]." ".$name));
+				$time = date("H:i:s", strtotime("+12 hour ".$name));
 				$china_time = date("H:i:s", strtotime($name));
 				$sql_3 = "insert into schedule (template_id,startDate,endDate,day,time,china_day,china_time,account_id) values 
 				('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."','".$this->account_id."')";
@@ -950,8 +952,8 @@ class eBayListing{
 			//if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
 			    foreach($value as $name){
 				//$sku = $keyArray[0];
-				$day = date("D", strtotime("-8 hour ".$keyArray[1]." ".$name));
-				$time = date("H:i:s", strtotime("-8 hour ".$name));
+				$day = date("D", strtotime("+8 hour ".$keyArray[1]." ".$name));
+				$time = date("H:i:s", strtotime("+8 hour ".$name));
 				$china_time = date("H:i:s", strtotime($name));
 				$sql_3 = "insert into schedule (template_id,startDate,endDate,day,time,china_day,china_time,account_id) values 
 				('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."','".$this->account_id."')";
@@ -967,8 +969,8 @@ class eBayListing{
 			//if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
 			    foreach($value as $name){
 				//$sku = $keyArray[0];
-				$day = date("D", strtotime("+2 hour ".$keyArray[1]." ".$name));
-				$time = date("H:i:s", strtotime("+2 hour ".$name));
+				$day = date("D", strtotime("-2 hour ".$keyArray[1]." ".$name));
+				$time = date("H:i:s", strtotime("-2 hour ".$name));
 				$china_time = date("H:i:s", strtotime($name));
 				$sql_3 = "insert into schedule (template_id,startDate,endDate,day,time,china_day,china_time,account_id) values 
 				('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."','".$this->account_id."')";
@@ -984,8 +986,8 @@ class eBayListing{
 			//if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
 			    foreach($value as $name){
 				//$sku = $keyArray[0];
-				$day = date("D", strtotime("-7 hour ".$keyArray[1]." ".$name));
-				$time = date("H:i:s", strtotime("-7 hour ".$name));
+				$day = date("D", strtotime("+7 hour ".$keyArray[1]." ".$name));
+				$time = date("H:i:s", strtotime("+7 hour ".$name));
 				$china_time = date("H:i:s", strtotime($name));
 				$sql_3 = "insert into schedule (template_id,startDate,endDate,day,time,china_day,china_time,account_id) values 
 				('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."','".$this->account_id."')";
@@ -1419,8 +1421,8 @@ class eBayListing{
 			//if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
 			    foreach($value as $name){
 				//$sku = $keyArray[0];
-				$day = date("D", strtotime("-12 hour ".$keyArray[1]." ".$name));
-				$time = date("H:i:s", strtotime("-12 hour ".$name));
+				$day = date("D", strtotime("+12 hour ".$keyArray[1]." ".$name));
+				$time = date("H:i:s", strtotime("+12 hour ".$name));
 				$china_time = date("H:i:s", strtotime($name));
 				$sql_3 = "insert into schedule (template_id,startDate,endDate,day,time,china_day,china_time,account_id) values 
 				('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."','".$this->account_id."')";
@@ -1437,8 +1439,8 @@ class eBayListing{
 			//if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
 			    foreach($value as $name){
 				//$sku = $keyArray[0];
-				$day = date("D", strtotime("-8 hour ".$keyArray[1]." ".$name));
-				$time = date("H:i:s", strtotime("-8 hour ".$name));
+				$day = date("D", strtotime("+8 hour ".$keyArray[1]." ".$name));
+				$time = date("H:i:s", strtotime("+8 hour ".$name));
 				$china_time = date("H:i:s", strtotime($name));
 				$sql_3 = "insert into schedule (template_id,startDate,endDate,day,time,china_day,china_time,account_id) values 
 				('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."','".$this->account_id."')";
@@ -1454,8 +1456,8 @@ class eBayListing{
 			//if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
 			    foreach($value as $name){
 				//$sku = $keyArray[0];
-				$day = date("D", strtotime("+2 hour ".$keyArray[1]." ".$name));
-				$time = date("H:i:s", strtotime("+2 hour ".$name));
+				$day = date("D", strtotime("-2 hour ".$keyArray[1]." ".$name));
+				$time = date("H:i:s", strtotime("-2 hour ".$name));
 				$china_time = date("H:i:s", strtotime($name));
 				$sql_3 = "insert into schedule (template_id,startDate,endDate,day,time,china_day,china_time,account_id) values 
 				('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."','".$this->account_id."')";
@@ -1471,8 +1473,8 @@ class eBayListing{
 			//if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
 			    foreach($value as $name){
 				//$sku = $keyArray[0];
-				$day = date("D", strtotime("-7 hour ".$keyArray[1]." ".$name));
-				$time = date("H:i:s", strtotime("-7 hour ".$name));
+				$day = date("D", strtotime("+7 hour ".$keyArray[1]." ".$name));
+				$time = date("H:i:s", strtotime("+7 hour ".$name));
 				$china_time = date("H:i:s", strtotime($name));
 				$sql_3 = "insert into schedule (template_id,startDate,endDate,day,time,china_day,china_time,account_id) values 
 				('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."','".$this->account_id."')";
@@ -2438,19 +2440,19 @@ class eBayListing{
 		
 		switch($row['Site']){
 		    case "US":
-			$time = date("Y-m-d H:i:s", strtotime("-12 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
+			$time = date("Y-m-d H:i:s", strtotime("+12 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
 		    break;
 		
 		    case "UK":
-			$time = date("Y-m-d H:i:s", strtotime("-8 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
+			$time = date("Y-m-d H:i:s", strtotime("+8 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
 		    break;
 		
 		    case "AU":
-			$time = date("Y-m-d H:i:s", strtotime("+2 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
+			$time = date("Y-m-d H:i:s", strtotime("-2 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
 		    break;
 		
 		    case "FR":
-			$time = date("Y-m-d H:i:s", strtotime("-7 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
+			$time = date("Y-m-d H:i:s", strtotime("+7 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
 		    break;
 		}
 		$temp .= $id. " : ". $time . "<br>";
@@ -2466,19 +2468,19 @@ class eBayListing{
 
 	    switch($row['Site']){
 		case "US":
-		    $time = date("Y-m-d H:i:s", strtotime("-12 hour ".$_POST['date'].' '.$_POST['time']));
+		    $time = date("Y-m-d H:i:s", strtotime("+12 hour ".$_POST['date'].' '.$_POST['time']));
 		break;
 	    
 		case "UK":
-		    $time = date("Y-m-d H:i:s", strtotime("-8 hour ".$_POST['date'].' '.$_POST['time']));
+		    $time = date("Y-m-d H:i:s", strtotime("+8 hour ".$_POST['date'].' '.$_POST['time']));
 		break;
 	    
 		case "AU":
-		    $time = date("Y-m-d H:i:s", strtotime("+2 hour ".$_POST['date'].' '.$_POST['time']));
+		    $time = date("Y-m-d H:i:s", strtotime("-2 hour ".$_POST['date'].' '.$_POST['time']));
 		break;
 	    
 		case "FR":
-		    $time = date("Y-m-d H:i:s", strtotime("-7 hour ".$_POST['date'].' '.$_POST['time']));
+		    $time = date("Y-m-d H:i:s", strtotime("+7 hour ".$_POST['date'].' '.$_POST['time']));
 		break;
 	    }
 	    
@@ -2950,35 +2952,33 @@ class eBayListing{
 	$date = date("Y-m-d");
 	$day = date("D");
 	$time = date("H:i:00");
-	/*
-	$sql = "select item_id from schedule where startDate <= '".$date."' and endDate => '".$date."' and day = '".$day."' and time ='".$time."'";
+	//$sql = "select item_id from schedule where startDate <= '".$date."' and endDate => '".$date."' and day = '".$day."' and time ='".$time."'";
 	//$sql = "select item_id from schedule where day = '".$day."' and time ='".$time."'";
 	//$sql = "select item_id from schedule where day = '".$day."'";
-	$sql = "select item_id from schedule where item_id = '15'";
+	$sql = "select Id from items where ScheduleTime <= now() and status = 0";
 	
 	$result = mysql_query($sql);
 	while($row = mysql_fetch_assoc($result)){
-	*/
-	    $row['item_id'] = 98;
-	    $sql_1 = "select * from items where Id = '".$row['item_id']."'";
+	    //$row['item_id'] = 98;
+	    $sql_1 = "select * from items where Id = '".$row['Id']."'";
 	    $result_1 = mysql_query($sql_1);
 	    $row_1 = mysql_fetch_assoc($result_1);
 	    
-	    $sql_2 = "select * from shipping_service_options where ItemID = '".$row['item_id']."'";
+	    $sql_2 = "select * from shipping_service_options where ItemID = '".$row['Id']."'";
 	    $result_2 = mysql_query($sql_2);
 	    $ShippingServiceOptions = array();
 	    while($row_2 = mysql_fetch_assoc($result_2)){
 		$ShippingServiceOptions[] = $row_2;
 	    }
 	    
-	    $sql_3 = "select * from international_shipping_service_option where ItemID = '".$row['item_id']."'";
+	    $sql_3 = "select * from international_shipping_service_option where ItemID = '".$row['Id']."'";
 	    $result_3 = mysql_query($sql_3);
 	    $InternationalShippingServiceOption = array();
 	    while($row_3 = mysql_fetch_assoc($result_3)){
 		$InternationalShippingServiceOption[] = $row_3;
 	    }
 	    
-	    $sql_4 = "select * from picture_url where ItemID = '".$row['item_id']."'";
+	    $sql_4 = "select * from picture_url where ItemID = '".$row['Id']."'";
 	    //echo $sql_4;
 	    //echo "<br>";
 	    $result_4 = mysql_query($sql_4);
@@ -2987,7 +2987,7 @@ class eBayListing{
 		$PictureURL[] = $row_4['url'];
 	    } 
 	    
-	    $sql_5 = "select * from attribute_set where ItemID = '".$row['item_id']."'";
+	    $sql_5 = "select * from attribute_set where ItemID = '".$row['Id']."'";
 	    $result_5 = mysql_query($sql_5);
 	    $AttributeSetArray = array();
 	    $i = 0;
@@ -3041,7 +3041,7 @@ class eBayListing{
 	    //print_r($row_1);
 	    //exit;
 	    $this->addItem($row_1);
-	//}
+	}
     }
     
     private function addItem($item){
