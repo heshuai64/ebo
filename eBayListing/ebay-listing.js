@@ -12,7 +12,10 @@ Ext.onReady(function(){
      Ext.state.Manager.setProvider(cp);
      */
      Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
-     
+     function renderFlag(v, p, r){
+          return "<img src='./images/"+v.toLowerCase()+".gif'>";
+     }
+                              
      var getCookie = function(c_name){
           if (document.cookie.length>0){
                c_start=document.cookie.indexOf(c_name + "=");
@@ -125,12 +128,12 @@ Ext.onReady(function(){
           selModel: new Ext.grid.RowSelectionModel({}),
           columns:[
               {header: "Sku", width: 120, align: 'center', sortable: true, dataIndex: 'inventory_model_code'},
-              {header: "Model", width: 120, align: 'center', sortable: true, dataIndex: 'short_description'},
-              {header: "Description", width: 180, align: 'center', sortable: true, dataIndex: 'long_description'},
+              {header: "Model", width: 180, align: 'center', sortable: true, dataIndex: 'short_description'},
+              {header: "Description", width: 250, align: 'center', sortable: true, dataIndex: 'long_description'},
               {header: "Categpru", width: 100, align: 'center', sortable: true, dataIndex: 'category'},
               //{header: "Supplier", width: 120, align: 'center', sortable: true, dataIndex: 'manufacturer'},
-              {header: "Weight", width: 60, align: 'center', sortable: true, dataIndex: 'Weight'},
-              {header: "Cost", width: 60, align: 'center', sortable: true, dataIndex: 'Cost'}
+              //{header: "Weight", width: 60, align: 'center', sortable: true, dataIndex: 'Weight'},
+              //{header: "Cost", width: 60, align: 'center', sortable: true, dataIndex: 'Cost'}
           ],
           bbar: new Ext.PagingToolbar({
               pageSize: 20,
@@ -212,7 +215,7 @@ Ext.onReady(function(){
           totalProperty: 'totalCount',
           idProperty: 'id',
           //autoLoad:true,
-          fields: ['Id', 'SKU', 'Title', 'Price', 'Quantity', 'ListingDuration', 'ListingType'],
+          fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'Quantity', 'ListingDuration', 'ListingType'],
           url: 'service.php?action=getAllTemplate',
           listeners: {
                load: function(t, r){
@@ -229,12 +232,13 @@ Ext.onReady(function(){
           selModel: new Ext.grid.RowSelectionModel({}),
           columns:[
                {header: "Id", width: 40, align: 'center', sortable: true, dataIndex: 'Id'},
+               {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
                {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title'},
+               {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
                {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
-               {header: "Duration", width: 100, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
-               {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'}
+               {header: "Duration", width: 100, align: 'center', sortable: true, dataIndex: 'ListingDuration'}
           ],
           tbar:[{
                text: 'Add To Upload',
@@ -507,7 +511,7 @@ Ext.onReady(function(){
                                         var fp = Ext.getCmp("aie-form");
                                         if(fp.getForm().isValid()){
                                              fp.getForm().submit({
-                                                  url: 'service.php?action=templateImportAie',
+                                                  url: 'service.php?action=templateImportSpoonFeeder',
                                                   waitMsg: 'Uploading Your Template...',
                                                   success: function(fp, o){
                                                        template_store.reload();
@@ -1102,7 +1106,7 @@ Ext.onReady(function(){
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
-                                   fields: ['Id', 'SKU', 'Title', 'Price', 'Quantity', 'ListingDuration', 'ListingType', 'ScheduleTime', 'Site'],
+                                   fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'Quantity', 'ListingDuration', 'ListingType', 'ScheduleTime'],
                                    url: 'service.php?action=getWaitingUploadItem',
                                    listeners: {
                                         load: function(t, r){
@@ -1110,10 +1114,6 @@ Ext.onReady(function(){
                                         }
                                    }
                               })
-                              
-                              function renderFlag(v, p, r){
-                                   return "<img src='./images/"+v.toLowerCase()+".gif'>";
-                              }
             
                               var wait_grid = new Ext.grid.GridPanel({
                                    title: 'Waiting To Upload SKU List',
@@ -1125,10 +1125,10 @@ Ext.onReady(function(){
                                         {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                                         {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
                                         {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title'},
+                                        {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                         {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
                                         {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
                                         {header: "Duration", width: 100, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
-                                        {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                         {header: "UploadTime", width: 250, align: 'center', sortable: true, dataIndex: 'ScheduleTime'}
                                    ],
                                    tbar: [{
