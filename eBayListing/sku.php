@@ -31,7 +31,19 @@
 	.return-policy{
 	    background-image:url(./images/page_edit.png) !important;
 	}
-	
+        
+	.currency-dollar{
+            background-image:url(./images/money_dollar.png) !important;
+        }
+        .currency-pound{
+            background-image:url(./images/money_pound.png) !important;
+        }
+        .currency-aud{
+            background-image:url(./images/money_aud.png) !important;
+        }
+         .currency-euro{
+            background-image:url(./images/money_euro.png) !important;
+        }
     </style>
 <body>
     <!-- Insert your content here -->

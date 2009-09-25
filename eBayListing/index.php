@@ -27,18 +27,18 @@ if(empty($_COOKIE['account_id'])){
 	    margin:5px;
 	}
 
-        .inventory {
-            background-image:url(./images/package.png);
-        }
+    .inventory {
+        background-image:url(./images/package.png);
+    }
 	.template {
-            background-image:url(./images/plugin.png);
-        }
-        .waiting-to-upload {
-            background-image:url(./images/package_go.png);
-        }
-        .listing-activity {
-            background-image:url(./images/money_dollar.png);
-        }
+        background-image:url(./images/plugin.png);
+    }
+    .waiting-to-upload {
+        background-image:url(./images/package_go.png);
+    }
+    .listing-activity {
+        background-image:url(./images/money_dollar.png);
+    }
 	.active-item-tab{
 	    background-image:url(./images/hourglass.png);
 	}
@@ -71,6 +71,13 @@ if(empty($_COOKIE['account_id'])){
 	}
 	.template-log{
 	    background-image:url(./images/table_edit.png) !important;
+	}
+	
+	.import-turbo-lister{
+	    background-image:url(./images/tb.png) !important;
+	}
+	.import-spoonfeeder{
+	    background-image:url(./images/spoon.png) !important;
 	}
     </style>
 </head>

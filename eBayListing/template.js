@@ -353,6 +353,18 @@ Ext.onReady(function(){
         }
     }
     //---------------------------------------------------------------------------------------------------------
+    var resultCategoryTpl = new Ext.XTemplate(
+        '<tpl for="."><div class="search-item">',
+            '<h3>{name} ({id})</h3>',
+        '</div></tpl>'
+    )
+    
+    var categoryStore = new Ext.data.JsonStore({
+        //autoLoad :true,
+        fields: ['id', 'name'],
+        url:'service.php?action=getCategoryById'
+    })
+    
     var itemForm = new Ext.form.FormPanel({
         labelAlign:"top",
         //height: 600,
@@ -395,6 +407,7 @@ Ext.onReady(function(){
                 allowBlank:false,
                 listeners: {
                     "select": function(c, r, i){
+                        categoryStore.setBaseParam('SiteID', r.data.id);
                         //console.log(r);
                         switch(r.data.name){
                             case "US":
@@ -618,12 +631,25 @@ Ext.onReady(function(){
                                 id:"category",
                                 xtype:"combo",
                                 fieldLabel:"Category",
-                                editable:false,
+                                //editable:false,
                                 name:"PrimaryCategoryCategoryName",
                                 hiddenName:"PrimaryCategoryCategoryName",
                                 width: 600,
                                 listWidth: 600,
-                                allowBlank:false
+                                allowBlank:false,
+                                
+                                store: categoryStore,
+                                displayField:'name',
+                                //typeAhead: false,
+                                loadingText: 'Searching...',
+                                pageSize:20,
+                                listeners:{
+                                    select: function(c, r, i){
+                                        //console.log([c, r, i]);
+                                        //itemForm.getForm().findField("category").setValue(r.data.name);
+                                        document.getElementById("PrimaryCategoryCategoryID").value = r.data.id;
+                                    }
+                                }
                             }]
                           },{
                             columnWidth:0.1,
@@ -708,11 +734,24 @@ Ext.onReady(function(){
                                 id:"SCategory",
                                 xtype:"combo",
                                 fieldLabel:"2nd Category",
-                                editable:false,
+                                //editable:false,
                                 name:"SecondaryCategoryCategoryName",
                                 hiddenName:"SecondaryCategoryCategoryName",
                                 width: 600,
-                                listWidth: 600
+                                listWidth: 600,
+                                
+                                store: categoryStore,
+                                displayField:'name',
+                                //typeAhead: false,
+                                loadingText: 'Searching...',
+                                pageSize:20,
+                                listeners:{
+                                    select: function(c, r, i){
+                                        //console.log([c, r, i]);
+                                        //itemForm.getForm().findField("category").setValue(r.data.name);
+                                        document.getElementById("SecondaryCategoryCategoryID").value = r.data.id;
+                                    }
+                                }
                             }]
                           },{
                             columnWidth:0.1,
@@ -2755,6 +2794,24 @@ Ext.onReady(function(){
             waitMsg:'Please wait...',
             success: function(f, a){
                 //console.log(a.result.data);
+                switch(a.result.data.Site){
+                    case "US":
+                       categoryStore.setBaseParam('SiteID', 0);
+                    break;
+                
+                    case "UK":
+                      categoryStore.setBaseParam('SiteID', 3);
+                    break;
+                
+                    case "Australia":
+                        categoryStore.setBaseParam('SiteID', 15);
+                    break;
+                
+                    case "France":
+                        categoryStore.setBaseParam('SiteID', 71);
+                    break;
+                }
+                
                 listTypeCombo.setValue(a.result.data.ListingType);
                 ShippingServiceOptionsTypeCombo.setValue(a.result.data.ShippingServiceOptionsType);
                 shippingServiceStore.load({params: {serviceType: a.result.data.ShippingServiceOptionsType, SiteID: Ext.getCmp("SiteID").getValue()}});

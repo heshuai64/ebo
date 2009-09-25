@@ -1,5 +1,5 @@
 Ext.onReady(function(){
-    Ext.BLANK_IMAGE_URL = "../../ext-3.0.0/resources/images/default/s.gif";
+    Ext.BLANK_IMAGE_URL = "../ext-3.0.0/resources/images/default/s.gif";
     //var categoryPath = "";
     var today = new Date();
     var pictureForm = new Ext.form.FormPanel({
@@ -193,6 +193,7 @@ Ext.onReady(function(){
         //name: 'ListingTypeCombo',
         //hiddenName:'ListingTypeCombo',
         width: 150,
+        allowBlank:false,
         listeners: {
             "select": function(c, r, i){
                 switch(r.data.name){
@@ -352,16 +353,42 @@ Ext.onReady(function(){
         }
     }
     //---------------------------------------------------------------------------------------------------------
+    var resultCategoryTpl = new Ext.XTemplate(
+        '<tpl for="."><div class="search-item">',
+            '<h3>{name} ({id})</h3>',
+        '</div></tpl>'
+    )
+    
+    var categoryStore = new Ext.data.JsonStore({
+        //autoLoad :true,
+        fields: ['id', 'name'],
+        url:'service.php?action=getCategoryById'
+    })
+    
     var itemForm = new Ext.form.FormPanel({
         labelAlign:"top",
         //height: 600,
         buttonAlign:"center",
+        reader:new Ext.data.JsonReader({
+            }, ['Id','AutoPay','BuyItNowPrice','CategoryMappingAllowed','Country','Currency','Description','DispatchTimeMax','ListingDuration','ListingType','Location','PaymentMethods','PayPalEmailAddress',
+                'PostalCode','PrimaryCategoryCategoryID','PrimaryCategoryCategoryName','Quantity','ReturnPolicyDescription','ReturnPolicyReturnsAcceptedOption','ReturnPolicyReturnsAcceptedOption','ReturnPolicyReturnsWithinOption',
+                'ReturnPolicyShippingCostPaidByOption','ReservePrice','CurrentPrice','ListingStatus','ScheduleTime','SecondaryCategoryCategoryID','SecondaryCategoryCategoryName','Site','SiteID','SKU','StartPrice',
+                'StoreCategory2ID','StoreCategory2Name','StoreCategoryID','StoreCategoryName','SubTitle','Title','UserID','BoldTitle','Border','Featured','Highlight','HomePageFeatured','GalleryTypeFeatured','GalleryTypeGallery','GalleryTypePlus','GalleryURL',
+                'picture_1','picture_2','picture_3','picture_4','picture_5','picture_6','picture_7','picture_8',
+                'picture_9','picture_10','template_category_id','PhotoDisplay','ShippingServiceOptionsType','InternationalShippingServiceOptionType',
+                'ShippingService_1','ShippingServiceCost_1','ShippingServiceFree_1',
+                'ShippingService_2','ShippingServiceCost_2','ShippingServiceFree_2',
+                'ShippingService_3','ShippingServiceCost_3','ShippingServiceFree_3',
+                'InternationalShippingService_1','InternationalShippingServiceCost_1',
+                'InternationalShippingService_2','InternationalShippingServiceCost_2',
+                'InternationalShippingService_3','InternationalShippingServiceCost_3',
+                'InternationalShippingToLocations_1','InternationalShippingToLocations_2','InternationalShippingToLocations_3',
+                'Americas_1','Europe_1','Asia_1','CA_1','GB_1','AU_1','MX_1','DE_1','JP_1',
+                'Americas_2','Europe_2','Asia_2','CA_2','GB_2','AU_2','MX_2','DE_2','JP_2',
+                'Americas_3','Europe_3','Asia_3','CA_3','GB_3','AU_3','MX_3','DE_3','JP_3',
+                'accountId'
+        ]),
         items:[{
-                xtype:"hidden",
-                id:'item_id',
-                name:'item_id',
-                value:item_id
-            },{
                 xtype:"combo",
                 labelAlign:"left",
                 fieldLabel:"Site",
@@ -377,8 +404,10 @@ Ext.onReady(function(){
                 name: 'Site',
                 //allowBlank: false,
                 hiddenName:'Site',
+                allowBlank:false,
                 listeners: {
                     "select": function(c, r, i){
+                        categoryStore.setBaseParam('SiteID', r.data.id);
                         //console.log(r);
                         switch(r.data.name){
                             case "US":
@@ -581,7 +610,8 @@ Ext.onReady(function(){
                         id:"Title",
                         xtype:"textfield",
                         fieldLabel:"Title",
-                        name:"Title"
+                        name:"Title",
+                        allowBlank:false
                       },{
                         id:"SubTitle",
                         xtype:"textfield",
@@ -601,11 +631,25 @@ Ext.onReady(function(){
                                 id:"category",
                                 xtype:"combo",
                                 fieldLabel:"Category",
-                                editable:false,
+                                //editable:false,
                                 name:"PrimaryCategoryCategoryName",
                                 hiddenName:"PrimaryCategoryCategoryName",
                                 width: 600,
-                                listWidth: 600
+                                listWidth: 600,
+                                allowBlank:false,
+                                
+                                store: categoryStore,
+                                displayField:'name',
+                                //typeAhead: false,
+                                loadingText: 'Searching...',
+                                pageSize:20,
+                                listeners:{
+                                    select: function(c, r, i){
+                                        //console.log([c, r, i]);
+                                        //itemForm.getForm().findField("category").setValue(r.data.name);
+                                        document.getElementById("PrimaryCategoryCategoryID").value = r.data.id;
+                                    }
+                                }
                             }]
                           },{
                             columnWidth:0.1,
@@ -690,11 +734,24 @@ Ext.onReady(function(){
                                 id:"SCategory",
                                 xtype:"combo",
                                 fieldLabel:"2nd Category",
-                                editable:false,
+                                //editable:false,
                                 name:"SecondaryCategoryCategoryName",
                                 hiddenName:"SecondaryCategoryCategoryName",
                                 width: 600,
-                                listWidth: 600
+                                listWidth: 600,
+                                
+                                store: categoryStore,
+                                displayField:'name',
+                                //typeAhead: false,
+                                loadingText: 'Searching...',
+                                pageSize:20,
+                                listeners:{
+                                    select: function(c, r, i){
+                                        //console.log([c, r, i]);
+                                        //itemForm.getForm().findField("category").setValue(r.data.name);
+                                        document.getElementById("SecondaryCategoryCategoryID").value = r.data.id;
+                                    }
+                                }
                             }]
                           },{
                             columnWidth:0.1,
@@ -1221,7 +1278,8 @@ Ext.onReady(function(){
                         width: 600,
                         xtype:"htmleditor",
                         fieldLabel:"Descritpion",
-                        name:"Description"
+                        name:"Description",
+                        allowBlank:false
                     },{
                         layout:"column",
                         border:false,
@@ -1278,6 +1336,7 @@ Ext.onReady(function(){
                                         editable: false,
                                         selectOnFocus:true,
                                         format : 'Y-m-d'
+                                        //allowBlank:false
                                     }]
                             },{
                                 columnWidth:0.5,
@@ -1295,6 +1354,7 @@ Ext.onReady(function(){
                                         editable: false,
                                         selectOnFocus:true,
                                         format : 'Y-m-d'
+                                        //allowBlank:false
                                     }]
                             }]
                     },{
@@ -1360,7 +1420,8 @@ Ext.onReady(function(){
                                     id:"Quantity",
                                     xtype:"numberfield",
                                     fieldLabel:"Quantity",
-                                    name:"Quantity"
+                                    name:"Quantity",
+                                    allowBlank:false
                                   }]
                               },{
                                 columnWidth:0.5,
@@ -1388,7 +1449,9 @@ Ext.onReady(function(){
                                     //listWidth: 156,
                                     //width: 156,
                                     name: 'ListingDuration',
-                                    hiddenName:'ListingDuration'
+                                    //allowBlank: false,
+                                    hiddenName:'ListingDuration',
+                                    allowBlank:false
                                   }]
                               }]
                         }],
@@ -1842,7 +1905,8 @@ Ext.onReady(function(){
                             editable: false,
                             selectOnFocus:true,
                             width:150,
-                            listWidth:150
+                            listWidth:150,
+                            allowBlank:false
                         }],
                         cls: 'my-fieldset',
                         style: 'margin: 10px;',
@@ -2683,11 +2747,11 @@ Ext.onReady(function(){
                 }]
             }],
             buttons: [{
-                text: "Save",
+                text: "Save Template",
                 handler: function(){
                     itemForm.getForm().submit({
                         clientValidation: true,
-                        url: 'service.php?action=saveMItem&item_id='+item_id,
+                        url: 'service.php?action=saveTemplate&template_id='+template_id,
                         success: function(form, action) {
                             //console.log(action);
                             Ext.Msg.alert("Success", action.result.msg);
@@ -2722,6 +2786,70 @@ Ext.onReady(function(){
     })
     
     itemPanel.render(document.body);
+    
+    itemForm.getForm().load({
+            url:'service.php?action=getTemplate', 
+            method:'GET', 
+            params: {id: template_id}, 
+            waitMsg:'Please wait...',
+            success: function(f, a){
+                //console.log(a.result.data);
+                switch(a.result.data.Site){
+                    case "US":
+                       categoryStore.setBaseParam('SiteID', 0);
+                    break;
+                
+                    case "UK":
+                      categoryStore.setBaseParam('SiteID', 3);
+                    break;
+                
+                    case "Australia":
+                        categoryStore.setBaseParam('SiteID', 15);
+                    break;
+                
+                    case "France":
+                        categoryStore.setBaseParam('SiteID', 71);
+                    break;
+                }
+                
+                listTypeCombo.setValue(a.result.data.ListingType);
+                ShippingServiceOptionsTypeCombo.setValue(a.result.data.ShippingServiceOptionsType);
+                shippingServiceStore.load({params: {serviceType: a.result.data.ShippingServiceOptionsType, SiteID: Ext.getCmp("SiteID").getValue()}});
+                
+                InternationalShippingServiceOptionTypeCombo.setValue(a.result.data.InternationalShippingServiceOptionType);
+                internationalShippingServiceStore.load({params: {serviceType: a.result.data.InternationalShippingServiceOptionType, SiteID: Ext.getCmp("SiteID").getValue()}});
+                
+                //console.log(a.result.data.InternationalShippingService_1);
+                if(!Ext.isEmpty(a.result.data.InternationalShippingService_1)){
+                    Ext.getCmp("InternationalShippingTo_1").show();
+                    if(a.result.data.InternationalShippingToLocations_1 == "Custom Locations"){
+                        Ext.getCmp("InternationalShippingCustom_1").show();
+                    }
+                }
+                
+                if(!Ext.isEmpty(a.result.data.InternationalShippingService_2)){
+                    Ext.getCmp("InternationalShippingTo_2").show();
+                    if(a.result.data.InternationalShippingToLocations_2 == "Custom Locations"){
+                        Ext.getCmp("InternationalShippingCustom_2").show();
+                    }
+                }
+                
+                if(!Ext.isEmpty(a.result.data.InternationalShippingService_3)){
+                    Ext.getCmp("InternationalShippingTo_3").show();
+                    if(a.result.data.InternationalShippingToLocations_3 == "Custom Locations"){
+                        Ext.getCmp("InternationalShippingCustom_3").show();
+                    }
+                }
+                
+                for(var i = 1; i <= 10; i++){
+                    //console.log(document.getElementById("picture_"+i).value);
+                    if(!Ext.isEmpty(document.getElementById("picture_"+i).value)){
+                        Ext.getCmp("picture_panel_"+i).body.dom.innerHTML = '<img width="60" height="60" src="' + document.getElementById("picture_"+i).value + '"/>';
+                    }
+                }
+            }
+        }
+    );
         
     //Schedule Time  --------------------------------------------------------------------------------
     Ext.select(".schedule-time").on("click",function(e, el){
