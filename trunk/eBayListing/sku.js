@@ -229,7 +229,7 @@ Ext.onReady(function(){
     )
     
     var categoryStore = new Ext.data.JsonStore({
-        autoLoad :true,
+        //autoLoad :true,
         fields: ['id', 'name'],
         url:'service.php?action=getCategoryById'
     })
@@ -256,28 +256,37 @@ Ext.onReady(function(){
                 hiddenName:'Site',
                 allowBlank:false,
                 listeners: {
-                    "select": function(c, r, i){
+                    select: function(c, r, i){
+                        categoryStore.setBaseParam('SiteID', r.data.id);
                         //console.log(r);
                         switch(r.data.name){
                             case "US":
                                Ext.getCmp("Currency").setValue("USD");
-                               Ext.getCmp("currency-icon").icon = "./images/money_dollar.png";
-                               Ext.getCmp("currency-icon").body.doLayout();
+                               Ext.getCmp("StartPrice").setRawValue("$");
+                               Ext.getCmp("BuyItNowPrice").setRawValue("$");
+                               Ext.getCmp("ReservePrice").setRawValue("$");
                             break;
                         
                             case "UK":
                                Ext.getCmp("Currency").setValue("GBP");
-                               Ext.getCmp("currency-icon").icon = "./images/money_pound.png";
-                               Ext.getCmp("currency-icon").body.doLayout();
+                               Ext.getCmp("StartPrice").setRawValue("£");
+                               Ext.getCmp("BuyItNowPrice").setRawValue("£");
+                               Ext.getCmp("ReservePrice").setRawValue("£");
                             break;
                         
                             case "Australia":
                                 Ext.getCmp("Currency").setValue("AUD");
-                                
+                                Ext.getCmp("StartPrice").setRawValue("AUD$");
+                                Ext.getCmp("BuyItNowPrice").setRawValue("AUD$");
+                                Ext.getCmp("ReservePrice").setRawValue("AUD$");
                             break;
                         
                             case "France":
                                 Ext.getCmp("Currency").setValue("EUR");
+                                Ext.getCmp("StartPrice").setRawValue("€");
+                                Ext.getCmp("BuyItNowPrice").setRawValue("€");
+                                Ext.getCmp("ReservePrice").setRawValue("€");
+                                Ext.getCmp("currency-icon").setIconClass("currency-euro");
                             break;
                         }
                         Ext.getCmp("SiteID").setValue(r.data.id);
@@ -493,20 +502,19 @@ Ext.onReady(function(){
                                 
                                 store: categoryStore,
                                 displayField:'name',
-                                typeAhead: false,
+                                //typeAhead: false,
                                 loadingText: 'Searching...',
                                 pageSize:20,
-                                hideTrigger:true,
-                                tpl: resultCategoryTpl,
-                                itemSelector: 'div.search-item',
-                                onSelect: function(r){ 
-                                   console.log(r);
-                                },
-                                listeners: {
-                                    select : function(c, r, i){
-                                        console.log([c, r, i]);
+                                listeners:{
+                                    select: function(c, r, i){
+                                        //console.log([c, r, i]);
+                                        //itemForm.getForm().findField("category").setValue(r.data.name);
+                                        document.getElementById("PrimaryCategoryCategoryID").value = r.data.id;
                                     }
                                 }
+                                //hideTrigger:true,
+                                //tpl: resultCategoryTpl,
+                                //itemSelector: 'div.search-item',
                             }]
                           },{
                             columnWidth:0.1,
@@ -591,11 +599,24 @@ Ext.onReady(function(){
                                 id:"SCategory",
                                 xtype:"combo",
                                 fieldLabel:"2nd Category",
-                                editable:false,
+                                //editable:false,
                                 name:"SecondaryCategoryCategoryName",
                                 hiddenName:"SecondaryCategoryCategoryName",
                                 width: 600,
-                                listWidth: 600
+                                listWidth: 600,
+                                
+                                store: categoryStore,
+                                displayField:'name',
+                                //typeAhead: false,
+                                loadingText: 'Searching...',
+                                pageSize:20,
+                                listeners:{
+                                    select: function(c, r, i){
+                                        //console.log([c, r, i]);
+                                        //itemForm.getForm().findField("category").setValue(r.data.name);
+                                        document.getElementById("SecondaryCategoryCategoryID").value = r.data.id;
+                                    }
+                                }
                             }]
                           },{
                             columnWidth:0.1,
@@ -1249,12 +1270,34 @@ Ext.onReady(function(){
                                     xtype:"numberfield",
                                     fieldLabel:"Start Price",
                                     id:"StartPrice",
-                                    name:"StartPrice"
+                                    name:"StartPrice",
+                                    listeners: {
+                                        focus: function(t){
+                                            if(!Ext.isNumber(t.getValue())){
+                                                t.setValue('');
+                                            }
+                                        },
+                                        blur: function(){
+                                            if(!Ext.isNumber(t.getValue())){
+                                                switch(Ext.getCmp("Currency").getValue()){
+                                                
+                                                }
+                                                t.setRawValue("$");
+                                            }
+                                        }
+                                    }
                                   },{
                                     xtype:"numberfield",
                                     fieldLabel:"Buy It Now Price",
                                     id:"BuyItNowPrice",
-                                    name:"BuyItNowPrice"
+                                    name:"BuyItNowPrice",
+                                    listeners: {
+                                        focus: function(t){
+                                            if(!Ext.isNumber(t.getValue())){
+                                                t.setValue('');
+                                            }
+                                        }
+                                    }
                                   },{
                                     id:"Quantity",
                                     xtype:"numberfield",
@@ -1274,7 +1317,14 @@ Ext.onReady(function(){
                                     xtype:"numberfield",
                                     fieldLabel:"Reserve Price",
                                     id:"ReservePrice",
-                                    name:"ReservePrice"
+                                    name:"ReservePrice",
+                                    listeners: {
+                                        focus: function(t){
+                                            if(!Ext.isNumber(t.getValue())){
+                                                t.setValue('');
+                                            }
+                                        }
+                                    }
                                 },{
                                     xtype:"combo",
                                     fieldLabel:"Duration",
@@ -1293,8 +1343,7 @@ Ext.onReady(function(){
                                     allowBlank:false
                                 },{
                                     id:"currency-icon",
-                                    xtype:"button",
-                                    icon:"./images/money_dollar.png"
+                                    xtype:"button"
                                 }]
                               }]
                         }],

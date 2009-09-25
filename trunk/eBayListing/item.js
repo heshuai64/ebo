@@ -353,6 +353,18 @@ Ext.onReady(function(){
         }
     }
     //---------------------------------------------------------------------------------------------------------
+    var resultCategoryTpl = new Ext.XTemplate(
+        '<tpl for="."><div class="search-item">',
+            '<h3>{name} ({id})</h3>',
+        '</div></tpl>'
+    )
+    
+    var categoryStore = new Ext.data.JsonStore({
+        //autoLoad :true,
+        fields: ['id', 'name'],
+        url:'service.php?action=getCategoryById'
+    })
+    
     var itemForm = new Ext.form.FormPanel({
         labelAlign:"top",
         //height: 600,
@@ -395,6 +407,7 @@ Ext.onReady(function(){
                 allowBlank:false,
                 listeners: {
                     "select": function(c, r, i){
+                        categoryStore.setBaseParam('SiteID', r.data.id);
                         //console.log(r);
                         switch(r.data.name){
                             case "US":
@@ -539,7 +552,7 @@ Ext.onReady(function(){
                                                 handler:function(){
                                                     itemSpecificsForm.getForm().submit({
                                                         clientValidation: true,
-                                                        url: 'service.php?action=saveTemplateItemSpecifics&template_id='+template_id,
+                                                        url: 'service.php?action=saveItemSpecifics&item_id='+item_id,
                                                         success: function(form, action) {
                                                             itemSpecificsWindow.close();
                                                             //console.log(action);
@@ -570,7 +583,7 @@ Ext.onReady(function(){
                                         itemSpecificsWindow.show();
                                         
                                         itemSpecificsForm.getForm().load({
-                                            url: 'service.php?action=loadTemplateItemSpecifics&AttributeSetID='+temp.CharacteristicsSetId+'&template_id='+template_id,
+                                            url: 'service.php?action=loadItemSpecifics&AttributeSetID='+temp.CharacteristicsSetId+'&item_id='+item_id,
                                             waitMsg:'Please wait...',
                                             success: function(form, action){
                                                 //console.log(action);
@@ -618,12 +631,25 @@ Ext.onReady(function(){
                                 id:"category",
                                 xtype:"combo",
                                 fieldLabel:"Category",
-                                editable:false,
+                                //editable:false,
                                 name:"PrimaryCategoryCategoryName",
                                 hiddenName:"PrimaryCategoryCategoryName",
                                 width: 600,
                                 listWidth: 600,
-                                allowBlank:false
+                                allowBlank:false,
+                                
+                                store: categoryStore,
+                                displayField:'name',
+                                //typeAhead: false,
+                                loadingText: 'Searching...',
+                                pageSize:20,
+                                listeners:{
+                                    select: function(c, r, i){
+                                        //console.log([c, r, i]);
+                                        //itemForm.getForm().findField("category").setValue(r.data.name);
+                                        document.getElementById("PrimaryCategoryCategoryID").value = r.data.id;
+                                    }
+                                }
                             }]
                           },{
                             columnWidth:0.1,
@@ -708,11 +734,24 @@ Ext.onReady(function(){
                                 id:"SCategory",
                                 xtype:"combo",
                                 fieldLabel:"2nd Category",
-                                editable:false,
+                                //editable:false,
                                 name:"SecondaryCategoryCategoryName",
                                 hiddenName:"SecondaryCategoryCategoryName",
                                 width: 600,
-                                listWidth: 600
+                                listWidth: 600,
+                                
+                                store: categoryStore,
+                                displayField:'name',
+                                //typeAhead: false,
+                                loadingText: 'Searching...',
+                                pageSize:20,
+                                listeners:{
+                                    select: function(c, r, i){
+                                        //console.log([c, r, i]);
+                                        //itemForm.getForm().findField("category").setValue(r.data.name);
+                                        document.getElementById("SecondaryCategoryCategoryID").value = r.data.id;
+                                    }
+                                }
                             }]
                           },{
                             columnWidth:0.1,
@@ -2712,7 +2751,7 @@ Ext.onReady(function(){
                 handler: function(){
                     itemForm.getForm().submit({
                         clientValidation: true,
-                        url: 'service.php?action=saveTemplate&template_id='+template_id,
+                        url: 'service.php?action=saveItem&item_id='+item_id,
                         success: function(form, action) {
                             //console.log(action);
                             Ext.Msg.alert("Success", action.result.msg);
@@ -2749,12 +2788,30 @@ Ext.onReady(function(){
     itemPanel.render(document.body);
     
     itemForm.getForm().load({
-            url:'service.php?action=getTemplate', 
+            url:'service.php?action=getItem', 
             method:'GET', 
-            params: {id: template_id}, 
+            params: {id: item_id}, 
             waitMsg:'Please wait...',
             success: function(f, a){
                 //console.log(a.result.data);
+                switch(a.result.data.Site){
+                    case "US":
+                       categoryStore.setBaseParam('SiteID', 0);
+                    break;
+                
+                    case "UK":
+                      categoryStore.setBaseParam('SiteID', 3);
+                    break;
+                
+                    case "Australia":
+                        categoryStore.setBaseParam('SiteID', 15);
+                    break;
+                
+                    case "France":
+                        categoryStore.setBaseParam('SiteID', 71);
+                    break;
+                }
+                
                 listTypeCombo.setValue(a.result.data.ListingType);
                 ShippingServiceOptionsTypeCombo.setValue(a.result.data.ShippingServiceOptionsType);
                 shippingServiceStore.load({params: {serviceType: a.result.data.ShippingServiceOptionsType, SiteID: Ext.getCmp("SiteID").getValue()}});
@@ -2801,7 +2858,7 @@ Ext.onReady(function(){
         var timeStore = new Ext.data.JsonStore({
             //root:"timeList",
             autoLoad:true,
-            url:'service.php?action=getTemplateScheduleTime&template_id='+template_id+'&dayTime='+el.childNodes[0].id,
+            url:'service.php?action=getScheduleTime&item_id='+item_id+'&dayTime='+el.childNodes[0].id,
             fields: [{name:'time', type:'string'}],
             sortInfo: {
                 field: 'time',
@@ -2860,14 +2917,14 @@ Ext.onReady(function(){
                         handler: function(){
                             if(Ext.getCmp("nowStartTime").getValue != ""){
                                 Ext.Ajax.request({
-                                    url: 'service.php?action=addTemplateScheduleTime',
+                                    url: 'service.php?action=addScheduleTime',
                                     success: function(){
                                             timeStore.reload();
                                         },
                                     failure: function(){},
                                     params: {
                                             dayTime: el.childNodes[0].id,
-                                            template_id: template_id,
+                                            item_id: item_id,
                                             time: Ext.getCmp("nowStartTime").getValue()
                                         }
                                 });
@@ -2894,14 +2951,14 @@ Ext.onReady(function(){
                                 }
                                 //console.log(id);
                                 Ext.Ajax.request({
-                                    url: 'service.php?action=deleteTemplateScheduleTime',
+                                    url: 'service.php?action=deleteScheduleTime',
                                     success: function(){
                                             timeStore.reload();
                                         },
                                     failure: function(){},
                                     params: {
                                             dayTime: el.childNodes[0].id,
-                                            template_id: template_id,
+                                            item_id: item_id,
                                             id: id
                                         }
                                 });
@@ -2918,14 +2975,14 @@ Ext.onReady(function(){
                         text:"Delete All",
                         handler: function(){
                             Ext.Ajax.request({
-                                url: 'service.php?action=deleteAllTemplateScheduleTime',
+                                url: 'service.php?action=deleteAllScheduleTime',
                                 success: function(){
                                         timeStore.reload();
                                     },
                                 failure: function(){},
                                 params: {
                                         dayTime: el.childNodes[0].id,
-                                        template_id: template_id
+                                        item_id: item_id
                                     }
                             });
                         }
@@ -2938,7 +2995,7 @@ Ext.onReady(function(){
                         text:"Ok",
                         handler: function(){
                             Ext.Ajax.request({
-                                url: 'service.php?action=saveTemplateScheduleTime',
+                                url: 'service.php?action=saveScheduleTime',
                                 success: function(){
                                         if(timeStore.getCount() > 0){
                                             Ext.getCmp(el.childNodes[0].id + "-panel").body.applyStyles("background-color:red;");
@@ -2952,7 +3009,7 @@ Ext.onReady(function(){
                                 failure: function(){},
                                 params: {
                                         dayTime: el.childNodes[0].id,
-                                        template_id: template_id
+                                        item_id: item_id
                                     }
                             });
                         }

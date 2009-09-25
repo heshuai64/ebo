@@ -10,6 +10,8 @@ function ErrorLogFunction($errno, $errstr, $errfile, $errline){
 
 set_error_handler("ErrorLogFunction");
 
+$categoryPathArray = array();
+
 class eBayListing{
     private static $database_connect;
     const DATABASE_HOST = 'localhost';
@@ -1940,20 +1942,42 @@ class eBayListing{
     }
     
     public function getCategoryById(){
-	$sql = "select * from categories where CategoryID like '".$_POST['query']."%'";
+	$sql = "select * from categories where CategorySiteID = ".$_POST['SiteID']." and CategoryID like '".$_POST['query']."%'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$array = array();
 	$i = 0;
 	while($row = mysql_fetch_assoc($result)){
 	    $array[$i]['id'] = $row['CategoryID'];
-	    $array[$i]['name'] = $row['CategoryName'];
+	    $array[$i]['name'] = $this->getCategoryPathById($_POST['SiteID'], $row['CategoryID']);
 	    $i++;
 	}
 	echo json_encode($array);
 	mysql_free_result($result);
     }
     
-    //-----------------   Template Schedule  -----------------------------------------------------------------
+    private function getCategoryPathById($SiteID, $CategoryID){
+    	global $categoryPathArray;
+    	$sql = "select CategoryName,CategoryParentID,CategoryLevel from categories where  CategorySiteID = ".$SiteID." and CategoryID = ".$CategoryID;
+    	//echo $sql."\n";
+    	$result = mysql_query($sql, eBayListing::$database_connect);
+    	$row = mysql_fetch_assoc($result);
+    	if($row['CategoryLevel'] != 1){
+    		array_push($categoryPathArray, $row['CategoryName']);
+    		return $this->getCategoryPathById($SiteID, $row['CategoryParentID']);
+    	}else{
+    		array_push($categoryPathArray, $row['CategoryName']);
+    		//print_r($categoryPathArray);
+    		$categoryPath = "";
+    		for($i = count($categoryPathArray); $i > 0; $i--){
+    			$categoryPath .= $categoryPathArray[$i-1] . " >> ";
+    		}
+    		$categoryPath = substr($categoryPath, 0, -4);
+    		//print_r($categoryPath);
+    		return $categoryPath;
+    	}
+    }
+   
+    //--------  Template Schedule Time  --------------------------------------------------
     public function addTemplateScheduleTime(){
 	if(!empty($_POST['time'])){
 	    session_start();
@@ -2012,7 +2036,8 @@ class eBayListing{
     public function saveTemplateScheduleTime(){
 	
     }
-    //-------------------------------------------------------------------------------------------------------
+    
+    //------------------------------------------------------------------------------------
     public function getAllInventorySkus(){
 	$result = $this->get(self::INVENTORY_SERVICE."?action=getAllSkus");
 	echo $result;
@@ -2339,7 +2364,7 @@ class eBayListing{
 	echo json_encode($array);
     }
     
-    //-----------------  Item Specifics -----------------------------------------------
+    //-----------------  Fetch Item Specifics From eBay ------------------------------------------
     //http://127.0.0.1:6666/eBayBO/eBaylisting/service.php?action=getAllCategory2CS
     public function getCategory2CS(){
 	try {
@@ -2491,7 +2516,7 @@ class eBayListing{
 	}
 	//print_r($_SESSION['AttributeSet']);
     }
-    
+    //---------------------------------------------------------------------------------
     public function saveItemSpecifics(){
 	session_start();
 	unset($_SESSION['AttributeSet'][$_GET['sku']][$_POST['CharacteristicsSetId']]);
@@ -2863,6 +2888,72 @@ class eBayListing{
 	}else{
 	    echo 0;
 	}
+    }
+    
+    public function getItem(){
+    	session_start();
+		$sql = "select * from items where Id = '".$_GET['id']."'";
+		$result = mysql_query($sql, eBayListing::$database_connect);
+		$row = mysql_fetch_assoc($result);
+		$row['SiteID'] = $row['Site'];
+		unset($_SESSION['AttributeSet'][$row['Id']]);
+		
+		$sql_1 = "select url from picture_url where ItemID = '".$row['Id']."'";
+		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+		$i = 1;
+		while($row_1 = mysql_fetch_assoc($result_1)){
+		    $row['picture_'.$i] = $row_1['url'];
+		    $i++;
+		}
+		
+		$sql_3 = "select * from shipping_service_options where ItemID = '".$row['Id']."'";
+		$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+		$i = 1;
+		while($row_3 = mysql_fetch_assoc($result_3)){
+		    $row['ShippingService_'.$i] = $row_3['ShippingService'];
+		    $row['ShippingServiceCost_'.$i] = $row_3['ShippingServiceCost'];
+		    $row['ShippingServiceFree_'.$i] = $row_3['FreeShipping'];
+		}
+		
+		$sql_4 = "select * from international_shipping_service_option where ItemID = '".$row['Id']."'";
+		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+		$i = 1;
+		while($row_4 = mysql_fetch_assoc($result_4)){
+		    $row['InternationalShippingService_'.$i] = $row_4['ShippingService'];
+		    $row['InternationalShippingServiceCost_'.$i] = $row_4['ShippingServiceCost'];
+		    $array = explode(",", $row_4['ShipToLocation']);
+		    if(count($array) > 1){
+			$row['InternationalShippingToLocations_'.$i] = "Custom Locations";
+			foreach($array as $v){
+			    $row[$v.'_'.$i] = 1;
+			}
+		    }elseif($row_4['ShipToLocation'] == "Worldwide"){
+			$row['InternationalShippingToLocations_'.$i] = "Worldwide";
+		    }else{
+			$row['InternationalShippingToLocations_'.$i] = "Custom Locations";
+			$row[$row_4['ShipToLocation'].'_'.$i] = 1;
+		    }
+		}
+		
+		$sql_5 = "select * from attribute_set where item_id = '".$row['Id']."'";
+		$result_5 = mysql_query($sql_5, eBayListing::$database_connect);
+		$row_5 = mysql_fetch_assoc($result_5);
+		
+		$sql_6 = "select * from attribute where attribute_set_id = '".$row_5['attribute_set_id']."'";
+		$result_6 = mysql_query($sql_6, eBayListing::$database_connect);
+		while($row_6 = mysql_fetch_assoc($result_6)){
+		    if(strpos($row_6['ValueID'], ',')){
+			$array = explode(',', $row_6['ValueID']);
+			foreach($array as $a){
+			    $_SESSION['AttributeSet'][$row['Id']][$row_5['attributeSetID']][$a.'_checkbox'] = $row_6['attributeID'].'_on';
+			}
+		    }else{
+			$_SESSION['AttributeSet'][$row['Id']][$row_5['attributeSetID']][$row_6['attributeID']] = $row_6['ValueID'];
+		    }
+		}
+		
+		echo '['.json_encode($row).']';
+		mysql_free_result($result);
     }
     
     public function saveMItem(){

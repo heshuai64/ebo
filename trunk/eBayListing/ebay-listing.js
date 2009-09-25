@@ -130,7 +130,7 @@ Ext.onReady(function(){
               {header: "Sku", width: 120, align: 'center', sortable: true, dataIndex: 'inventory_model_code'},
               {header: "Model", width: 180, align: 'center', sortable: true, dataIndex: 'short_description'},
               {header: "Description", width: 250, align: 'center', sortable: true, dataIndex: 'long_description'},
-              {header: "Categpru", width: 100, align: 'center', sortable: true, dataIndex: 'category'},
+              {header: "Categpru", width: 100, align: 'center', sortable: true, dataIndex: 'category'}
               //{header: "Supplier", width: 120, align: 'center', sortable: true, dataIndex: 'manufacturer'},
               //{header: "Weight", width: 60, align: 'center', sortable: true, dataIndex: 'Weight'},
               //{header: "Cost", width: 60, align: 'center', sortable: true, dataIndex: 'Cost'}
@@ -480,6 +480,7 @@ Ext.onReady(function(){
                          width: 320,
                          height: 150,
                          plain:true,
+                         iconCls: 'import-spoonfeeder',
                          layout: 'fit',
                          items: [{
                               xtype:'form',
@@ -531,6 +532,70 @@ Ext.onReady(function(){
                                    
                     })
                     importAieWindow.show();   
+               }
+          },'-',{
+          		text: 'Import Turbo Lister Template',
+               	icon: './images/tb.png',
+              	tooltip:'Import turbo lister template file',
+               	handler: function(){
+	               var  importTbWindow = new Ext.Window({
+	                         title: 'Import Turbo Lister Template' ,
+	                         closable:true,
+	                         width: 320,
+	                         height: 150,
+	                         plain:true,
+	                         layout: 'fit',
+	                         iconCls: 'import-turbo-lister',
+	                         items: [{
+	                              xtype:'form',
+	                              id:'tb-form',
+	                              fileUpload: true,
+	                              frame: true,
+	                              autoHeight: true,
+	                              bodyStyle: 'padding: 10px 10px 0 10px;',
+	                              labelWidth: 80,
+	                              defaults: {
+	                                  anchor: '95%',
+	                                  allowBlank: false
+	                              },
+	                              items:[{
+	                                   xtype: 'fileuploadfield',
+	                                   id: 'tb',
+	                                   emptyText: 'Select an file',
+	                                   fieldLabel: 'Template',
+	                                   //hideLabel:true,
+	                                   name: 'tb',
+	                                   buttonText: '',
+	                                   buttonCfg: {
+	                                       iconCls: 'upload-icon'
+	                                   }
+	                              }/*,{
+                                   xtype: 'button',
+                                   text: 'Upload',
+                                   handler: function(){
+                                        var fp = Ext.getCmp("tb-form");
+                                        if(fp.getForm().isValid()){
+                                             fp.getForm().submit({
+                                                  url: 'service.php?action=templateImportSpoonFeeder',
+                                                  waitMsg: 'Uploading Your Template...',
+                                                  success: function(fp, o){
+                                                       template_store.reload();
+                                                       Ext.MessageBox.alert('Success','Update template sku price success!');
+                                                  }
+                                             });
+                                        }
+                                   }
+                              }*/]
+	                         }],                                           
+	                         buttons: [{
+	                                        text: 'Close',
+	                                        handler: function(){
+	                                             importTbWindow.close();
+	                                        }
+	                                   }]
+	                                   
+	                    })
+	                    importTbWindow.show();   
                }
           },'-',{
                     text:'Interval Upload',
@@ -1175,7 +1240,6 @@ Ext.onReady(function(){
                                              icon: './images/page_edit.png',
                                              tooltip:'Editing before uploading',
                                              handler:function(){
-                                                  var multi = false;
                                                   var selections = wait_grid.selModel.getSelections();
                                                   if(wait_grid.selModel.getCount() == 0){
                                                        Ext.MessageBox.alert('Warning','Please select the template you want to edit.');
@@ -1184,10 +1248,9 @@ Ext.onReady(function(){
                                                   var ids = "";
                                                   for(var i = 0; i< wait_grid.selModel.getCount(); i++){
                                                        ids += selections[i].data.Id + ",";
-                                                       multi = true;
                                                   }
                                                   ids = ids.slice(0,-1);
-                                                  if(multi){
+                                                  if(wait_grid.selModel.getCount() > 1){
                                                        window.open(path + "mitem.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768"); 
                                                   }else{
                                                        window.open(path + "item.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768"); 
@@ -1201,7 +1264,7 @@ Ext.onReady(function(){
                                              handler:function(){
                                                   var selections = wait_grid.selModel.getSelections();
                                                   if(wait_grid.selModel.getCount() == 0){
-                                                       Ext.MessageBox.alert('Warning','Please select the need to modify.');
+                                                       Ext.MessageBox.alert('Warning','Please select the need to delete.');
                                                        return 0;
                                                   }
                                                   var ids = "";
@@ -1241,7 +1304,7 @@ Ext.onReady(function(){
                                         handler: function(){
                                              var selections = wait_grid.selModel.getSelections();
                                              if(wait_grid.selModel.getCount() == 0){
-                                                  Ext.MessageBox.alert('Warning','Please select the need to modify.');
+                                                  Ext.MessageBox.alert('Warning','Please select the need to reset.');
                                                   return 0;
                                              }
                                              var ids = "";
