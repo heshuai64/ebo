@@ -432,7 +432,7 @@ class eBayListing{
                 $_POST['limit'] = 20;
             }
 	    
-	    $sql = "select Id,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ListingDuration from template where accountId = '".$this->account_id."' limit ".$_POST['start'].",".$_POST['limit'];
+	    $sql = "select Id,Site,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ListingDuration from template where accountId = '".$this->account_id."' limit ".$_POST['start'].",".$_POST['limit'];
             $result = mysql_query($sql, eBayListing::$database_connect);
             
 	}else{
@@ -462,7 +462,7 @@ class eBayListing{
             $row = mysql_fetch_assoc($result);
             $totalCount = $row['count'];
             
-            $sql = "select Id,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ListingDuration from template as t left join template_to_template_cateogry as tttc on t.Id = tttc.template_id ".$where." limit ".$_POST['start'].",".$_POST['limit'];
+            $sql = "select Id,Site,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ListingDuration from template as t left join template_to_template_cateogry as tttc on t.Id = tttc.template_id ".$where." limit ".$_POST['start'].",".$_POST['limit'];
             //echo $sql;
             $result = mysql_query($sql, eBayListing::$database_connect);
 	}
@@ -1580,7 +1580,7 @@ class eBayListing{
 	}
     }
     
-    public function templateImportAie(){
+    public function templateImportSpoonFeeder(){
 	$handle = fopen($_FILES['aie']['tmp_name'], "r");
 	if ($handle) {
 	    $data = array ();
@@ -1848,6 +1848,109 @@ class eBayListing{
 	    fclose($handle);
 	    //print_r($data);
 	}
+    }
+    
+    public function templateImportTurboLister(){
+	//$handle = fopen($_FILES['turboLister']['tmp_name'], "r");
+	$handle = fopen('./111.csv', "r");
+	$i = 0;
+	while (($data = fgetcsv($handle, 4602, ",")) !== FALSE) {
+	    if($i == 0){
+		$i++;
+		continue;
+	    }
+	    $array = array();
+	    $array['Site'] = $data[1];
+	    $array['ListingType'] = $data[2];
+	    $array['Title'] = $data[3];
+	    $array['SubTitle'] = $data[4];
+	    $array['SKU'] = $data[5];
+	    $array['PrimaryCategoryCategoryID'] = $data[6];
+	    $array['SecondaryCategoryCategoryID'] = $data[7];
+	    $array['StoreCategoryID'] = $data[8];
+	    $array['StoreCategory2ID'] = $data[9];
+	    $array['Quantity'] = $data[10];
+	    $array['Currency'] = $data[12];
+	    $array['StartPrice'] = $data[13];
+	    $array['BuyItNowPrice'] = $data[14];
+	    $array['ReservePrice'] = $data[15];
+	    $array['ListingDuration'] = $data[22];
+	    $array['Country'] = $data[24];
+	    $array['Description'] = $data[28];
+	    $array['url'] = $data[30];//
+	    $array['BoldTitle'] = $data[31];
+	    $array['Featured'] = $data[32];
+	    switch($data[33]){
+		case "Featured":
+		    $array['GalleryTypeFeatured'] = 1;
+		break;
+	    
+		case "Gallery":
+		    $array['GalleryTypeGallery'] = 1;
+		break;
+	    
+		case "Plus":
+		    $array['GalleryTypePlus'] = 1;
+		break;
+	    }
+	    
+	    $array['Highlight'] = $data[35];
+	    $array['Border'] = $data[36];
+	    $array['HomePageFeatured'] = $data[37];
+	    $array['Location'] = $data[51];
+	    $array['PayPalEmailAddress'] = $data[54];
+	    $array['ShippingType'] = $data[73];
+	    
+	    //template shipping service options
+	    $array['template_shipping_service_options'][1]['FreeShipping'] = $data[92];
+	    $array['template_shipping_service_options'][1]['ShippingService'] = $data[88];
+	    $array['template_shipping_service_options'][1]['ShippingServiceCost'] = $data[89];
+	    $array['template_shipping_service_options'][1]['ShippingServiceAdditionalCost'] = $data[90];
+	    
+	    $array['template_shipping_service_options'][2]['ShippingService'] = $data[94];
+	    $array['template_shipping_service_options'][2]['ShippingServiceCost'] = $data[95];
+	    $array['template_shipping_service_options'][2]['ShippingServiceAdditionalCost'] = $data[96];
+	    
+	    $array['template_shipping_service_options'][3]['ShippingService'] = $data[99];
+	    $array['template_shipping_service_options'][3]['ShippingServiceCost'] = $data[100];
+	    $array['template_shipping_service_options'][3]['ShippingServiceAdditionalCost'] = $data[101];
+	    
+	    $array['DispatchTimeMax'] = $data[115];
+	    
+	    //template international shipping service option
+	    $array['template_international_shipping_service_option'][1]['ShippingService'] = $data[116];
+	    $array['template_international_shipping_service_option'][1]['ShippingServiceCost'] = $data[117];
+	    $array['template_international_shipping_service_option'][1]['ShippingServiceAdditionalCost'] = $data[118];
+	    $array['template_international_shipping_service_option'][1]['ShipToLocation'] = str_replace('|', ',' ,$data[119]);
+	    
+	    $array['template_international_shipping_service_option'][2]['ShippingService'] = $data[121];
+	    $array['template_international_shipping_service_option'][2]['ShippingServiceCost'] = $data[122];
+	    $array['template_international_shipping_service_option'][2]['ShippingServiceAdditionalCost'] = $data[123];
+	    $array['template_international_shipping_service_option'][2]['ShipToLocation'] = str_replace('|', ',' ,$data[124]);
+	    
+	    $array['template_international_shipping_service_option'][3]['ShippingService'] = $data[126];
+	    $array['template_international_shipping_service_option'][3]['ShippingServiceCost'] = $data[127];
+	    $array['template_international_shipping_service_option'][3]['ShippingServiceAdditionalCost'] = $data[128];
+	    $array['template_international_shipping_service_option'][3]['ShipToLocation'] = str_replace('|', ',' ,$data[129]);
+	    $array['SKU1'] = $data[194];
+	    
+	    print_r($array);
+	    $i++;
+	}
+    }
+    
+    public function getCategoryById(){
+	$sql = "select * from categories where CategoryID like '".$_POST['query']."%'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$array = array();
+	$i = 0;
+	while($row = mysql_fetch_assoc($result)){
+	    $array[$i]['id'] = $row['CategoryID'];
+	    $array[$i]['name'] = $row['CategoryName'];
+	    $i++;
+	}
+	echo json_encode($array);
+	mysql_free_result($result);
     }
     
     //-----------------   Template Schedule  -----------------------------------------------------------------

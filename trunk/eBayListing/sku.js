@@ -222,6 +222,18 @@ Ext.onReady(function(){
         }
     }
     //---------------------------------------------------------------------------------------------------------
+    var resultCategoryTpl = new Ext.XTemplate(
+        '<tpl for="."><div class="search-item">',
+            '<h3>{name} ({id})</h3>',
+        '</div></tpl>'
+    )
+    
+    var categoryStore = new Ext.data.JsonStore({
+        autoLoad :true,
+        fields: ['id', 'name'],
+        url:'service.php?action=getCategoryById'
+    })
+        
     var itemForm = new Ext.form.FormPanel({
         labelAlign:"top",
         //height: 600,
@@ -472,12 +484,29 @@ Ext.onReady(function(){
                                 id:"category",
                                 xtype:"combo",
                                 fieldLabel:"Category",
-                                editable:false,
+                                //editable:false,
                                 name:"PrimaryCategoryCategoryName",
                                 hiddenName:"PrimaryCategoryCategoryName",
                                 width: 600,
                                 listWidth: 600,
-                                allowBlank:false
+                                allowBlank:false,
+                                
+                                store: categoryStore,
+                                displayField:'name',
+                                typeAhead: false,
+                                loadingText: 'Searching...',
+                                pageSize:20,
+                                hideTrigger:true,
+                                tpl: resultCategoryTpl,
+                                itemSelector: 'div.search-item',
+                                onSelect: function(r){ 
+                                   console.log(r);
+                                },
+                                listeners: {
+                                    select : function(c, r, i){
+                                        console.log([c, r, i]);
+                                    }
+                                }
                             }]
                           },{
                             columnWidth:0.1,
