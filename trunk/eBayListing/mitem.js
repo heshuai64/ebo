@@ -375,7 +375,7 @@ Ext.onReady(function(){
                 'ReturnPolicyShippingCostPaidByOption','ReservePrice','CurrentPrice','ListingStatus','ScheduleTime','SecondaryCategoryCategoryID','SecondaryCategoryCategoryName','Site','SiteID','SKU','StartPrice',
                 'StoreCategory2ID','StoreCategory2Name','StoreCategoryID','StoreCategoryName','SubTitle','Title','UserID','BoldTitle','Border','Featured','Highlight','HomePageFeatured','GalleryTypeFeatured','GalleryTypeGallery','GalleryTypePlus','GalleryURL',
                 'picture_1','picture_2','picture_3','picture_4','picture_5','picture_6','picture_7','picture_8',
-                'picture_9','picture_10','template_category_id','PhotoDisplay','ShippingServiceOptionsType','InternationalShippingServiceOptionType',
+                'picture_9','picture_10','PhotoDisplay','ShippingServiceOptionsType','InternationalShippingServiceOptionType',
                 'ShippingService_1','ShippingServiceCost_1','ShippingServiceFree_1',
                 'ShippingService_2','ShippingServiceCost_2','ShippingServiceFree_2',
                 'ShippingService_3','ShippingServiceCost_3','ShippingServiceFree_3',
@@ -404,7 +404,6 @@ Ext.onReady(function(){
                 name: 'Site',
                 //allowBlank: false,
                 hiddenName:'Site',
-                allowBlank:false,
                 listeners: {
                     "select": function(c, r, i){
                         categoryStore.setBaseParam('SiteID', r.data.id);
@@ -552,7 +551,7 @@ Ext.onReady(function(){
                                                 handler:function(){
                                                     itemSpecificsForm.getForm().submit({
                                                         clientValidation: true,
-                                                        url: 'service.php?action=saveTemplateItemSpecifics&template_id='+template_id,
+                                                        url: 'service.php?action=saveSpecifics&item_id='+item_id,
                                                         success: function(form, action) {
                                                             itemSpecificsWindow.close();
                                                             //console.log(action);
@@ -583,7 +582,7 @@ Ext.onReady(function(){
                                         itemSpecificsWindow.show();
                                         
                                         itemSpecificsForm.getForm().load({
-                                            url: 'service.php?action=loadTemplateItemSpecifics&AttributeSetID='+temp.CharacteristicsSetId+'&template_id='+template_id,
+                                            url: 'service.php?action=loadSpecifics&AttributeSetID='+temp.CharacteristicsSetId+'&item_id='+item_id,
                                             waitMsg:'Please wait...',
                                             success: function(form, action){
                                                 //console.log(action);
@@ -611,12 +610,13 @@ Ext.onReady(function(){
                         xtype:"textfield",
                         fieldLabel:"Title",
                         name:"Title",
-                        allowBlank:false
+                        emptyText: "Multi Value"
                       },{
                         id:"SubTitle",
                         xtype:"textfield",
                         fieldLabel:"Subtitle",
-                        name:"SubTitle"
+                        name:"SubTitle",
+                        emptyText: "Multi Value"
                       },{
                         layout:"column",
                         border: false,
@@ -636,7 +636,7 @@ Ext.onReady(function(){
                                 hiddenName:"PrimaryCategoryCategoryName",
                                 width: 600,
                                 listWidth: 600,
-                                allowBlank:false,
+                                emptyText: "Multi Value",
                                 
                                 store: categoryStore,
                                 displayField:'name',
@@ -739,6 +739,7 @@ Ext.onReady(function(){
                                 hiddenName:"SecondaryCategoryCategoryName",
                                 width: 600,
                                 listWidth: 600,
+                                emptyText: "Multi Value",
                                 
                                 store: categoryStore,
                                 displayField:'name',
@@ -840,7 +841,8 @@ Ext.onReady(function(){
                                 name:"StoreCategoryName",
                                 hiddenName:"StoreCategoryName",
                                 width: 600,
-                                listWidth: 600
+                                listWidth: 600,
+                                emptyText: "Multi Value"
                             }]
                           },{
                             columnWidth:0.1,
@@ -929,7 +931,8 @@ Ext.onReady(function(){
                                 name:"StoreCategory2Name",
                                 hiddenName:"StoreCategory2Name",
                                 width: 600,
-                                listWidth: 600
+                                listWidth: 600,
+                                emptyText: "Multi Value"
                             }]
                           },{
                             columnWidth:0.1,
@@ -1279,7 +1282,7 @@ Ext.onReady(function(){
                         xtype:"htmleditor",
                         fieldLabel:"Descritpion",
                         name:"Description",
-                        allowBlank:false
+                        emptyText: "Multi Value"
                     },{
                         layout:"column",
                         border:false,
@@ -1366,22 +1369,6 @@ Ext.onReady(function(){
                         fieldLabel:"<font color='red'>SKU</font>",
                         name:"SKU",
                         readOnly: true
-                    },{
-                        xtype: 'combo',
-                        fieldLabel:"Template Category",
-                        mode: 'local',
-                        store: new Ext.data.JsonStore({
-                            autoLoad: true,
-                            fields: ['id', 'name'],
-                            url: "service.php?action=getTemplateCategory"
-                        }),
-                        valueField:'id',
-                        displayField:'name',
-                        triggerAction: 'all',
-                        editable: false,
-                        selectOnFocus:true,
-                        name: 'template_category_id',
-                        hiddenName:'template_category_id'
                     }]
               },{
                 columnWidth:0.3,
@@ -1410,18 +1397,20 @@ Ext.onReady(function(){
                                     xtype:"numberfield",
                                     fieldLabel:"Start Price",
                                     id:"StartPrice",
-                                    name:"StartPrice"
+                                    name:"StartPrice",
+                                    emptyText: "Multi Value"
                                   },{
                                     xtype:"numberfield",
                                     fieldLabel:"Buy It Now Price",
                                     id:"BuyItNowPrice",
-                                    name:"BuyItNowPrice"
+                                    name:"BuyItNowPrice",
+                                    emptyText: "Multi Value"
                                   },{
                                     id:"Quantity",
                                     xtype:"numberfield",
                                     fieldLabel:"Quantity",
                                     name:"Quantity",
-                                    allowBlank:false
+                                    emptyText: "Multi Value"
                                   }]
                               },{
                                 columnWidth:0.5,
@@ -1435,7 +1424,8 @@ Ext.onReady(function(){
                                     xtype:"numberfield",
                                     fieldLabel:"Reserve Price",
                                     id:"ReservePrice",
-                                    name:"ReservePrice"
+                                    name:"ReservePrice",
+                                    emptyText: "Multi Value"
                                   },{
                                     xtype:"combo",
                                     fieldLabel:"Duration",
@@ -2747,11 +2737,11 @@ Ext.onReady(function(){
                 }]
             }],
             buttons: [{
-                text: "Save Template",
+                text: "Update Multi Item",
                 handler: function(){
                     itemForm.getForm().submit({
                         clientValidation: true,
-                        url: 'service.php?action=saveTemplate&template_id='+template_id,
+                        url: 'service.php?action=updateMultiItem&item_id='+item_id,
                         success: function(form, action) {
                             //console.log(action);
                             Ext.Msg.alert("Success", action.result.msg);
@@ -2786,70 +2776,6 @@ Ext.onReady(function(){
     })
     
     itemPanel.render(document.body);
-    
-    itemForm.getForm().load({
-            url:'service.php?action=getTemplate', 
-            method:'GET', 
-            params: {id: template_id}, 
-            waitMsg:'Please wait...',
-            success: function(f, a){
-                //console.log(a.result.data);
-                switch(a.result.data.Site){
-                    case "US":
-                       categoryStore.setBaseParam('SiteID', 0);
-                    break;
-                
-                    case "UK":
-                      categoryStore.setBaseParam('SiteID', 3);
-                    break;
-                
-                    case "Australia":
-                        categoryStore.setBaseParam('SiteID', 15);
-                    break;
-                
-                    case "France":
-                        categoryStore.setBaseParam('SiteID', 71);
-                    break;
-                }
-                
-                listTypeCombo.setValue(a.result.data.ListingType);
-                ShippingServiceOptionsTypeCombo.setValue(a.result.data.ShippingServiceOptionsType);
-                shippingServiceStore.load({params: {serviceType: a.result.data.ShippingServiceOptionsType, SiteID: Ext.getCmp("SiteID").getValue()}});
-                
-                InternationalShippingServiceOptionTypeCombo.setValue(a.result.data.InternationalShippingServiceOptionType);
-                internationalShippingServiceStore.load({params: {serviceType: a.result.data.InternationalShippingServiceOptionType, SiteID: Ext.getCmp("SiteID").getValue()}});
-                
-                //console.log(a.result.data.InternationalShippingService_1);
-                if(!Ext.isEmpty(a.result.data.InternationalShippingService_1)){
-                    Ext.getCmp("InternationalShippingTo_1").show();
-                    if(a.result.data.InternationalShippingToLocations_1 == "Custom Locations"){
-                        Ext.getCmp("InternationalShippingCustom_1").show();
-                    }
-                }
-                
-                if(!Ext.isEmpty(a.result.data.InternationalShippingService_2)){
-                    Ext.getCmp("InternationalShippingTo_2").show();
-                    if(a.result.data.InternationalShippingToLocations_2 == "Custom Locations"){
-                        Ext.getCmp("InternationalShippingCustom_2").show();
-                    }
-                }
-                
-                if(!Ext.isEmpty(a.result.data.InternationalShippingService_3)){
-                    Ext.getCmp("InternationalShippingTo_3").show();
-                    if(a.result.data.InternationalShippingToLocations_3 == "Custom Locations"){
-                        Ext.getCmp("InternationalShippingCustom_3").show();
-                    }
-                }
-                
-                for(var i = 1; i <= 10; i++){
-                    //console.log(document.getElementById("picture_"+i).value);
-                    if(!Ext.isEmpty(document.getElementById("picture_"+i).value)){
-                        Ext.getCmp("picture_panel_"+i).body.dom.innerHTML = '<img width="60" height="60" src="' + document.getElementById("picture_"+i).value + '"/>';
-                    }
-                }
-            }
-        }
-    );
         
     //Schedule Time  --------------------------------------------------------------------------------
     Ext.select(".schedule-time").on("click",function(e, el){
@@ -2858,7 +2784,7 @@ Ext.onReady(function(){
         var timeStore = new Ext.data.JsonStore({
             //root:"timeList",
             autoLoad:true,
-            url:'service.php?action=getTemplateScheduleTime&template_id='+template_id+'&dayTime='+el.childNodes[0].id,
+            url:'service.php?action=getScheduleTime&item_id='+item_id+'&dayTime='+el.childNodes[0].id,
             fields: [{name:'time', type:'string'}],
             sortInfo: {
                 field: 'time',
@@ -2917,14 +2843,14 @@ Ext.onReady(function(){
                         handler: function(){
                             if(Ext.getCmp("nowStartTime").getValue != ""){
                                 Ext.Ajax.request({
-                                    url: 'service.php?action=addTemplateScheduleTime',
+                                    url: 'service.php?action=addScheduleTime',
                                     success: function(){
                                             timeStore.reload();
                                         },
                                     failure: function(){},
                                     params: {
                                             dayTime: el.childNodes[0].id,
-                                            template_id: template_id,
+                                            item_id: item_id,
                                             time: Ext.getCmp("nowStartTime").getValue()
                                         }
                                 });
@@ -2951,14 +2877,14 @@ Ext.onReady(function(){
                                 }
                                 //console.log(id);
                                 Ext.Ajax.request({
-                                    url: 'service.php?action=deleteTemplateScheduleTime',
+                                    url: 'service.php?action=deleteScheduleTime',
                                     success: function(){
                                             timeStore.reload();
                                         },
                                     failure: function(){},
                                     params: {
                                             dayTime: el.childNodes[0].id,
-                                            template_id: template_id,
+                                            item_id: item_id,
                                             id: id
                                         }
                                 });
@@ -2975,14 +2901,14 @@ Ext.onReady(function(){
                         text:"Delete All",
                         handler: function(){
                             Ext.Ajax.request({
-                                url: 'service.php?action=deleteAllTemplateScheduleTime',
+                                url: 'service.php?action=deleteAllScheduleTime',
                                 success: function(){
                                         timeStore.reload();
                                     },
                                 failure: function(){},
                                 params: {
                                         dayTime: el.childNodes[0].id,
-                                        template_id: template_id
+                                        item_id: item_id
                                     }
                             });
                         }
@@ -2995,7 +2921,7 @@ Ext.onReady(function(){
                         text:"Ok",
                         handler: function(){
                             Ext.Ajax.request({
-                                url: 'service.php?action=saveTemplateScheduleTime',
+                                url: 'service.php?action=saveScheduleTime',
                                 success: function(){
                                         if(timeStore.getCount() > 0){
                                             Ext.getCmp(el.childNodes[0].id + "-panel").body.applyStyles("background-color:red;");
@@ -3009,7 +2935,7 @@ Ext.onReady(function(){
                                 failure: function(){},
                                 params: {
                                         dayTime: el.childNodes[0].id,
-                                        template_id: template_id
+                                        item_id: item_id
                                     }
                             });
                         }

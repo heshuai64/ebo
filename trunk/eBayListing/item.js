@@ -375,7 +375,7 @@ Ext.onReady(function(){
                 'ReturnPolicyShippingCostPaidByOption','ReservePrice','CurrentPrice','ListingStatus','ScheduleTime','SecondaryCategoryCategoryID','SecondaryCategoryCategoryName','Site','SiteID','SKU','StartPrice',
                 'StoreCategory2ID','StoreCategory2Name','StoreCategoryID','StoreCategoryName','SubTitle','Title','UserID','BoldTitle','Border','Featured','Highlight','HomePageFeatured','GalleryTypeFeatured','GalleryTypeGallery','GalleryTypePlus','GalleryURL',
                 'picture_1','picture_2','picture_3','picture_4','picture_5','picture_6','picture_7','picture_8',
-                'picture_9','picture_10','template_category_id','PhotoDisplay','ShippingServiceOptionsType','InternationalShippingServiceOptionType',
+                'picture_9','picture_10','PhotoDisplay','ShippingServiceOptionsType','InternationalShippingServiceOptionType',
                 'ShippingService_1','ShippingServiceCost_1','ShippingServiceFree_1',
                 'ShippingService_2','ShippingServiceCost_2','ShippingServiceFree_2',
                 'ShippingService_3','ShippingServiceCost_3','ShippingServiceFree_3',
@@ -552,7 +552,7 @@ Ext.onReady(function(){
                                                 handler:function(){
                                                     itemSpecificsForm.getForm().submit({
                                                         clientValidation: true,
-                                                        url: 'service.php?action=saveItemSpecifics&item_id='+item_id,
+                                                        url: 'service.php?action=saveSpecifics&item_id='+item_id,
                                                         success: function(form, action) {
                                                             itemSpecificsWindow.close();
                                                             //console.log(action);
@@ -583,7 +583,7 @@ Ext.onReady(function(){
                                         itemSpecificsWindow.show();
                                         
                                         itemSpecificsForm.getForm().load({
-                                            url: 'service.php?action=loadItemSpecifics&AttributeSetID='+temp.CharacteristicsSetId+'&item_id='+item_id,
+                                            url: 'service.php?action=loadSpecifics&AttributeSetID='+temp.CharacteristicsSetId+'&item_id='+item_id,
                                             waitMsg:'Please wait...',
                                             success: function(form, action){
                                                 //console.log(action);
@@ -1366,22 +1366,6 @@ Ext.onReady(function(){
                         fieldLabel:"<font color='red'>SKU</font>",
                         name:"SKU",
                         readOnly: true
-                    },{
-                        xtype: 'combo',
-                        fieldLabel:"Template Category",
-                        mode: 'local',
-                        store: new Ext.data.JsonStore({
-                            autoLoad: true,
-                            fields: ['id', 'name'],
-                            url: "service.php?action=getTemplateCategory"
-                        }),
-                        valueField:'id',
-                        displayField:'name',
-                        triggerAction: 'all',
-                        editable: false,
-                        selectOnFocus:true,
-                        name: 'template_category_id',
-                        hiddenName:'template_category_id'
                     }]
               },{
                 columnWidth:0.3,
@@ -2747,11 +2731,11 @@ Ext.onReady(function(){
                 }]
             }],
             buttons: [{
-                text: "Save Template",
+                text: "Update Item",
                 handler: function(){
                     itemForm.getForm().submit({
                         clientValidation: true,
-                        url: 'service.php?action=saveItem&item_id='+item_id,
+                        url: 'service.php?action=updateItem&item_id='+item_id,
                         success: function(form, action) {
                             //console.log(action);
                             Ext.Msg.alert("Success", action.result.msg);

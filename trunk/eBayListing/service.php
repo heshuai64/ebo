@@ -1076,34 +1076,6 @@ class eBayListing{
 	}
     }
     
-    public function loadTemplateItemSpecifics(){
-	session_start();
-	if(!empty($_SESSION['AttributeSet'][$_GET['template_id']][$_GET['AttributeSetID']])){
-	    echo '['.json_encode($_SESSION['AttributeSet'][$_GET['template_id']][$_GET['AttributeSetID']]).']';
-	}
-	//print_r($_SESSION['AttributeSet']);
-    }
-    
-    public function saveTemplateItemSpecifics(){
-	session_start();
-	unset($_SESSION['AttributeSet'][$_GET['template_id']][$_POST['CharacteristicsSetId']]);
-	//unset($_SESSION);
-	foreach($_POST as $key=>$value){
-	    if($key != "CharacteristicsSetId"){
-		$_SESSION['AttributeSet'][$_GET['template_id']][$_POST['CharacteristicsSetId']][$key] = $value;
-	    }
-	}
-	//print_r($_SESSION['AttributeSet'][$_GET['sku']][$_POST['CharacteristicsSetId']]);
-	if(!empty($_SESSION['AttributeSet'][$_GET['template_id']][$_POST['CharacteristicsSetId']])){
-		echo 	'{success: true}';
-		
-	}else{
-		echo 	'{success: false,
-			  errors: {message: "can\'t create."}
-			}';
-	}
-    }
-    
     public function copyTemplate(){
 	if(strpos($_POST['ids'], ',')){
 	    $array = explode(',', $_POST['ids']);
@@ -1292,7 +1264,7 @@ class eBayListing{
 	mysql_free_result($result);
     }
     
-    public function saveTemplate(){
+    public function updateTemplate(){
 	
 	if(!empty($_POST['UseStandardFooter']) && $_POST['UseStandardFooter'] == 1){
 	    $sql = "select footer from account_footer where accountId = '".$this->account_id."'";
@@ -1572,7 +1544,7 @@ class eBayListing{
 	if($result && $result_1 && $result_6){
 	    //unset($_SESSION['Schedule']);
 	    //unset($_SESSION['AttributeSet']);
-	    echo '{success: true, msg: "Save Template Success!"}';
+	    echo '{success: true, msg: "Update Template Success!"}';
 	    eBayListing::log("template", "update template ".$id." success.");
 	}else{
 	    echo '{success: false,
@@ -2033,7 +2005,7 @@ class eBayListing{
 	//print_r($_SESSION['Schedule']);
     }
     
-    public function saveTemplateScheduleTime(){
+    public function updateTemplateScheduleTime(){
 	
     }
     
@@ -2509,30 +2481,46 @@ class eBayListing{
 	//print_r($array);
 	echo json_encode($array);
     }
-    public function loadItemSpecifics(){
+    
+    // -----------------  Specifics ---------------------------------------------
+    public function loadSpecifics(){
+	if(!empty($_GET['sku'])){
+	    $id = $_GET['sku'];
+	}elseif(!empty($_GET['template_id'])){
+	    $id = $_GET['template_id'];
+	}elseif(!empty($_GET['item_id'])){
+	    $id = $_GET['item_id'];
+	}
 	session_start();
-	if(!empty($_SESSION['AttributeSet'][$_GET['sku']][$_GET['AttributeSetID']])){
-	    echo '['.json_encode($_SESSION['AttributeSet'][$_GET['sku']][$_GET['AttributeSetID']]).']';
+	if(!empty($_SESSION['AttributeSet'][$id][$_GET['AttributeSetID']])){
+	    echo '['.json_encode($_SESSION['AttributeSet'][$id][$_GET['AttributeSetID']]).']';
 	}
 	//print_r($_SESSION['AttributeSet']);
     }
-    //---------------------------------------------------------------------------------
-    public function saveItemSpecifics(){
+    
+    public function saveSpecifics(){
+	if(!empty($_GET['sku'])){
+	    $id = $_GET['sku'];
+	}elseif(!empty($_GET['template_id'])){
+	    $id = $_GET['template_id'];
+	}elseif(!empty($_GET['item_id'])){
+	    $id = $_GET['item_id'];
+	}
 	session_start();
-	unset($_SESSION['AttributeSet'][$_GET['sku']][$_POST['CharacteristicsSetId']]);
+	unset($_SESSION['AttributeSet'][$id][$_POST['CharacteristicsSetId']]);
 	//unset($_SESSION);
 	foreach($_POST as $key=>$value){
 	    if($key != "CharacteristicsSetId"){
-		$_SESSION['AttributeSet'][$_GET['sku']][$_POST['CharacteristicsSetId']][$key] = $value;
+		$_SESSION['AttributeSet'][$id][$_POST['CharacteristicsSetId']][$key] = $value;
 	    }
 	}
 	//print_r($_SESSION['AttributeSet'][$_GET['sku']][$_POST['CharacteristicsSetId']]);
-	if(!empty($_SESSION['AttributeSet'][$_GET['sku']][$_POST['CharacteristicsSetId']])){
+	if(!empty($_SESSION['AttributeSet'][$id][$_POST['CharacteristicsSetId']])){
 		echo 	'{success: true}';
 		
 	}else{
 		echo 	'{success: false,
-			  errors: {message: "can\'t create."}
+			  errors: {message: "can\'t save."}
 			}';
 	}
     }
@@ -2892,71 +2880,252 @@ class eBayListing{
     
     public function getItem(){
     	session_start();
-		$sql = "select * from items where Id = '".$_GET['id']."'";
-		$result = mysql_query($sql, eBayListing::$database_connect);
-		$row = mysql_fetch_assoc($result);
-		$row['SiteID'] = $row['Site'];
-		unset($_SESSION['AttributeSet'][$row['Id']]);
-		
-		$sql_1 = "select url from picture_url where ItemID = '".$row['Id']."'";
-		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-		$i = 1;
-		while($row_1 = mysql_fetch_assoc($result_1)){
-		    $row['picture_'.$i] = $row_1['url'];
-		    $i++;
+	$sql = "select * from items where Id = '".$_GET['id']."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	$row['SiteID'] = $row['Site'];
+	unset($_SESSION['AttributeSet'][$row['Id']]);
+	
+	$sql_1 = "select url from picture_url where ItemID = '".$row['Id']."'";
+	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	$i = 1;
+	while($row_1 = mysql_fetch_assoc($result_1)){
+	    $row['picture_'.$i] = $row_1['url'];
+	    $i++;
+	}
+	
+	$sql_3 = "select * from shipping_service_options where ItemID = '".$row['Id']."'";
+	$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+	$i = 1;
+	while($row_3 = mysql_fetch_assoc($result_3)){
+	    $row['ShippingService_'.$i] = $row_3['ShippingService'];
+	    $row['ShippingServiceCost_'.$i] = $row_3['ShippingServiceCost'];
+	    $row['ShippingServiceFree_'.$i] = $row_3['FreeShipping'];
+	}
+	
+	$sql_4 = "select * from international_shipping_service_option where ItemID = '".$row['Id']."'";
+	$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+	$i = 1;
+	while($row_4 = mysql_fetch_assoc($result_4)){
+	    $row['InternationalShippingService_'.$i] = $row_4['ShippingService'];
+	    $row['InternationalShippingServiceCost_'.$i] = $row_4['ShippingServiceCost'];
+	    $array = explode(",", $row_4['ShipToLocation']);
+	    if(count($array) > 1){
+		$row['InternationalShippingToLocations_'.$i] = "Custom Locations";
+		foreach($array as $v){
+		    $row[$v.'_'.$i] = 1;
 		}
-		
-		$sql_3 = "select * from shipping_service_options where ItemID = '".$row['Id']."'";
-		$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
-		$i = 1;
-		while($row_3 = mysql_fetch_assoc($result_3)){
-		    $row['ShippingService_'.$i] = $row_3['ShippingService'];
-		    $row['ShippingServiceCost_'.$i] = $row_3['ShippingServiceCost'];
-		    $row['ShippingServiceFree_'.$i] = $row_3['FreeShipping'];
+	    }elseif($row_4['ShipToLocation'] == "Worldwide"){
+		$row['InternationalShippingToLocations_'.$i] = "Worldwide";
+	    }else{
+		$row['InternationalShippingToLocations_'.$i] = "Custom Locations";
+		$row[$row_4['ShipToLocation'].'_'.$i] = 1;
+	    }
+	}
+	
+	$sql_5 = "select * from attribute_set where ItemID = '".$row['Id']."'";
+	$result_5 = mysql_query($sql_5, eBayListing::$database_connect);
+	$row_5 = mysql_fetch_assoc($result_5);
+	
+	$sql_6 = "select * from attribute where attribute_set_id = '".$row_5['attribute_set_id']."'";
+	$result_6 = mysql_query($sql_6, eBayListing::$database_connect);
+	while($row_6 = mysql_fetch_assoc($result_6)){
+	    if(strpos($row_6['ValueID'], ',')){
+		$array = explode(',', $row_6['ValueID']);
+		foreach($array as $a){
+		    $_SESSION['AttributeSet'][$row['Id']][$row_5['attributeSetID']][$a.'_checkbox'] = $row_6['attributeID'].'_on';
 		}
-		
-		$sql_4 = "select * from international_shipping_service_option where ItemID = '".$row['Id']."'";
-		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-		$i = 1;
-		while($row_4 = mysql_fetch_assoc($result_4)){
-		    $row['InternationalShippingService_'.$i] = $row_4['ShippingService'];
-		    $row['InternationalShippingServiceCost_'.$i] = $row_4['ShippingServiceCost'];
-		    $array = explode(",", $row_4['ShipToLocation']);
-		    if(count($array) > 1){
-			$row['InternationalShippingToLocations_'.$i] = "Custom Locations";
-			foreach($array as $v){
-			    $row[$v.'_'.$i] = 1;
-			}
-		    }elseif($row_4['ShipToLocation'] == "Worldwide"){
-			$row['InternationalShippingToLocations_'.$i] = "Worldwide";
-		    }else{
-			$row['InternationalShippingToLocations_'.$i] = "Custom Locations";
-			$row[$row_4['ShipToLocation'].'_'.$i] = 1;
-		    }
-		}
-		
-		$sql_5 = "select * from attribute_set where item_id = '".$row['Id']."'";
-		$result_5 = mysql_query($sql_5, eBayListing::$database_connect);
-		$row_5 = mysql_fetch_assoc($result_5);
-		
-		$sql_6 = "select * from attribute where attribute_set_id = '".$row_5['attribute_set_id']."'";
-		$result_6 = mysql_query($sql_6, eBayListing::$database_connect);
-		while($row_6 = mysql_fetch_assoc($result_6)){
-		    if(strpos($row_6['ValueID'], ',')){
-			$array = explode(',', $row_6['ValueID']);
-			foreach($array as $a){
-			    $_SESSION['AttributeSet'][$row['Id']][$row_5['attributeSetID']][$a.'_checkbox'] = $row_6['attributeID'].'_on';
-			}
-		    }else{
-			$_SESSION['AttributeSet'][$row['Id']][$row_5['attributeSetID']][$row_6['attributeID']] = $row_6['ValueID'];
-		    }
-		}
-		
-		echo '['.json_encode($row).']';
-		mysql_free_result($result);
+	    }else{
+		$_SESSION['AttributeSet'][$row['Id']][$row_5['attributeSetID']][$row_6['attributeID']] = $row_6['ValueID'];
+	    }
+	}
+	
+	echo '['.json_encode($row).']';
+	mysql_free_result($result);
     }
     
-    public function saveMItem(){
+    public function updateItem(){
+	if(!empty($_POST['UseStandardFooter']) && $_POST['UseStandardFooter'] == 1){
+	    $sql = "select footer from account_footer where accountId = '".$this->account_id."'";
+	    $result = mysql_query($sql, eBayListing::$database_connect);
+	    $row = mysql_fetch_assoc($result);
+	    $_POST['Description'] .= $row['footer'];
+	}
+	
+	if($_POST['ListingType'] == "FixedPriceItem" || $_POST['ListingType'] == "StoresFixedPrice"){
+	    $_POST['StartPrice'] = $_POST['BuyItNowPrice'];
+	    $_POST['BuyItNowPrice'] = 0;
+	}
+	
+	if($_POST['ListingType'] == "Chinese"){
+	    $_POST['Quantity'] = 1;   
+	}
+	
+	$id = $_GET['item_id'];
+	//StartTime,EndTime
+	//$PaymentMethods = ($_POST['PayPalPayment'] == 1)?'PayPal':'';
+	$sql = "update items set 
+	BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
+	Description='".mysql_real_escape_string($_POST['Description'])."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
+	ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
+	PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
+	PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
+	SecondaryCategoryCategoryID='".$_POST['SecondaryCategoryCategoryID']."',SecondaryCategoryCategoryName='".$_POST['SecondaryCategoryCategoryName']."',
+	Quantity='".@$_POST['Quantity']."',ReservePrice='".@$_POST['ReservePrice']."',
+	Site='".$_POST['Site']."',SKU='".$_POST['SKU']."',StartPrice='".$_POST['StartPrice']."',StoreCategory2ID='".$_POST['StoreCategory2ID']."',StoreCategory2Name='".$_POST['StoreCategory2Name']."',
+	StoreCategoryID='".$_POST['StoreCategoryID']."',StoreCategoryName='".$_POST['StoreCategoryName']."',SubTitle='".$_POST['SubTitle']."',
+	Title='".mysql_real_escape_string($_POST['Title'])."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
+	Border='".(empty($_POST['Border'])?0:1)."',Featured='".(empty($_POST['Featured'])?0:1)."',Highlight='".(empty($_POST['Highlight'])?0:1)."',
+	HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',
+	accountId='".$this->account_id."' where Id = '".$id."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	
+	//echo $sql;
+	//exit;
+	
+	$sql_1 = "delete from picture_url where ItemID = '".$id."'";
+	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	$i = 1;
+	while(!empty($_POST['picture_'.$i])){
+	    $sql_1 = "insert into picture_url (ItemID,url) values 
+	    ('".$id."','".$_POST['picture_'.$i]."')";
+	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	    $i++;
+	}
+	
+	$sql_1 = "delete from shipping_service_options where ItemID = '".$id."'";
+	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	$i = 1;
+	while(!empty($_POST['ShippingService_'.$i])){
+	    $sql_1 = "insert into shipping_service_options (ItemID,FreeShipping,ShippingService,ShippingServiceCost) values
+	    ('".$id."','".@$_POST['FreeShipping_'.$i]."','".$_POST['ShippingService_'.$i]."','".$_POST['ShippingServiceCost_'.$i]."')";
+	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	    $i++;
+	}
+	
+	$sql_1 = "delete from international_shipping_service_option where ItemID = '".$id."'";
+	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	$i = 1;
+	while(!empty($_POST['InternationalShippingService_'.$i])){
+	    $ShipToLocation = '';
+	    if($_POST['InternationalShippingToLocations_'.$i] == 'Custom Locations'){
+		if(!empty($_POST['Americas_'.$i]) && $_POST['Americas_'.$i] == 1){
+		    $ShipToLocation .= ',Americas';
+		}
+		
+		if(!empty($_POST['Europe_'.$i]) && $_POST['Europe_'.$i] == 1){
+		    $ShipToLocation .= ',Europe';
+		}
+		
+		if(!empty($_POST['Asia_'.$i]) && $_POST['Asia_'.$i] == 1){
+		    $ShipToLocation .= ',Asia';
+		}
+		
+		if(!empty($_POST['CA_'.$i]) && $_POST['CA_'.$i] == 1){
+		    $ShipToLocation .= ',CA';
+		}
+		
+		if(!empty($_POST['GB_'.$i]) && $_POST['GB_'.$i] == 1){
+		    $ShipToLocation .= ',GB';
+		}
+		
+		if(!empty($_POST['AU_'.$i]) && $_POST['AU_'.$i] == 1){
+		    $ShipToLocation .= ',AU';
+		}
+		
+		if(!empty($_POST['MX_'.$i]) && $_POST['MX_'.$i] == 1){
+		    $ShipToLocation .= ',MX';
+		}
+		
+		if(!empty($_POST['DE_'.$i]) && $_POST['DE_'.$i] == 1){
+		    $ShipToLocation .= ',DE';
+		}
+		
+		if(!empty($_POST['JP_'.$i]) && $_POST['JP_'.$i] == 1){
+		    $ShipToLocation .= ',JP';
+		}
+		
+		$ShipToLocation = substr($ShipToLocation, 1);
+	    }else{
+		$ShipToLocation = 'Worldwide';
+	    }
+	    $sql_2 = "insert into international_shipping_service_option (ItemID,ShippingService,ShippingServiceCost,ShipToLocation) values
+	    ('".$id."','".$_POST['InternationalShippingService_'.$i]."','".$_POST['InternationalShippingServiceCost_'.$i]."','".$ShipToLocation."')";
+	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
+	    $i++;
+	}
+	
+	session_start();
+	$temp_array = array();
+	if(!empty($_SESSION['AttributeSet'])){
+	    //print_r($_SESSION['AttributeSet']);
+	    //exit;
+	    $sql_4 = "select attribute_set_id from attribute_set where ItemID = '".$id."'";
+	    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+	    $row_4 = mysql_fetch_assoc($result_4);
+	    
+	    $sql_4 = "delete from attribute where attribute_set_id = '".$row_4['attribute_set_id']."'";
+	    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+	    
+	    $sql_4 = "delete from attribute_set where ItemID = '".$id."'";
+	    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+	
+	    foreach($_SESSION['AttributeSet'][$id] as $attributeSetID=>$Attribute){
+		$sql_4 = "insert into attribute_set (ItemID,attributeSetID) values ('".$id."', '".$attributeSetID."')";
+		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+		
+		$attribute_set_id = mysql_insert_id(eBayListing::$database_connect);
+		$temp_array = array();
+		foreach($Attribute as $attributeID=>$ValueID){
+		    if(!empty($ValueID)){
+			if(strpos($ValueID, "on") != false){
+			    $tempAttributeID = $attributeID;
+			    $attributeID = substr($ValueID, 0, -3);
+			    $ValueID = substr($tempAttributeID, 0, -9);
+			    //echo $attributeID.":".$ValueID;
+			    //echo "\n";
+			    $temp_array[$attributeID][] = $ValueID;
+			}else{
+				$sql_4 = "insert into attribute (attributeID,attribute_set_id,ValueID) values 
+				('".$attributeID."', '".$attribute_set_id."', '".$ValueID."')";
+				$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+				
+				//echo $sql_4;
+				//echo "\n";
+			}
+		    }
+		}
+		
+		//print_r($temp_array);
+		if(count($temp_array) > 0){
+		    foreach($temp_array as $key=>$value){
+			$ValueID = "";
+			foreach($value as $name){
+			    $ValueID .= $name.',';
+			}
+			$ValueID = substr($ValueID, 0, -1);
+			$sql_4 = "insert into attribute (attributeID,attribute_set_id,ValueID) values 
+			('".$key."', '".$attribute_set_id."', '".$ValueID."')";
+			$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+		    }
+		}
+	    }
+	}
+	
+	if($result && $result_1){
+	    //unset($_SESSION['Schedule']);
+	    //unset($_SESSION['AttributeSet']);
+	    echo '{success: true, msg: "Update Item Success!"}';
+	    eBayListing::log("item", "update item ".$id." success.");
+	}else{
+	    echo '{success: false,
+		    errors: {message: "can\'t create."}
+		}';
+	    eBayListing::log("item", "update item ".$id." failure.", "error");
+	}
+    }
+    
+    public function updateMultiItem(){
 	//print_r($_POST);
 	
 	if(strpos($_POST['item_id'], ',')){
@@ -3627,7 +3796,7 @@ class eBayListing{
 	$result = mysql_query($sql, eBayListing::$database_connect);
     }
     
-    private function updateItem($item, $userId){
+    private function eBayUpdateItem($item, $userId){
 	/*
 	$sql = "update items set AutoPay='".mysql_escape_string($item->AutoPay)."',AutoPay='".mysql_escape_string($item->AutoPay)."',
 	BuyItNowPrice='".mysql_escape_string($item->BuyItNowPrice)."',Country='".mysql_escape_string($item->Country)."',
@@ -3745,7 +3914,7 @@ class eBayListing{
 			//if($this->checkItem($item->ItemID) == 0){
 			//    $this->insertItem($item, $results->Seller->UserID);
 			//}else{
-			    $this->updateItem($item, $results->Seller->UserID);
+			    $this->eBayUpdateItem($item, $results->Seller->UserID);
 			//}
 			/*
 			//ShippingServiceOptions
@@ -3778,7 +3947,7 @@ class eBayListing{
 		    //if($this->checkItem($results->ItemArray->Item->ItemID) == 0){
 		    //	$this->insertItem($results->ItemArray->Item, $results->Seller->UserID);
 		    //}else{
-			$this->updateItem($results->ItemArray->Item, $results->Seller->UserID);
+			$this->eBayUpdateItem($results->ItemArray->Item, $results->Seller->UserID);
 		    //}
 		    /*
 		    //ShippingServiceOptions

@@ -552,7 +552,7 @@ Ext.onReady(function(){
                                                 handler:function(){
                                                     itemSpecificsForm.getForm().submit({
                                                         clientValidation: true,
-                                                        url: 'service.php?action=saveTemplateItemSpecifics&template_id='+template_id,
+                                                        url: 'service.php?action=saveSpecifics&template_id='+template_id,
                                                         success: function(form, action) {
                                                             itemSpecificsWindow.close();
                                                             //console.log(action);
@@ -583,7 +583,7 @@ Ext.onReady(function(){
                                         itemSpecificsWindow.show();
                                         
                                         itemSpecificsForm.getForm().load({
-                                            url: 'service.php?action=loadTemplateItemSpecifics&AttributeSetID='+temp.CharacteristicsSetId+'&template_id='+template_id,
+                                            url: 'service.php?action=loadSpecifics&AttributeSetID='+temp.CharacteristicsSetId+'&template_id='+template_id,
                                             waitMsg:'Please wait...',
                                             success: function(form, action){
                                                 //console.log(action);
@@ -2747,11 +2747,11 @@ Ext.onReady(function(){
                 }]
             }],
             buttons: [{
-                text: "Save Template",
+                text: "Update Template",
                 handler: function(){
                     itemForm.getForm().submit({
                         clientValidation: true,
-                        url: 'service.php?action=saveTemplate&template_id='+template_id,
+                        url: 'service.php?action=updateTemplate&template_id='+template_id,
                         success: function(form, action) {
                             //console.log(action);
                             Ext.Msg.alert("Success", action.result.msg);
@@ -2995,7 +2995,7 @@ Ext.onReady(function(){
                         text:"Ok",
                         handler: function(){
                             Ext.Ajax.request({
-                                url: 'service.php?action=saveTemplateScheduleTime',
+                                url: 'service.php?action=updateTemplateScheduleTime',
                                 success: function(){
                                         if(timeStore.getCount() > 0){
                                             Ext.getCmp(el.childNodes[0].id + "-panel").body.applyStyles("background-color:red;");
