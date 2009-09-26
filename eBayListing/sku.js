@@ -414,7 +414,7 @@ Ext.onReady(function(){
                                                 handler:function(){
                                                     itemSpecificsForm.getForm().submit({
                                                         clientValidation: true,
-                                                        url: 'service.php?action=saveItemSpecifics&sku='+sku,
+                                                        url: 'service.php?action=saveSpecifics&sku='+sku,
                                                         success: function(form, action) {
                                                             itemSpecificsWindow.close();
                                                             //console.log(action);
@@ -445,7 +445,7 @@ Ext.onReady(function(){
                                         itemSpecificsWindow.show();
                                         
                                         itemSpecificsForm.getForm().load({
-                                            url: 'service.php?action=loadItemSpecifics&AttributeSetID='+temp.CharacteristicsSetId+'&sku='+sku,
+                                            url: 'service.php?action=loadSpecifics&AttributeSetID='+temp.CharacteristicsSetId+'&sku='+sku,
                                             waitMsg:'Please wait...',
                                             success: function(form, action){
                                                 //console.log(action);
@@ -2672,7 +2672,7 @@ Ext.onReady(function(){
                 }]
             }],
             buttons: [{
-                text: "Add to Template",
+                text: "Add To Template",
                 handler: function(){
                     itemForm.getForm().submit({
                         clientValidation: true,
