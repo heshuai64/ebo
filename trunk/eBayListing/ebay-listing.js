@@ -4,7 +4,8 @@ Ext.onReady(function(){
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      
-     var path = "/eBayBO/eBayListing/";
+     //var path = "/eBayBO/eBayListing/";
+     var path = "/eBayListing/";
      /*
      var cp = new Ext.state.CookieProvider({
           path: "/eBayBO/eBayListing/"
@@ -241,49 +242,8 @@ Ext.onReady(function(){
                {header: "Duration", width: 100, align: 'center', sortable: true, dataIndex: 'ListingDuration'}
           ],
           tbar:[{
-               text: 'Add To Upload',
-               icon: './images/arrow_up.png',
-               tooltip:'add selected template to upload queue',
-               handler: function(){
-                    var selections = template_grid.selModel.getSelections();
-                    if(template_grid.selModel.getCount() == 0){
-                         Ext.MessageBox.alert('Warning','Please select the template you want to upload.');
-                         return 0;
-                    }
-                    var ids = "";
-                    for(var i = 0; i< template_grid.selModel.getCount(); i++){
-                         ids += selections[i].data.Id + ","
-                    }
-                    ids = ids.slice(0,-1);
-                    //console.log(ids);
-                    
-                    Ext.Ajax.request({  
-                         waitMsg: 'Please Wait',
-                         url: 'service.php?action=templateAddToUpload', 
-                         params: { 
-                                ids: ids
-                         }, 
-                         success: function(response){
-                             var result=eval(response.responseText);
-                             switch(result){
-                                case 1:  // Success : simply reload
-                                  template_store.reload();
-                                  break;
-                                default:
-                                  Ext.MessageBox.alert('Warning','data error, please check template data.');
-                                  break;
-                             }
-                         },
-                         failure: function(response){
-                             var result=response.responseText;
-                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
-                         }
-                    });
-                    return 1;
-               }
-          },'-',{
                     text:'Copy',
-                    icon: './images/plugin_go.png',
+                    icon: './images/plugin_link.png',
                     tooltip:'copy template',
                     handler: function(){
                          var selections = template_grid.selModel.getSelections();
@@ -380,15 +340,15 @@ Ext.onReady(function(){
                     return 1;
                }
           },'-',{
-               text: 'Import CSV',
+               text: 'Import',
                icon: './images/folder_database.png',
-               tooltip:'Import csv file, sku and tiitle / sku and price',
+               tooltip:'Import CSV file, include sku and tiitle / sku and price / sku and quantiry',
                handler: function(){
                     var  importCsvWindow = new Ext.Window({
                          title: 'Import CSV File' ,
                          closable:true,
                          width: 320,
-                         height: 200,
+                         height: 400,
                          plain:true,
                          layout: 'fit',
                          items: [{
@@ -403,6 +363,99 @@ Ext.onReady(function(){
                                   anchor: '95%'
                                   //allowBlank: false
                               },
+                              items:[{
+                                   title:"Update Content",
+                                   xtype:"fieldset",
+                                   items:[{
+                                        xtype: 'fileuploadfield',
+                                        id: 'spcsv',
+                                        emptyText: 'Select an csv file',
+                                        fieldLabel: 'Sku and Price',
+                                        //hideLabel:true,
+                                        name: 'spcsv',
+                                        buttonText: '',
+                                        buttonCfg: {
+                                            iconCls: 'upload-icon'
+                                        }
+                                   },{
+                                        xtype: 'button',
+                                        text: 'Upload',
+                                        handler: function(){
+                                             var fp = Ext.getCmp("csv-form");
+                                             if(fp.getForm().isValid()){
+                                                  fp.getForm().submit({
+                                                       url: 'service.php?action=templateImportCsv&type=spcsv',
+                                                       waitMsg: 'Uploading your csv...',
+                                                       success: function(fp, o){
+                                                            template_store.reload();
+                                                            importCsvWindow.close();
+                                                            Ext.MessageBox.alert('Success','Update template sku price success!');
+                                                       }
+                                                  });
+                                             }
+                                        }
+                                   },{
+                                        xtype: 'fileuploadfield',
+                                        id: 'sqcsv',
+                                        emptyText: 'Select an csv file',
+                                        fieldLabel: 'Sku and Qty',
+                                        //hideLabel:true,
+                                        name: 'sqcsv',
+                                        buttonText: '',
+                                        buttonCfg: {
+                                            iconCls: 'upload-icon'
+                                        }
+                                   },{
+                                        xtype: 'button',
+                                        text: 'Upload',
+                                        handler: function(){
+                                             var fp = Ext.getCmp("csv-form");
+                                             if(fp.getForm().isValid()){
+                                                  fp.getForm().submit({
+                                                       url: 'service.php?action=templateImportCsv&type=sqcsv',
+                                                       waitMsg: 'Uploading your csv...',
+                                                       success: function(fp, o){
+                                                            template_store.reload();
+                                                            importCsvWindow.close();
+                                                            Ext.MessageBox.alert('Success','Update template sku quantiry success!');
+                                                       }
+                                                  });
+                                             }
+                                        }
+                                   }]
+                              },{
+                                   title:"Add TO Upload",
+                                   xtype:"fieldset",
+                                   items:[{
+                                        xtype: 'fileuploadfield',
+                                        id: 'stcsv',
+                                        emptyText: 'Select an csv file',
+                                        fieldLabel: 'Sku and Title',
+                                        //hideLabel:true,
+                                        name: 'stcsv',
+                                        buttonText: '',
+                                        buttonCfg: {
+                                            iconCls: 'upload-icon'
+                                        }
+                                   },{
+                                        xtype: 'button',
+                                        text: 'Upload',
+                                        handler: function(){
+                                             var fp = Ext.getCmp("csv-form");
+                                             if(fp.getForm().isValid()){
+                                                  fp.getForm().submit({
+                                                       url: 'service.php?action=templateImportCsv&type=stcsv',
+                                                       waitMsg: 'Uploading your csv...',
+                                                       success: function(fp, o){
+                                                            importCsvWindow.close();
+                                                            Ext.MessageBox.alert('Success','add to waiting to upload success!');
+                                                       }
+                                                  });
+                                             }
+                                        }
+                                   }]
+                              }]
+                              /*
                               items:[{
                                    xtype: 'fileuploadfield',
                                    id: 'spcsv',
@@ -458,6 +511,7 @@ Ext.onReady(function(){
                                         }
                                    }
                               }]
+                              */
                          }],                                           
                          buttons: [{
                                         text: 'Close',
@@ -470,7 +524,14 @@ Ext.onReady(function(){
                     importCsvWindow.show();   
                }
           },'-',{
-               text: 'Import SpoonFeeder Template',
+               text: 'Export',
+               icon: './images/plugin_go.png',
+               tooltip:'Export to CSV',
+               handler: function(){
+                    window.open("service.php?action=templateExport","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=100, height=100");  
+               }
+          },'-',{
+               text: 'Import SpoonFeeder',
                icon: './images/spoon.png',
                tooltip:'Import SpoonFeeder template file',
                handler: function(){
@@ -497,7 +558,7 @@ Ext.onReady(function(){
                               items:[{
                                    xtype: 'fileuploadfield',
                                    id: 'aie',
-                                   emptyText: 'Select an aie file',
+                                   emptyText: 'Select an file',
                                    fieldLabel: 'Template',
                                    //hideLabel:true,
                                    name: 'aie',
@@ -505,7 +566,7 @@ Ext.onReady(function(){
                                    buttonCfg: {
                                        iconCls: 'upload-icon'
                                    }
-                              }/*,{
+                              },{
                                    xtype: 'button',
                                    text: 'Upload',
                                    handler: function(){
@@ -513,15 +574,20 @@ Ext.onReady(function(){
                                         if(fp.getForm().isValid()){
                                              fp.getForm().submit({
                                                   url: 'service.php?action=templateImportSpoonFeeder',
-                                                  waitMsg: 'Uploading Your Template...',
-                                                  success: function(fp, o){
+                                                  waitMsg: 'Import SpoonFeeder Template...',
+                                                  success: function(f, a){
+                                                       importAieWindow.close();
                                                        template_store.reload();
-                                                       Ext.MessageBox.alert('Success','Update template sku price success!');
+                                                       if(a.result.success){
+                                                            Ext.MessageBox.alert('Success', a.result.msg);
+                                                       }else{
+                                                            Ext.MessageBox.alert('Failure', a.result.msg);
+                                                       }
                                                   }
                                              });
                                         }
                                    }
-                              }*/]
+                              }]
                          }],                                           
                          buttons: [{
                                         text: 'Close',
@@ -534,68 +600,114 @@ Ext.onReady(function(){
                     importAieWindow.show();   
                }
           },'-',{
-          		text: 'Import Turbo Lister Template',
-               	icon: './images/tb.png',
-              	tooltip:'Import turbo lister template file',
-               	handler: function(){
-	               var  importTbWindow = new Ext.Window({
-	                         title: 'Import Turbo Lister Template' ,
-	                         closable:true,
-	                         width: 320,
-	                         height: 150,
-	                         plain:true,
-	                         layout: 'fit',
-	                         iconCls: 'import-turbo-lister',
-	                         items: [{
-	                              xtype:'form',
-	                              id:'tb-form',
-	                              fileUpload: true,
-	                              frame: true,
-	                              autoHeight: true,
-	                              bodyStyle: 'padding: 10px 10px 0 10px;',
-	                              labelWidth: 80,
-	                              defaults: {
-	                                  anchor: '95%',
-	                                  allowBlank: false
-	                              },
-	                              items:[{
-	                                   xtype: 'fileuploadfield',
-	                                   id: 'tb',
-	                                   emptyText: 'Select an file',
-	                                   fieldLabel: 'Template',
-	                                   //hideLabel:true,
-	                                   name: 'tb',
-	                                   buttonText: '',
-	                                   buttonCfg: {
-	                                       iconCls: 'upload-icon'
-	                                   }
-	                              }/*,{
+                    text: 'Import Turbo Lister',
+                    icon: './images/tb.png',
+                    tooltip:'Import turbo lister template file',
+                    handler: function(){
+                    var  importTbWindow = new Ext.Window({
+                         title: 'Import Turbo Lister Template' ,
+                         closable:true,
+                         width: 320,
+                         height: 150,
+                         plain:true,
+                         layout: 'fit',
+                         iconCls: 'import-turbo-lister',
+                         items: [{
+                              xtype:'form',
+                              id:'tb-form',
+                              fileUpload: true,
+                              frame: true,
+                              autoHeight: true,
+                              bodyStyle: 'padding: 10px 10px 0 10px;',
+                              labelWidth: 80,
+                              defaults: {
+                                  anchor: '95%',
+                                  allowBlank: false
+                              },
+                              items:[{
+                                   xtype: 'fileuploadfield',
+                                   id: 'turboLister',
+                                   emptyText: 'Select an file',
+                                   fieldLabel: 'Template',
+                                   //hideLabel:true,
+                                   name: 'turboLister',
+                                   buttonText: '',
+                                   buttonCfg: {
+                                       iconCls: 'upload-icon'
+                                   }
+                              },{
                                    xtype: 'button',
-                                   text: 'Upload',
+                                   text: 'Import',
                                    handler: function(){
                                         var fp = Ext.getCmp("tb-form");
                                         if(fp.getForm().isValid()){
                                              fp.getForm().submit({
-                                                  url: 'service.php?action=templateImportSpoonFeeder',
-                                                  waitMsg: 'Uploading Your Template...',
-                                                  success: function(fp, o){
+                                                  url: 'service.php?action=templateImportTurboLister',
+                                                  waitMsg: 'Import Turbo Lister Template...',
+                                                  success: function(f, a){
+                                                       //console.log(a);
+                                                       importTbWindow.close();
                                                        template_store.reload();
-                                                       Ext.MessageBox.alert('Success','Update template sku price success!');
+                                                       if(a.result.success){
+                                                            Ext.MessageBox.alert('Success', a.result.msg);
+                                                       }else{
+                                                            Ext.MessageBox.alert('Failure', a.result.msg);
+                                                       }
                                                   }
                                              });
                                         }
                                    }
-                              }*/]
-	                         }],                                           
-	                         buttons: [{
-	                                        text: 'Close',
-	                                        handler: function(){
-	                                             importTbWindow.close();
-	                                        }
-	                                   }]
-	                                   
-	                    })
-	                    importTbWindow.show();   
+                              }]
+                         }],                                           
+                         buttons: [{
+                                   text: 'Close',
+                                   handler: function(){
+                                        importTbWindow.close();
+                                   }
+                         }]
+                    })
+                    importTbWindow.show();   
+               }
+          },'-',{
+               text: 'Add To Upload',
+               icon: './images/arrow_up.png',
+               tooltip:'add selected template to upload queue',
+               handler: function(){
+                    var selections = template_grid.selModel.getSelections();
+                    if(template_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','Please select the template you want to upload.');
+                         return 0;
+                    }
+                    var ids = "";
+                    for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    //console.log(ids);
+                    
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=templateAddToUpload', 
+                         params: { 
+                                ids: ids
+                         }, 
+                         success: function(response){
+                             var result=eval(response.responseText);
+                             switch(result){
+                                case 1:  // Success : simply reload
+                                  template_store.reload();
+                                  break;
+                                default:
+                                  Ext.MessageBox.alert('Warning','data error, please check template data.');
+                                  break;
+                             }
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
+                    return 1;
                }
           },'-',{
                     text:'Interval Upload',
@@ -829,7 +941,7 @@ Ext.onReady(function(){
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
-                                   fields: ['SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price', 'EndTime'],
+                                   fields: ['Id', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price', 'EndTime'],
                                    //url: 'service.php?action=getWait'
                                    url: 'service.php?action=getActiveItem'
                               })
@@ -843,15 +955,115 @@ Ext.onReady(function(){
                                    //height: 500,
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
-                                       {header: "SKU", width: 120, align: 'center', sortable: true, dataIndex: 'SKU'},
-                                       {header: "Item ID", width: 120, align: 'center', sortable: true, dataIndex: 'ItemID'},
-                                       {header: "Item Title", width: 120, align: 'center', sortable: true, dataIndex: 'Title', editor: new Ext.form.TextField({allowBlank: false})},
-                                       {header: "Site", width: 50, align: 'center', sortable: true, dataIndex: 'Site'},
-                                       {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
-                                       {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
-                                       {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
-                                       {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
-                                       {header: "End Time", width: 120, align: 'center', sortable: true, dataIndex: 'EndTime'}
+                                        {header: "Id", width: 40, align: 'center', sortable: true, dataIndex: 'Id'},
+                                        {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
+                                        {header: "SKU", width: 120, align: 'center', sortable: true, dataIndex: 'SKU'},
+                                        {header: "Item ID", width: 120, align: 'center', sortable: true, dataIndex: 'ItemID'},
+                                        {header: "Item Title", width: 120, align: 'center', sortable: true, dataIndex: 'Title', editor: new Ext.form.TextField({
+                                             allowBlank: false,
+                                             listeners: {
+                                                  change: function(t, n, o){
+                                                       var selections = activity_grid.selModel.getSelections();
+                                                       //console.log(selections[0].data.Id);
+                                                       Ext.Ajax.request({  
+                                                            waitMsg: 'Please Wait',
+                                                            url: 'service.php?action=updateField', 
+                                                            params: { 
+                                                                 id: selections[0].data.Id,
+                                                                 table: 'items',
+                                                                 field: 'Title',
+                                                                 value: n
+                                                            }, 
+                                                            success: function(response){
+                                                                var result = eval(response.responseText);
+                                                                if(result[0].success){
+                                                                      Ext.MessageBox.alert('Success', result[0].msg);
+                                                                      activity_store.reload();
+                                                                 }else{
+                                                                      Ext.MessageBox.alert('Failure', result[0].msg);
+                                                                      activity_store.reload();
+                                                                 }
+                                                            },
+                                                            failure: function(response){
+                                                                var result=response.responseText;
+                                                                Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                            }
+                                                       });
+                                                  }
+                                             }
+                                             })
+                                        },
+                                        {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
+                                        {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity', editor: new Ext.form.NumberField({
+                                             allowBlank: false,
+                                             listeners: {
+                                                  change: function(t, n, o){
+                                                       var selections = activity_grid.selModel.getSelections();
+                                                       //console.log(selections[0].data.Id);
+                                                       Ext.Ajax.request({  
+                                                            waitMsg: 'Please Wait',
+                                                            url: 'service.php?action=updateField', 
+                                                            params: { 
+                                                                 id: selections[0].data.Id,
+                                                                 table: 'items',
+                                                                 field: 'Quantity',
+                                                                 value: n
+                                                            }, 
+                                                            success: function(response){
+                                                                var result = eval(response.responseText);
+                                                                if(result[0].success){
+                                                                      Ext.MessageBox.alert('Success', result[0].msg);
+                                                                      activity_store.reload();
+                                                                 }else{
+                                                                      Ext.MessageBox.alert('Failure', result[0].msg);
+                                                                      activity_store.reload();
+                                                                 }
+                                                            },
+                                                            failure: function(response){
+                                                                var result=response.responseText;
+                                                                Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                            }
+                                                       });
+                                                  }
+                                             }
+                                             })
+                                        },
+                                        {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
+                                        {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price', editor: new Ext.form.NumberField({
+                                             allowBlank: false,
+                                             listeners: {
+                                                  change: function(t, n, o){
+                                                       var selections = activity_grid.selModel.getSelections();
+                                                       //console.log(selections[0].data.Id);
+                                                       Ext.Ajax.request({  
+                                                            waitMsg: 'Please Wait',
+                                                            url: 'service.php?action=updateField', 
+                                                            params: { 
+                                                                 id: selections[0].data.Id,
+                                                                 table: 'items',
+                                                                 field: 'Price',
+                                                                 value: n
+                                                            }, 
+                                                            success: function(response){
+                                                                var result = eval(response.responseText);
+                                                                if(result[0].success){
+                                                                      Ext.MessageBox.alert('Success', result[0].msg);
+                                                                      activity_store.reload();
+                                                                 }else{
+                                                                      Ext.MessageBox.alert('Failure', result[0].msg);
+                                                                      activity_store.reload();
+                                                                 }
+                                                            },
+                                                            failure: function(response){
+                                                                var result=response.responseText;
+                                                                Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                            }
+                                                       });
+                                                  }
+                                             }
+                                             })
+                                        },
+                                        {header: "End Time", width: 120, align: 'center', sortable: true, dataIndex: 'EndTime'}
                                    ],
                                    clicksToEdit: 1,
                                    tbar:[{
@@ -865,14 +1077,16 @@ Ext.onReady(function(){
                                         icon: './images/server_go.png',
                                         tooltip:'export csv file',
                                         handler: function(){
+                                             /*
                                              var selections = template_grid.selModel.getSelections();
                                              var ids = "";
                                              for(var i = 0; i< template_grid.selModel.getCount(); i++){
                                                   ids += selections[i].data.Id + ","
                                              }
                                              ids = ids.slice(0,-1);
+                                             */
                                              //console.log(ids);
-                                             
+                                             window.open("service.php?action=activeItemExport","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=100, height=100");
                                         }
                                    }],
                                    bbar: new Ext.PagingToolbar({
@@ -1180,7 +1394,7 @@ Ext.onReady(function(){
                                    }
                               })
             
-                              var wait_grid = new Ext.grid.GridPanel({
+                              var wait_grid = new Ext.grid.EditorGridPanel({
                                    title: 'Waiting To Upload SKU List',
                                    store: wait_store,
                                    autoHeight: true,
@@ -1189,7 +1403,40 @@ Ext.onReady(function(){
                                         {header: "Id", width: 40, align: 'center', sortable: true, dataIndex: 'Id'},
                                         {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                                         {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
-                                        {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title'},
+                                        {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title', editor: new Ext.form.TextField({
+                                             allowBlank: false,
+                                             listeners: {
+                                                  change: function(t, n, o){
+                                                       var selections = wait_grid.selModel.getSelections();
+                                                       //console.log(selections[0].data.Id);
+                                                       Ext.Ajax.request({  
+                                                            waitMsg: 'Please Wait',
+                                                            url: 'service.php?action=updateField', 
+                                                            params: { 
+                                                                 id: selections[0].data.Id,
+                                                                 table: 'items',
+                                                                 field: 'Title',
+                                                                 value: n
+                                                            }, 
+                                                            success: function(response){
+                                                                var result = eval(response.responseText);
+                                                                if(result[0].success){
+                                                                      Ext.MessageBox.alert('Success', result[0].msg);
+                                                                      wait_store.reload();
+                                                                 }else{
+                                                                      Ext.MessageBox.alert('Failure', result[0].msg);
+                                                                      wait_store.reload();
+                                                                 }
+                                                            },
+                                                            failure: function(response){
+                                                                var result=response.responseText;
+                                                                Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                            }
+                                                       });
+                                                  }
+                                             }
+                                             })
+                                        },
                                         {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                         {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
                                         {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},

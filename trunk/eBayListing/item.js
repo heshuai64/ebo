@@ -386,7 +386,7 @@ Ext.onReady(function(){
                 'Americas_1','Europe_1','Asia_1','CA_1','GB_1','AU_1','MX_1','DE_1','JP_1',
                 'Americas_2','Europe_2','Asia_2','CA_2','GB_2','AU_2','MX_2','DE_2','JP_2',
                 'Americas_3','Europe_3','Asia_3','CA_3','GB_3','AU_3','MX_3','DE_3','JP_3',
-                'accountId'
+                'accountId','UseStandardFooter'
         ]),
         items:[{
                 xtype:"combo",
@@ -1289,6 +1289,7 @@ Ext.onReady(function(){
                             border:false,
                             style:"padding:0px;",
                             items:[{
+                                id:"UseStandardFooter",
                                 xtype:"checkbox",
                                 labelWidth: 0,
                                 labelSeparator: '',
@@ -1306,7 +1307,17 @@ Ext.onReady(function(){
                                 xtype:"button",
                                 text:"Edit Standard Footer",
                                 handler: function(){
-                                    window.open("/eBayBO/eBayListing/footer.html","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                    window.open("/eBayBO/eBayListing/footer.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                }
+                            }]
+                        },{
+                            columnWidth:0.2,
+                            border:false,
+                            items:[{
+                                xtype:"button",
+                                text:"Preview",
+                                handler: function(){
+                                    window.open("/eBayBO/eBayListing/preview.php?t=i&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+item_id+"&d="+Ext.getCmp("Description").getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                 }
                             }]
                         }]
@@ -2740,6 +2751,7 @@ Ext.onReady(function(){
                             //console.log(action);
                             Ext.Msg.alert("Success", action.result.msg);
                         },
+                        waitMsg:'updating, please wait.',
                         failure: function(form, action) {
                             switch (action.failureType) {
                                 case Ext.form.Action.CLIENT_INVALID:
