@@ -71,7 +71,6 @@ Ext.onReady(function(){
                     }
                     selectPictureWindow.hide();
                 }
-                
             },{
                 text: 'Cancel',
                 handler: function(){
@@ -262,30 +261,30 @@ Ext.onReady(function(){
                         switch(r.data.name){
                             case "US":
                                Ext.getCmp("Currency").setValue("USD");
-                               Ext.getCmp("StartPrice").setRawValue("$");
-                               Ext.getCmp("BuyItNowPrice").setRawValue("$");
-                               Ext.getCmp("ReservePrice").setRawValue("$");
+                               Ext.getCmp("StartPrice").setRawValue(currency_symbol.US);
+                               Ext.getCmp("BuyItNowPrice").setRawValue(currency_symbol.US);
+                               Ext.getCmp("ReservePrice").setRawValue(currency_symbol.US);
                             break;
                         
                             case "UK":
                                Ext.getCmp("Currency").setValue("GBP");
-                               Ext.getCmp("StartPrice").setRawValue("£");
-                               Ext.getCmp("BuyItNowPrice").setRawValue("£");
-                               Ext.getCmp("ReservePrice").setRawValue("£");
+                               Ext.getCmp("StartPrice").setRawValue(currency_symbol.UK);
+                               Ext.getCmp("BuyItNowPrice").setRawValue(currency_symbol.UK);
+                               Ext.getCmp("ReservePrice").setRawValue(currency_symbol.UK);
                             break;
                         
                             case "Australia":
                                 Ext.getCmp("Currency").setValue("AUD");
-                                Ext.getCmp("StartPrice").setRawValue("AUD$");
-                                Ext.getCmp("BuyItNowPrice").setRawValue("AUD$");
-                                Ext.getCmp("ReservePrice").setRawValue("AUD$");
+                                Ext.getCmp("StartPrice").setRawValue(currency_symbol.Australia);
+                                Ext.getCmp("BuyItNowPrice").setRawValue(currency_symbol.Australia);
+                                Ext.getCmp("ReservePrice").setRawValue(currency_symbol.Australia);
                             break;
                         
                             case "France":
                                 Ext.getCmp("Currency").setValue("EUR");
-                                Ext.getCmp("StartPrice").setRawValue("€");
-                                Ext.getCmp("BuyItNowPrice").setRawValue("€");
-                                Ext.getCmp("ReservePrice").setRawValue("€");
+                                Ext.getCmp("StartPrice").setRawValue(currency_symbol.France);
+                                Ext.getCmp("BuyItNowPrice").setRawValue(currency_symbol.France);
+                                Ext.getCmp("ReservePrice").setRawValue(currency_symbol.France);
                                 Ext.getCmp("currency-icon").setIconClass("currency-euro");
                             break;
                         }
@@ -1148,6 +1147,7 @@ Ext.onReady(function(){
                             border:false,
                             style:"padding:0px;",
                             items:[{
+                                id:"UseStandardFooter",
                                 xtype:"checkbox",
                                 labelWidth: 0,
                                 labelSeparator: '',
@@ -1165,7 +1165,17 @@ Ext.onReady(function(){
                                 xtype:"button",
                                 text:"Edit Standard Footer",
                                 handler: function(){
-                                    window.open("/eBayBO/eBayListing/footer.html","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                    window.open("/eBayBO/eBayListing/footer.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                }
+                            }]
+                        },{
+                            columnWidth:0.2,
+                            border:false,
+                            items:[{
+                                xtype:"button",
+                                text:"Preview",
+                                handler: function(){
+                                    window.open("/eBayBO/eBayListing/preview.php?t=s&u="+Ext.getCmp("UseStandardFooter").getValue()+"&d="+Ext.getCmp("Description").getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                 }
                             }]
                         }]

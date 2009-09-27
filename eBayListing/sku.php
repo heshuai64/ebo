@@ -6,6 +6,7 @@
     <link rel="stylesheet" type="text/css" href="../ext-3.0.0/resources/css/ext-all.css" />
     <script src="../ext-3.0.0/adapter/ext/ext-base.js"></script>
     <script src="../ext-3.0.0/ext-all.js"></script>
+    <script src="config.js"></script>
     <script src="sku.js"></script>
     <script type="text/javascript">
 	var sku = "<?=$_GET['id']?>";

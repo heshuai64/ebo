@@ -192,6 +192,7 @@ Ext.onReady(function(){
         selectOnFocus:true,
         //name: 'ListingTypeCombo',
         //hiddenName:'ListingTypeCombo',
+        emptyText: "Multi Value",
         width: 150,
         allowBlank:false,
         listeners: {
@@ -229,6 +230,7 @@ Ext.onReady(function(){
             editable: false,
             width: 150,
             listWidth: 150,
+            emptyText: "Multi Value",
             listeners: {
                 "select": function(c, r, i){
                     //console.log(c);
@@ -247,6 +249,7 @@ Ext.onReady(function(){
             editable: false,
             width: 150,
             listWidth: 150,
+            emptyText: "Multi Value",
             listeners: {
                 "select": function(c, r, i){
                     //console.log(r);
@@ -404,6 +407,7 @@ Ext.onReady(function(){
                 name: 'Site',
                 //allowBlank: false,
                 hiddenName:'Site',
+                emptyText: "Multi Value",
                 listeners: {
                     "select": function(c, r, i){
                         categoryStore.setBaseParam('SiteID', r.data.id);
@@ -1368,7 +1372,7 @@ Ext.onReady(function(){
                         xtype:"textfield",
                         fieldLabel:"<font color='red'>SKU</font>",
                         name:"SKU",
-                        readOnly: true
+                        emptyText: "Multi Value"
                     }]
               },{
                 columnWidth:0.3,
@@ -1441,7 +1445,7 @@ Ext.onReady(function(){
                                     name: 'ListingDuration',
                                     //allowBlank: false,
                                     hiddenName:'ListingDuration',
-                                    allowBlank:false
+                                    emptyText: "Multi Value"
                                   }]
                               }]
                         }],
@@ -1896,7 +1900,7 @@ Ext.onReady(function(){
                             selectOnFocus:true,
                             width:150,
                             listWidth:150,
-                            allowBlank:false
+                            emptyText: "Multi Value"
                         }],
                         cls: 'my-fieldset',
                         style: 'margin: 10px;',
@@ -2665,12 +2669,14 @@ Ext.onReady(function(){
                             triggerAction: 'all',
                             editable: false,
                             selectOnFocus:true,
+                            emptyText: "Multi Value",
                             width:200,
                             listWidth:200
                         },{
                             xtype:"numberfield",
                             fieldLabel:"ZIP Code",
                             name:"PostalCode",
+                            emptyText: "Multi Value",
                             width:60
                             
                         }]
@@ -2698,6 +2704,7 @@ Ext.onReady(function(){
                             xtype:"textfield",
                             fieldLabel:"PayPal Account Email",
                             name:"PayPalEmailAddress",
+                            emptyText: "Multi Value",
                             width: 250
                           }]
                       }/*,{
@@ -2746,6 +2753,7 @@ Ext.onReady(function(){
                             //console.log(action);
                             Ext.Msg.alert("Success", action.result.msg);
                         },
+                        waitMsg:'updating, please wait.',
                         failure: function(form, action) {
                             switch (action.failureType) {
                                 case Ext.form.Action.CLIENT_INVALID:
