@@ -4,8 +4,8 @@ Ext.onReady(function(){
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      
-     //var path = "/eBayBO/eBayListing/";
-     var path = "/eBayListing/";
+     var path = "/eBayBO/eBayListing/";
+     //var path = "/eBayListing/";
      /*
      var cp = new Ext.state.CookieProvider({
           path: "/eBayBO/eBayListing/"
@@ -347,8 +347,8 @@ Ext.onReady(function(){
                     var  importCsvWindow = new Ext.Window({
                          title: 'Import CSV File' ,
                          closable:true,
-                         width: 320,
-                         height: 400,
+                         width: 360,
+                         height: 360,
                          plain:true,
                          layout: 'fit',
                          items: [{
