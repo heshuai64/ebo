@@ -2,6 +2,9 @@ Ext.onReady(function(){
     Ext.BLANK_IMAGE_URL = "../ext-3.0.0/resources/images/default/s.gif";
     //var categoryPath = "";
     var today = new Date();
+    //var path = "/eBayBO/eBayListing/";
+    var path = "/eBayListing/";
+    
     var pictureForm = new Ext.form.FormPanel({
             labelAlign:"top",
             border: false,
@@ -285,7 +288,7 @@ Ext.onReady(function(){
                                 Ext.getCmp("StartPrice").setRawValue(currency_symbol.France);
                                 Ext.getCmp("BuyItNowPrice").setRawValue(currency_symbol.France);
                                 Ext.getCmp("ReservePrice").setRawValue(currency_symbol.France);
-                                Ext.getCmp("currency-icon").setIconClass("currency-euro");
+                                //Ext.getCmp("currency-icon").setIconClass("currency-euro");
                             break;
                         }
                         Ext.getCmp("SiteID").setValue(r.data.id);
@@ -1165,7 +1168,7 @@ Ext.onReady(function(){
                                 xtype:"button",
                                 text:"Edit Standard Footer",
                                 handler: function(){
-                                    window.open("/eBayBO/eBayListing/footer.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                    window.open(path + "footer.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                 }
                             }]
                         },{
@@ -1175,7 +1178,7 @@ Ext.onReady(function(){
                                 xtype:"button",
                                 text:"Preview",
                                 handler: function(){
-                                    window.open("/eBayBO/eBayListing/preview.php?t=s&u="+Ext.getCmp("UseStandardFooter").getValue()+"&d="+Ext.getCmp("Description").getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                    window.open(path + "preview.php?t=s&u="+Ext.getCmp("UseStandardFooter").getValue()+"&d="+Ext.getCmp("Description").getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                 }
                             }]
                         }]
@@ -1287,12 +1290,25 @@ Ext.onReady(function(){
                                                 t.setValue('');
                                             }
                                         },
-                                        blur: function(){
+                                        blur: function(t){
                                             if(!Ext.isNumber(t.getValue())){
                                                 switch(Ext.getCmp("Currency").getValue()){
-                                                
+                                                    case "US":
+                                                        t.setRawValue(currency_symbol.US);
+                                                    break;
+                                                 
+                                                    case "UK":
+                                                        t.setRawValue(currency_symbol.UK);
+                                                    break;
+                                                 
+                                                    case "Australia":
+                                                        t.setRawValue(currency_symbol.Australia);
+                                                    break;
+                                                 
+                                                    case "France":
+                                                        t.setRawValue(currency_symbol.France);
+                                                    break;
                                                 }
-                                                t.setRawValue("$");
                                             }
                                         }
                                     }

@@ -4,8 +4,8 @@ Ext.onReady(function(){
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      
-     var path = "/eBayBO/eBayListing/";
-     //var path = "/eBayListing/";
+     //var path = "/eBayBO/eBayListing/";
+     var path = "/eBayListing/";
      /*
      var cp = new Ext.state.CookieProvider({
           path: "/eBayBO/eBayListing/"
@@ -692,15 +692,13 @@ Ext.onReady(function(){
                                 ids: ids
                          }, 
                          success: function(response){
-                             var result=eval(response.responseText);
-                             switch(result){
-                                case 1:  // Success : simply reload
-                                  template_store.reload();
-                                  break;
-                                default:
-                                  Ext.MessageBox.alert('Warning','data error, please check template data.');
-                                  break;
-                             }
+                             var result = eval(response.responseText);
+                              //console.log(result);
+                              if(result[0].success){
+                                   Ext.MessageBox.alert('Success', result[0].msg);      
+                              }else{
+                                   Ext.MessageBox.alert('Failure', result[0].msg);      
+                              }
                          },
                          failure: function(response){
                              var result=response.responseText;

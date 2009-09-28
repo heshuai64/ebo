@@ -2,6 +2,10 @@ Ext.onReady(function(){
     Ext.BLANK_IMAGE_URL = "../ext-3.0.0/resources/images/default/s.gif";
     //var categoryPath = "";
     var today = new Date();
+    var today = new Date();
+    //var path = "/eBayBO/eBayListing/";
+    var path = "/eBayListing/";
+    
     var pictureForm = new Ext.form.FormPanel({
             labelAlign:"top",
             border: false,
@@ -1307,7 +1311,7 @@ Ext.onReady(function(){
                                 xtype:"button",
                                 text:"Edit Standard Footer",
                                 handler: function(){
-                                    window.open("/eBayBO/eBayListing/footer.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                    window.open(path + "footer.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                 }
                             }]
                         },{
@@ -1317,7 +1321,7 @@ Ext.onReady(function(){
                                 xtype:"button",
                                 text:"Preview",
                                 handler: function(){
-                                    window.open("/eBayBO/eBayListing/preview.php?t=i&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+item_id+"&d="+Ext.getCmp("Description").getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                    window.open(path + "preview.php?t=i&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+item_id+"&d="+Ext.getCmp("Description").getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                 }
                             }]
                         }]
