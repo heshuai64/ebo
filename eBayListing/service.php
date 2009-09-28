@@ -438,7 +438,7 @@ class eBayListing{
                 $_POST['limit'] = 20;
             }
 	    
-	    $sql = "select Id,Site,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ListingDuration from template where accountId = '".$this->account_id."' limit ".$_POST['start'].",".$_POST['limit'];
+	    $sql = "select Id,Site,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ListingDuration from template where accountId = '".$this->account_id."' order by Id limit ".$_POST['start'].",".$_POST['limit'];
             $result = mysql_query($sql, eBayListing::$database_connect);
             
 	}else{
@@ -468,7 +468,7 @@ class eBayListing{
             $row = mysql_fetch_assoc($result);
             $totalCount = $row['count'];
             
-            $sql = "select Id,Site,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ListingDuration from template as t left join template_to_template_cateogry as tttc on t.Id = tttc.template_id ".$where." limit ".$_POST['start'].",".$_POST['limit'];
+            $sql = "select Id,Site,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ListingDuration from template as t left join template_to_template_cateogry as tttc on t.Id = tttc.template_id ".$where." order by t.Id limit ".$_POST['start'].",".$_POST['limit'];
             //echo $sql;
             $result = mysql_query($sql, eBayListing::$database_connect);
 	}
@@ -488,17 +488,17 @@ class eBayListing{
 	mysql_free_result($result);
     }
     
-    private function tempalteChangeToItem($template_id, $time = ''){
+    private function tempalteChangeToItem($template_id, $time = '', $local_time = ''){
 	$sql_1 = "insert into items (AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 	Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
 	PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
-	ReservePrice,CurrentPrice,ScheduleTime,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
+	ReservePrice,CurrentPrice,ScheduleTime,ScheduleLocalTime,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 	StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 	Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 	GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InternationalShippingServiceOptionType,Status,UseStandardFooter) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 	Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
 	PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
-	ReservePrice,CurrentPrice,'".$time."',SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
+	ReservePrice,CurrentPrice,'".$time."','".$local_time."',SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 	StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 	Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 	GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InternationalShippingServiceOptionType,'0',UseStandardFooter from template where Id = '".$template_id."'";
@@ -536,7 +536,7 @@ class eBayListing{
 	//var_dump(array($result_1, $result_2, $result_3, $result_4, $result_6, $result_7));
 
 	if($result_1){
-	    return true;
+	    return $item_id;
 	}else{
 	    return false;
 	}
@@ -545,6 +545,7 @@ class eBayListing{
     public function templateAddToUpload(){
 	if(strpos($_POST['ids'], ',')){
 	    $ids = explode(',', $_POST['ids']);
+	    $item_id = "";
 	    foreach($ids as $id){
 		$sql_10 = "select * from schedule where template_id = '$id'";
 		$result_10 = mysql_query($sql_10, eBayListing::$database_connect);
@@ -559,7 +560,17 @@ class eBayListing{
 		    $endTimestamp = strtotime($row_10['endDate']);
 		    while($startTimestamp <= $endTimestamp){
 			if(date("D", $startTimestamp) == $row_10['day']){
-			    $result = $this->tempalteChangeToItem($id, date("Y-m-d", $startTimestamp) . ' ' .$row_10['time']);
+			    $tempTimestamp = $startTimestamp;
+			    if(date("D", $tempTimestamp) == $row_10['china_day']){
+				$localTimestamp = $tempTimestamp;
+				$tempTimestamp += 24 * 60 * 60;
+			    }elseif(date("D", $tempTimestamp) == $row_10['china_day']){
+				$localTimestamp = $tempTimestamp;
+				$tempTimestamp = $tempTimestamp - 2 * 24 * 60 * 60;
+			    }elseif(date("D", $tempTimestamp) == $row_10['china_day']){
+				$localTimestamp = $tempTimestamp;
+			    }
+			    $item_id .= $this->tempalteChangeToItem($id, date("Y-m-d", $startTimestamp) . ' ' .$row_10['time'], date("Y-m-d", $localTimestamp) . ' ' .$row_10['china_time']);
 			}
 			$startTimestamp += 24 * 60 * 60;
 		    }
@@ -573,21 +584,35 @@ class eBayListing{
 		echo 1;
 		return 1;
 	    }
-	    
+	    $item_id = "";
 	    while($row_10 = mysql_fetch_assoc($result_10)){
 		$startTimestamp = strtotime($row_10['startDate']);
 		$endTimestamp = strtotime($row_10['endDate']);
 		while($startTimestamp <= $endTimestamp){
 		    if(date("D", $startTimestamp) == $row_10['day']){
+			$tempTimestamp = $startTimestamp;
+			if(date("D", $tempTimestamp) == $row_10['china_day']){
+			    $localTimestamp = $tempTimestamp;
+			    $tempTimestamp += 24 * 60 * 60;
+			}elseif(date("D", $tempTimestamp) == $row_10['china_day']){
+			    $localTimestamp = $tempTimestamp;
+			    $tempTimestamp = $tempTimestamp - 2 * 24 * 60 * 60;
+			}elseif(date("D", $tempTimestamp) == $row_10['china_day']){
+			    $localTimestamp = $tempTimestamp;
+			}
+			//print_r(array($_POST['ids'], date("Y-m-d", $startTimestamp) . ' ' .$row_10['time'], date("Y-m-d", $localTimestamp) . ' ' .$row_10['china_time']));
 			//echo date("Y-m-d", $startTimestamp) . ' ' .$row_10['time']."\n";
-			$result = $this->tempalteChangeToItem($_POST['ids'], date("Y-m-d", $startTimestamp) . ' ' .$row_10['time']);
+			$item_id .= $this->tempalteChangeToItem($_POST['ids'], date("Y-m-d", $startTimestamp) . ' ' .$row_10['time'], date("Y-m-d", $localTimestamp) . ' ' .$row_10['china_time']).", ";
 			//var_dump($result);
 		    }
 		    $startTimestamp += 24 * 60 * 60;
 		}
 	    }
 	}
-	echo $result;
+	$item_id = substr($item_id, 0, -2);
+	if(!empty($item_id)){
+	    echo "[{success: true, msg: 'upload item id is ".$item_id.".'}]";;
+	}
     }
     
     public function templateDelete(){
@@ -653,7 +678,7 @@ class eBayListing{
 	/*
 	ALTER TABLE `schedule` DROP PRIMARY KEY;
 	ALTER TABLE `schedule` ADD INDEX ( `item_id` );
-	 
+	ALTER TABLE `items` ADD `ScheduleLocalTime` DATETIME NOT NULL AFTER `ScheduleTime` ; 
 	*/
 	//echo date("Y-m-d H:i:s", strtotime("12:00:00") + 60);
 	$temp = "";
@@ -668,13 +693,14 @@ class eBayListing{
 		$result = mysql_query($sql, eBayListing::$database_connect);
 		$row = mysql_fetch_assoc($result);
 		
+		$localTime = date("Y-m-d H:i:s", strtotime($_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
 		switch($row['Site']){
 		    case "US":
 			$time = date("Y-m-d H:i:s", strtotime("+12 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
 		    break;
 		
 		    case "UK":
-			$time = date("Y-m-d H:i:s", strtotime("+8 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
+			$time = date("Y-m-d H:i:s", strtotime("+7 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
 		    break;
 		
 		    case "AU":
@@ -682,11 +708,11 @@ class eBayListing{
 		    break;
 		
 		    case "FR":
-			$time = date("Y-m-d H:i:s", strtotime("+7 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
+			$time = date("Y-m-d H:i:s", strtotime("+6 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
 		    break;
 		}
 		$temp .= $id. " : ". $time . "<br>";
-		$result = $this->tempalteChangeToItem($id, $time);
+		$result = $this->tempalteChangeToItem($id, $time, $localTime);
 		$i++;
 	    }
 	    //$temp = substr($temp, 0, -2);
@@ -694,14 +720,15 @@ class eBayListing{
 	    $sql = "select Site from template where Id = '".$_POST['ids']."'";
 	    $result = mysql_query($sql, eBayListing::$database_connect);
 	    $row = mysql_fetch_assoc($result);
-
+	    
+	    $localTime = date("Y-m-d H:i:s", strtotime($_POST['date'].' '.$_POST['time']));
 	    switch($row['Site']){
 		case "US":
 		    $time = date("Y-m-d H:i:s", strtotime("+12 hour ".$_POST['date'].' '.$_POST['time']));
 		break;
 	    
 		case "UK":
-		    $time = date("Y-m-d H:i:s", strtotime("+8 hour ".$_POST['date'].' '.$_POST['time']));
+		    $time = date("Y-m-d H:i:s", strtotime("+7 hour ".$_POST['date'].' '.$_POST['time']));
 		break;
 	    
 		case "AU":
@@ -709,12 +736,12 @@ class eBayListing{
 		break;
 	    
 		case "FR":
-		    $time = date("Y-m-d H:i:s", strtotime("+7 hour ".$_POST['date'].' '.$_POST['time']));
+		    $time = date("Y-m-d H:i:s", strtotime("+6 hour ".$_POST['date'].' '.$_POST['time']));
 		break;
 	    }
 	    
 	    $temp .= $_POST['ids'] . " : " . $time;
-	    $result = $this->tempalteChangeToItem($_POST['ids'], $time);
+	    $result = $this->tempalteChangeToItem($_POST['ids'], $time, $localTime);
 	}
 	if($result){
 	    echo '[{success: true, msg: "'.$temp.'"}]';
@@ -883,10 +910,10 @@ class eBayListing{
 	
 	/*
 	英,美,法,澳,
-	Europe/London       +0100  -8h
-	America/New_York    -0400  -12h
-	Europe/Paris        +0200  -7h
-	Australia/Canberra  +1000  +2h
+	Europe/London       +0100  +7h
+	America/New_York    -0400  +12h
+	Europe/Paris        +0200  +6h
+	Australia/Canberra  +1000  -2h
 	
 	Asia/Shanghai       +0800
 	
@@ -899,7 +926,6 @@ class eBayListing{
 		    [2] => 1:02 AM
 		)
 	)
-
 	*/
 	session_start();
 	if(!empty($_SESSION['Schedule'])){
@@ -928,8 +954,8 @@ class eBayListing{
 			//if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
 			    foreach($value as $name){
 				//$sku = $keyArray[0];
-				$day = date("D", strtotime("+8 hour ".$keyArray[1]." ".$name));
-				$time = date("H:i:s", strtotime("+8 hour ".$name));
+				$day = date("D", strtotime("+7 hour ".$keyArray[1]." ".$name));
+				$time = date("H:i:s", strtotime("+7 hour ".$name));
 				$china_time = date("H:i:s", strtotime($name));
 				$sql_3 = "insert into schedule (template_id,startDate,endDate,day,time,china_day,china_time,account_id) values 
 				('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."','".$this->account_id."')";
@@ -962,8 +988,8 @@ class eBayListing{
 			//if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
 			    foreach($value as $name){
 				//$sku = $keyArray[0];
-				$day = date("D", strtotime("+7 hour ".$keyArray[1]." ".$name));
-				$time = date("H:i:s", strtotime("+7 hour ".$name));
+				$day = date("D", strtotime("+6 hour ".$keyArray[1]." ".$name));
+				$time = date("H:i:s", strtotime("+6 hour ".$name));
 				$china_time = date("H:i:s", strtotime($name));
 				$sql_3 = "insert into schedule (template_id,startDate,endDate,day,time,china_day,china_time,account_id) values 
 				('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."','".$this->account_id."')";
@@ -1393,8 +1419,8 @@ class eBayListing{
 			//if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
 			    foreach($value as $name){
 				//$sku = $keyArray[0];
-				$day = date("D", strtotime("+8 hour ".$keyArray[1]." ".$name));
-				$time = date("H:i:s", strtotime("+8 hour ".$name));
+				$day = date("D", strtotime("+7 hour ".$keyArray[1]." ".$name));
+				$time = date("H:i:s", strtotime("+7 hour ".$name));
 				$china_time = date("H:i:s", strtotime($name));
 				$sql_3 = "insert into schedule (template_id,startDate,endDate,day,time,china_day,china_time,account_id) values 
 				('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."','".$this->account_id."')";
@@ -1427,8 +1453,8 @@ class eBayListing{
 			//if(count($keyArray) == 4 && $keyArray[0] == $_POST['SKU']){
 			    foreach($value as $name){
 				//$sku = $keyArray[0];
-				$day = date("D", strtotime("+7 hour ".$keyArray[1]." ".$name));
-				$time = date("H:i:s", strtotime("+7 hour ".$name));
+				$day = date("D", strtotime("+6 hour ".$keyArray[1]." ".$name));
+				$time = date("H:i:s", strtotime("+6 hour ".$name));
 				$china_time = date("H:i:s", strtotime($name));
 				$sql_3 = "insert into schedule (template_id,startDate,endDate,day,time,china_day,china_time,account_id) values 
 				('".$id."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."','".$day."','".$time."','".$keyArray[1]."','".$china_time."','".$this->account_id."')";
@@ -2703,7 +2729,7 @@ class eBayListing{
                 $_POST['limit'] = 20;
             }
 	    
-	    $sql = "select Id,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,ScheduleTime,Site from items where accountId = '".$this->account_id."' and Status = '0' limit ".$_POST['start'].",".$_POST['limit'];
+	    $sql = "select Id,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,ScheduleTime,Site from items where accountId = '".$this->account_id."' and Status = '0' order by Id limit ".$_POST['start'].",".$_POST['limit'];
             $result = mysql_query($sql, eBayListing::$database_connect);
             
 	}else{
@@ -2727,7 +2753,7 @@ class eBayListing{
             $row = mysql_fetch_assoc($result);
             $totalCount = $row['count'];
             
-            $sql = "select Id,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,ScheduleTime,Site from items ".$where." limit ".$_POST['start'].",".$_POST['limit'];
+            $sql = "select Id,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,ScheduleTime,Site from items ".$where." order by Id limit ".$_POST['start'].",".$_POST['limit'];
             //echo $sql;
             $result = mysql_query($sql, eBayListing::$database_connect);
 	}
@@ -2758,13 +2784,14 @@ class eBayListing{
 		$result = mysql_query($sql, eBayListing::$database_connect);
 		$row = mysql_fetch_assoc($result);
 		
+		$localTime = date("Y-m-d H:i:s", strtotime($_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
 		switch($row['Site']){
 		    case "US":
 			$time = date("Y-m-d H:i:s", strtotime("+12 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
 		    break;
 		
 		    case "UK":
-			$time = date("Y-m-d H:i:s", strtotime("+8 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
+			$time = date("Y-m-d H:i:s", strtotime("+7 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
 		    break;
 		
 		    case "AU":
@@ -2772,11 +2799,11 @@ class eBayListing{
 		    break;
 		
 		    case "FR":
-			$time = date("Y-m-d H:i:s", strtotime("+7 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
+			$time = date("Y-m-d H:i:s", strtotime("+6 hour ".$_POST['date'].' '.$_POST['time']) + ($i * $_POST['minute'] * 60));
 		    break;
 		}
 		$temp .= $id. " : ". $time . "<br>";
-		$sql_1 = "update items set ScheduleTime = '".$time."' where Id = '".$id."'";
+		$sql_1 = "update items set ScheduleTime = '".$time."',ScheduleLocalTime='".$localTime."' where Id = '".$id."'";
 		$result_2 = mysql_query($sql_1, eBayListing::$database_connect);
 		$i++;
 	    }
@@ -2792,7 +2819,7 @@ class eBayListing{
 		break;
 	    
 		case "UK":
-		    $time = date("Y-m-d H:i:s", strtotime("+8 hour ".$_POST['date'].' '.$_POST['time']));
+		    $time = date("Y-m-d H:i:s", strtotime("+7 hour ".$_POST['date'].' '.$_POST['time']));
 		break;
 	    
 		case "AU":
@@ -2800,7 +2827,7 @@ class eBayListing{
 		break;
 	    
 		case "FR":
-		    $time = date("Y-m-d H:i:s", strtotime("+7 hour ".$_POST['date'].' '.$_POST['time']));
+		    $time = date("Y-m-d H:i:s", strtotime("+6 hour ".$_POST['date'].' '.$_POST['time']));
 		break;
 	    }
 	    
@@ -3846,6 +3873,18 @@ class eBayListing{
 	    <CategoryID> string </CategoryID>
 	</SecondaryCategory>
 
+	<SellerContactDetails> AddressType 
+	    <CompanyName> string </CompanyName>
+	    <County> string </County>
+	    <Phone2AreaOrCityCode> string </Phone2AreaOrCityCode>
+	    <Phone2CountryCode> CountryCodeType </Phone2CountryCode>
+	    <Phone2LocalNumber> string </Phone2LocalNumber>
+	    <PhoneAreaOrCityCode> string </PhoneAreaOrCityCode>
+	    <PhoneCountryCode> CountryCodeType </PhoneCountryCode>
+	    <PhoneLocalNumber> string </PhoneLocalNumber>
+	    <Street> string </Street>
+	    <Street2> string </Street2>
+	</SellerContactDetails>
 
 	<ShippingDetails>
 	
@@ -4568,6 +4607,32 @@ class eBayListing{
 	echo $result;
     }
     
+    public function getToken(){
+	$session = $this->configEbay();
+        try {
+		$this->session->token = NULL;
+		//print_r($session);
+		//exit;
+                $client = new eBaySOAP($this->session);
+                
+		$Version = "607";
+		$RuName = "Creasion-Creasion-1ca1-4-vuhhajsuh";
+                $params = array('Version' => $Version, 'RuName' => $RuName);
+                $results = $client->GetSessionID($params);
+		//$results->SessionID
+		//echo "https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Creasion-Creasion-1ca1-4-vldylhxcb&&sid=$results->SessionID";
+		header("Location: https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&runame=".$RuName."&sid=".$results->SessionID);
+		//var_dump("https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Creasion-Creasion-1ca1-4-vldylhxcb&&sid=$results->SessionID");
+                //----------   debug --------------------------------
+                //print "Request: \n".$client->__getLastRequest() ."\n";
+                //print "Response: \n".$client->__getLastResponse()."\n";
+        
+                //return $results;
+                
+        } catch (SOAPFault $f) {
+                print $f; // error handling
+        }
+    }
     //------------------------------- Log ---------------------------------------------------------------
     public static function log($type, $content, $level = 'normal'){
 	//print_r($_COOKIE);
