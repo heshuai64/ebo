@@ -18,22 +18,23 @@ class eBayListing{
     const DATABASE_USER = 'root';
     const DATABASE_PASSWORD = '5333533';
     const DATABASE_NAME = 'ebaylisting';
-    const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
-    //const GATEWAY_SOAP = 'https://api.ebay.com/wsapi';
+    //const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
+    const GATEWAY_SOAP = 'https://api.ebay.com/wsapi';
     
     const EBAY_BO_SERVICE = 'http://127.0.0.1/eBayBO/service.phpss';
     const INVENTORY_SERVICE = 'http://127.0.0.1/einv2/service.php';
     private $startTime;
     private $endTime;
     
-    //private $env = "production";
-    private $env = "sandbox";
+    private $env = "production";
+    //private $env = "sandbox";
     
     private $session;
-    private $site_id = 0;
+    private $site_id; //US 0, UK 3, AU 15, FR 71
     private $account_id;
     
-    public function __construct(){
+    public function __construct($site_id = 0){
+	$this->site_id = $site_id;
 	
         eBayListing::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
 
@@ -91,8 +92,8 @@ class eBayListing{
 	    $dev =   $config[$env]['devId'];
 	    $app =   $config[$env]['appId'];
 	    $cert =  $config[$env]['cert'];
-	    $token = $config[$env]['authToken'];
-	    //$token = $row['token'];
+	    //$token = $config[$env]['authToken'];
+	    $token = $row['token'];
 	    //$token = (empty($token)?$config[$env]['authToken']:$token);
 	    //$location = $config[$env]['gatewaySOAP'];
 	    $location = self::GATEWAY_SOAP;
@@ -695,7 +696,7 @@ class eBayListing{
 		$handle = fopen($_FILES['spcsv']['tmp_name'], "r");
 		while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
 		    //print_r($data);
-		    $sql = "update template set BuyItNowPrice='".$data[1]."',StartPrice='".$data[1]."' where SKU = '".$data[0]."'";
+		    $sql = "update template set StartPrice='".$data[1]."' where SKU = '".$data[0]."'";
 		    $result = mysql_query($sql, eBayListing::$database_connect);
 		}
 		fclose($handle);
@@ -706,6 +707,16 @@ class eBayListing{
 		while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
 		    //print_r($data);
 		    $sql = "update template set Quantity='".$data[1]."' where SKU = '".$data[0]."'";
+		    $result = mysql_query($sql, eBayListing::$database_connect);
+		}
+		fclose($handle);
+	    break;
+	    
+	    case "stpcsv":
+		$handle = fopen($_FILES['stpcsv']['tmp_name'], "r");
+		while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+		    //print_r($data);
+		    $sql = "update template set StartPrice='".$data[2]."' where SKU = '".$data[0]."' and Title = '".$data[1]."';";
 		    $result = mysql_query($sql, eBayListing::$database_connect);
 		}
 		fclose($handle);
@@ -729,6 +740,82 @@ class eBayListing{
 	    echo "{success:true}";
 	}else{
 	    echo "{success:false}";
+	}
+    }
+    
+    /*
+     英,美,法,澳,
+	Europe/London       +0100  +7h
+	America/New_York    -0400  +12h
+	Europe/Paris        +0200  +6h
+	Australia/Canberra  +1000  -2h
+	
+	Asia/Shanghai       +0800
+    */
+    
+    public function templateImmediatelyUpload(){
+	$now = date("Y-m-d H:i:s");
+	$temp = "";
+	$ids = explode(',', $_POST['ids']);
+	
+	if(count($ids) > 1){
+	    foreach($ids as $id){
+		$sql = "select Site from template where Id = '".$id."'";
+		$result = mysql_query($sql, eBayListing::$database_connect);
+		$row = mysql_fetch_assoc($result);
+		    
+		switch($row['Site']){
+		    case "US":
+			$localTime = date("Y-m-d H:i:s", strtotime("-12 hour ".$now));
+		    break;
+		
+		    case "UK":
+			$localTime = date("Y-m-d H:i:s", strtotime("-7 hour ".$now));
+		    break;
+		
+		    case "Australia":
+			$localTime = date("Y-m-d H:i:s", strtotime("+2 hour ".$now));
+		    break;
+		
+		    case "France":
+			$localTime = date("Y-m-d H:i:s", strtotime("-6 hour ".$now));
+		    break;
+		}
+	    
+		$temp .= $id. " : ". $now . "<br>";	
+		$result = $this->tempalteChangeToItem($_POST['ids'], $now, $localTime);
+	    }
+	}else{
+	    $sql = "select Site from template where Id = '".$_POST['ids']."'";
+	    $result = mysql_query($sql, eBayListing::$database_connect);
+	    $row = mysql_fetch_assoc($result);
+	    //var_dump($row);
+	    switch($row['Site']){
+		case "US":
+		    $localTime = date("Y-m-d H:i:s", strtotime("-12 hour ".$now));
+		break;
+	    
+		case "UK":
+		    $localTime = date("Y-m-d H:i:s", strtotime("-7 hour ".$now));
+		break;
+	    
+		case "Australia":
+		    $localTime = date("Y-m-d H:i:s", strtotime("+2 hour ".$now));
+		break;
+	    
+		case "France":
+		    $localTime = date("Y-m-d H:i:s", strtotime("-6 hour ".$now));
+		break;
+	    }
+		
+	    $temp .= $_POST['ids']. " : ". $now . "<br>";
+	    $result = $this->tempalteChangeToItem($_POST['ids'], $now, $localTime);
+	}
+	
+	if($result){
+	    echo '[{success: true, msg: "'.$temp.'"}]';
+	}else{
+	    echo '[{success: false, msg: "Template Immediately Upload Failure, Please Notice Admin."}]';
 	}
     }
     
@@ -977,14 +1064,6 @@ class eBayListing{
 	}
 	
 	/*
-	英,美,法,澳,
-	Europe/London       +0100  +7h
-	America/New_York    -0400  +12h
-	Europe/Paris        +0200  +6h
-	Australia/Canberra  +1000  -2h
-	
-	Asia/Shanghai       +0800
-	
 	Array
 	(
 	    [LB00009-Mon-am-1] => Array
@@ -2230,9 +2309,9 @@ class eBayListing{
 
     public function getCategoriesTree(){
 	if($_POST['node'] == "0"){
-	    $sql = "select CategoryID,CategoryName,LeafCategory from categories where CategoryID = CategoryParentID";
+	    $sql = "select CategoryID,CategoryName,LeafCategory from categories where CategoryID = CategoryParentID and CategorySiteID = '".$_GET['SiteID']."'";
 	}else{
-	    $sql = "select CategoryID,CategoryName,LeafCategory from categories where CategoryParentID = '".$_POST['node']."' and CategoryID != CategoryParentID";
+	    $sql = "select CategoryID,CategoryName,LeafCategory from categories where CategoryParentID = '".$_POST['node']."' and CategoryID != CategoryParentID and CategorySiteID = '".$_GET['SiteID']."'";
 	}
 	//echo $sql;
 	$result = mysql_query($sql, eBayListing::$database_connect);
@@ -2251,7 +2330,7 @@ class eBayListing{
     }
     
     public function getStoreCategoriesTree(){
-	$sql = "select CategoryID,Name from account_store_categories where AccountId = '".$_SESSION['account_id']."' and CategoryParentID ='".$_POST['node']."' order by `Order`";
+	$sql = "select CategoryID,Name from account_store_categories where AccountId = '".$this->account_id."' and CategoryParentID ='".$_POST['node']."' order by `Order`";
 	
 	//echo $sql;
 	$result = mysql_query($sql, eBayListing::$database_connect);
@@ -2552,6 +2631,9 @@ class eBayListing{
     //-----------------  Fetch Item Specifics From eBay ------------------------------------------
     //http://127.0.0.1:6666/eBayBO/eBaylisting/service.php?action=getAllCategory2CS
     public function getCategory2CS(){
+	$sql = "delete from CharacteristicsSets where SiteID = '".$this->site_id."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+		    
 	try {
 	    echo $this->site_id;
 	    echo "\n";
@@ -2799,7 +2881,7 @@ class eBayListing{
                 $_POST['limit'] = 20;
             }
 	    
-	    $sql = "select Id,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,ScheduleTime,Site from items where accountId = '".$this->account_id."' and Status = '0' order by Id limit ".$_POST['start'].",".$_POST['limit'];
+	    $sql = "select Id,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,ScheduleTime,ScheduleLocalTime,Site from items where accountId = '".$this->account_id."' and Status = '0' order by Id limit ".$_POST['start'].",".$_POST['limit'];
             $result = mysql_query($sql, eBayListing::$database_connect);
             
 	}else{
@@ -2823,7 +2905,7 @@ class eBayListing{
             $row = mysql_fetch_assoc($result);
             $totalCount = $row['count'];
             
-            $sql = "select Id,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,ScheduleTime,Site from items ".$where." order by Id limit ".$_POST['start'].",".$_POST['limit'];
+            $sql = "select Id,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,ScheduleTime,ScheduleLocalTime,Site from items ".$where." order by Id limit ".$_POST['start'].",".$_POST['limit'];
             //echo $sql;
             $result = mysql_query($sql, eBayListing::$database_connect);
 	}
@@ -3021,13 +3103,13 @@ class eBayListing{
 		$sql_1 = "insert into items (AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 		Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
 		PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
-		ReservePrice,CurrentPrice,ScheduleTime,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
+		ReservePrice,CurrentPrice,ScheduleTime,ScheduleLocalTime,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 		StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 		GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InternationalShippingServiceOptionType,Status) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 		Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
 		PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
-		ReservePrice,CurrentPrice,ScheduleTime,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
+		ReservePrice,CurrentPrice,ScheduleTime,ScheduleLocalTime,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 		StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 		GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InternationalShippingServiceOptionType,'0' from items where Id = '".$a."'";
@@ -3063,25 +3145,24 @@ class eBayListing{
 		    $result_7 = mysql_query($sql_7, eBayListing::$database_connect);
 		}
 		
-		//var_dump(array($result_1, $result_2, $result_3, $result_4, $result_6, $result_7));
-	    
-		if($result_1 && $result_2 && $result_3 && $result_4 && $result_5){
-		    echo 1;
-		}else{
-		    echo 0;
-		}
+		//var_dump(array($result_1, $result_2, $result_3, $result_4, $result_5, $result_6, $result_7));
+	    }
+	    if($result_1 && $result_2 && $result_3 && $result_4){
+		echo 1;
+	    }else{
+		echo 0;
 	    }
 	}else{
 	    $sql_1 = "insert into items (AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 	    Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
 	    PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
-	    ReservePrice,CurrentPrice,ScheduleTime,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
+	    ReservePrice,CurrentPrice,ScheduleTime,ScheduleLocalTime,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 	    StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 	    Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 	    GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InternationalShippingServiceOptionType,Status) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 	    Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
 	    PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
-	    ReservePrice,CurrentPrice,ScheduleTime,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
+	    ReservePrice,CurrentPrice,ScheduleTime,ScheduleLocalTime,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 	    StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 	    Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 	    GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InternationalShippingServiceOptionType,'0' from items where Id = '".$_POST['ids']."'";
@@ -3117,7 +3198,7 @@ class eBayListing{
 		$result_7 = mysql_query($sql_7, eBayListing::$database_connect);
 	    }
 	
-	    if($result_1 && $result_2 && $result_3 && $result_4 && $result_5){
+	    if($result_1 && $result_2 && $result_3 && $result_4){
 		echo 1;
 	    }else{
 		echo 0;
@@ -4640,7 +4721,7 @@ class eBayListing{
 	
     public function updateeBayAccount(){
 	 $sql = "update account set name='".$_POST['name']."',password='".$_POST['password']."',
-	token='".$_POST['token']."',status='".$_POST['status']."' where id = '".$_POST['id']."'";
+	token='".$_POST['token']."',tokenExpiry='".$_POST['tokenExpiry']."',status='".$_POST['status']."' where id = '".$_POST['id']."'";
 	$result = mysql_query($sql);
 	//echo $sql;
 	echo $result;
@@ -4888,7 +4969,11 @@ class eBayListing{
     }
 }
 
-$service = new eBayListing();
+if(!empty($argv[2])){
+    $service = new eBayListing($argv[2]);
+}else{
+    $service = new eBayListing();
+}
 $service->setAccount(1);
 $acton = (!empty($_GET['action'])?$_GET['action']:$argv[1]);
 if(in_array($acton, array("getAllSiteShippingServiceDetails", "getAllSiteShippingLocationDetails", "getAllCategory2CS", "getAllAttributesCS"))){

@@ -706,7 +706,7 @@ Ext.onReady(function(){
                                         height:600,
                                         width:300,
                                         // auto create TreeLoader
-                                        dataUrl: 'service.php?action=getCategoriesTree',
+                                        dataUrl: 'service.php?action=getCategoriesTree&SiteID='+Ext.getCmp('SiteID').getValue(),
                                 
                                         root: {
                                             nodeType: 'async',
@@ -808,7 +808,7 @@ Ext.onReady(function(){
                                         height:600,
                                         width:300,
                                         // auto create TreeLoader
-                                        dataUrl: 'service.php?action=getCategoriesTree',
+                                        dataUrl: 'service.php?action=getCategoriesTree&SiteID='+Ext.getCmp('SiteID').getValue(),
                                 
                                         root: {
                                             nodeType: 'async',
