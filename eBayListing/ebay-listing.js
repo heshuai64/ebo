@@ -4,8 +4,8 @@ Ext.onReady(function(){
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      
-     var path = "/eBayBO/eBayListing/";
-     //var path = "/eBayListing/";
+     //var path = "/eBayBO/eBayListing/";
+     var path = "/eBayListing/";
      /*
      var cp = new Ext.state.CookieProvider({
           path: "/eBayBO/eBayListing/"
@@ -216,7 +216,7 @@ Ext.onReady(function(){
           totalProperty: 'totalCount',
           idProperty: 'id',
           //autoLoad:true,
-          fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'Quantity', 'ListingDuration', 'ListingType'],
+          fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'ShippingFee', 'Quantity', 'ListingDuration', 'ListingType'],
           url: 'service.php?action=getAllTemplate',
           listeners: {
                load: function(t, r){
@@ -232,12 +232,13 @@ Ext.onReady(function(){
           autoHeight: true,
           selModel: new Ext.grid.RowSelectionModel({}),
           columns:[
-               {header: "Id", width: 40, align: 'center', sortable: true, dataIndex: 'Id'},
+               {header: "Id", width: 50, align: 'center', sortable: true, dataIndex: 'Id'},
                {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
                {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title'},
                {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
+               {header: "Shipping Fee", width: 80, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
                {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
                {header: "Duration", width: 100, align: 'center', sortable: true, dataIndex: 'ListingDuration'}
           ],
@@ -780,7 +781,7 @@ Ext.onReady(function(){
                                                                  intervalUploadWindow.close();
                                                                  Ext.MessageBox.alert('Success', result[0].msg);
                                                             }else{
-                                                                 Ext.MessageBox.alert('Warning', 'Could not interval upload, please notice admin.');
+                                                                 Ext.MessageBox.alert('Warning', result[0].msg);
                                                             }
                                                        },
                                                        failure: function(response){
@@ -1383,7 +1384,7 @@ Ext.onReady(function(){
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
-                                   fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'Quantity', 'ListingDuration', 'ListingType', 'ScheduleTime'],
+                                   fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'ShippingFee', 'Quantity', 'ListingDuration', 'ListingType', 'ScheduleTime'],
                                    url: 'service.php?action=getWaitingUploadItem',
                                    listeners: {
                                         load: function(t, r){
@@ -1398,7 +1399,7 @@ Ext.onReady(function(){
                                    autoHeight: true,
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
-                                        {header: "Id", width: 40, align: 'center', sortable: true, dataIndex: 'Id'},
+                                        {header: "Id", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
                                         {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                                         {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
                                         {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title', editor: new Ext.form.TextField({
@@ -1437,9 +1438,10 @@ Ext.onReady(function(){
                                         },
                                         {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                         {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
+                                        {header: "Shipping Fee", width: 80, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
                                         {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
                                         {header: "Duration", width: 100, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
-                                        {header: "UploadTime", width: 250, align: 'center', sortable: true, dataIndex: 'ScheduleTime'}
+                                        {header: "UploadTime", width: 120, align: 'center', sortable: true, dataIndex: 'ScheduleTime'}
                                    ],
                                    tbar: [{
                                              text:'Copy',
@@ -1612,7 +1614,7 @@ Ext.onReady(function(){
                                                                                      resetTimeWindow.close();
                                                                                      Ext.MessageBox.alert('Success', result[0].msg);
                                                                                 }else{
-                                                                                     Ext.MessageBox.alert('Warning', 'Could not reset upload time, please notice admin.');
+                                                                                     Ext.MessageBox.alert('Warning', result[0].msg);
                                                                                 }
                                                                            },
                                                                            failure: function(response){

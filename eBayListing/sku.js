@@ -1174,11 +1174,21 @@ Ext.onReady(function(){
                     },{
                         //autoScroll: true,
                         id:"Description",
-                        width: 600,
+                        width: 700,
+                        height: 500,
                         xtype:"htmleditor",
                         fieldLabel:"Descritpion",
                         name:"Description",
-                        allowBlank:false
+                        allowBlank:false,
+                        listeners: {
+                            sync : function(t, h){
+                                //console.log(h);
+                                Ext.Ajax.request({
+                                    url: 'service.php?action=saveTempDescription&type=sku&id='+template_id,
+                                    params: { description: h}
+                                })
+                            }
+                        }
                     },{
                         layout:"column",
                         border:false,
@@ -1216,7 +1226,7 @@ Ext.onReady(function(){
                                 xtype:"button",
                                 text:"Preview",
                                 handler: function(){
-                                    window.open(path + "preview.php?t=s&u="+Ext.getCmp("UseStandardFooter").getValue()+"&d="+Ext.getCmp("Description").getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                    window.open(path + "preview.php?type=sku&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+sku_id,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                 }
                             }]
                         }]
