@@ -1935,7 +1935,9 @@ class eBayListing{
 	    $array['ReservePrice'] = $data[15];
 	    $array['ListingDuration'] = 'Days_'.$data[22];
 	    $array['Country'] = $data[24];
-	    $array['Description'] = $data[28];
+	    $data[28] = str_replace("@@@@%", " ", $data[28]);
+	    $array['Description'] = str_replace("%0D%0A", " ", $data[28]);
+
 	    //$array['url'] = $data[30];//
 	    $array['BoldTitle'] = $data[31];
 	    $array['Featured'] = $data[32];
