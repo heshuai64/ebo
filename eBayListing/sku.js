@@ -130,6 +130,21 @@ Ext.onReady(function(){
         url:'service.php?action=getAllCountries'
     })
     
+    var currencyCombo = new Ext.form.ComboBox({
+        readOnly:true,
+        labelAlign:"left",
+        fieldLabel:"Currency",
+        mode: 'local',
+        store: ['USD', 'GBP', 'AUD', 'EUR'],
+        triggerAction: 'all',
+        editable: false,
+        selectOnFocus:true,
+        //listWidth: 156,
+        //width: 156,
+        name:'Currency',
+        hiddenName:'Currency'
+    })
+                        
     var schedule = new Ext.Panel({                              
         //title:"Schedule",
         layout:"table",
@@ -241,64 +256,87 @@ Ext.onReady(function(){
         //height: 600,
         buttonAlign:"center",
         items:[{
-                xtype:"combo",
-                labelAlign:"left",
-                fieldLabel:"Site",
-                mode: 'local',
-                store: siteStore,
-                valueField:'name',
-                displayField:'name',
-                triggerAction: 'all',
-                editable: false,
-                selectOnFocus:true,
-                //listWidth: 156,
-                //width: 156,
-                name: 'Site',
-                //allowBlank: false,
-                hiddenName:'Site',
-                allowBlank:false,
-                listeners: {
-                    select: function(c, r, i){
-                        categoryStore.setBaseParam('SiteID', r.data.id);
-                        //console.log(r);
-                        switch(r.data.name){
-                            case "US":
-                               Ext.getCmp("Currency").setValue("USD");
-                               Ext.getCmp("StartPrice").setRawValue(currency_symbol.US);
-                               Ext.getCmp("BuyItNowPrice").setRawValue(currency_symbol.US);
-                               Ext.getCmp("ReservePrice").setRawValue(currency_symbol.US);
-                            break;
-                        
-                            case "UK":
-                               Ext.getCmp("Currency").setValue("GBP");
-                               Ext.getCmp("StartPrice").setRawValue(currency_symbol.UK);
-                               Ext.getCmp("BuyItNowPrice").setRawValue(currency_symbol.UK);
-                               Ext.getCmp("ReservePrice").setRawValue(currency_symbol.UK);
-                            break;
-                        
-                            case "Australia":
-                                Ext.getCmp("Currency").setValue("AUD");
-                                Ext.getCmp("StartPrice").setRawValue(currency_symbol.Australia);
-                                Ext.getCmp("BuyItNowPrice").setRawValue(currency_symbol.Australia);
-                                Ext.getCmp("ReservePrice").setRawValue(currency_symbol.Australia);
-                            break;
-                        
-                            case "France":
-                                Ext.getCmp("Currency").setValue("EUR");
-                                Ext.getCmp("StartPrice").setRawValue(currency_symbol.France);
-                                Ext.getCmp("BuyItNowPrice").setRawValue(currency_symbol.France);
-                                Ext.getCmp("ReservePrice").setRawValue(currency_symbol.France);
-                                //Ext.getCmp("currency-icon").setIconClass("currency-euro");
-                            break;
+                layout:"column",
+                border:false,
+                width: 300,
+                items:[{
+                    columnWidth:0.5,
+                    layout:"form",
+                    defaults:{
+                        width: 100,
+                        listWidth: 100
+                    },
+                    border:false,
+                    items:[{
+                        xtype:"combo",
+                        labelAlign:"left",
+                        fieldLabel:"Site",
+                        mode: 'local',
+                        store: siteStore,
+                        valueField:'name',
+                        displayField:'name',
+                        triggerAction: 'all',
+                        editable: false,
+                        selectOnFocus:true,
+                        //listWidth: 156,
+                        //width: 156,
+                        name: 'Site',
+                        //allowBlank: false,
+                        hiddenName:'Site',
+                        allowBlank:false,
+                        listeners: {
+                            select: function(c, r, i){
+                                categoryStore.setBaseParam('SiteID', r.data.id);
+                                //console.log(r);
+                                switch(r.data.name){
+                                    case "US":
+                                       currencyCombo.setValue("USD");
+                                       Ext.getCmp("StartPrice").setRawValue(currency_symbol.US);
+                                       Ext.getCmp("BuyItNowPrice").setRawValue(currency_symbol.US);
+                                       Ext.getCmp("ReservePrice").setRawValue(currency_symbol.US);
+                                    break;
+                                
+                                    case "UK":
+                                       currencyCombo.setValue("GBP");
+                                       Ext.getCmp("StartPrice").setRawValue(currency_symbol.UK);
+                                       Ext.getCmp("BuyItNowPrice").setRawValue(currency_symbol.UK);
+                                       Ext.getCmp("ReservePrice").setRawValue(currency_symbol.UK);
+                                    break;
+                                
+                                    case "Australia":
+                                        currencyCombo.setValue("AUD");
+                                        Ext.getCmp("StartPrice").setRawValue(currency_symbol.Australia);
+                                        Ext.getCmp("BuyItNowPrice").setRawValue(currency_symbol.Australia);
+                                        Ext.getCmp("ReservePrice").setRawValue(currency_symbol.Australia);
+                                    break;
+                                
+                                    case "France":
+                                        currencyCombo.setValue("EUR");
+                                        Ext.getCmp("StartPrice").setRawValue(currency_symbol.France);
+                                        Ext.getCmp("BuyItNowPrice").setRawValue(currency_symbol.France);
+                                        Ext.getCmp("ReservePrice").setRawValue(currency_symbol.France);
+                                        //Ext.getCmp("currency-icon").setIconClass("currency-euro");
+                                    break;
+                                }
+                                Ext.getCmp("SiteID").setValue(r.data.id);
+                            }
                         }
-                        Ext.getCmp("SiteID").setValue(r.data.id);
-                    }
-                }
-            },{
+                    }]
+                },{
+                    columnWidth:0.5,
+                    layout:"form",
+                    defaults:{
+                        width: 80,
+                        listWidth: 80
+                    },
+                    border:false,
+                    items: currencyCombo
+                }]
+            }/*,{
                 xtype:"hidden",
                 id:'Currency',
                 name:'Currency'
-            },{
+            }*/,{
                 xtype:"hidden",
                 id:'SiteID',
                 name:'SiteID'

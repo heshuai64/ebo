@@ -182,6 +182,22 @@ Ext.onReady(function(){
         url:'service.php?action=getAllCountries'
     })
     
+    var currencyCombo = new Ext.form.ComboBox({
+        readOnly:true,
+        labelAlign:"left",
+        fieldLabel:"Currency",
+        mode: 'local',
+        store: ['USD', 'GBP', 'AUD', 'EUR'],
+        triggerAction: 'all',
+        editable: false,
+        selectOnFocus:true,
+        //listWidth: 156,
+        //width: 156,
+        name:'Currency',
+        hiddenName:'Currency'
+    })
+    
+    
     var listTypeCombo = new Ext.form.ComboBox({
         mode: 'local',
         store: new Ext.data.JsonStore({
@@ -393,51 +409,69 @@ Ext.onReady(function(){
                 'accountId','UseStandardFooter'
         ]),
         items:[{
-                xtype:"combo",
-                labelAlign:"left",
-                fieldLabel:"Site",
-                mode: 'local',
-                store: siteStore,
-                valueField:'name',
-                displayField:'name',
-                triggerAction: 'all',
-                editable: false,
-                selectOnFocus:true,
-                //listWidth: 156,
-                //width: 156,
-                name: 'Site',
-                //allowBlank: false,
-                hiddenName:'Site',
-                allowBlank:false,
-                listeners: {
-                    "select": function(c, r, i){
-                        categoryStore.setBaseParam('SiteID', r.data.id);
-                        //console.log(r);
-                        switch(r.data.name){
-                            case "US":
-                               Ext.getCmp("Currency").setValue("USD");
-                            break;
-                        
-                            case "UK":
-                               Ext.getCmp("Currency").setValue("GBP");
-                            break;
-                        
-                            case "Australia":
-                                Ext.getCmp("Currency").setValue("AUD");
+                layout:"column",
+                border:false,
+                width: 300,
+                items:[{
+                    columnWidth:0.5,
+                    layout:"form",
+                    defaults:{
+                        width: 100,
+                        listWidth: 100
+                    },
+                    border:false,
+                    items:[{
+                        xtype:"combo",
+                        labelAlign:"left",
+                        fieldLabel:"Site",
+                        mode: 'local',
+                        store: siteStore,
+                        valueField:'name',
+                        displayField:'name',
+                        triggerAction: 'all',
+                        editable: false,
+                        selectOnFocus:true,
+                        //listWidth: 156,
+                        //width: 156,
+                        name: 'Site',
+                        //allowBlank: false,
+                        hiddenName:'Site',
+                        allowBlank:false,
+                        listeners: {
+                            select: function(c, r, i){
+                                categoryStore.setBaseParam('SiteID', r.data.id);
+                                //console.log(r);
+                                switch(r.data.name){
+                                    case "US":
+                                       currencyCombo.setValue("USD");
+                                    break;
                                 
-                            break;
-                        
-                            case "France":
-                                Ext.getCmp("Currency").setValue("EUR");
-                            break;
+                                    case "UK":
+                                       currencyCombo.setValue("GBP");
+                                    break;
+                                
+                                    case "Australia":
+                                        currencyCombo.setValue("AUD");
+                                    break;
+                                
+                                    case "France":
+                                        currencyCombo.setValue("EUR");
+                                    break;
+                                }
+                                Ext.getCmp("SiteID").setValue(r.data.id);
+                            }
                         }
-                        Ext.getCmp("SiteID").setValue(r.data.id);
-                    }
-                }
-            },{
-                xtype:"hidden",
-                id:'Currency',
-                name:'Currency'
+                    }]
+                },{
+                    columnWidth:0.5,
+                    layout:"form",
+                    defaults:{
+                        width: 80,
+                        listWidth: 80
+                    },
+                    border:false,
+                    items: currencyCombo
+                }]
             },{
                 xtype:"hidden",
                 id:'SiteID',
