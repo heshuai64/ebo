@@ -1286,7 +1286,8 @@ Ext.onReady(function(){
                     },{
                         //autoScroll: true,
                         id:"Description",
-                        width: 600,
+                        width: 700,
+                        height: 500,
                         xtype:"htmleditor",
                         fieldLabel:"Descritpion",
                         name:"Description",
