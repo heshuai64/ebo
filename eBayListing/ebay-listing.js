@@ -4,8 +4,8 @@ Ext.onReady(function(){
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      
-     //var path = "/eBayBO/eBayListing/";
-     var path = "/eBayListing/";
+     var path = "/eBayBO/eBayListing/";
+     //var path = "/eBayListing/";
      /*
      var cp = new Ext.state.CookieProvider({
           path: "/eBayBO/eBayListing/"
@@ -349,7 +349,7 @@ Ext.onReady(function(){
                          title: 'Import CSV File' ,
                          closable:true,
                          width: 360,
-                         height: 360,
+                         height: 390,
                          plain:true,
                          layout: 'fit',
                          items: [{
@@ -419,6 +419,34 @@ Ext.onReady(function(){
                                                             template_store.reload();
                                                             importCsvWindow.close();
                                                             Ext.MessageBox.alert('Success','Update template sku quantiry success!');
+                                                       }
+                                                  });
+                                             }
+                                        }
+                                   },{
+                                        xtype: 'fileuploadfield',
+                                        id: 'stpcsv',
+                                        emptyText: 'Select an csv file',
+                                        fieldLabel: 'Sku and Title and Price',
+                                        //hideLabel:true,
+                                        name: 'stpcsv',
+                                        buttonText: '',
+                                        buttonCfg: {
+                                            iconCls: 'upload-icon'
+                                        }
+                                   },{
+                                        xtype: 'button',
+                                        text: 'Upload',
+                                        handler: function(){
+                                             var fp = Ext.getCmp("csv-form");
+                                             if(fp.getForm().isValid()){
+                                                  fp.getForm().submit({
+                                                       url: 'service.php?action=templateImportCsv&type=stpcsv',
+                                                       waitMsg: 'Uploading your csv...',
+                                                       success: function(fp, o){
+                                                            template_store.reload();
+                                                            importCsvWindow.close();
+                                                            Ext.MessageBox.alert('Success','Update template sku price success!');
                                                        }
                                                   });
                                              }
@@ -670,8 +698,47 @@ Ext.onReady(function(){
                     importTbWindow.show();   
                }
           },'-',{
-               text: 'Add To Upload',
+               text:'Immediately Upload',
                icon: './images/arrow_up.png',
+               tooltip:'Immediately upload template',
+               handler: function(){
+                    var selections = template_grid.selModel.getSelections();
+                    if(template_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','Please select template.');
+                         return 0;
+                    }
+                    var ids = "";
+                    for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=templateImmediatelyUpload', 
+                         params: { 
+                              ids: ids
+                         }, 
+                         success: function(response){
+                             var result = eval(response.responseText);
+                              //console.log(result);
+                              if(result[0].success){
+                                   Ext.MessageBox.alert('Success', result[0].msg);      
+                              }else{
+                                   Ext.MessageBox.alert('Failure', result[0].msg);      
+                              }
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
+                    
+                    return 1;
+               }
+          },'-',{
+               text: 'Schedule Upload',
+               icon: './images/date_go.png',
                tooltip:'add selected template to upload queue',
                handler: function(){
                     var selections = template_grid.selModel.getSelections();
@@ -755,7 +822,7 @@ Ext.onReady(function(){
                                         id:'interval-minute',
                                         fieldLabel:'Interval',
                                         xtype:"combo",
-                                        store:[1,2,3,4,5,6,7,8,9,10],
+                                        store:[0,1,2,3,4,5,6,7,8,9,10],
                                         listWidth:60,
                                         width:60
                                    }
@@ -1384,7 +1451,7 @@ Ext.onReady(function(){
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
-                                   fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'ShippingFee', 'Quantity', 'ListingDuration', 'ListingType', 'ScheduleTime'],
+                                   fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'ShippingFee', 'Quantity', 'ListingDuration', 'ListingType', 'ScheduleTime', 'ScheduleLocalTime'],
                                    url: 'service.php?action=getWaitingUploadItem',
                                    listeners: {
                                         load: function(t, r){
@@ -1437,11 +1504,12 @@ Ext.onReady(function(){
                                              })
                                         },
                                         {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
-                                        {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
+                                        {header: "Price", width: 50, align: 'center', sortable: true, dataIndex: 'Price'},
                                         {header: "Shipping Fee", width: 80, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
                                         {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
-                                        {header: "Duration", width: 100, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
-                                        {header: "UploadTime", width: 120, align: 'center', sortable: true, dataIndex: 'ScheduleTime'}
+                                        {header: "Duration", width: 70, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
+                                        {header: "Upload Time", width: 110, align: 'center', sortable: true, dataIndex: 'ScheduleTime'},
+                                        {header: "Local Upload Time", width: 110, align: 'center', sortable: true, dataIndex: 'ScheduleLocalTime'}
                                    ],
                                    tbar: [{
                                              text:'Copy',
@@ -1588,7 +1656,7 @@ Ext.onReady(function(){
                                                             id:'interval-minute',
                                                             fieldLabel:'Interval',
                                                             xtype:"combo",
-                                                            store:[1,2,3,4,5,6,7,8,9,10],
+                                                            store:[0,1,2,3,4,5,6,7,8,9,10],
                                                             listWidth:60,
                                                             width:60
                                                        }
@@ -1793,6 +1861,7 @@ Ext.onReady(function(){
                                                                  name: ebayManageForm.form.findField('name').getValue(),
                                                                  password: ebayManageForm.form.findField('password').getValue(),
                                                                  token: ebayManageForm.form.findField('token').getValue(),
+                                                                 tokenExpiry: ebayManageForm.form.findField('tokenExpiry').getValue(),
                                                                  status: ebayManageForm.form.findField('status').getValue()
                                                              },
                                                              success: function(response){

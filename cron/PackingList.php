@@ -28,8 +28,8 @@ class PackingList{
             echo "Unable to select mydbname: " . mysql_error(PackingList::$database_connect);
             exit;
         }
-        $this->startTime = date("Y-m-d 14:10:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
-        $this->endTime = date("Y-m-d 14:10:00");
+        $this->startTime = date("Y-m-d 10:00:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
+        $this->endTime = date("Y-m-d 10:00:00");
     }
     
     public function setStartTime($startTime){
@@ -77,19 +77,30 @@ class PackingList{
     }
     
     private function getShipment(){
-        $sql = "select id,ordersId,envelope,shipToName,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry,shipToPhoneNo 
-        from qo_shipments where modifiedOn between '$this->startTime' and '$this->endTime' and status = 'N'";
+        $sql = "select s.id,s.envelope,o.shippingMethod,o.buyerId,s.shipToName,s.shipToAddressLine1,s.shipToAddressLine2,s.shipToCity,s.shipToStateOrProvince,s.shipToPostalCode,s.shipToCountry,s.shipToPhoneNo 
+        from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N'";
         $result = mysql_query($sql, PackingList::$database_connect);
         
         $i = 0;
         while($row = mysql_fetch_assoc($result)){
-            $sql_2 = "select buyerId from qo_orders where id = '".$row['ordersId']."'";
-            $result_2 = mysql_query($sql_2, PackingList::$database_connect);
-            $row_2 = mysql_fetch_assoc($result_2);
-            $row['buyerId'] = $row_2['buyerId'];
+            if(in_array($row['shippingMethod'], array('B', 'R', 'S'))){
+                switch($row['shippingMethod']){
+                    case "B":
+                        $row['shippingMethod'] = "Bulk";
+                    break;
+                
+                    case "R":
+                        $row['shippingMethod'] = "Registered";
+                    break;
+                
+                    case "S":
+                        $row['shippingMethod'] = "SpeedPost";
+                    break;
+                }
+            }
             
             $this->shipment[$i] = $row;
-            $sql_1 = "select i.skuId,sd.itemId,sd.quantity,i.galleryURL from qo_shipments_detail as sd left join qo_items as i on sd.itemId=i.id where sd.shipmentsId='".$row['id']."'";
+            $sql_1 = "select sd.skuId,sd.itemId,sd.quantity,i.galleryURL from qo_shipments_detail as sd left join qo_items as i on sd.itemId=i.id where sd.shipmentsId='".$row['id']."'";
             $result_1 = mysql_query($sql_1, PackingList::$database_connect);
             $j = 0;
             while($row_1 = mysql_fetch_assoc($result_1)){
@@ -191,6 +202,13 @@ class PackingList{
 	ob_end_clean();
         $this->generateFile('pickinglist', $content);
         */
+        $this->getShipment();
+        ob_start();
+        require("template.php");
+        $content = ob_get_contents();
+        ob_end_clean();
+        $this->generateFile(date("Ymd"), $content);
+        /*
         $sellerIdArray = $this->getAllSellerId();
         foreach($sellerIdArray as $sellerId){
             $this->getShipmentBySellerId($sellerId);
@@ -201,6 +219,7 @@ class PackingList{
             ob_end_clean();
             $this->generateFile($sellerId, $content);
         }
+        */
     }
     
     public function __destruct(){
