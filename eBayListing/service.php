@@ -632,7 +632,6 @@ class eBayListing{
 	if(strpos($_POST['ids'], ',')){
 	    $ids = explode(',', $_POST['ids']);
 	    foreach($ids as $id){
-		$id = $_POST['ids'];
 		$sql_1 = "delete from template where Id = '".$id."'";
 		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 		
@@ -654,6 +653,9 @@ class eBayListing{
     
 		$sql_7 = "delete from template_attribute_set where templateId = '".$id."'";
 		$result_7 = mysql_query($sql_7, eBayListing::$database_connect);
+		
+		$sql_8 = "delete from template_to_template_cateogry where template_id = '".$id."'";
+		$result_8 = mysql_query($sql_8, eBayListing::$database_connect);
 	    }
 	}else{
 	    $id = $_POST['ids'];
@@ -678,10 +680,13 @@ class eBayListing{
 
 	    $sql_7 = "delete from template_attribute_set where templateId = '".$id."'";
 	    $result_7 = mysql_query($sql_7, eBayListing::$database_connect);
+	    
+	    $sql_8 = "delete from template_to_template_cateogry where template_id = '".$id."'";
+	    $result_8 = mysql_query($sql_8, eBayListing::$database_connect);
 	}
 	//print_r(array($result_1, $result_2, $result_3, $result_4, $result_5, $result_7));
 	
-	if($result_1 && $result_2 && $result_3 && $result_4 && $result_5 && $result_7){
+	if($result_1 && $result_2 && $result_3 && $result_4 && $result_5 && $result_7 && $result_8){
 	    echo 1;   
 	}else{
 	    echo 0;
@@ -2125,7 +2130,13 @@ class eBayListing{
 	    $template_id = mysql_insert_id(eBayListing::$database_connect);
 	    //var_dump($result);
 	    //exit;
-	
+	    //template picture url
+	    $array['template_picture_url']['url'] = $data[30];
+	    $sql_0 = "insert into template_picture_url (templateId,url) 
+	    values ('".$template_id."','".$array['template_picture_url']['url']."')";
+	    $result_0 = mysql_query($sql_0, eBayListing::$database_connect);
+		    
+	    
 	    //template shipping service options
 	    $array['template_shipping_service_options'][1]['FreeShipping'] = $data[92];
 	    $array['template_shipping_service_options'][1]['ShippingService'] = $data[88];
@@ -2648,14 +2659,14 @@ class eBayListing{
 		$sql = "insert into CharacteristicsSets (SiteID,CategoryID,Name,AttributeSetID,AttributeSetVersion) values 
 		('".$this->site_id."','".$category->CategoryID."','".$category->CharacteristicsSets->Name."',
 		'".$category->CharacteristicsSets->AttributeSetID."','".$category->CharacteristicsSets->AttributeSetVersion."')";
-		echo $sql;
-		echo "\n";
+		//echo $sql;
+		//echo "\n";
 		$result = mysql_query($sql, eBayListing::$database_connect);
 	    }
 	    
 	    echo "\n****************************************************************\n";
 	    flush();
-	    exit();
+	    //exit();
 	} catch (SOAPFault $f) {
             print $f; // error handling
         }
@@ -2683,7 +2694,7 @@ class eBayListing{
 	    file_put_contents("GetAttributesCS-".$this->site_id.".xml", $results->AttributeData);
 	    echo "\n******************   getAttributesCS Site ".$this->site_id." **************************\n";
 	    flush();
-	    exit();
+	    //exit();
 	} catch (SOAPFault $f) {
             print $f; // error handling
         }

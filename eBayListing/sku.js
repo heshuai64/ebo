@@ -1184,7 +1184,7 @@ Ext.onReady(function(){
                             sync : function(t, h){
                                 //console.log(h);
                                 Ext.Ajax.request({
-                                    url: 'service.php?action=saveTempDescription&type=sku&id='+template_id,
+                                    url: 'service.php?action=saveTempDescription&type=sku&id='+sku,
                                     params: { description: h}
                                 })
                             }
