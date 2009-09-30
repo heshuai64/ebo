@@ -31,10 +31,9 @@ class eBayBOExcel{
 		
 		$this->php_excel = new PHPExcel();
 
-
-		$this->startTime = date("Y-m-d 10:00:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
-		//$this->startTime = date("Y-m-d 14:10:00",mktime(0, 0, 0, date("m"), date("d")-3, date("Y")));
-		$this->endTime = date("Y-m-d 10:00:00");
+		//$this->startTime = date("Y-m-d 14:10:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
+		$this->startTime = date("Y-m-d 10:10:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
+		$this->endTime   = date("Y-m-d 10:10:00");
 		
 	}
 	
