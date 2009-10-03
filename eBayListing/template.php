@@ -8,6 +8,7 @@
     <script src="../ext-3.0.0/ext-all.js"></script>
     <script src="config.js"></script>
     <script src="template.js"></script>
+    <script type="text/javascript" src="tiny_mce/tiny_mce.js"></script>
     <script type="text/javascript">
 	var template_id = "<?=$_GET['id']?>";
     </script>

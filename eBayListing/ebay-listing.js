@@ -281,7 +281,7 @@ Ext.onReady(function(){
                          });
                          return 1;
                     }
-               },/*'-',{
+               },'-',{
                     text:'Edit',
                     icon: './images/plugin_edit.png',
                     tooltip:'edit multi template',
@@ -299,7 +299,7 @@ Ext.onReady(function(){
                          window.open("/eBayBO/eBayListing/template.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                          return 1;
                     }     
-               },*/'-',{
+               },'-',{
                text: 'Delete',
                icon: './images/cancel.png',
                tooltip:'Delete selected template',
@@ -1429,6 +1429,7 @@ Ext.onReady(function(){
                                              id:'template-tab',
                                              iconCls: 'template',
                                              title: "Template",
+                                             autoScroll: true,
                                              items: [template_search_form, template_grid],
                                              //closable: true,
                                              autoScroll:true
