@@ -2,8 +2,8 @@ Ext.onReady(function(){
     Ext.BLANK_IMAGE_URL = "../ext-3.0.0/resources/images/default/s.gif";
     //var categoryPath = "";
     var today = new Date();
-    //var path = "/eBayBO/eBayListing/";
-    var path = "/eBayListing/";
+    var path = "/eBayBO/eBayListing/";
+    //var path = "/eBayListing/";
     
     var pictureForm = new Ext.form.FormPanel({
             labelAlign:"top",
@@ -1172,6 +1172,12 @@ Ext.onReady(function(){
                             }]
                           }]
                     },{
+                        xtype:"panel",
+                        width: 690,
+                        height: 500,
+                        title:"Description",
+                        html:'<textarea id="Description" name="Description" style="height:450px; width:100%;">'
+                    },/*{
                         //autoScroll: true,
                         id:"Description",
                         width: 700,
@@ -1187,13 +1193,48 @@ Ext.onReady(function(){
                                     url: 'service.php?action=saveTempDescription&type=sku&id='+sku,
                                     params: { description: h}
                                 })
+                            },
+                            render: function(t){
+                                var btn = t.getToolbar().addButton({
+                                    icon: './images/money_euro.png',
+                                    tooltip: {
+                                        title: 'Insert Horizontal Rule'
+                                    },
+                                    overflowText: 'Horizontal Rule'
+                                })
                             }
                         }
-                    },{
+                    },*/{
                         layout:"column",
                         border:false,
                         items:[{
-                            columnWidth:0.2,
+                            width: 150,
+                            border:false,
+                            items:[{
+                                xtype:"button",
+                                text:"Preview Description",
+                                handler: function(){
+                                    Ext.Ajax.request({
+                                        url: 'service.php?action=saveTempDescription&type=sku&id='+sku,
+                                        params: { description: tinyMCE.get("Description").getContent()},
+                                        success: function(a, b){
+                                            window.open(path + "preview.php?type=sku&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+sku,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                        }
+                                    })
+                                }
+                            }]
+                        },{
+                            width: 120,
+                            border:false,
+                            items:[{
+                                xtype:"button",
+                                text:"Edit Standard Footer",
+                                handler: function(){
+                                    window.open(path + "footer.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                }
+                            }]
+                        },{
+                            width: 150,
                             layout:"form",
                             border:false,
                             style:"padding:0px;",
@@ -1208,26 +1249,6 @@ Ext.onReady(function(){
                                 boxLabel:"Use Standard Footer",
                                 name:"UseStandardFooter",
                                 inputValue:1
-                            }]
-                        },{
-                            columnWidth:0.2,
-                            border:false,
-                            items:[{
-                                xtype:"button",
-                                text:"Edit Standard Footer",
-                                handler: function(){
-                                    window.open(path + "footer.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
-                                }
-                            }]
-                        },{
-                            columnWidth:0.2,
-                            border:false,
-                            items:[{
-                                xtype:"button",
-                                text:"Preview",
-                                handler: function(){
-                                    window.open(path + "preview.php?type=sku&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+sku_id,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
-                                }
                             }]
                         }]
                     }]
@@ -1852,6 +1873,46 @@ Ext.onReady(function(){
                                     inputValue:"1"
                                   }]
                               }]
+                        },{
+                            layout:"table",
+                            layoutConfig:{
+                            columns:2
+                            },
+                            defaults:{
+                              bodyStyle:"padding:0px;",
+                              style:"margin:0px;"
+                              //width:60
+                            },
+                            border:false,
+                            items:[{
+                                layout:"form",
+                                border:false,
+                                items:[{
+                                    xtype:"combo",
+                                    fieldLabel:"Domestic Insurance",
+                                    mode: 'local',
+                                    store: ["IncludedInShippingHandling", "NotOffered", "Optional", "Required"],
+                                    valueField:'id',
+                                    displayField:'name',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    selectOnFocus:true,
+                                    name: 'InsuranceOption',
+                                    hiddenName:'InsuranceOption',
+                                    //allowBlank: false,
+                                    width:150,
+                                    listWidth:180
+                                  }]
+                              },{
+                                layout:"form",
+                                border:false,
+                                items:[{
+                                    xtype:"numberfield",
+                                    fieldLabel:"Cost",
+                                    name:"InsuranceFee",
+                                    width:60
+                                  }]
+                            }]    
                         },{
                             xtype:"combo",
                             fieldLabel:"Domestic Handling Time",
@@ -2629,6 +2690,46 @@ Ext.onReady(function(){
                                         }]
                                 }]
                               }]
+                        },{
+                            layout:"table",
+                            layoutConfig:{
+                            columns:2
+                            },
+                            defaults:{
+                              bodyStyle:"padding:0px;",
+                              style:"margin:0px;"
+                              //width:60
+                            },
+                            border:false,
+                            items:[{
+                                layout:"form",
+                                border:false,
+                                items:[{
+                                    xtype:"combo",
+                                    fieldLabel:"International Insurance",
+                                    mode: 'local',
+                                    store: ["IncludedInShippingHandling", "NotOffered", "Optional", "Required"],
+                                    valueField:'id',
+                                    displayField:'name',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    selectOnFocus:true,
+                                    name: 'InternationalInsurance',
+                                    hiddenName:'InternationalInsurance',
+                                    //allowBlank: false,
+                                    width:150,
+                                    listWidth:180
+                                  }]
+                              },{
+                                layout:"form",
+                                border:false,
+                                items:[{
+                                    xtype:"numberfield",
+                                    fieldLabel:"Cost",
+                                    name:"InternationalInsuranceFee",
+                                    width:60
+                                  }]
+                            }]    
                         }],
                         cls: 'my-fieldset',
                         style: 'margin: 10px;',
@@ -2748,6 +2849,7 @@ Ext.onReady(function(){
             buttons: [{
                 text: "Add To Template",
                 handler: function(){
+                    document.getElementById("Description").value = tinyMCE.get("Description").getContent();
                     itemForm.getForm().submit({
                         clientValidation: true,
                         url: 'service.php?action=addToTemplate',
@@ -2977,5 +3079,39 @@ Ext.onReady(function(){
         //console.log(el.childNodes[0].id);
         */
     })
+    
+    tinyMCE.init({
+            // General options
+            mode : "textareas",
+            theme : "advanced",
+            plugins : "safari,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template",
+
+            // Theme options
+            theme_advanced_buttons1 : "save,newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,styleselect,formatselect,fontselect,fontsizeselect",
+            theme_advanced_buttons2 : "cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,code,|,insertdate,inserttime,preview,|,forecolor,backcolor",
+            theme_advanced_buttons3 : "tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen",
+            theme_advanced_buttons4 : "insertlayer,moveforward,movebackward,absolute,|,styleprops,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,template,pagebreak",
+            theme_advanced_toolbar_location : "top",
+            theme_advanced_toolbar_align : "left",
+            theme_advanced_statusbar_location : "bottom",
+            //theme_advanced_resizing : true,
+
+            // Example content CSS (should be your site CSS)
+            //content_css : "css/content.css",
+
+            // Drop lists for link/image/media/template dialogs
+            template_external_list_url : "lists/template_list.js"
+            //external_link_list_url : "lists/link_list.js",
+            //external_image_list_url : "lists/image_list.js",
+            //media_external_list_url : "lists/media_list.js",
+
+            // Replace values for the template plugin
+            /*
+            template_replace_values : {
+                    username : "Some User",
+                    staffid : "991234"
+            }
+            */
+    });
 })
 

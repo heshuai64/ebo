@@ -18,16 +18,16 @@ class eBayListing{
     const DATABASE_USER = 'root';
     const DATABASE_PASSWORD = '5333533';
     const DATABASE_NAME = 'ebaylisting';
-    //const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
-    const GATEWAY_SOAP = 'https://api.ebay.com/wsapi';
+    const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
+    //const GATEWAY_SOAP = 'https://api.ebay.com/wsapi';
     
     const EBAY_BO_SERVICE = 'http://127.0.0.1/eBayBO/service.phpss';
     const INVENTORY_SERVICE = 'http://127.0.0.1/einv2/service.php';
     private $startTime;
     private $endTime;
     
-    private $env = "production";
-    //private $env = "sandbox";
+    //private $env = "production";
+    private $env = "sandbox";
     
     private $session;
     private $site_id; //US 0, UK 3, AU 15, FR 71
@@ -92,8 +92,8 @@ class eBayListing{
 	    $dev =   $config[$env]['devId'];
 	    $app =   $config[$env]['appId'];
 	    $cert =  $config[$env]['cert'];
-	    //$token = $config[$env]['authToken'];
-	    $token = $row['token'];
+	    $token = $config[$env]['authToken'];
+	    //$token = $row['token'];
 	    //$token = (empty($token)?$config[$env]['authToken']:$token);
 	    //$location = $config[$env]['gatewaySOAP'];
 	    $location = self::GATEWAY_SOAP;
@@ -108,8 +108,8 @@ class eBayListing{
     }
     
     private function saveFetchData($file_name, $data){
-	file_put_contents("/export/eBayListing/log/".$file_name, $data);
-	//file_put_contents("C:\\xampp\\htdocs\\eBayBO\\eBayListing\\log\\".$file_name, $data);
+	//file_put_contents("/export/eBayListing/log/".$file_name, $data);
+	file_put_contents("C:\\xampp\\htdocs\\eBayBO\\eBayListing\\log\\".$file_name, $data);
     }
     //------------------  eBay Category --------------------------------------------------------------------
     private function checkCategoriesVersion($siteId, $categoryVersion){
@@ -369,6 +369,22 @@ class eBayListing{
     /*
     ALTER TABLE `items` ADD `UseStandardFooter` BOOL NOT NULL ;
     ALTER TABLE `template` ADD `UseStandardFooter` BOOL NOT NULL ;
+    ALTER TABLE `template` ADD `InsuranceOption` ENUM( "", "IncludedInShippingHandling", "NotOffered", "Optional", "Required" ) NOT NULL AFTER `ShippingServiceOptionsType` ;
+    ALTER TABLE `template` ADD `InsuranceFee` DECIMAL( 10, 2 ) NOT NULL AFTER `InsuranceOption` ;
+    ALTER TABLE `template` ADD `InternationalInsurance` ENUM( "", "IncludedInShippingHandling", "NotOffered", "Optional", "Required" ) NOT NULL AFTER `InternationalShippingServiceOptionType` ;
+    ALTER TABLE `template` ADD `InternationalInsuranceFee` DECIMAL( 10, 2 ) NOT NULL AFTER `InternationalInsurance` ;
+    
+    ALTER TABLE `items` ADD `InsuranceOption` ENUM( "", "IncludedInShippingHandling", "NotOffered", "Optional", "Required" ) NOT NULL AFTER `ShippingServiceOptionsType` ;
+    ALTER TABLE `items` ADD `InsuranceFee` DECIMAL( 10, 2 ) NOT NULL AFTER `InsuranceOption` ;
+    ALTER TABLE `items` ADD `InternationalInsurance` ENUM( "", "IncludedInShippingHandling", "NotOffered", "Optional", "Required" ) NOT NULL AFTER `InternationalShippingServiceOptionType` ;
+    ALTER TABLE `items` ADD `InternationalInsuranceFee` DECIMAL( 10, 2 ) NOT NULL AFTER `InternationalInsurance` ;
+    
+    ALTER TABLE `shipping_service_options` ADD `ShippingServicePriority` ENUM( '', '1', '2', '3' ) NOT NULL ;
+    ALTER TABLE `international_shipping_service_option` ADD `ShippingServicePriority` ENUM( '', '1', '2', '3' ) NOT NULL AFTER `ShippingServiceAdditionalCost` ;
+    
+    ALTER TABLE `template_shipping_service_options` ADD `ShippingServicePriority` ENUM( '', '1', '2', '3' ) NOT NULL ;
+    ALTER TABLE `template_international_shipping_service_option` ADD `ShippingServicePriority` ENUM( '', '1', '2', '3' ) NOT NULL AFTER `ShippingServiceAdditionalCost` ;
+   
     */
     public function saveTempDescription(){
 	session_start();
@@ -387,6 +403,7 @@ class eBayListing{
 	    $sql_2 = "insert into account_footer (accountId,footer) values ('".$this->account_id."','".$_POST['content']."')";
 	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);	
 	}
+	echo '<script type="text/javascript">window.close()</script>';
     }
     
     public function getTemplateTree(){
@@ -508,13 +525,15 @@ class eBayListing{
 	ReservePrice,CurrentPrice,ScheduleTime,ScheduleLocalTime,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 	StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 	Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-	GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InternationalShippingServiceOptionType,Status,UseStandardFooter) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+	GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,
+	InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,Status,UseStandardFooter) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 	Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
 	PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,
 	ReservePrice,CurrentPrice,'".$time."','".$local_time."',SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 	StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 	Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-	GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InternationalShippingServiceOptionType,'0',UseStandardFooter from template where Id = '".$template_id."'";
+	GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,
+	InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,'0',UseStandardFooter from template where Id = '".$template_id."'";
 	
 	//echo $sql_1."\n";
 	
@@ -982,7 +1001,7 @@ class eBayListing{
 	ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,PostalCode,
 	PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,Quantity,ReservePrice,
 	ShippingType,Site,SKU,StartPrice,StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,
-	BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypePlus,GalleryURL,ShippingServiceOptionsType,InternationalShippingServiceOptionType,accountId,UseStandardFooter) values (
+	BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypePlus,GalleryURL,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,accountId,UseStandardFooter) values (
 	'".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
 	'".mysql_real_escape_string($_POST['Description'])."','".$_POST['DispatchTimeMax']."',
 	'".$_POST['ListingDuration']."','".$_POST['ListingType']."','".$_POST['Location']."','PayPal',
@@ -994,7 +1013,9 @@ class eBayListing{
 	'".mysql_real_escape_string($_POST['Title'])."','".(empty($_POST['BoldTitle'])?0:1)."',
 	'".(empty($_POST['Border'])?0:1)."','".(empty($_POST['Featured'])?0:1)."','".(empty($_POST['Highlight'])?0:1)."',
 	'".(empty($_POST['HomePageFeatured'])?0:1)."','".(empty($_POST['GalleryTypeFeatured'])?0:1)."','".(empty($_POST['GalleryTypePlus'])?0:1)."','".$_POST['GalleryURL']."',
-	'".$_POST['ShippingServiceOptionsType']."','".$_POST['InternationalShippingServiceOptionType']."','".$this->account_id."','".(empty($_POST['UseStandardFooter'])?0:1)."')";
+	'".$_POST['ShippingServiceOptionsType']."','".$_POST['InsuranceOption']."','".$_POST['InsuranceFee']."',
+	'".$_POST['InternationalShippingServiceOptionType']."','".$_POST['InternationalInsurance']."','".$_POST['InternationalInsuranceFee']."',
+	'".$this->account_id."','".(empty($_POST['UseStandardFooter'])?0:1)."')";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	
 	//echo $sql;
@@ -1012,8 +1033,8 @@ class eBayListing{
 	
 	$i = 1;
 	while(!empty($_POST['ShippingService-'.$i])){
-	    $sql_1 = "insert into template_shipping_service_options (templateId,FreeShipping,ShippingService,ShippingServiceCost) values
-	    ('".$id."','".@$_POST['FreeShipping-'.$i]."','".$_POST['ShippingService-'.$i]."','".$_POST['ShippingServiceCost-'.$i]."')";
+	    $sql_1 = "insert into template_shipping_service_options (templateId,FreeShipping,ShippingService,ShippingServiceCost,ShippingServicePriority) values
+	    ('".$id."','".@$_POST['FreeShipping-'.$i]."','".$_POST['ShippingService-'.$i]."','".$_POST['ShippingServiceCost-'.$i]."','".$i."')";
 	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	    $i++;
 	}
@@ -1062,8 +1083,8 @@ class eBayListing{
 	    }else{
 		$ShipToLocation = 'Worldwide';
 	    }
-	    $sql_2 = "insert into template_international_shipping_service_option (templateId,ShippingService,ShippingServiceCost,ShipToLocation) values
-	    ('".$id."','".$_POST['InternationalShippingService-'.$i]."','".$_POST['InternationalShippingServiceCost-'.$i]."','".$ShipToLocation."')";
+	    $sql_2 = "insert into template_international_shipping_service_option (templateId,ShippingService,ShippingServiceCost,ShippingServicePriority,ShipToLocation) values
+	    ('".$id."','".$_POST['InternationalShippingService-'.$i]."','".$_POST['InternationalShippingServiceCost-'.$i]."','".$i."','".$ShipToLocation."')";
 	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
 	    $i++;
 	}
@@ -1203,14 +1224,14 @@ class eBayListing{
 	$sql_5 = "insert into template_to_template_cateogry (template_id,template_category_id) values ('".$id."','".$_POST['template_category_id']."')";
 	$result_5 = mysql_query($sql_5, eBayListing::$database_connect);
 	
-	if($result && $result_1 && $result_2){
+	if($result){
 	    //unset($_SESSION['Schedule']);
 	    //unset($_SESSION['AttributeSet']);
-	    echo '{success: true, msg: "'.$_POST['SKU'].' Add To Template Success!"}';
+	    echo '{success: true, msg: "SKU '.$_POST['SKU'].' Add To Template Success, Template Id '.$id.'!"}';
 	    eBayListing::log("template", $_POST['SKU'] . " add to template.");
 	}else{
 	    echo '{success: false,
-		    errors: {message: "Can\'t Add, Please Notice Admin."}
+		    msg: "Can\'t add, please notice admin."}
 		}';
 	    eBayListing::log("template", $_POST['SKU'] . " add to template failure.", "error");
 	}
@@ -1366,6 +1387,7 @@ class eBayListing{
 	    $row['ShippingService_'.$i] = $row_3['ShippingService'];
 	    $row['ShippingServiceCost_'.$i] = $row_3['ShippingServiceCost'];
 	    $row['ShippingServiceFree_'.$i] = $row_3['FreeShipping'];
+	    $i++;
 	}
 	
 	$sql_4 = "select * from template_international_shipping_service_option where templateId = '".$row['Id']."'";
@@ -1386,6 +1408,7 @@ class eBayListing{
 		$row['InternationalShippingToLocations_'.$i] = "Custom Locations";
 		$row[$row_4['ShipToLocation'].'_'.$i] = 1;
 	    }
+	    $i++;
 	}
 	
 	$sql_5 = "select * from template_attribute_set where templateId = '".$row['Id']."'";
@@ -1444,6 +1467,8 @@ class eBayListing{
 	Title='".mysql_real_escape_string($_POST['Title'])."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
 	Border='".(empty($_POST['Border'])?0:1)."',Featured='".(empty($_POST['Featured'])?0:1)."',Highlight='".(empty($_POST['Highlight'])?0:1)."',
 	HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',
+	InsuranceOption='".$_POST['InsuranceOption']."',InsuranceFee='".$_POST['InsuranceFee']."',
+	InternationalInsurance='".$_POST['InternationalInsurance']."',InternationalInsuranceFee='".$_POST['InternationalInsuranceFee']."',
 	accountId='".$this->account_id."',UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."' where Id = '".$id."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	
@@ -1464,8 +1489,8 @@ class eBayListing{
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$i = 1;
 	while(!empty($_POST['ShippingService_'.$i])){
-	    $sql_1 = "insert into template_shipping_service_options (templateId,FreeShipping,ShippingService,ShippingServiceCost) values
-	    ('".$id."','".@$_POST['FreeShipping_'.$i]."','".$_POST['ShippingService_'.$i]."','".$_POST['ShippingServiceCost_'.$i]."')";
+	    $sql_1 = "insert into template_shipping_service_options (templateId,FreeShipping,ShippingService,ShippingServiceCost,ShippingServicePriority) values
+	    ('".$id."','".@$_POST['FreeShipping_'.$i]."','".$_POST['ShippingService_'.$i]."','".$_POST['ShippingServiceCost_'.$i]."','".$i."')";
 	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	    $i++;
 	}
@@ -1516,8 +1541,8 @@ class eBayListing{
 	    }else{
 		$ShipToLocation = 'Worldwide';
 	    }
-	    $sql_2 = "insert into template_international_shipping_service_option (templateId,ShippingService,ShippingServiceCost,ShipToLocation) values
-	    ('".$id."','".$_POST['InternationalShippingService_'.$i]."','".$_POST['InternationalShippingServiceCost_'.$i]."','".$ShipToLocation."')";
+	    $sql_2 = "insert into template_international_shipping_service_option (templateId,ShippingService,ShippingServiceCost,ShippingServicePriority,ShipToLocation) values
+	    ('".$id."','".$_POST['InternationalShippingService_'.$i]."','".$_POST['InternationalShippingServiceCost_'.$i]."','".$i."','".$ShipToLocation."')";
 	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
 	    $i++;
 	}
@@ -3031,7 +3056,7 @@ class eBayListing{
 	$row = mysql_fetch_assoc($result);
 	$totalCount = $row['count'];
 	
-	$sql_1 = "select Id,SKU,ItemID,Title,Site,ListingType,Quantity,ListingDuration,EndTime,StartPrice,BuyItNowPrice from items where ListingStatus = 'Active' or Status = 1 or Status = 2 limit ".$_POST['start'].",".$_POST['limit'];
+	$sql_1 = "select Id,SKU,ItemID,Title,Site,ListingType,Quantity,ListingDuration,EndTime,StartPrice,BuyItNowPrice from items where ListingStatus = 'Active' or Status = 1 or Status = 2 order by Id limit ".$_POST['start'].",".$_POST['limit'];
 	//echo $sql_1."\n";
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$data = array();
@@ -3061,7 +3086,7 @@ class eBayListing{
 	$row = mysql_fetch_assoc($result);
 	$totalCount = $row['count'];
 	
-	$sql_1 = "select * from items where Status = 5 limit ".$_POST['start'].",".$_POST['limit'];
+	$sql_1 = "select * from items where Status = 5 order by Id limit ".$_POST['start'].",".$_POST['limit'];
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$data = array();
 	while($row_1 = mysql_fetch_assoc($result_1)){
@@ -3090,7 +3115,7 @@ class eBayListing{
 	$row = mysql_fetch_assoc($result);
 	$totalCount = $row['count'];
 	
-	$sql_1 = "select * from items where Status = 4 limit ".$_POST['start'].",".$_POST['limit'];
+	$sql_1 = "select * from items where Status = 4 order by Id limit ".$_POST['start'].",".$_POST['limit'];
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$data = array();
 	while($row_1 = mysql_fetch_assoc($result_1)){
@@ -3305,6 +3330,7 @@ class eBayListing{
 	    $row['ShippingService_'.$i] = $row_3['ShippingService'];
 	    $row['ShippingServiceCost_'.$i] = $row_3['ShippingServiceCost'];
 	    $row['ShippingServiceFree_'.$i] = $row_3['FreeShipping'];
+	    $i++;
 	}
 	
 	$sql_4 = "select * from international_shipping_service_option where ItemID = '".$row['Id']."'";
@@ -3325,6 +3351,7 @@ class eBayListing{
 		$row['InternationalShippingToLocations_'.$i] = "Custom Locations";
 		$row[$row_4['ShipToLocation'].'_'.$i] = 1;
 	    }
+	    $i++;
 	}
 	
 	$sql_5 = "select * from attribute_set where ItemID = '".$row['Id']."'";
@@ -3381,6 +3408,8 @@ class eBayListing{
 	Title='".mysql_real_escape_string($_POST['Title'])."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
 	Border='".(empty($_POST['Border'])?0:1)."',Featured='".(empty($_POST['Featured'])?0:1)."',Highlight='".(empty($_POST['Highlight'])?0:1)."',
 	HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',
+	InsuranceOption='".$_POST['InsuranceOption']."',InsuranceFee='".$_POST['InsuranceFee']."',
+	InternationalInsurance='".$_POST['InternationalInsurance']."',InternationalInsuranceFee='".$_POST['InternationalInsuranceFee']."',
 	accountId='".$this->account_id."' where Id = '".$id."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	
@@ -3401,8 +3430,8 @@ class eBayListing{
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$i = 1;
 	while(!empty($_POST['ShippingService_'.$i])){
-	    $sql_1 = "insert into shipping_service_options (ItemID,FreeShipping,ShippingService,ShippingServiceCost) values
-	    ('".$id."','".@$_POST['FreeShipping_'.$i]."','".$_POST['ShippingService_'.$i]."','".$_POST['ShippingServiceCost_'.$i]."')";
+	    $sql_1 = "insert into shipping_service_options (ItemID,FreeShipping,ShippingService,ShippingServiceCost,ShippingServicePriority) values
+	    ('".$id."','".@$_POST['FreeShipping_'.$i]."','".$_POST['ShippingService_'.$i]."','".$_POST['ShippingServiceCost_'.$i]."','".$i."')";
 	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	    $i++;
 	}
@@ -3453,8 +3482,8 @@ class eBayListing{
 	    }else{
 		$ShipToLocation = 'Worldwide';
 	    }
-	    $sql_2 = "insert into international_shipping_service_option (ItemID,ShippingService,ShippingServiceCost,ShipToLocation) values
-	    ('".$id."','".$_POST['InternationalShippingService_'.$i]."','".$_POST['InternationalShippingServiceCost_'.$i]."','".$ShipToLocation."')";
+	    $sql_2 = "insert into international_shipping_service_option (ItemID,ShippingService,ShippingServiceCost,ShippingServicePriority,ShipToLocation) values
+	    ('".$id."','".$_POST['InternationalShippingService_'.$i]."','".$_POST['InternationalShippingServiceCost_'.$i]."','".$i."','".$ShipToLocation."')";
 	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
 	    $i++;
 	}
@@ -4053,21 +4082,19 @@ class eBayListing{
 	    <CategoryID> string </CategoryID>
 	</SecondaryCategory>
 
-	<SellerContactDetails> AddressType 
-	    <CompanyName> string </CompanyName>
-	    <County> string </County>
-	    <Phone2AreaOrCityCode> string </Phone2AreaOrCityCode>
-	    <Phone2CountryCode> CountryCodeType </Phone2CountryCode>
-	    <Phone2LocalNumber> string </Phone2LocalNumber>
-	    <PhoneAreaOrCityCode> string </PhoneAreaOrCityCode>
-	    <PhoneCountryCode> CountryCodeType </PhoneCountryCode>
-	    <PhoneLocalNumber> string </PhoneLocalNumber>
-	    <Street> string </Street>
-	    <Street2> string </Street2>
-	</SellerContactDetails>
 
 	<ShippingDetails>
-	
+	    <InsuranceDetails> InsuranceDetailsType 
+		<InsuranceFee currencyID="CurrencyCodeType"> AmountType (double) </InsuranceFee>
+		<InsuranceOption> InsuranceOptionCodeType </InsuranceOption>
+	     </InsuranceDetails>
+	     <InsuranceFee currencyID="CurrencyCodeType"> AmountType (double) </InsuranceFee>
+	     <InsuranceOption> InsuranceOptionCodeType </InsuranceOption>
+	     <InternationalInsuranceDetails> InsuranceDetailsType 
+		<InsuranceFee currencyID="CurrencyCodeType"> AmountType (double) </InsuranceFee>
+		<InsuranceOption> InsuranceOptionCodeType </InsuranceOption>
+	    </InternationalInsuranceDetails>
+
 	    <InternationalShippingServiceOption> InternationalShippingServiceOptionsType 
 		<ShippingService> token </ShippingService>
 		<ShippingServiceAdditionalCost currencyID="CurrencyCodeType"> AmountType (double) </ShippingServiceAdditionalCost>
@@ -4179,6 +4206,14 @@ class eBayListing{
 	    if(!empty($item['SecondaryCategoryCategoryID'])){
 		$itemArray['SecondaryCategory']['CategoryID'] = $item['SecondaryCategoryCategoryID'];
 	    }
+	    if(!empty($item['InsuranceOption'])){
+		$itemArray['ShippingDetails']['InsuranceDetails']['InsuranceOption'] = $item['InsuranceOption'];
+		$itemArray['ShippingDetails']['InsuranceDetails']['InsuranceFee'] = $item['InsuranceFee'];
+	    }
+	    if(!empty($item['InternationalInsurance'])){
+		$itemArray['ShippingDetails']['InternationalInsuranceDetails']['InsuranceOption'] = $item['InternationalInsurance'];
+		$itemArray['ShippingDetails']['InternationalInsuranceDetails']['InsuranceFee'] = $item['InternationalInsuranceFee'];
+	    }
 	    //$itemArray['ShippingDetails']['ShippingType'] = $item['ShippingType'];
 	    if(!empty($item['ShippingServiceOptions']) && is_array($item['ShippingServiceOptions'])){
 		$i = 0;
@@ -4187,6 +4222,7 @@ class eBayListing{
 		    $itemArray['ShippingDetails']['ShippingServiceOptions'][$i]['ShippingService'] = $s['ShippingService'];
 		    $itemArray['ShippingDetails']['ShippingServiceOptions'][$i]['ShippingServiceCost'] = $s['ShippingServiceCost'];
 		    $itemArray['ShippingDetails']['ShippingServiceOptions'][$i]['ShippingServiceAdditionalCost'] = $s['ShippingServiceAdditionalCost'];
+		    $itemArray['ShippingDetails']['ShippingServiceOptions'][$i]['ShippingServicePriority'] = $s['ShippingServicePriority'];
 		    $i++;
 		}
 	    }
@@ -4196,6 +4232,7 @@ class eBayListing{
 		    $itemArray['ShippingDetails']['InternationalShippingServiceOption'][$j]['ShippingService'] = $i['ShippingService'];
 		    $itemArray['ShippingDetails']['InternationalShippingServiceOption'][$j]['ShippingServiceCost'] = $i['ShippingServiceCost'];
 		    $itemArray['ShippingDetails']['InternationalShippingServiceOption'][$j]['ShippingServiceAdditionalCost'] = $i['ShippingServiceAdditionalCost'];
+		    $itemArray['ShippingDetails']['InternationalShippingServiceOption'][$j]['ShippingServicePriority'] = $i['ShippingServicePriority'];
 		    if(!empty($i['ShipToLocation'])){
 			if(strpos($i['ShipToLocation'], ',') != false){
 			    //echo "test1";
@@ -4233,7 +4270,7 @@ class eBayListing{
 			    'Item' => $itemArray);
 	    
 	    $results = $client->AddItem($params);
-	    print_r($results);
+	    //print_r($results);
 	    foreach($results->Fees->Fee as $fee){
 		switch($fee->Name){
 		    case "InsertionFee":
@@ -4341,28 +4378,31 @@ class eBayListing{
 	
     */
     private function checkItem($itemId){
-	$sql = "select count(*) as count from items where ItemID = '$itemId->ItemID'";
+	$sql = "select count(*) as count from items where ItemID = '".$itemId."'";
+	echo $sql;
+	echo "<br>\n";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
 	return $row['count'];
     }
     
-    private function insertItem($item, $userId){
+    private function eBayInsertItem($item, $userId){
 	$sql = "insert into items (ItemID,AutoPay,BuyItNowPrice,Country,Currency,Description,DispatchTimeMax,StartTime,
-	EndTime,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,PostalCode,CategoryID,CategoryName,
-	Quantity,CurrentPrice,QuantitySold,ListingStatus,ShippingType,Site,SKU,StartPrice,StoreCategory2ID,
-	StoreCategoryID,Title,UserID) values ('".mysql_escape_string($item->ItemID)."','".mysql_escape_string($item->AutoPay)."',
+	EndTime,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,
+	Quantity,CurrentPrice,QuantitySold,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ListingStatus,ShippingType,Site,SKU,StartPrice,StoreCategory2ID,StoreCategory2Name,
+	StoreCategoryID,StoreCategoryName,Title,UserID) values ('".mysql_escape_string($item->ItemID)."','".mysql_escape_string($item->AutoPay)."',
 	'".mysql_escape_string($item->BuyItNowPrice)."','".mysql_escape_string($item->Country)."','".mysql_escape_string($item->Currency)."',
 	'".mysql_escape_string($item->Description)."','".mysql_escape_string($item->DispatchTimeMax)."','".mysql_escape_string($item->ListingDetails->StartTime)."',
 	'".mysql_escape_string($item->ListingDetails->EndTime)."','".mysql_escape_string($item->ListingDuration)."','".mysql_escape_string($item->ListingType)."',
 	'".mysql_escape_string($item->Location)."','".mysql_escape_string($item->PaymentMethods)."','".mysql_escape_string($item->PayPalEmailAddress)."',
 	'".mysql_escape_string($item->PostalCode)."','".mysql_escape_string($item->PrimaryCategory->CategoryID)."','".mysql_escape_string($item->PrimaryCategory->CategoryName)."',
 	'".mysql_escape_string($item->Quantity)."','".mysql_escape_string($item->SellingStatus->CurrentPrice)."','".mysql_escape_string($item->SellingStatus->QuantitySold)."',
+	'".mysql_escape_string($item->SecondaryCategory->CategoryID)."','".mysql_escape_string($item->SecondaryCategory->CategoryName)."',
 	'".mysql_escape_string($item->SellingStatus->ListingStatus)."','".mysql_escape_string($item->ShippingDetails->ShippingType)."','".mysql_escape_string($item->Site)."',
-	'".mysql_escape_string($item->SKU)."','".mysql_escape_string($item->StartPrice)."','".mysql_escape_string($item->Storefront->StoreCategory2ID)."',
-	'".mysql_escape_string($item->Storefront->StoreCategoryID)."','".mysql_escape_string($item->Title)."','".mysql_escape_string($userId)."')";
+	'".mysql_escape_string($item->SKU)."','".mysql_escape_string($item->StartPrice)."','".mysql_escape_string($item->Storefront->StoreCategory2ID)."','',
+	'".mysql_escape_string($item->Storefront->StoreCategoryID)."','','".mysql_escape_string($item->Title)."','".mysql_escape_string($userId)."')";
 	echo $sql;
-	echo "<br>";
+	echo "<br>\n";
 	$result = mysql_query($sql, eBayListing::$database_connect);
     }
     
@@ -4410,39 +4450,52 @@ class eBayListing{
 	
 	$sql = "update items set CurrentPrice='".$item->SellingStatus->CurrentPrice."',QuantitySold='".$item->SellingStatus->QuantitySold."',ListingStatus='".$item->SellingStatus->ListingStatus.",Status='".$Status."'' 
 	where ItemID = '".$item->ItemID."'";
+	echo $sql;
+	echo "<br>\n";
 	$result = mysql_query($sql, eBayListing::$database_connect);
     }
-    /*
-    private function deleteShippingServiceOptions($itemId, $d = false){
-	if($d == true){
-	    $sql = "delete from shipping_service_options where ItemID = '".$itemId."'";
-	    $result = mysql_query($sql, eBayListing::$database_connect);
-	}
+    
+    private function deleteShippingServiceOptions($itemId){
+	$sql = "delete from shipping_service_options where ItemID = '".$itemId."'";
+	echo $sql;
+	echo "<br>\n";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	return $result;
     }
     
     private function insertShippingServiceOptions($itemID, $shippingServiceOptions){
-	$sql = "insert into shipping_service_options (ItemID,ShippingService,ShippingServiceCost,FreeShipping) values 
-	('".$itemID."','".$shippingServiceOptions->ShippingService."','".$shippingServiceOptions->ShippingServiceCost."','".$shippingServiceOptions->FreeShipping."')";
+	$sql = "insert into shipping_service_options (ItemID,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority,FreeShipping) values 
+	('".$itemID."','".$shippingServiceOptions->ShippingService."','".$shippingServiceOptions->ShippingServiceCost."','".$shippingServiceOptions->ShippingServiceAdditionalCost."','".$shippingServiceOptions->ShippingServicePriority."','".$shippingServiceOptions->FreeShipping."')";
 	echo $sql;
-	echo "<br>";
+	echo "<br>\n";
 	$result = mysql_query($sql, eBayListing::$database_connect);
+	return $result;
     }
     
-    private function deleteInternationalShippingServiceOption($itemId, $d = false){
-	if($d == true){
-	    $sql = "delete from international_shipping_service_option where ItemID = '".$itemId."'";
-	    $result = mysql_query($sql, eBayListing::$database_connect);
-	}
+    private function deleteInternationalShippingServiceOption($itemId){
+	$sql = "delete from international_shipping_service_option where ItemID = '".$itemId."'";
+	echo $sql;
+	echo "<br>\n";
+	$result = mysql_query($sql, eBayListing::$database_connect);
     }
     
     private function insertInternationalShippingServiceOption($itemID, $internationalShippingServiceOption){
-	$sql = "insert into international_shipping_service_option (ItemID,ShippingService,ShippingServiceCost) values 
-	('".$itemID."','".$internationalShippingServiceOption->ShippingService."','".$internationalShippingServiceOption->ShippingServiceCost."')";
+	$ShipToLocation = "";
+	if(is_array($internationalShippingServiceOption->ShipToLocation)){
+	    foreach($internationalShippingServiceOption->ShipToLocation as $STL){
+		$ShipToLocation += $STL . ",";
+	    }
+	    $ShipToLocation = substr($ShipToLocation, 0, -1);
+	}else{
+	    $ShipToLocation = $internationalShippingServiceOption->ShipToLocation;
+	}
+	$sql = "insert into international_shipping_service_option (ItemID,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShipToLocation) values 
+	('".$itemID."','".$internationalShippingServiceOption->ShippingService."','".$internationalShippingServiceOption->ShippingServiceCost."','".$internationalShippingServiceOption->ShippingServiceAdditionalCost."','".$ShipToLocation."')";
 	echo $sql;
-	echo "<br>";
+	echo "<br>\n";
 	$result = mysql_query($sql, eBayListing::$database_connect);
     }
-    */
+    
     //http://127.0.0.1:6666/eBayBO/eBaylisting/service.php?action=getSellerList&EndTimeFrom=2009-05-29&EndTimeTo=2009-05-30
     public function getSellerList(){
 	try {
@@ -4453,8 +4506,14 @@ class eBayListing{
 	    $Pagination = array("EntriesPerPage"=> 200,
 				"PageNumber"=> 1);
 	    
-	    $EndTimeFrom = $_GET['EndTimeFrom'];
-	    $EndTimeTo = $_GET['EndTimeTo'];
+	    $EndTimeFrom = date("Y-m-d H:i:s", time() - (12 * 60 * 60));
+	    $EndTimeTo   = date("Y-m-d H:i:s", time() - (8 * 60 * 60));
+	    
+	    $StartTimeFrom  = date("Y-m-d H:i:s", time() - (12 * 60 * 60));
+	    $StartTimeTo    = date("Y-m-d H:i:s", time() - (8 * 60 * 60));
+	    
+	    //$EndTimeFrom = $_GET['EndTimeFrom'];
+	    //$EndTimeTo = $_GET['EndTimeTo'];
 	    
 	    //$StartTimeFrom = $_GET['StartTimeFrom'];
 	    //$StartTimeTo = $_GET['StartTimeTo'];
@@ -4470,10 +4529,13 @@ class eBayListing{
 	    for($i=1; $i <= $TotalNumberOfPages; $i++){
 		$Pagination = array("EntriesPerPage"=> 200,
 				    "PageNumber"=> $i);
-		$params = array('Version' => $Version, 'DetailLevel' => $DetailLevel, 'Pagination' => $Pagination, 'EndTimeFrom' => $EndTimeFrom, 'EndTimeTo' => $EndTimeTo);
+		$params = array('Version' => $Version, 'DetailLevel' => $DetailLevel, 'Pagination' => $Pagination, 'StartTimeFrom' => $StartTimeFrom, 'StartTimeTo' => $StartTimeTo/*,'EndTimeFrom' => $EndTimeFrom, 'EndTimeTo' => $EndTimeTo*/);
+		//print_r($params);
 		$results = $client->GetSellerList($params);
-		
-		//$this->saveFetchData("getSellerList-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		//print_r($results);
+
+		$this->saveFetchData("getSellerList-Request-".date("YmdHis").".xml", $client->__getLastRequest());
+		$this->saveFetchData("getSellerList-Response-".date("YmdHis").".xml", $client->__getLastResponse());
 		
 		$TotalNumberOfPages = $results->PaginationResult->TotalNumberOfPages;
 		if($results->PaginationResult->TotalNumberOfPages == 0)
@@ -4481,72 +4543,71 @@ class eBayListing{
 	    
 		if(is_array($results->ItemArray->Item)){
 		    foreach($results->ItemArray->Item as $item){
-			//if($this->checkItem($item->ItemID) == 0){
-			//    $this->insertItem($item, $results->Seller->UserID);
-			//}else{
+			if($this->checkItem($item->ItemID) == 0){
+			    $this->eBayInsertItem($item, $results->Seller->UserID);
+			}else{
 			    $this->eBayUpdateItem($item, $results->Seller->UserID);
-			//}
-			/*
+			}
+			
 			//ShippingServiceOptions
-			$d = true;
 			if(is_array($item->ShippingDetails->ShippingServiceOptions)){
+			    $this->deleteShippingServiceOptions($item->ItemID);
 			    foreach($item->ShippingDetails->ShippingServiceOptions as $shippingServiceOptions){
-				$this->deleteShippingServiceOptions($item->ItemID, $d);
 				$this->insertShippingServiceOptions($item->ItemID, $shippingServiceOptions);
-				$d = false;
 			    }
 			}else{
-			    $this->deleteShippingServiceOptions($item->ItemID, $d);
-			    $this->insertShippingServiceOptions($item->ItemID, $item->ShippingDetails->ShippingServiceOptions);
+			    if(!empty($item->ShippingDetails->ShippingServiceOptions->ShippingService)){
+				$this->deleteShippingServiceOptions($item->ItemID);
+				$this->insertShippingServiceOptions($item->ItemID, $item->ShippingDetails->ShippingServiceOptions);
+			    }
 			}
 			
 			//InternationalShippingServiceOption
 			if(is_array($item->ShippingDetails->InternationalShippingServiceOption)){
+			    $this->deleteInternationalShippingServiceOption($item->ItemID);
 			    foreach($item->ShippingDetails->InternationalShippingServiceOption as $internationalShippingServiceOption){
-				$this->deleteInternationalShippingServiceOption($item->ItemID, $d);
 				$this->insertInternationalShippingServiceOption($item->ItemID, $internationalShippingServiceOption);
-				$d = false;
 			    }
 			}else{
-			    $this->deleteInternationalShippingServiceOption($item->ItemID, $d);
-			    $this->insertInternationalShippingServiceOption($item->ItemID, $item->ShippingDetails->InternationalShippingServiceOption);
+			    if(!empty($item->ShippingDetails->InternationalShippingServiceOption->ShippingService)){
+				$this->deleteInternationalShippingServiceOption($item->ItemID);
+				$this->insertInternationalShippingServiceOption($item->ItemID, $item->ShippingDetails->InternationalShippingServiceOption);
+			    }
 			}
-			*/
 		    }
 		}else{
-		    //if($this->checkItem($results->ItemArray->Item->ItemID) == 0){
-		    //	$this->insertItem($results->ItemArray->Item, $results->Seller->UserID);
-		    //}else{
+		    if($this->checkItem($results->ItemArray->Item->ItemID) == 0){
+		    	$this->eBayInsertItem($results->ItemArray->Item, $results->Seller->UserID);
+		    }else{
 			$this->eBayUpdateItem($results->ItemArray->Item, $results->Seller->UserID);
-		    //}
-		    /*
+		    }
+		    
 		    //ShippingServiceOptions
-		    $d = true;
 		    if(is_array($results->ItemArray->Item->ShippingDetails->ShippingServiceOptions)){
+			$this->deleteShippingServiceOptions($results->ItemArray->Item->ItemID);
 			foreach($results->ItemArray->Item->ShippingDetails->ShippingServiceOptions as $shippingServiceOptions){
-			    $this->deleteShippingServiceOptions($results->ItemArray->Item->ItemID, $d);
 			    $this->insertShippingServiceOptions($results->ItemArray->Item->ItemID, $shippingServiceOptions);
-			    $d = false;
 			}
 		    }else{
-			$this->deleteShippingServiceOptions($results->ItemArray->Item->ItemID, $d);
-			$this->insertShippingServiceOptions($results->ItemArray->Item->ItemID, $results->ItemArray->Item->ShippingDetails->ShippingServiceOptions);
+			if(!empty($results->ItemArray->Item->ShippingDetails->ShippingServiceOptions->ShippingService)){
+			    $this->deleteShippingServiceOptions($results->ItemArray->Item->ItemID);
+			    $this->insertShippingServiceOptions($results->ItemArray->Item->ItemID, $results->ItemArray->Item->ShippingDetails->ShippingServiceOptions);
+			}
 		    }
 		    
 		    //InternationalShippingServiceOption
 		    if(is_array($results->ItemArray->Item->ShippingDetails->InternationalShippingServiceOption)){
+			$this->deleteInternationalShippingServiceOption($results->ItemArray->Item->ItemID);
 			foreach($results->ItemArray->Item->ShippingDetails->InternationalShippingServiceOption as $internationalShippingServiceOption){
-			    $this->deleteInternationalShippingServiceOption($results->ItemArray->Item->ItemID, $d);
 			    $this->insertInternationalShippingServiceOption($results->ItemArray->Item->ItemID, $internationalShippingServiceOption);
-			    $d = false;
 			}
 		    }else{
-			$this->deleteInternationalShippingServiceOption($results->ItemArray->Item->ItemID, $d);
-			$this->insertInternationalShippingServiceOption($results->ItemArray->Item->ItemID, $results->ItemArray->Item->ShippingDetails->InternationalShippingServiceOption);
+			if(!empty($results->ItemArray->Item->ShippingDetails->InternationalShippingServiceOption->ShippingService)){
+			    $this->deleteInternationalShippingServiceOption($results->ItemArray->Item->ItemID);
+			    $this->insertInternationalShippingServiceOption($results->ItemArray->Item->ItemID, $results->ItemArray->Item->ShippingDetails->InternationalShippingServiceOption);
+			}
 		    }
-		    */
 		}
-	    
 	    }
 	    
         } catch (SOAPFault $f) {
@@ -4558,10 +4619,15 @@ class eBayListing{
 	$sql = "select id,token from account where status = 1";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while($row = mysql_fetch_assoc($result)){
+	    /*
 	    $sql_1 = "select p.host,p.port from proxy as p left join account_to_proxy as atp on p.id = atp.proxy_id where atp.account_id = '".$row['id']."'";
 	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	    $row_1 = mysql_fetch_assoc($result_1);
 	    $this->session = $this->configEbay($row['token'], $row_1['host'], $row_1['port']);
+	    $this->getSellerList();
+	    */
+	    $this->setAccount($row['id']);
+	    $this->configEbay();
 	    $this->getSellerList();
 	}
     }
