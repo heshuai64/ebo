@@ -181,6 +181,10 @@ class eBayListing{
     }
     
     private function getStoreCategories($userID){
+	global $argv;
+	if(!empty($argv[2])){
+	    $userID = $argv[2];
+	}
 	$sql = "select id from account where name = '".$userID."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
@@ -583,7 +587,7 @@ class eBayListing{
 		$result_10 = mysql_query($sql_10, eBayListing::$database_connect);
 		$num_rows = mysql_num_rows($result_10);
 		if($num_rows == 0){
-		    echo 1;
+		    echo "[{success: false, msg: 'template ".$_POST['ids']." no set schedule date.'}]";;
 		    return 1;
 		}
 		
@@ -592,15 +596,12 @@ class eBayListing{
 		    $endTimestamp = strtotime($row_10['endDate']);
 		    while($startTimestamp <= $endTimestamp){
 			if(date("D", $startTimestamp) == $row_10['day']){
-			    $tempTimestamp = $startTimestamp;
-			    if(date("D", $tempTimestamp) == $row_10['china_day']){
-				$localTimestamp = $tempTimestamp;
-				$tempTimestamp += 24 * 60 * 60;
-			    }elseif(date("D", $tempTimestamp) == $row_10['china_day']){
-				$localTimestamp = $tempTimestamp;
-				$tempTimestamp = $tempTimestamp - 2 * 24 * 60 * 60;
-			    }elseif(date("D", $tempTimestamp) == $row_10['china_day']){
-				$localTimestamp = $tempTimestamp;
+			    if(date("D", $startTimestamp + 24 * 60 * 60) == $row_10['china_day']){
+				$localTimestamp = $startTimestamp + 24 * 60 * 60;
+			    }elseif(date("D", $startTimestamp - 24 * 60 * 60) == $row_10['china_day']){
+				$localTimestamp = $tempTimestamp - 24 * 60 * 60;
+			    }elseif(date("D", $startTimestamp) == $row_10['china_day']){
+				$localTimestamp = $startTimestamp;
 			    }
 			    $item_id .= $this->tempalteChangeToItem($id, date("Y-m-d", $startTimestamp) . ' ' .$row_10['time'], date("Y-m-d", $localTimestamp) . ' ' .$row_10['china_time']);
 			}
@@ -613,7 +614,7 @@ class eBayListing{
 	    $result_10 = mysql_query($sql_10, eBayListing::$database_connect);
 	    $num_rows = mysql_num_rows($result_10);
 	    if($num_rows == 0){
-		echo 1;
+		echo "[{success: false, msg: 'template ".$_POST['ids']." no set schedule date.'}]";;
 		return 1;
 	    }
 	    $item_id = "";
@@ -622,16 +623,20 @@ class eBayListing{
 		$endTimestamp = strtotime($row_10['endDate']);
 		while($startTimestamp <= $endTimestamp){
 		    if(date("D", $startTimestamp) == $row_10['day']){
-			$tempTimestamp = $startTimestamp;
-			if(date("D", $tempTimestamp) == $row_10['china_day']){
-			    $localTimestamp = $tempTimestamp;
-			    $tempTimestamp += 24 * 60 * 60;
-			}elseif(date("D", $tempTimestamp) == $row_10['china_day']){
-			    $localTimestamp = $tempTimestamp;
-			    $tempTimestamp = $tempTimestamp - 2 * 24 * 60 * 60;
-			}elseif(date("D", $tempTimestamp) == $row_10['china_day']){
-			    $localTimestamp = $tempTimestamp;
+			if(date("D", $startTimestamp + 24 * 60 * 60) == $row_10['china_day']){
+			    $localTimestamp = $startTimestamp + 24 * 60 * 60;
+			}elseif(date("D", $startTimestamp - 24 * 60 * 60) == $row_10['china_day']){
+			    $localTimestamp = $tempTimestamp - 24 * 60 * 60;
+			}elseif(date("D", $startTimestamp) == $row_10['china_day']){
+			    $localTimestamp = $startTimestamp;
 			}
+			
+			//echo $startTimestamp."\n";
+			//echo $localTimestamp."\n";
+			
+			//echo $localTimestamp - $startTimestamp."\n";
+			//echo date("Y-m-d", $startTimestamp)."\n";
+			//echo date("Y-m-d", $localTimestamp)."\n";
 			//print_r(array($_POST['ids'], date("Y-m-d", $startTimestamp) . ' ' .$row_10['time'], date("Y-m-d", $localTimestamp) . ' ' .$row_10['china_time']));
 			//echo date("Y-m-d", $startTimestamp) . ' ' .$row_10['time']."\n";
 			$item_id .= $this->tempalteChangeToItem($_POST['ids'], date("Y-m-d", $startTimestamp) . ' ' .$row_10['time'], date("Y-m-d", $localTimestamp) . ' ' .$row_10['china_time']).", ";
@@ -1427,6 +1432,27 @@ class eBayListing{
 		$_SESSION['AttributeSet'][$row['Id']][$row_5['attributeSetID']][$row_6['attributeID']] = $row_6['ValueID'];
 	    }
 	}
+	
+	unset($_SESSION['Schedule']);
+	
+	$sql_7 = "select * from schedule where template_id = '".$_GET['id']."'";
+	$result_7 = mysql_query($sql_7, eBayListing::$database_connect);
+	
+	$temp = array();
+	while($row_7 = mysql_fetch_assoc($result_7)){
+	    $row['ScheduleStartDate'] = $row_7['startDate'];
+	    $row['ScheduleEndDate'] = $row_7['endDate'];
+	    if(array_key_exists($_GET['id'].'-'.$row_7['china_day'].'-'.date('a-g', strtotime($row_7['china_time'])), $_SESSION['Schedule'])){
+		$_SESSION['Schedule'][$_GET['id'].'-'.$row_7['china_day'].'-'.date('a-g', strtotime($row_7['china_time']))][count($_SESSION['Schedule'][$_GET['id'].'-'.$row_7['china_day'].'-'.date('a-g', strtotime($row_7['china_time']))])] = date('g:i A', strtotime($row_7['china_time']));
+	    }else{
+		$_SESSION['Schedule'][$_GET['id'].'-'.$row_7['china_day'].'-'.date('a-g', strtotime($row_7['china_time']))][0] = date('g:i A', strtotime($row_7['china_time']));
+	    }
+	    $t = date("D-a-g", strtotime($row_7['china_day'] . " " . $row_7['china_time']))."-panel";
+	    if(!in_array($t, $temp)){
+		$temp[] = $t;
+	    }
+	}
+	$row['Schedule'] = implode(",", $temp);
 	
 	echo '['.json_encode($row).']';
 	mysql_free_result($result);
@@ -2667,6 +2693,12 @@ class eBayListing{
     //-----------------  Fetch Item Specifics From eBay ------------------------------------------
     //http://127.0.0.1:6666/eBayBO/eBaylisting/service.php?action=getAllCategory2CS
     public function getCategory2CS(){
+	global $argv;
+	if(!empty($argv[2])){
+	    $this->setSite($argv[2]);
+	    $this->configEbay();
+	}
+	
 	$sql = "delete from CharacteristicsSets where SiteID = '".$this->site_id."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 		    
@@ -2708,6 +2740,11 @@ class eBayListing{
     }
     
     public function getAttributesCS(){
+	global $argv;
+	if(!empty($argv[2])){
+	    $this->setSite($argv[2]);
+	    $this->configEbay();
+	}
 	try {
 	    $client = new eBaySOAP($this->session);
 	    $Version = '607';
