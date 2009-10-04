@@ -407,7 +407,7 @@ Ext.onReady(function(){
                 'Americas_1','Europe_1','Asia_1','CA_1','GB_1','AU_1','MX_1','DE_1','JP_1',
                 'Americas_2','Europe_2','Asia_2','CA_2','GB_2','AU_2','MX_2','DE_2','JP_2',
                 'Americas_3','Europe_3','Asia_3','CA_3','GB_3','AU_3','MX_3','DE_3','JP_3',
-                'accountId','UseStandardFooter'
+                'accountId','UseStandardFooter','ScheduleStartDate','ScheduleEndDate','Schedule'
         ]),
         items:[{
                 layout:"column",
@@ -3041,6 +3041,15 @@ Ext.onReady(function(){
                 }
                 
                 document.getElementById("Description").value  = a.result.data.Description;
+                
+                if(!Ext.isEmpty(a.result.data.Schedule)){
+                    var Schedule = a.result.data.Schedule.split(',');
+                    for(var i in Schedule){
+                        if(!Ext.isFunction(Schedule[i])){
+                            Ext.getCmp(Schedule[i]).body.applyStyles("background-color:red;");
+                        }
+                    }
+                }
                 
                 listTypeCombo.setValue(a.result.data.ListingType);
                 ShippingServiceOptionsTypeCombo.setValue(a.result.data.ShippingServiceOptionsType);
