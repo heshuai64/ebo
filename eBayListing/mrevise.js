@@ -182,22 +182,6 @@ Ext.onReady(function(){
         url:'service.php?action=getAllCountries'
     })
     
-    var currencyCombo = new Ext.form.ComboBox({
-        readOnly:true,
-        labelAlign:"left",
-        fieldLabel:"Currency",
-        mode: 'local',
-        store: ['USD', 'GBP', 'AUD', 'EUR'],
-        triggerAction: 'all',
-        editable: false,
-        selectOnFocus:true,
-        //listWidth: 156,
-        //width: 156,
-        name:'Currency',
-        hiddenName:'Currency'
-    })
-    
-    
     var listTypeCombo = new Ext.form.ComboBox({
         mode: 'local',
         store: new Ext.data.JsonStore({
@@ -212,6 +196,7 @@ Ext.onReady(function(){
         selectOnFocus:true,
         //name: 'ListingTypeCombo',
         //hiddenName:'ListingTypeCombo',
+        emptyText: "Multi Value",
         width: 150,
         allowBlank:false,
         listeners: {
@@ -249,6 +234,7 @@ Ext.onReady(function(){
             editable: false,
             width: 150,
             listWidth: 150,
+            emptyText: "Multi Value",
             listeners: {
                 "select": function(c, r, i){
                     //console.log(c);
@@ -267,6 +253,7 @@ Ext.onReady(function(){
             editable: false,
             width: 150,
             listWidth: 150,
+            emptyText: "Multi Value",
             listeners: {
                 "select": function(c, r, i){
                     //console.log(r);
@@ -395,8 +382,7 @@ Ext.onReady(function(){
                 'ReturnPolicyShippingCostPaidByOption','ReservePrice','CurrentPrice','ListingStatus','ScheduleTime','SecondaryCategoryCategoryID','SecondaryCategoryCategoryName','Site','SiteID','SKU','StartPrice',
                 'StoreCategory2ID','StoreCategory2Name','StoreCategoryID','StoreCategoryName','SubTitle','Title','UserID','BoldTitle','Border','Featured','Highlight','HomePageFeatured','GalleryTypeFeatured','GalleryTypeGallery','GalleryTypePlus','GalleryURL',
                 'picture_1','picture_2','picture_3','picture_4','picture_5','picture_6','picture_7','picture_8',
-                'picture_9','picture_10','template_category_id','PhotoDisplay','ShippingServiceOptionsType','InsuranceOption','InsuranceFee',
-                'InternationalShippingServiceOptionType','InternationalInsurance','InternationalInsuranceFee',
+                'picture_9','picture_10','PhotoDisplay','ShippingServiceOptionsType','InternationalShippingServiceOptionType',
                 'ShippingService_1','ShippingServiceCost_1','ShippingServiceFree_1',
                 'ShippingService_2','ShippingServiceCost_2','ShippingServiceFree_2',
                 'ShippingService_3','ShippingServiceCost_3','ShippingServiceFree_3',
@@ -407,72 +393,54 @@ Ext.onReady(function(){
                 'Americas_1','Europe_1','Asia_1','CA_1','GB_1','AU_1','MX_1','DE_1','JP_1',
                 'Americas_2','Europe_2','Asia_2','CA_2','GB_2','AU_2','MX_2','DE_2','JP_2',
                 'Americas_3','Europe_3','Asia_3','CA_3','GB_3','AU_3','MX_3','DE_3','JP_3',
-                'accountId','UseStandardFooter','ScheduleStartDate','ScheduleEndDate','Schedule'
+                'accountId'
         ]),
         items:[{
-                layout:"column",
-                border:false,
-                width: 300,
-                items:[{
-                    columnWidth:0.5,
-                    layout:"form",
-                    defaults:{
-                        width: 100,
-                        listWidth: 100
-                    },
-                    border:false,
-                    items:[{
-                        xtype:"combo",
-                        labelAlign:"left",
-                        fieldLabel:"Site",
-                        mode: 'local',
-                        store: siteStore,
-                        valueField:'name',
-                        displayField:'name',
-                        triggerAction: 'all',
-                        editable: false,
-                        selectOnFocus:true,
-                        //listWidth: 156,
-                        //width: 156,
-                        name: 'Site',
-                        //allowBlank: false,
-                        hiddenName:'Site',
-                        allowBlank:false,
-                        listeners: {
-                            select: function(c, r, i){
-                                categoryStore.setBaseParam('SiteID', r.data.id);
-                                //console.log(r);
-                                switch(r.data.name){
-                                    case "US":
-                                       currencyCombo.setValue("USD");
-                                    break;
+                xtype:"combo",
+                labelAlign:"left",
+                fieldLabel:"Site",
+                mode: 'local',
+                store: siteStore,
+                valueField:'name',
+                displayField:'name',
+                triggerAction: 'all',
+                editable: false,
+                selectOnFocus:true,
+                //listWidth: 156,
+                //width: 156,
+                name: 'Site',
+                //allowBlank: false,
+                hiddenName:'Site',
+                emptyText: "Multi Value",
+                listeners: {
+                    "select": function(c, r, i){
+                        categoryStore.setBaseParam('SiteID', r.data.id);
+                        //console.log(r);
+                        switch(r.data.name){
+                            case "US":
+                               Ext.getCmp("Currency").setValue("USD");
+                            break;
+                        
+                            case "UK":
+                               Ext.getCmp("Currency").setValue("GBP");
+                            break;
+                        
+                            case "Australia":
+                                Ext.getCmp("Currency").setValue("AUD");
                                 
-                                    case "UK":
-                                       currencyCombo.setValue("GBP");
-                                    break;
-                                
-                                    case "Australia":
-                                        currencyCombo.setValue("AUD");
-                                    break;
-                                
-                                    case "France":
-                                        currencyCombo.setValue("EUR");
-                                    break;
-                                }
-                                Ext.getCmp("SiteID").setValue(r.data.id);
-                            }
+                            break;
+                        
+                            case "France":
+                                Ext.getCmp("Currency").setValue("EUR");
+                            break;
                         }
-                    }]
-                },{
-                    columnWidth:0.5,
-                    layout:"form",
-                    defaults:{
-                        width: 80,
-                        listWidth: 80
-                    },
-                    border:false,
-                    items: currencyCombo
-                }]
+                        Ext.getCmp("SiteID").setValue(r.data.id);
+                    }
+                }
+            },{
+                xtype:"hidden",
+                id:'Currency',
+                name:'Currency'
             },{
                 xtype:"hidden",
                 id:'SiteID',
@@ -591,7 +559,7 @@ Ext.onReady(function(){
                                                 handler:function(){
                                                     itemSpecificsForm.getForm().submit({
                                                         clientValidation: true,
-                                                        url: 'service.php?action=saveSpecifics&template_id='+template_id,
+                                                        url: 'service.php?action=saveSpecifics&item_id='+item_id,
                                                         success: function(form, action) {
                                                             itemSpecificsWindow.close();
                                                             //console.log(action);
@@ -622,7 +590,7 @@ Ext.onReady(function(){
                                         itemSpecificsWindow.show();
                                         
                                         itemSpecificsForm.getForm().load({
-                                            url: 'service.php?action=loadSpecifics&AttributeSetID='+temp.CharacteristicsSetId+'&template_id='+template_id,
+                                            url: 'service.php?action=loadSpecifics&AttributeSetID='+temp.CharacteristicsSetId+'&item_id='+item_id,
                                             waitMsg:'Please wait...',
                                             success: function(form, action){
                                                 //console.log(action);
@@ -650,12 +618,13 @@ Ext.onReady(function(){
                         xtype:"textfield",
                         fieldLabel:"Title",
                         name:"Title",
-                        allowBlank:false
+                        emptyText: "Multi Value"
                       },{
                         id:"SubTitle",
                         xtype:"textfield",
                         fieldLabel:"Subtitle",
-                        name:"SubTitle"
+                        name:"SubTitle",
+                        emptyText: "Multi Value"
                       },{
                         layout:"column",
                         border: false,
@@ -675,7 +644,7 @@ Ext.onReady(function(){
                                 hiddenName:"PrimaryCategoryCategoryName",
                                 width: 600,
                                 listWidth: 600,
-                                allowBlank:false,
+                                emptyText: "Multi Value",
                                 
                                 store: categoryStore,
                                 displayField:'name',
@@ -778,6 +747,7 @@ Ext.onReady(function(){
                                 hiddenName:"SecondaryCategoryCategoryName",
                                 width: 600,
                                 listWidth: 600,
+                                emptyText: "Multi Value",
                                 
                                 store: categoryStore,
                                 displayField:'name',
@@ -879,7 +849,8 @@ Ext.onReady(function(){
                                 name:"StoreCategoryName",
                                 hiddenName:"StoreCategoryName",
                                 width: 600,
-                                listWidth: 600
+                                listWidth: 600,
+                                emptyText: "Multi Value"
                             }]
                           },{
                             columnWidth:0.1,
@@ -968,7 +939,8 @@ Ext.onReady(function(){
                                 name:"StoreCategory2Name",
                                 hiddenName:"StoreCategory2Name",
                                 width: 600,
-                                listWidth: 600
+                                listWidth: 600,
+                                emptyText: "Multi Value"
                             }]
                           },{
                             columnWidth:0.1,
@@ -1316,7 +1288,7 @@ Ext.onReady(function(){
                         width: 690,
                         height: 500,
                         title:"Description",
-                        html:'<textarea id="Description" name="Description" style="height:450px; width:100%;">'
+                        html:'<textarea id="Description" name="Description" style="height:450px; width:100%;">Multi Value</textarea>'
                     },{
                         layout:"column",
                         border:false,
@@ -1328,12 +1300,12 @@ Ext.onReady(function(){
                                 text:"Preview Description",
                                 handler: function(){
                                     Ext.Ajax.request({
-                                        url: 'service.php?action=saveTempDescription&type=template&id='+template_id,
+                                        url: 'service.php?action=saveTempDescription&type=items&id='+item_id,
                                         params: { description: tinyMCE.get("Description").getContent()},
                                         success: function(a, b){
-                                            window.open(path + "preview.php?type=template&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+template_id,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                            window.open(path + "preview.php?type=items&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+item_id,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                         }
-                                    })
+                                    })    
                                 }
                             }]
                         },{
@@ -1372,16 +1344,7 @@ Ext.onReady(function(){
                         xtype:"htmleditor",
                         fieldLabel:"Descritpion",
                         name:"Description",
-                        allowBlank:false,
-                        listeners: {
-                            sync : function(t, h){
-                                //console.log(h);
-                                Ext.Ajax.request({
-                                    url: 'service.php?action=saveTempDescription&type=template&id='+template_id,
-                                    params: { description: h}
-                                })
-                            }
-                        }
+                        emptyText: "Multi Value"
                     },{
                         layout:"column",
                         border:false,
@@ -1391,7 +1354,6 @@ Ext.onReady(function(){
                             border:false,
                             style:"padding:0px;",
                             items:[{
-                                id:"UseStandardFooter",
                                 xtype:"checkbox",
                                 labelWidth: 0,
                                 labelSeparator: '',
@@ -1409,17 +1371,7 @@ Ext.onReady(function(){
                                 xtype:"button",
                                 text:"Edit Standard Footer",
                                 handler: function(){
-                                    window.open(path + "footer.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
-                                }
-                            }]
-                        },{
-                            columnWidth:0.2,
-                            border:false,
-                            items:[{
-                                xtype:"button",
-                                text:"Preview",
-                                handler: function(){
-                                    window.open(path + "preview.php?type=template&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+template_id,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                    window.open(path + "footer.html","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                 }
                             }]
                         }]
@@ -1478,23 +1430,7 @@ Ext.onReady(function(){
                         xtype:"textfield",
                         fieldLabel:"<font color='red'>SKU</font>",
                         name:"SKU",
-                        readOnly: true
-                    },{
-                        xtype: 'combo',
-                        fieldLabel:"Template Category",
-                        mode: 'local',
-                        store: new Ext.data.JsonStore({
-                            autoLoad: true,
-                            fields: ['id', 'name'],
-                            url: "service.php?action=getTemplateCategory"
-                        }),
-                        valueField:'id',
-                        displayField:'name',
-                        triggerAction: 'all',
-                        editable: false,
-                        selectOnFocus:true,
-                        name: 'template_category_id',
-                        hiddenName:'template_category_id'
+                        emptyText: "Multi Value"
                     }]
               },{
                 columnWidth:0.3,
@@ -1523,18 +1459,20 @@ Ext.onReady(function(){
                                     xtype:"numberfield",
                                     fieldLabel:"Start Price",
                                     id:"StartPrice",
-                                    name:"StartPrice"
+                                    name:"StartPrice",
+                                    emptyText: "Multi Value"
                                   },{
                                     xtype:"numberfield",
                                     fieldLabel:"Buy It Now Price",
                                     id:"BuyItNowPrice",
-                                    name:"BuyItNowPrice"
+                                    name:"BuyItNowPrice",
+                                    emptyText: "Multi Value"
                                   },{
                                     id:"Quantity",
                                     xtype:"numberfield",
                                     fieldLabel:"Quantity",
                                     name:"Quantity",
-                                    allowBlank:false
+                                    emptyText: "Multi Value"
                                   }]
                               },{
                                 columnWidth:0.5,
@@ -1548,7 +1486,8 @@ Ext.onReady(function(){
                                     xtype:"numberfield",
                                     fieldLabel:"Reserve Price",
                                     id:"ReservePrice",
-                                    name:"ReservePrice"
+                                    name:"ReservePrice",
+                                    emptyText: "Multi Value"
                                   },{
                                     xtype:"combo",
                                     fieldLabel:"Duration",
@@ -1564,7 +1503,7 @@ Ext.onReady(function(){
                                     name: 'ListingDuration',
                                     //allowBlank: false,
                                     hiddenName:'ListingDuration',
-                                    allowBlank:false
+                                    emptyText: "Multi Value"
                                   }]
                               }]
                         }],
@@ -2005,46 +1944,6 @@ Ext.onReady(function(){
                                   }]
                               }]
                         },{
-                            layout:"table",
-                            layoutConfig:{
-                            columns:2
-                            },
-                            defaults:{
-                              bodyStyle:"padding:0px;",
-                              style:"margin:0px;"
-                              //width:60
-                            },
-                            border:false,
-                            items:[{
-                                layout:"form",
-                                border:false,
-                                items:[{
-                                    xtype:"combo",
-                                    fieldLabel:"Domestic Insurance",
-                                    mode: 'local',
-                                    store: ["IncludedInShippingHandling", "NotOffered", "Optional", "Required"],
-                                    valueField:'id',
-                                    displayField:'name',
-                                    triggerAction: 'all',
-                                    editable: false,
-                                    selectOnFocus:true,
-                                    name: 'InsuranceOption',
-                                    hiddenName:'InsuranceOption',
-                                    //allowBlank: false,
-                                    width:150,
-                                    listWidth:180
-                                  }]
-                              },{
-                                layout:"form",
-                                border:false,
-                                items:[{
-                                    xtype:"numberfield",
-                                    fieldLabel:"Cost",
-                                    name:"InsuranceFee",
-                                    width:60
-                                  }]
-                            }]    
-                        },{
                             xtype:"combo",
                             fieldLabel:"Domestic Handling Time",
                             title:'Select a time Period',
@@ -2059,7 +1958,7 @@ Ext.onReady(function(){
                             selectOnFocus:true,
                             width:150,
                             listWidth:150,
-                            allowBlank:false
+                            emptyText: "Multi Value"
                         }],
                         cls: 'my-fieldset',
                         style: 'margin: 10px;',
@@ -2802,46 +2701,6 @@ Ext.onReady(function(){
                                         }]
                                 }]
                               }]
-                        },{
-                            layout:"table",
-                            layoutConfig:{
-                            columns:2
-                            },
-                            defaults:{
-                              bodyStyle:"padding:0px;",
-                              style:"margin:0px;"
-                              //width:60
-                            },
-                            border:false,
-                            items:[{
-                                layout:"form",
-                                border:false,
-                                items:[{
-                                    xtype:"combo",
-                                    fieldLabel:"International Insurance",
-                                    mode: 'local',
-                                    store: ["IncludedInShippingHandling", "NotOffered", "Optional", "Required"],
-                                    valueField:'id',
-                                    displayField:'name',
-                                    triggerAction: 'all',
-                                    editable: false,
-                                    selectOnFocus:true,
-                                    name: 'InternationalInsurance',
-                                    hiddenName:'InternationalInsurance',
-                                    //allowBlank: false,
-                                    width:150,
-                                    listWidth:180
-                                  }]
-                              },{
-                                layout:"form",
-                                border:false,
-                                items:[{
-                                    xtype:"numberfield",
-                                    fieldLabel:"Cost",
-                                    name:"InternationalInsuranceFee",
-                                    width:60
-                                  }]
-                            }]    
                         }],
                         cls: 'my-fieldset',
                         style: 'margin: 10px;',
@@ -2868,12 +2727,14 @@ Ext.onReady(function(){
                             triggerAction: 'all',
                             editable: false,
                             selectOnFocus:true,
+                            emptyText: "Multi Value",
                             width:200,
                             listWidth:200
                         },{
                             xtype:"numberfield",
                             fieldLabel:"ZIP Code",
                             name:"PostalCode",
+                            emptyText: "Multi Value",
                             width:60
                             
                         }]
@@ -2901,6 +2762,7 @@ Ext.onReady(function(){
                             xtype:"textfield",
                             fieldLabel:"PayPal Account Email",
                             name:"PayPalEmailAddress",
+                            emptyText: "Multi Value",
                             width: 250
                           }]
                       }/*,{
@@ -2940,12 +2802,12 @@ Ext.onReady(function(){
                 }]
             }],
             buttons: [{
-                text: "Update Template",
+                text: "Revise Multi Item",
                 handler: function(){
                     document.getElementById("Description").value = tinyMCE.get("Description").getContent();
                     itemForm.getForm().submit({
                         clientValidation: true,
-                        url: 'service.php?action=updateTemplate&template_id='+template_id,
+                        url: 'service.php?action=updateMultiActiveItem&item_id='+item_id,
                         success: function(form, action) {
                             //console.log(action);
                             Ext.Msg.alert("Success", action.result.msg);
@@ -2982,116 +2844,40 @@ Ext.onReady(function(){
     
     itemPanel.render(document.body);
     
-    itemForm.getForm().load({
-            url:'service.php?action=getTemplate', 
-            method:'GET', 
-            params: {id: template_id}, 
-            waitMsg:'Please wait...',
-            success: function(f, a){
-                //console.log(a.result.data);
-                switch(a.result.data.Site){
-                    case "US":
-                       categoryStore.setBaseParam('SiteID', 0);
-                    break;
-                
-                    case "UK":
-                      categoryStore.setBaseParam('SiteID', 3);
-                    break;
-                
-                    case "Australia":
-                        categoryStore.setBaseParam('SiteID', 15);
-                    break;
-                
-                    case "France":
-                        categoryStore.setBaseParam('SiteID', 71);
-                    break;
-                }
-                
-                document.getElementById("Description").value  = a.result.data.Description;
-                
-                if(!Ext.isEmpty(a.result.data.Schedule)){
-                    var Schedule = a.result.data.Schedule.split(',');
-                    for(var i in Schedule){
-                        if(!Ext.isFunction(Schedule[i])){
-                            Ext.getCmp(Schedule[i]).body.applyStyles("background-color:red;");
-                        }
-                    }
-                }
-                
-                listTypeCombo.setValue(a.result.data.ListingType);
-                ShippingServiceOptionsTypeCombo.setValue(a.result.data.ShippingServiceOptionsType);
-                shippingServiceStore.load({params: {serviceType: a.result.data.ShippingServiceOptionsType, SiteID: Ext.getCmp("SiteID").getValue()}});
-                
-                InternationalShippingServiceOptionTypeCombo.setValue(a.result.data.InternationalShippingServiceOptionType);
-                internationalShippingServiceStore.load({params: {serviceType: a.result.data.InternationalShippingServiceOptionType, SiteID: Ext.getCmp("SiteID").getValue()}});
-                
-                //console.log(a.result.data.InternationalShippingService_1);
-                if(!Ext.isEmpty(a.result.data.InternationalShippingService_1)){
-                    Ext.getCmp("InternationalShippingTo_1").show();
-                    if(a.result.data.InternationalShippingToLocations_1 == "Custom Locations"){
-                        Ext.getCmp("InternationalShippingCustom_1").show();
-                    }
-                }
-                
-                if(!Ext.isEmpty(a.result.data.InternationalShippingService_2)){
-                    Ext.getCmp("InternationalShippingTo_2").show();
-                    if(a.result.data.InternationalShippingToLocations_2 == "Custom Locations"){
-                        Ext.getCmp("InternationalShippingCustom_2").show();
-                    }
-                }
-                
-                if(!Ext.isEmpty(a.result.data.InternationalShippingService_3)){
-                    Ext.getCmp("InternationalShippingTo_3").show();
-                    if(a.result.data.InternationalShippingToLocations_3 == "Custom Locations"){
-                        Ext.getCmp("InternationalShippingCustom_3").show();
-                    }
-                }
-                
-                for(var i = 1; i <= 10; i++){
-                    //console.log(document.getElementById("picture_"+i).value);
-                    if(!Ext.isEmpty(document.getElementById("picture_"+i).value)){
-                        Ext.getCmp("picture_panel_"+i).body.dom.innerHTML = '<img width="60" height="60" src="' + document.getElementById("picture_"+i).value + '"/>';
-                    }
-                }
-                
-                tinyMCE.init({
-                    // General options
-                    mode : "textareas",
-                    theme : "advanced",
-                    plugins : "safari,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template",
-            
-                    // Theme options
-                    theme_advanced_buttons1 : "save,newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,styleselect,formatselect,fontselect,fontsizeselect",
-                    theme_advanced_buttons2 : "cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,code,|,insertdate,inserttime,preview,|,forecolor,backcolor",
-                    theme_advanced_buttons3 : "tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen",
-                    theme_advanced_buttons4 : "insertlayer,moveforward,movebackward,absolute,|,styleprops,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,template,pagebreak",
-                    theme_advanced_toolbar_location : "top",
-                    theme_advanced_toolbar_align : "left",
-                    theme_advanced_statusbar_location : "bottom",
-                    //theme_advanced_resizing : true,
-            
-                    // Example content CSS (should be your site CSS)
-                    //content_css : "css/content.css",
-            
-                    // Drop lists for link/image/media/template dialogs
-                    template_external_list_url : "lists/template_list.js"
-                    //external_link_list_url : "lists/link_list.js",
-                    //external_image_list_url : "lists/image_list.js",
-                    //media_external_list_url : "lists/media_list.js",
-            
-                    // Replace values for the template plugin
-                    /*
-                    template_replace_values : {
-                            username : "Some User",
-                            staffid : "991234"
-                    }
-                    */
-                })
+    tinyMCE.init({
+            // General options
+            mode : "textareas",
+            theme : "advanced",
+            plugins : "safari,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template",
+
+            // Theme options
+            theme_advanced_buttons1 : "save,newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,styleselect,formatselect,fontselect,fontsizeselect",
+            theme_advanced_buttons2 : "cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,code,|,insertdate,inserttime,preview,|,forecolor,backcolor",
+            theme_advanced_buttons3 : "tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen",
+            theme_advanced_buttons4 : "insertlayer,moveforward,movebackward,absolute,|,styleprops,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,template,pagebreak",
+            theme_advanced_toolbar_location : "top",
+            theme_advanced_toolbar_align : "left",
+            theme_advanced_statusbar_location : "bottom",
+            //theme_advanced_resizing : true,
+
+            // Example content CSS (should be your site CSS)
+            //content_css : "css/content.css",
+
+            // Drop lists for link/image/media/template dialogs
+            template_external_list_url : "lists/template_list.js"
+            //external_link_list_url : "lists/link_list.js",
+            //external_image_list_url : "lists/image_list.js",
+            //media_external_list_url : "lists/media_list.js",
+
+            // Replace values for the template plugin
+            /*
+            template_replace_values : {
+                    username : "Some User",
+                    staffid : "991234"
             }
-        }
-    );
+            */
+    })
     
-        
     //Schedule Time  --------------------------------------------------------------------------------
     Ext.select(".schedule-time").on("click",function(e, el){
         var tempArray = el.childNodes[0].id.split("-");
@@ -3099,7 +2885,7 @@ Ext.onReady(function(){
         var timeStore = new Ext.data.JsonStore({
             //root:"timeList",
             autoLoad:true,
-            url:'service.php?action=getTemplateScheduleTime&template_id='+template_id+'&dayTime='+el.childNodes[0].id,
+            url:'service.php?action=getScheduleTime&item_id='+item_id+'&dayTime='+el.childNodes[0].id,
             fields: [{name:'time', type:'string'}],
             sortInfo: {
                 field: 'time',
@@ -3158,14 +2944,14 @@ Ext.onReady(function(){
                         handler: function(){
                             if(Ext.getCmp("nowStartTime").getValue != ""){
                                 Ext.Ajax.request({
-                                    url: 'service.php?action=addTemplateScheduleTime',
+                                    url: 'service.php?action=addScheduleTime',
                                     success: function(){
                                             timeStore.reload();
                                         },
                                     failure: function(){},
                                     params: {
                                             dayTime: el.childNodes[0].id,
-                                            template_id: template_id,
+                                            item_id: item_id,
                                             time: Ext.getCmp("nowStartTime").getValue()
                                         }
                                 });
@@ -3192,14 +2978,14 @@ Ext.onReady(function(){
                                 }
                                 //console.log(id);
                                 Ext.Ajax.request({
-                                    url: 'service.php?action=deleteTemplateScheduleTime',
+                                    url: 'service.php?action=deleteScheduleTime',
                                     success: function(){
                                             timeStore.reload();
                                         },
                                     failure: function(){},
                                     params: {
                                             dayTime: el.childNodes[0].id,
-                                            template_id: template_id,
+                                            item_id: item_id,
                                             id: id
                                         }
                                 });
@@ -3216,14 +3002,14 @@ Ext.onReady(function(){
                         text:"Delete All",
                         handler: function(){
                             Ext.Ajax.request({
-                                url: 'service.php?action=deleteAllTemplateScheduleTime',
+                                url: 'service.php?action=deleteAllScheduleTime',
                                 success: function(){
                                         timeStore.reload();
                                     },
                                 failure: function(){},
                                 params: {
                                         dayTime: el.childNodes[0].id,
-                                        template_id: template_id
+                                        item_id: item_id
                                     }
                             });
                         }
@@ -3236,7 +3022,7 @@ Ext.onReady(function(){
                         text:"Ok",
                         handler: function(){
                             Ext.Ajax.request({
-                                url: 'service.php?action=updateTemplateScheduleTime',
+                                url: 'service.php?action=saveScheduleTime',
                                 success: function(){
                                         if(timeStore.getCount() > 0){
                                             Ext.getCmp(el.childNodes[0].id + "-panel").body.applyStyles("background-color:red;");
@@ -3246,13 +3032,12 @@ Ext.onReady(function(){
                                             Ext.getCmp(el.childNodes[0].id).setValue(0)
                                         }
                                         timeWindow.close();
-                                },
-                                waitMsg:'updating, please wait.',
+                                    },
                                 failure: function(){},
                                 params: {
                                         dayTime: el.childNodes[0].id,
-                                        template_id: template_id
-                                }
+                                        item_id: item_id
+                                    }
                             });
                         }
                     }]
@@ -3284,6 +3069,5 @@ Ext.onReady(function(){
         //console.log(el.childNodes[0].id);
         */
     })
-    
 })
 
