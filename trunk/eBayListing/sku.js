@@ -2,8 +2,8 @@ Ext.onReady(function(){
     Ext.BLANK_IMAGE_URL = "../ext-3.0.0/resources/images/default/s.gif";
     //var categoryPath = "";
     var today = new Date();
-    var path = "/eBayBO/eBayListing/";
-    //var path = "/eBayListing/";
+    //var path = "/eBayBO/eBayListing/";
+    var path = "/eBayListing/";
     
     var pictureForm = new Ext.form.FormPanel({
             labelAlign:"top",
@@ -3034,20 +3034,21 @@ Ext.onReady(function(){
                             Ext.Ajax.request({
                                 url: 'service.php?action=saveSkuScheduleTime',
                                 success: function(){
-                                        if(timeStore.getCount() > 0){
-                                            Ext.getCmp(el.childNodes[0].id + "-panel").body.applyStyles("background-color:red;");
-                                            Ext.getCmp(el.childNodes[0].id).setValue(1)
-                                        }else{
-                                            Ext.getCmp(el.childNodes[0].id + "-panel").body.applyStyles("background-color:white;");
-                                            Ext.getCmp(el.childNodes[0].id).setValue(0)
-                                        }
-                                        timeWindow.close();
-                                    },
+                                    if(timeStore.getCount() > 0){
+                                        Ext.getCmp(el.childNodes[0].id + "-panel").body.applyStyles("background-color:red;");
+                                        Ext.getCmp(el.childNodes[0].id).setValue(1)
+                                    }else{
+                                        Ext.getCmp(el.childNodes[0].id + "-panel").body.applyStyles("background-color:white;");
+                                        Ext.getCmp(el.childNodes[0].id).setValue(0)
+                                    }
+                                    timeWindow.close();
+                                },
+                                waitMsg:'updating, please wait.',
                                 failure: function(){},
                                 params: {
-                                        dayTime: el.childNodes[0].id,
-                                        sku: sku
-                                    }
+                                    dayTime: el.childNodes[0].id,
+                                    sku: sku
+                                }
                             });
                         }
                     }]

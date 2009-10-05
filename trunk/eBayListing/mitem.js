@@ -2804,6 +2804,7 @@ Ext.onReady(function(){
             buttons: [{
                 text: "Update Multi Item",
                 handler: function(){
+                    document.getElementById("Description").value = tinyMCE.get("Description").getContent();
                     itemForm.getForm().submit({
                         clientValidation: true,
                         url: 'service.php?action=updateMultiItem&item_id='+item_id,

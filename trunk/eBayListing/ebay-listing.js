@@ -296,7 +296,11 @@ Ext.onReady(function(){
                               ids += selections[i].data.Id + ","
                          }
                          ids = ids.slice(0,-1);
-                         window.open("/eBayBO/eBayListing/template.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                         if(template_grid.selModel.getCount() > 1){
+                              window.open(path + "mtemplate.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                         }else{
+                              window.open(path + "template.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                         }     
                          return 1;
                     }     
                },'-',{
@@ -1136,7 +1140,22 @@ Ext.onReady(function(){
                                         text: "Revise",
                                         icon: "./images/building_edit.png",
                                         handler: function(){
-                                             
+                                             var selections = activity_grid.selModel.getSelections();
+                                             if(activity_grid.selModel.getCount() == 0){
+                                                  Ext.MessageBox.alert('Warning','Please select the item you want to revise.');
+                                                  return 0;
+                                             }
+                                             var ids = "";
+                                             for(var i = 0; i< activity_grid.selModel.getCount(); i++){
+                                                  ids += selections[i].data.Id + ","
+                                             }
+                                             ids = ids.slice(0,-1);
+                                             if(activity_grid.selModel.getCount() > 1){
+                                                  window.open(path + "mrevise.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                             }else{
+                                                  window.open(path + "revise.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                             }     
+                                             return 1;
                                         }
                                    },'-',{
                                         text: 'Export CSV',
@@ -1185,7 +1204,7 @@ Ext.onReady(function(){
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
-                                   fields: ['SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price', 'EndTime'],
+                                   fields: ['Id', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price', 'EndTime'],
                                    url: 'service.php?action=getSoldItem'
                               })
                               
@@ -1198,15 +1217,17 @@ Ext.onReady(function(){
                                    //height: 500,
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
-                                       {header: "SKU", width: 120, align: 'center', sortable: true, dataIndex: 'SKU'},
-                                       {header: "Item ID", width: 120, align: 'center', sortable: true, dataIndex: 'ItemID'},
-                                       {header: "Item Title", width: 120, align: 'center', sortable: true, dataIndex: 'Title'},
-                                       {header: "Site", width: 50, align: 'center', sortable: true, dataIndex: 'Site'},
-                                       {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
-                                       {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
-                                       {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
-                                       {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
-                                       {header: "End Time", width: 120, align: 'center', sortable: true, dataIndex: 'EndTime'}
+                                        {header: "Id", width: 40, align: 'center', sortable: true, dataIndex: 'Id'},
+                                        {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
+                                        {header: "SKU", width: 120, align: 'center', sortable: true, dataIndex: 'SKU'},
+                                        {header: "Item ID", width: 120, align: 'center', sortable: true, dataIndex: 'ItemID'},
+                                        {header: "Item Title", width: 120, align: 'center', sortable: true, dataIndex: 'Title'},
+                                        {header: "Site", width: 50, align: 'center', sortable: true, dataIndex: 'Site'},
+                                        {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
+                                        {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
+                                        {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
+                                        {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
+                                        {header: "End Time", width: 120, align: 'center', sortable: true, dataIndex: 'EndTime'}
                                    ],
                                    tbar:[{
                                         text: "Relist",
@@ -1214,34 +1235,23 @@ Ext.onReady(function(){
                                         tooltip:'Relist item to eBay',
                                         handler: function(){
                                              var selections = sold_item_grid.selModel.getSelections();
+                                             if(sold_item_grid.selModel.getCount() == 0){
+                                                  Ext.MessageBox.alert('Warning','Please select the item you want to relist.');
+                                                  return 0;
+                                             }
                                              var ids = "";
                                              for(var i = 0; i< sold_item_grid.selModel.getCount(); i++){
                                                   ids += selections[i].data.Id + ","
                                              }
                                              ids = ids.slice(0,-1);
-                                             
-                                             Ext.Ajax.request({  
-                                                  waitMsg: 'Please Wait',
-                                                  url: 'service.php?action=addToRelist', 
-                                                  params: {
-                                                       ids: ids
-                                                  }, 
-                                                  success: function(response){
-                                                      var result=eval(response.responseText);
-                                                      switch(result){
-                                                         case 1:  // Success : simply reload
-                                                           
-                                                           break;
-                                                         default:
-                                                           Ext.MessageBox.alert('Warning','');
-                                                           break;
-                                                      }
-                                                  },
-                                                  failure: function(response){
-                                                      var result=response.responseText;
-                                                      Ext.MessageBox.alert('error','could not connect to the database. retry later');      
-                                                  }
-                                             });
+                                             //console.log(ids);
+                                             //return 0;
+                                             if(sold_item_grid.selModel.getCount() > 1){
+                                                  window.open(path + "mrelist.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                             }else{
+                                                  window.open(path + "relist.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                             }     
+                                             return 1;
                                         }
                                    }],
                                    bbar: new Ext.PagingToolbar({
@@ -1274,8 +1284,8 @@ Ext.onReady(function(){
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
-                                   fields: ['SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price'],
-                                   url: 'service.php?action=getSoldItem'
+                                   fields: ['Id', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price'],
+                                   url: 'service.php?action=getUnSoldItem'
                               })
                               
                               var unsold_item_grid = new Ext.grid.GridPanel({
@@ -1287,14 +1297,16 @@ Ext.onReady(function(){
                                    //height: 500,
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
-                                       {header: "SKU", width: 120, align: 'center', sortable: true, dataIndex: 'SKU'},
-                                       {header: "Item ID", width: 120, align: 'center', sortable: true, dataIndex: 'ItemID'},
-                                       {header: "Item Title", width: 120, align: 'center', sortable: true, dataIndex: 'Title'},
-                                       {header: "Site", width: 50, align: 'center', sortable: true, dataIndex: 'Site'},
-                                       {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
-                                       {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
-                                       {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
-                                       {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'}
+                                        {header: "Id", width: 40, align: 'center', sortable: true, dataIndex: 'Id'},
+                                        {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
+                                        {header: "SKU", width: 120, align: 'center', sortable: true, dataIndex: 'SKU'},
+                                        {header: "Item ID", width: 120, align: 'center', sortable: true, dataIndex: 'ItemID'},
+                                        {header: "Item Title", width: 120, align: 'center', sortable: true, dataIndex: 'Title'},
+                                        {header: "Site", width: 50, align: 'center', sortable: true, dataIndex: 'Site'},
+                                        {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
+                                        {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
+                                        {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
+                                        {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'}
                                    ],
                                    bbar: new Ext.PagingToolbar({
                                        pageSize: 20,
