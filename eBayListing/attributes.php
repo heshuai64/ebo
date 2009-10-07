@@ -179,15 +179,15 @@ class Attributes  {
             foreach ($value1 as $key2=>$value2){
                 $sql_1 = "insert into CharacteristicsLists (CharacteristicsSetId,AttributeId,Label,Type) values ('".$key1."','".$key2."','".$value2['Label']."','".$value2['Type']."')";
                 $result_1 = mysql_query($sql_1, Attributes::$database_connect);
-                echo $sql_1;
-                echo "\n";
+                //echo $sql_1;
+                //echo "\n";
                 
                 foreach ($value2['ValueList'] as $key3=>$value3){
                     $sql_2 = "insert into CharacteristicsAttributeValueLists (CharacteristicsSetId,AttributeId,id,name) values 
                     ('".$key1."','".$key2."','".$key3."','".$value3."')";
                     $result_2 = mysql_query($sql_2, Attributes::$database_connect);
-                    echo $sql_2;
-                    echo "\n";
+                    //echo $sql_2;
+                    //echo "\n";
                 }
             }
         }
@@ -208,16 +208,25 @@ if (!mysql_select_db("ebaylisting")) {
 }
 
 
-$sql = "select id from site where status = 1";
-$result = mysql_query($sql);
-while ($row = mysql_fetch_assoc($result)){
+if(!empty($argv[2])){
     $a = new Attributes();
-    $f = fopen('GetAttributesCS-'.$row['id'].'.xml', 'r' );
+    $f = fopen('GetAttributesCS-'.$argv[2].'.xml', 'r' );
     while( $data = fread($f, 4096)){
         $a->parse($data);
     }
     $a->dealData();
-    exit;
+}else{
+    $sql = "select id from site where status = 1";
+    $result = mysql_query($sql);
+    while ($row = mysql_fetch_assoc($result)){
+        echo date("Y-m-d H:i:s")." ". $row['id']. " start\n";
+        $a = new Attributes();
+        $f = fopen('GetAttributesCS-'.$row['id'].'.xml', 'r' );
+        while( $data = fread($f, 4096)){
+            $a->parse($data);
+        }
+        $a->dealData();
+        echo date("Y-m-d H:i:s")." ". $row['id']. " end\n";
+    }
 }
-
 ?>
