@@ -9,7 +9,7 @@
         <title>Packing List</title>
         <style>
                 .address{
-                        font-size:18px;
+                        font-size:20px;
                         line-height:120%;
                         padding-left:6px;
                         padding-right:0px;
@@ -29,7 +29,7 @@
                 }
                 
                 .shipment-id{
-                        font-size:10px;
+                        font-size:14px;
                         position:absolute;
                         padding:0px;
                         right:10px;
