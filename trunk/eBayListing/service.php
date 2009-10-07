@@ -397,6 +397,16 @@ class eBayListing{
    
     ALTER TABLE `template` CHANGE `ReturnPolicyReturnsAcceptedOption` `ReturnPolicyReturnsAcceptedOption` ENUM( '', 'ReturnsAccepted', 'ReturnsNotAccepted' ) NOT NULL; 
     ALTER TABLE `items` CHANGE `ReturnPolicyReturnsAcceptedOption` `ReturnPolicyReturnsAcceptedOption` ENUM( '', 'ReturnsAccepted', 'ReturnsNotAccepted' ) NOT NULL; 
+    
+    ALTER TABLE `template`
+    CHANGE `ReturnPolicyRefundOption` `ReturnPolicyRefundOption` ENUM( '', 'Exchange', 'MerchandiseCredit', 'MoneyBack' ) NOT NULL ,
+    CHANGE `ReturnPolicyReturnsWithinOption` `ReturnPolicyReturnsWithinOption` ENUM( '', 'Days_3', 'Days_7', 'Days_10', 'Days_14', 'Days_30', 'Days_60' )  NOT NULL ,
+    CHANGE `ReturnPolicyShippingCostPaidByOption` `ReturnPolicyShippingCostPaidByOption` ENUM( '', 'Buyer', 'Seller' ) NOT NULL;
+
+    ALTER TABLE `items`
+    CHANGE `ReturnPolicyRefundOption` `ReturnPolicyRefundOption` ENUM( '', 'Exchange', 'MerchandiseCredit', 'MoneyBack' ) NOT NULL ,
+    CHANGE `ReturnPolicyReturnsWithinOption` `ReturnPolicyReturnsWithinOption` ENUM( '', 'Days_3', 'Days_7', 'Days_10', 'Days_14', 'Days_30', 'Days_60' )  NOT NULL ,
+    CHANGE `ReturnPolicyShippingCostPaidByOption` `ReturnPolicyShippingCostPaidByOption` ENUM( '', 'Buyer', 'Seller' ) NOT NULL;
     */
     public function saveTempDescription(){
 	session_start();
@@ -998,6 +1008,7 @@ class eBayListing{
 	    $_POST['Description'] .= $row['footer'];
 	}
 	*/
+	session_start();
 	
 	if($_POST['ListingType'] == "FixedPriceItem" || $_POST['ListingType'] == "StoresFixedPrice"){
 	    $_POST['StartPrice'] = $_POST['BuyItNowPrice'];
@@ -1008,29 +1019,58 @@ class eBayListing{
 	    $_POST['Quantity'] = 1;   
 	}
 	
-	//StartTime,EndTime
-	//$PaymentMethods = ($_POST['PayPalPayment'] == 1)?'PayPal':'';
-	$sql = "insert into template (BuyItNowPrice,Country,Currency,Description,DispatchTimeMax,
-	ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,PostalCode,
-	PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,Quantity,ReservePrice,
-	ShippingType,Site,SKU,StartPrice,StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,
-	BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypePlus,GalleryURL,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,accountId,UseStandardFooter) values (
-	'".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
-	'".htmlentities($_POST['Description'])."','".$_POST['DispatchTimeMax']."',
-	'".$_POST['ListingDuration']."','".$_POST['ListingType']."','".$_POST['Location']."','PayPal',
-	'".$_POST['PayPalEmailAddress']."','".$_POST['PostalCode']."',
-	'".$_POST['PrimaryCategoryCategoryID']."','".$_POST['PrimaryCategoryCategoryName']."','".$_POST['SecondaryCategoryCategoryID']."','".$_POST['SecondaryCategoryCategoryName']."',
-	'".@$_POST['Quantity']."','".@$_POST['ReservePrice']."','".@$_POST['ShippingType']."',
-	'".$_POST['Site']."','".$_POST['SKU']."','".$_POST['StartPrice']."','".$_POST['StoreCategory2ID']."','".$_POST['StoreCategory2Name']."',
-	'".$_POST['StoreCategoryID']."','".$_POST['StoreCategoryName']."','".$_POST['SubTitle']."',
-	'".mysql_real_escape_string($_POST['Title'])."','".(empty($_POST['BoldTitle'])?0:1)."',
-	'".(empty($_POST['Border'])?0:1)."','".(empty($_POST['Featured'])?0:1)."','".(empty($_POST['Highlight'])?0:1)."',
-	'".(empty($_POST['HomePageFeatured'])?0:1)."','".(empty($_POST['GalleryTypeFeatured'])?0:1)."','".(empty($_POST['GalleryTypePlus'])?0:1)."','".$_POST['GalleryURL']."',
-	'".$_POST['ShippingServiceOptionsType']."','".$_POST['InsuranceOption']."','".$_POST['InsuranceFee']."',
-	'".$_POST['InternationalShippingServiceOptionType']."','".$_POST['InternationalInsurance']."','".$_POST['InternationalInsuranceFee']."',
-	'".$this->account_id."','".(empty($_POST['UseStandardFooter'])?0:1)."')";
-	$result = mysql_query($sql, eBayListing::$database_connect);
+	if(!empty($_SESSION['ReturnPolicyReturns'][$_POST['SKU']]['ReturnPolicyReturnsAcceptedOption'])){
+	    //StartTime,EndTime
+	    //$PaymentMethods = ($_POST['PayPalPayment'] == 1)?'PayPal':'';
+	    $sql = "insert into template (BuyItNowPrice,Country,Currency,Description,DispatchTimeMax,
+	    ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,PostalCode,
+	    PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,Quantity,
+	    ReturnPolicyDescription,ReturnPolicyRefundOption,ReturnPolicyReturnsAcceptedOption,ReturnPolicyReturnsWithinOption,ReturnPolicyShippingCostPaidByOption,
+	    ReservePrice,ShippingType,Site,SKU,StartPrice,StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,
+	    BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypePlus,GalleryURL,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,accountId,UseStandardFooter) values (
+	    '".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
+	    '".htmlentities($_POST['Description'])."','".$_POST['DispatchTimeMax']."',
+	    '".$_POST['ListingDuration']."','".$_POST['ListingType']."','".$_POST['Location']."','PayPal',
+	    '".$_POST['PayPalEmailAddress']."','".$_POST['PostalCode']."',
+	    '".$_POST['PrimaryCategoryCategoryID']."','".$_POST['PrimaryCategoryCategoryName']."','".$_POST['SecondaryCategoryCategoryID']."','".$_POST['SecondaryCategoryCategoryName']."',
+	    '".@$_POST['Quantity']."',
+	    '".$_SESSION['ReturnPolicyReturns'][$_POST['SKU']]['ReturnPolicyDescription']."','".$_SESSION['ReturnPolicyReturns'][$_POST['SKU']]['ReturnPolicyRefundOption']."',
+	    '".$_SESSION['ReturnPolicyReturns'][$_POST['SKU']]['ReturnPolicyReturnsAcceptedOption']."','".$_SESSION['ReturnPolicyReturns'][$_POST['SKU']]['ReturnPolicyReturnsWithinOption']."',
+	    '".$_SESSION['ReturnPolicyReturns'][$_POST['SKU']]['ReturnPolicyShippingCostPaidByOption']."','".@$_POST['ReservePrice']."','".@$_POST['ShippingType']."',
+	    '".$_POST['Site']."','".$_POST['SKU']."','".$_POST['StartPrice']."','".$_POST['StoreCategory2ID']."','".$_POST['StoreCategory2Name']."',
+	    '".$_POST['StoreCategoryID']."','".$_POST['StoreCategoryName']."','".$_POST['SubTitle']."',
+	    '".mysql_real_escape_string($_POST['Title'])."','".(empty($_POST['BoldTitle'])?0:1)."',
+	    '".(empty($_POST['Border'])?0:1)."','".(empty($_POST['Featured'])?0:1)."','".(empty($_POST['Highlight'])?0:1)."',
+	    '".(empty($_POST['HomePageFeatured'])?0:1)."','".(empty($_POST['GalleryTypeFeatured'])?0:1)."','".(empty($_POST['GalleryTypePlus'])?0:1)."','".$_POST['GalleryURL']."',
+	    '".$_POST['ShippingServiceOptionsType']."','".$_POST['InsuranceOption']."','".$_POST['InsuranceFee']."',
+	    '".$_POST['InternationalShippingServiceOptionType']."','".$_POST['InternationalInsurance']."','".$_POST['InternationalInsuranceFee']."',
+	    '".$this->account_id."','".(empty($_POST['UseStandardFooter'])?0:1)."')";
+	}else{
 	
+	    //StartTime,EndTime
+	    //$PaymentMethods = ($_POST['PayPalPayment'] == 1)?'PayPal':'';
+	    $sql = "insert into template (BuyItNowPrice,Country,Currency,Description,DispatchTimeMax,
+	    ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,PostalCode,
+	    PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,Quantity,ReservePrice,
+	    ShippingType,Site,SKU,StartPrice,StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,
+	    BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypePlus,GalleryURL,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,accountId,UseStandardFooter) values (
+	    '".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
+	    '".htmlentities($_POST['Description'])."','".$_POST['DispatchTimeMax']."',
+	    '".$_POST['ListingDuration']."','".$_POST['ListingType']."','".$_POST['Location']."','PayPal',
+	    '".$_POST['PayPalEmailAddress']."','".$_POST['PostalCode']."',
+	    '".$_POST['PrimaryCategoryCategoryID']."','".$_POST['PrimaryCategoryCategoryName']."','".$_POST['SecondaryCategoryCategoryID']."','".$_POST['SecondaryCategoryCategoryName']."',
+	    '".@$_POST['Quantity']."','".@$_POST['ReservePrice']."','".@$_POST['ShippingType']."',
+	    '".$_POST['Site']."','".$_POST['SKU']."','".$_POST['StartPrice']."','".$_POST['StoreCategory2ID']."','".$_POST['StoreCategory2Name']."',
+	    '".$_POST['StoreCategoryID']."','".$_POST['StoreCategoryName']."','".$_POST['SubTitle']."',
+	    '".mysql_real_escape_string($_POST['Title'])."','".(empty($_POST['BoldTitle'])?0:1)."',
+	    '".(empty($_POST['Border'])?0:1)."','".(empty($_POST['Featured'])?0:1)."','".(empty($_POST['Highlight'])?0:1)."',
+	    '".(empty($_POST['HomePageFeatured'])?0:1)."','".(empty($_POST['GalleryTypeFeatured'])?0:1)."','".(empty($_POST['GalleryTypePlus'])?0:1)."','".$_POST['GalleryURL']."',
+	    '".$_POST['ShippingServiceOptionsType']."','".$_POST['InsuranceOption']."','".$_POST['InsuranceFee']."',
+	    '".$_POST['InternationalShippingServiceOptionType']."','".$_POST['InternationalInsurance']."','".$_POST['InternationalInsuranceFee']."',
+	    '".$this->account_id."','".(empty($_POST['UseStandardFooter'])?0:1)."')";
+	    
+	}
+	$result = mysql_query($sql, eBayListing::$database_connect);
 	//echo $sql;
 	//exit;
 	
@@ -1113,7 +1153,7 @@ class eBayListing{
 		)
 	)
 	*/
-	session_start();
+	
 	if(!empty($_SESSION['Schedule'])){
 	    switch($_POST['Site']){
 		case "US":
@@ -1379,6 +1419,12 @@ class eBayListing{
 	$row['SiteID'] = $row['Site'];
 	$row['Description'] = html_entity_decode($row['Description']);
 	
+	$_SESSION['ReturnPolicyReturns'][$_GET['id']]['ReturnPolicyReturnsAcceptedOption'] = $row['ReturnPolicyReturnsAcceptedOption'];
+	$_SESSION['ReturnPolicyReturns'][$_GET['id']]['ReturnPolicyReturnsWithinOption'] = $row['ReturnPolicyReturnsWithinOption'];
+	$_SESSION['ReturnPolicyReturns'][$_GET['id']]['ReturnPolicyRefundOption'] = $row['ReturnPolicyRefundOption'];
+	$_SESSION['ReturnPolicyReturns'][$_GET['id']]['ReturnPolicyShippingCostPaidByOption'] = $row['ReturnPolicyShippingCostPaidByOption'];
+	$_SESSION['ReturnPolicyReturns'][$_GET['id']]['ReturnPolicyDescription'] = $row['ReturnPolicyDescription'];
+	
 	if($row['ListingType'] == "FixedPriceItem" || $row['ListingType'] == "StoresFixedPrice"){
 	    $row['BuyItNowPrice'] = $row['StartPrice'];
 	    $row['StartPrice'] = 0;
@@ -1480,7 +1526,7 @@ class eBayListing{
 	    $_POST['Description'] .= $row['footer'];
 	}
 	*/
-	
+	session_start();
 	if($_POST['ListingType'] == "FixedPriceItem" || $_POST['ListingType'] == "StoresFixedPrice"){
 	    $_POST['StartPrice'] = $_POST['BuyItNowPrice'];
 	    $_POST['BuyItNowPrice'] = 0;
@@ -1493,24 +1539,45 @@ class eBayListing{
 	$id = $_GET['template_id'];
 	//StartTime,EndTime
 	//$PaymentMethods = ($_POST['PayPalPayment'] == 1)?'PayPal':'';
-	$sql = "update template set 
-	BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
-	Description='".htmlentities($_POST['Description'])."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
-	ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
-	PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
-	PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
-	SecondaryCategoryCategoryID='".$_POST['SecondaryCategoryCategoryID']."',SecondaryCategoryCategoryName='".$_POST['SecondaryCategoryCategoryName']."',
-	Quantity='".@$_POST['Quantity']."',ReservePrice='".@$_POST['ReservePrice']."',
-	Site='".$_POST['Site']."',SKU='".$_POST['SKU']."',StartPrice='".$_POST['StartPrice']."',StoreCategory2ID='".$_POST['StoreCategory2ID']."',StoreCategory2Name='".$_POST['StoreCategory2Name']."',
-	StoreCategoryID='".$_POST['StoreCategoryID']."',StoreCategoryName='".$_POST['StoreCategoryName']."',SubTitle='".$_POST['SubTitle']."',
-	Title='".mysql_real_escape_string($_POST['Title'])."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
-	Border='".(empty($_POST['Border'])?0:1)."',Featured='".(empty($_POST['Featured'])?0:1)."',Highlight='".(empty($_POST['Highlight'])?0:1)."',
-	HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',
-	InsuranceOption='".$_POST['InsuranceOption']."',InsuranceFee='".$_POST['InsuranceFee']."',
-	InternationalInsurance='".$_POST['InternationalInsurance']."',InternationalInsuranceFee='".$_POST['InternationalInsuranceFee']."',
-	accountId='".$this->account_id."',UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."' where Id = '".$id."'";
+	if(!empty($_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyReturnsAcceptedOption'])){
+	    $sql = "update template set 
+	    BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
+	    Description='".htmlentities($_POST['Description'])."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
+	    ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
+	    PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
+	    PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
+	    SecondaryCategoryCategoryID='".$_POST['SecondaryCategoryCategoryID']."',SecondaryCategoryCategoryName='".$_POST['SecondaryCategoryCategoryName']."',
+	    Quantity='".@$_POST['Quantity']."',ReservePrice='".@$_POST['ReservePrice']."',
+	    ReturnPolicyDescription='".$_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyDescription']."',ReturnPolicyRefundOption='".$_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyRefundOption']."',
+	    ReturnPolicyReturnsAcceptedOption='".$_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyReturnsAcceptedOption']."',ReturnPolicyReturnsWithinOption='".$_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyReturnsWithinOption']."',
+	    ReturnPolicyShippingCostPaidByOption='".$_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyShippingCostPaidByOption']."',
+	    Site='".$_POST['Site']."',SKU='".$_POST['SKU']."',StartPrice='".$_POST['StartPrice']."',StoreCategory2ID='".$_POST['StoreCategory2ID']."',StoreCategory2Name='".$_POST['StoreCategory2Name']."',
+	    StoreCategoryID='".$_POST['StoreCategoryID']."',StoreCategoryName='".$_POST['StoreCategoryName']."',SubTitle='".$_POST['SubTitle']."',
+	    Title='".mysql_real_escape_string($_POST['Title'])."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
+	    Border='".(empty($_POST['Border'])?0:1)."',Featured='".(empty($_POST['Featured'])?0:1)."',Highlight='".(empty($_POST['Highlight'])?0:1)."',
+	    HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',
+	    InsuranceOption='".$_POST['InsuranceOption']."',InsuranceFee='".$_POST['InsuranceFee']."',
+	    InternationalInsurance='".$_POST['InternationalInsurance']."',InternationalInsuranceFee='".$_POST['InternationalInsuranceFee']."',
+	    accountId='".$this->account_id."',UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."' where Id = '".$id."'";
+	}else{
+	    $sql = "update template set 
+	    BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
+	    Description='".htmlentities($_POST['Description'])."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
+	    ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
+	    PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
+	    PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
+	    SecondaryCategoryCategoryID='".$_POST['SecondaryCategoryCategoryID']."',SecondaryCategoryCategoryName='".$_POST['SecondaryCategoryCategoryName']."',
+	    Quantity='".@$_POST['Quantity']."',ReservePrice='".@$_POST['ReservePrice']."',
+	    Site='".$_POST['Site']."',SKU='".$_POST['SKU']."',StartPrice='".$_POST['StartPrice']."',StoreCategory2ID='".$_POST['StoreCategory2ID']."',StoreCategory2Name='".$_POST['StoreCategory2Name']."',
+	    StoreCategoryID='".$_POST['StoreCategoryID']."',StoreCategoryName='".$_POST['StoreCategoryName']."',SubTitle='".$_POST['SubTitle']."',
+	    Title='".mysql_real_escape_string($_POST['Title'])."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
+	    Border='".(empty($_POST['Border'])?0:1)."',Featured='".(empty($_POST['Featured'])?0:1)."',Highlight='".(empty($_POST['Highlight'])?0:1)."',
+	    HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',
+	    InsuranceOption='".$_POST['InsuranceOption']."',InsuranceFee='".$_POST['InsuranceFee']."',
+	    InternationalInsurance='".$_POST['InternationalInsurance']."',InternationalInsuranceFee='".$_POST['InternationalInsuranceFee']."',
+	    accountId='".$this->account_id."',UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."' where Id = '".$id."'";
+	}
 	$result = mysql_query($sql, eBayListing::$database_connect);
-	
 	//echo $sql;
 	//exit;
 	
@@ -1608,7 +1675,7 @@ class eBayListing{
 	*/
 	$sql_1 = "delete from schedule where template_id = '".$id."'";
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);    
-	session_start();
+	
 	if(!empty($_SESSION['Schedule'])){
 	    switch($_POST['Site']){
 		case "US":
@@ -3198,6 +3265,39 @@ class eBayListing{
     }
     
     //---------------------------------------------------------------------------------
+    public function loadReturnPolicyReturns(){
+	if(!empty($_GET['sku'])){
+	    $id = $_GET['sku'];
+	}elseif(!empty($_GET['template_id'])){
+	    $id = $_GET['template_id'];
+	}elseif(!empty($_GET['item_id'])){
+	    $id = $_GET['item_id'];
+	}
+	session_start();
+	if(!empty($_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyReturnsAcceptedOption'])){
+	    echo '['.json_encode($_SESSION['ReturnPolicyReturns'][$id]).']';
+	}
+    }
+    
+    public function saveReturnPolicyReturns(){
+	if(!empty($_GET['sku'])){
+	    $id = $_GET['sku'];
+	}elseif(!empty($_GET['template_id'])){
+	    $id = $_GET['template_id'];
+	}elseif(!empty($_GET['item_id'])){
+	    $id = $_GET['item_id'];
+	}
+	session_start();
+	unset($_SESSION['ReturnPolicyReturns'][$id]);
+	
+	$_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyReturnsAcceptedOption'] = (($_POST['ReturnPolicyReturnsAcceptedOption1'] == "true")?'ReturnsAccepted':(($_POST['ReturnPolicyReturnsAcceptedOption2'] == "true")?'ReturnsNotAccepted':''));
+	$_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyReturnsWithinOption'] = $_POST['ReturnPolicyReturnsWithinOption'];
+	$_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyRefundOption'] = $_POST['ReturnPolicyRefundOption'];
+	$_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyShippingCostPaidByOption'] = $_POST['ReturnPolicyShippingCostPaidByOption'];//(!empty($_POST['ReturnPolicyShippingCostPaidByOption1']))?$_POST['ReturnPolicyShippingCostPaidByOption1']:(!empty($_POST['ReturnPolicyShippingCostPaidByOption2']))?$_POST['ReturnPolicyShippingCostPaidByOption2']:'';
+	$_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyDescription'] = $_POST['ReturnPolicyDescription'];
+    }
+    
+    
     public function getAllSites(){
 	$sql = "select * from site where status = '1'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
@@ -3650,6 +3750,11 @@ class eBayListing{
 	$row = mysql_fetch_assoc($result);
 	$row['SiteID'] = $row['Site'];
 	$row['Description'] = html_entity_decode($row['Description']);
+	$_SESSION['ReturnPolicyReturns'][$_GET['id']]['ReturnPolicyReturnsAcceptedOption'] = $row['ReturnPolicyReturnsAcceptedOption'];
+	$_SESSION['ReturnPolicyReturns'][$_GET['id']]['ReturnPolicyReturnsWithinOption'] = $row['ReturnPolicyReturnsWithinOption'];
+	$_SESSION['ReturnPolicyReturns'][$_GET['id']]['ReturnPolicyRefundOption'] = $row['ReturnPolicyRefundOption'];
+	$_SESSION['ReturnPolicyReturns'][$_GET['id']]['ReturnPolicyShippingCostPaidByOption'] = $row['ReturnPolicyShippingCostPaidByOption'];
+	$_SESSION['ReturnPolicyReturns'][$_GET['id']]['ReturnPolicyDescription'] = $row['ReturnPolicyDescription'];
 	
 	if($row['ListingType'] == "FixedPriceItem" || $row['ListingType'] == "StoresFixedPrice"){
 	    $row['BuyItNowPrice'] = $row['StartPrice'];
@@ -3727,7 +3832,7 @@ class eBayListing{
 	    $_POST['Description'] .= $row['footer'];
 	}
 	*/
-	
+	session_start();
 	if($_POST['ListingType'] == "FixedPriceItem" || $_POST['ListingType'] == "StoresFixedPrice"){
 	    $_POST['StartPrice'] = $_POST['BuyItNowPrice'];
 	    $_POST['BuyItNowPrice'] = 0;
@@ -3740,24 +3845,46 @@ class eBayListing{
 	$id = $_GET['item_id'];
 	//StartTime,EndTime
 	//$PaymentMethods = ($_POST['PayPalPayment'] == 1)?'PayPal':'';
-	$sql = "update items set 
-	BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
-	Description='".htmlentities($_POST['Description'])."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
-	ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
-	PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
-	PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
-	SecondaryCategoryCategoryID='".$_POST['SecondaryCategoryCategoryID']."',SecondaryCategoryCategoryName='".$_POST['SecondaryCategoryCategoryName']."',
-	Quantity='".@$_POST['Quantity']."',ReservePrice='".@$_POST['ReservePrice']."',
-	Site='".$_POST['Site']."',SKU='".$_POST['SKU']."',StartPrice='".$_POST['StartPrice']."',StoreCategory2ID='".$_POST['StoreCategory2ID']."',StoreCategory2Name='".$_POST['StoreCategory2Name']."',
-	StoreCategoryID='".$_POST['StoreCategoryID']."',StoreCategoryName='".$_POST['StoreCategoryName']."',SubTitle='".$_POST['SubTitle']."',
-	Title='".mysql_real_escape_string($_POST['Title'])."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
-	Border='".(empty($_POST['Border'])?0:1)."',Featured='".(empty($_POST['Featured'])?0:1)."',Highlight='".(empty($_POST['Highlight'])?0:1)."',
-	HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',
-	InsuranceOption='".$_POST['InsuranceOption']."',InsuranceFee='".$_POST['InsuranceFee']."',
-	InternationalInsurance='".$_POST['InternationalInsurance']."',InternationalInsuranceFee='".$_POST['InternationalInsuranceFee']."',
-	accountId='".$this->account_id."' where Id = '".$id."'";
-	$result = mysql_query($sql, eBayListing::$database_connect);
-	
+	if(!empty($_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyReturnsAcceptedOption'])){
+	    $sql = "update items set 
+	    BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
+	    Description='".htmlentities($_POST['Description'])."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
+	    ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
+	    PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
+	    PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
+	    SecondaryCategoryCategoryID='".$_POST['SecondaryCategoryCategoryID']."',SecondaryCategoryCategoryName='".$_POST['SecondaryCategoryCategoryName']."',
+	    ReturnPolicyDescription='".$_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyDescription']."',ReturnPolicyRefundOption='".$_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyRefundOption']."',
+	    ReturnPolicyReturnsAcceptedOption='".$_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyReturnsAcceptedOption']."',ReturnPolicyReturnsWithinOption='".$_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyReturnsWithinOption']."',
+	    ReturnPolicyShippingCostPaidByOption='".$_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyShippingCostPaidByOption']."',
+	    Quantity='".@$_POST['Quantity']."',ReservePrice='".@$_POST['ReservePrice']."',
+	    Site='".$_POST['Site']."',SKU='".$_POST['SKU']."',StartPrice='".$_POST['StartPrice']."',StoreCategory2ID='".$_POST['StoreCategory2ID']."',StoreCategory2Name='".$_POST['StoreCategory2Name']."',
+	    StoreCategoryID='".$_POST['StoreCategoryID']."',StoreCategoryName='".$_POST['StoreCategoryName']."',SubTitle='".$_POST['SubTitle']."',
+	    Title='".mysql_real_escape_string($_POST['Title'])."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
+	    Border='".(empty($_POST['Border'])?0:1)."',Featured='".(empty($_POST['Featured'])?0:1)."',Highlight='".(empty($_POST['Highlight'])?0:1)."',
+	    HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',
+	    InsuranceOption='".$_POST['InsuranceOption']."',InsuranceFee='".$_POST['InsuranceFee']."',
+	    InternationalInsurance='".$_POST['InternationalInsurance']."',InternationalInsuranceFee='".$_POST['InternationalInsuranceFee']."',
+	    accountId='".$this->account_id."' where Id = '".$id."'";
+	    $result = mysql_query($sql, eBayListing::$database_connect);
+	}else{
+	    $sql = "update items set 
+	    BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
+	    Description='".htmlentities($_POST['Description'])."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
+	    ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
+	    PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
+	    PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
+	    SecondaryCategoryCategoryID='".$_POST['SecondaryCategoryCategoryID']."',SecondaryCategoryCategoryName='".$_POST['SecondaryCategoryCategoryName']."',
+	    Quantity='".@$_POST['Quantity']."',ReservePrice='".@$_POST['ReservePrice']."',
+	    Site='".$_POST['Site']."',SKU='".$_POST['SKU']."',StartPrice='".$_POST['StartPrice']."',StoreCategory2ID='".$_POST['StoreCategory2ID']."',StoreCategory2Name='".$_POST['StoreCategory2Name']."',
+	    StoreCategoryID='".$_POST['StoreCategoryID']."',StoreCategoryName='".$_POST['StoreCategoryName']."',SubTitle='".$_POST['SubTitle']."',
+	    Title='".mysql_real_escape_string($_POST['Title'])."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
+	    Border='".(empty($_POST['Border'])?0:1)."',Featured='".(empty($_POST['Featured'])?0:1)."',Highlight='".(empty($_POST['Highlight'])?0:1)."',
+	    HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',
+	    InsuranceOption='".$_POST['InsuranceOption']."',InsuranceFee='".$_POST['InsuranceFee']."',
+	    InternationalInsurance='".$_POST['InternationalInsurance']."',InternationalInsuranceFee='".$_POST['InternationalInsuranceFee']."',
+	    accountId='".$this->account_id."' where Id = '".$id."'";
+	    $result = mysql_query($sql, eBayListing::$database_connect);
+	}
 	//echo $sql;
 	//exit;
 	
@@ -3833,7 +3960,7 @@ class eBayListing{
 	    $i++;
 	}
 	
-	session_start();
+	
 	$temp_array = array();
 	if(!empty($_SESSION['AttributeSet'][$id])){
 	    //print_r($_SESSION['AttributeSet']);
@@ -5460,12 +5587,23 @@ class eBayListing{
 	    }
 	    $itemArray['PrimaryCategory']['CategoryID'] = $item['PrimaryCategoryCategoryID'];
 	    $itemArray['Quantity'] = $item['Quantity'];
-	    if(!empty($item['ReturnPolicyDescription'])){
-		$itemArray['ReturnPolicy']['Description'] = $item['ReturnPolicyDescription'];
-	    }
+	    
 	    if(!empty($item['ReturnPolicyReturnsAcceptedOption'])){
 		$itemArray['ReturnPolicy']['ReturnsAcceptedOption'] = $item['ReturnPolicyReturnsAcceptedOption'];
+		if(!empty($item['ReturnPolicyDescription'])){
+		    $itemArray['ReturnPolicy']['Description'] = $item['ReturnPolicyDescription'];
+		}
+		if(!empty($item['ReturnPolicyRefundOption'])){
+		    $itemArray['ReturnPolicy']['RefundOption'] = $item['ReturnPolicyRefundOption'];
+		}
+		if(!empty($item['ReturnPolicyReturnsWithinOption'])){
+		    $itemArray['ReturnPolicy']['ReturnsWithinOption'] = $item['ReturnPolicyReturnsWithinOption'];
+		}
+		if(!empty($item['ReturnPolicyShippingCostPaidByOption'])){
+		    $itemArray['ReturnPolicy']['ShippingCostPaidByOption'] = $item['ReturnPolicyShippingCostPaidByOption'];
+		}
 	    }
+	    
 	    if(!empty($item['SecondaryCategoryCategoryID']) && $item['SecondaryCategoryCategoryID'] != 0){
 		$itemArray['SecondaryCategory']['CategoryID'] = $item['SecondaryCategoryCategoryID'];
 	    }
@@ -5758,12 +5896,24 @@ class eBayListing{
 	    }
 	    $itemArray['PrimaryCategory']['CategoryID'] = $item['PrimaryCategoryCategoryID'];
 	    $itemArray['Quantity'] = $item['Quantity'];
-	    if(!empty($item['ReturnPolicyDescription'])){
-		$itemArray['ReturnPolicy']['Description'] = $item['ReturnPolicyDescription'];
-	    }
+	    
+	    
 	    if(!empty($item['ReturnPolicyReturnsAcceptedOption'])){
 		$itemArray['ReturnPolicy']['ReturnsAcceptedOption'] = $item['ReturnPolicyReturnsAcceptedOption'];
+		if(!empty($item['ReturnPolicyDescription'])){
+		    $itemArray['ReturnPolicy']['Description'] = $item['ReturnPolicyDescription'];
+		}
+		if(!empty($item['ReturnPolicyRefundOption'])){
+		    $itemArray['ReturnPolicy']['RefundOption'] = $item['ReturnPolicyRefundOption'];
+		}
+		if(!empty($item['ReturnPolicyReturnsWithinOption'])){
+		    $itemArray['ReturnPolicy']['ReturnsWithinOption'] = $item['ReturnPolicyReturnsWithinOption'];
+		}
+		if(!empty($item['ReturnPolicyShippingCostPaidByOption'])){
+		    $itemArray['ReturnPolicy']['ShippingCostPaidByOption'] = $item['ReturnPolicyShippingCostPaidByOption'];
+		}
 	    }
+	    
 	    if(!empty($item['SecondaryCategoryCategoryID'])){
 		$itemArray['SecondaryCategory']['CategoryID'] = $item['SecondaryCategoryCategoryID'];
 	    }
@@ -6032,12 +6182,23 @@ class eBayListing{
 	    }
 	    $itemArray['PrimaryCategory']['CategoryID'] = $item['PrimaryCategoryCategoryID'];
 	    $itemArray['Quantity'] = $item['Quantity'];
-	    if(!empty($item['ReturnPolicyDescription'])){
-		$itemArray['ReturnPolicy']['Description'] = $item['ReturnPolicyDescription'];
-	    }
+	
 	    if(!empty($item['ReturnPolicyReturnsAcceptedOption'])){
 		$itemArray['ReturnPolicy']['ReturnsAcceptedOption'] = $item['ReturnPolicyReturnsAcceptedOption'];
+		if(!empty($item['ReturnPolicyDescription'])){
+		    $itemArray['ReturnPolicy']['Description'] = $item['ReturnPolicyDescription'];
+		}
+		if(!empty($item['ReturnPolicyRefundOption'])){
+		    $itemArray['ReturnPolicy']['RefundOption'] = $item['ReturnPolicyRefundOption'];
+		}
+		if(!empty($item['ReturnPolicyReturnsWithinOption'])){
+		    $itemArray['ReturnPolicy']['ReturnsWithinOption'] = $item['ReturnPolicyReturnsWithinOption'];
+		}
+		if(!empty($item['ReturnPolicyShippingCostPaidByOption'])){
+		    $itemArray['ReturnPolicy']['ShippingCostPaidByOption'] = $item['ReturnPolicyShippingCostPaidByOption'];
+		}
 	    }
+	    
 	    if(!empty($item['SecondaryCategoryCategoryID'])){
 		$itemArray['SecondaryCategory']['CategoryID'] = $item['SecondaryCategoryCategoryID'];
 	    }

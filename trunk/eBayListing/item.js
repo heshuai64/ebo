@@ -1711,6 +1711,7 @@ Ext.onReady(function(){
                         text:"Return Policy",
                         iconCls:"return-policy",
                         handler:function(){
+                            
                             var window = new Ext.Window({
                                 title:"Please specify a return policy",
                                 closeAction:"hide",
@@ -1723,14 +1724,21 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     fieldLabel:"",
                                     boxLabel:"Returns accepted",
-                                    name:"ReturnPolicyReturnsAcceptedOption",
-                                    inputValue:"ReturnsAccepted"
+                                    id:"ReturnPolicyReturnsAcceptedOption1",
+                                    name:"ReturnPolicyReturnsAcceptedOption"
+                                    //value:"ReturnsAccepted"
                                 },{
                                     xtype:"form",
+                                    id:"ReturnPolicyReturns",
                                     style:"padding-left:10px;",
                                     labelAlign:"top",
+                                    reader:new Ext.data.JsonReader({
+                                        }, ['ReturnPolicyReturnsAcceptedOption','ReturnPolicyReturnsWithinOption',
+                                            'ReturnPolicyRefundOption','ReturnPolicyShippingCostPaidByOption',
+                                            'ReturnPolicyDescription'
+                                    ]),
                                     items:[{
-                                            id:"ReturnPolicyReturnsWithinOption",
+                                            //id:"ReturnPolicyReturnsWithinOption",
                                             xtype:"combo",
                                             fieldLabel:"Item must be returned within",
                                             store: new Ext.data.SimpleStore({
@@ -1743,12 +1751,16 @@ Ext.onReady(function(){
                                             triggerAction: 'all',
                                             editable: false,
                                             name: 'ReturnPolicyReturnsWithinOption',
-                                            hiddenName:'ReturnPolicyReturnsWithinOption'
+                                            hiddenName:'ReturnPolicyReturnsWithinOption',
+                                            listeners:{select : function(c, r, i){
+                                                    Ext.getCmp("ReturnPolicyReturnsAcceptedOption1").setValue(1);
+                                                }
+                                            }
                                         },/*{
                                             xtype:"label",
                                             text:"After the buyer receives the item, it can be returned within the time frame selected."
                                         },*/{
-                                            id:"ReturnPolicyRefundOption",
+                                            //id:"ReturnPolicyRefundOption",
                                             xtype:"combo",
                                             fieldLabel:"Refund will be given as",
                                             store: new Ext.data.SimpleStore({
@@ -1791,21 +1803,14 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     fieldLabel:"",
                                     boxLabel:"Returns not accepted",
+                                    id:"ReturnPolicyReturnsAcceptedOption2",
                                     name:"ReturnPolicyReturnsAcceptedOption",
-                                    inputValue:"ReturnsNotAccepted",
+                                    //value:"ReturnsNotAccepted",
                                     listeners:{"check":function(t, c){
                                             if(c){
-                                                Ext.getCmp("ReturnPolicyReturnsWithinOption").setDisabled(1);
-                                                Ext.getCmp("ReturnPolicyRefundOption").setDisabled(1);
-                                                Ext.getCmp("ReturnPolicyShippingCostPaidByOption1").setDisabled(1);
-                                                Ext.getCmp("ReturnPolicyShippingCostPaidByOption2").setDisabled(1);
-                                                Ext.getCmp("ReturnPolicyDescription").setDisabled(1);
+                                                Ext.getCmp("ReturnPolicyReturns").setDisabled(1);
                                             }else{
-                                                Ext.getCmp("ReturnPolicyReturnsWithinOption").setDisabled(0);
-                                                Ext.getCmp("ReturnPolicyRefundOption").setDisabled(0);
-                                                Ext.getCmp("ReturnPolicyShippingCostPaidByOption2").setDisabled(0);
-                                                Ext.getCmp("ReturnPolicyShippingCostPaidByOption2").setDisabled(0);
-                                                Ext.getCmp("ReturnPolicyDescription").setDisabled(0);
+                                                Ext.getCmp("ReturnPolicyReturns").setDisabled(0);
                                             }
                                         }
                                     }
@@ -1816,8 +1821,26 @@ Ext.onReady(function(){
                                 buttons:[{
                                     text:"OK",
                                     handler:function(){
-                                        
-                                        window.close();
+                                        Ext.getCmp('ReturnPolicyReturns').getForm().submit({
+                                            params: {
+                                                ReturnPolicyReturnsAcceptedOption1: Ext.getCmp("ReturnPolicyReturnsAcceptedOption1").getValue(),
+                                                ReturnPolicyReturnsAcceptedOption2: Ext.getCmp("ReturnPolicyReturnsAcceptedOption2").getValue()
+                                            },
+                                            url: 'service.php?action=saveReturnPolicyReturns&item_id='+item_id,
+                                            success: function(form, action) {
+                                                //Ext.Msg.alert("Success", action.result.msg);
+                                                window.close();
+                                            },
+                                            failure: function(form, action) {
+                                                switch (action.failureType) {
+                                                    case Ext.form.Action.CONNECT_FAILURE:
+                                                        Ext.Msg.alert("Failure", "Ajax communication failed");
+                                                        break;
+                                                    case Ext.form.Action.SERVER_INVALID:
+                                                        Ext.Msg.alert("Failure", action.result.msg);
+                                                }
+                                            }
+                                        })
                                     }
                                 },{
                                     text:"Cancel",
@@ -1827,6 +1850,19 @@ Ext.onReady(function(){
                                 }]
                             })
                             
+                            Ext.getCmp('ReturnPolicyReturns').getForm().load({
+                                url:'service.php?action=loadReturnPolicyReturns', 
+                                method:'GET', 
+                                params: {item_id: item_id}, 
+                                waitMsg:'Please wait...',
+                                success: function(f, a){
+                                    if(a.result.data.ReturnPolicyReturnsAcceptedOption == "ReturnsAccepted"){
+                                        Ext.getCmp("ReturnPolicyReturnsAcceptedOption1").setValue(true);
+                                    }else if(a.result.data.ReturnPolicyReturnsAcceptedOption == "ReturnsNotAccepted"){
+                                        Ext.getCmp("ReturnPolicyReturnsAcceptedOption2").setValue(true);
+                                    }
+                                }
+                            })
                             window.show();
                         }
                     }],

@@ -84,7 +84,7 @@ Ext.onReady(function(){
             
 	    var locatedCombo = new Ext.form.ComboBox({
                 mode: 'local',
-                store: ['US','GB','AU','FR'],
+                store: ['US','GB','AU','FR','HK'],
                 triggerAction: 'all',
                 editable: false,
                 selectOnFocus:true,
@@ -311,13 +311,40 @@ Ext.onReady(function(){
                 shopping.findItemsAdvanced(request, callback);
             }
             
+	    var refresh = function(){
+		switch(countryCombo.getValue()){
+                    case "US":
+                        var currency = "USD";
+                    break;
+                
+                    case "GB":
+                        var currency = "GBP";
+                    break;
+                
+                    case "AU":
+                        var currency = "AUD";
+                    break;
+                
+                    case "FR":
+                        var currency = "EUR";
+                    break;
+                }
+                
+                //console.log({QueryKeywords: Ext.getCmp('keyword').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 10, EndTimeFrom: Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.getCmp('to').getValue().format('Y-m-d')});
+                var config = new com.ebay.shoppingservice.ShoppingConfig({appId: 'eBayAPID-73f4-45f2-b9a3-c8f6388b38d8'});
+                var shopping = new com.ebay.shoppingservice.Shopping(config);
+                var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType({PageNumber: currentlyPage, Currency: currency, ItemsAvailableTo: countryCombo.getValue(), ItemsLocatedIn: locatedCombo.getValue(), QueryKeywords: Ext.getCmp('keyword').getValue(), StoreName: Ext.getCmp('storeName').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 50, EndTimeFrom: Ext.isEmpty(Ext.getCmp('from').getValue())?null:Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.isEmpty(Ext.getCmp('to').getValue())?null:Ext.getCmp('to').getValue().format('Y-m-d')});
+                var callback = new com.ebay.shoppingservice.ShoppingCallback({success: findItemsAdvancedSuccess, failure: findItemsAdvancedFailure});
+                shopping.findItemsAdvanced(request, callback);
+	    }
+	    
             var grid = new Ext.grid.GridPanel({
                 title: 'eBay Item Analyze (<font color="red">you want to specify multiple Seller, use a comma.</font>)',
                 autoHeight: true,
                 store: store,
                 autoScroll: true,
-                //width: 1400,
-		//height: 768,
+                width: 1400,
+		height: 768,
                 selModel: new Ext.grid.RowSelectionModel({}),
                 columns:[
                     {header: "Image", width: 100, align: 'center', sortable: true, dataIndex: 'galleryURL', renderer: renderImage},
@@ -359,7 +386,12 @@ Ext.onReady(function(){
                         overflowText: 'Last Page',
                         iconCls: 'x-tbar-page-last',
                         handler: moveLast
-                    })],
+                    }), '-', new Ext.Toolbar.Button({
+			tooltip: 'Refresh',
+			overflowText: 'Refresh',
+			iconCls: 'x-tbar-loading',
+			handler: refresh
+		})],
                 tbar:[{
                         xtype: 'tbtext',
                         text: 'Country:'
