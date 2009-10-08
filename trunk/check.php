@@ -36,7 +36,7 @@ class Check{
         $curl_info = curl_getinfo($ch);
         curl_close($ch);
         echo date("Y-m-d H:i:s")." ".$seller.":";
-        echo ($curl_info['http_code'] != 200)?'<font color="red">Error/<font>'.$curl_info['http_code']:$curl_info['http_code']."<br>";
+        echo ($curl_info['http_code'] != 200)?'<font color="red">Error</font>'.$curl_info['http_code']."<br>":$curl_info['http_code']."<br>";
     }
     
     public function checkAllProxy(){
