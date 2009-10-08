@@ -466,6 +466,13 @@ class eBayListing{
 	echo $result;
     }
     
+    public function modifyTemplateCateogry(){
+	$sql = "update template_category set name = '".$_POST['templateCategoryName']."' where id = '".$_POST['templateCateogryId']."' and account_id = '".$this->account_id."'";
+	//echo $sql;
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	echo $result;
+    }
+    
     public function deleteTemplateCateogry(){
 	$sql = "delete from template_category where id = '".$_POST['templateCateogryId']."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
@@ -4354,6 +4361,12 @@ class eBayListing{
 			}
 		    break;
 		}
+	    break;
+	
+	    case "template":
+		$sql = "update template set ".$_POST['field']." = '".$_POST['value']."' where Id = '".$_POST['id']."'";
+		$result = mysql_query($sql, eBayListing::$database_connect);
+		echo "[{success: true, msg: 'update success.'}]";
 	    break;
 	}
 	return 1;

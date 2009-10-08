@@ -434,7 +434,7 @@ Ext.onReady(function(){
                                 Ext.getCmp("Currency").setValue("EUR");
                             break;
                         }
-                        Ext.getCmp("SiteID").setValue(r.data.id);
+                        Ext.getCmp("SiteID").setValue(r.data.name);
                     }
                 }
             },{

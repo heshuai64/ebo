@@ -459,7 +459,7 @@ Ext.onReady(function(){
                                         currencyCombo.setValue("EUR");
                                     break;
                                 }
-                                Ext.getCmp("SiteID").setValue(r.data.id);
+                                Ext.getCmp("SiteID").setValue(r.data.name);
                             }
                         }
                     }]

@@ -176,6 +176,7 @@ Ext.onReady(function(){
      })
      
      var template_search_form = new Ext.FormPanel({
+          width: 980,
           title: 'Search',
           items:[{
                layout:"column",
@@ -226,16 +227,50 @@ Ext.onReady(function(){
           }
      })
      
-     var template_grid = new Ext.grid.GridPanel({
+     var template_grid = new Ext.grid.EditorGridPanel({
           title: 'Template List',
           store: template_store,
           autoHeight: true,
+          width: 980,
           selModel: new Ext.grid.RowSelectionModel({}),
           columns:[
                {header: "Id", width: 50, align: 'center', sortable: true, dataIndex: 'Id'},
                {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
-               {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title'},
+               {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title', editor: new Ext.form.TextField({
+                    allowBlank: false,
+                    listeners: {
+                         change: function(t, n, o){
+                              var selections = template_grid.selModel.getSelections();
+                              //console.log(selections[0].data.Id);
+                              Ext.Ajax.request({  
+                                   waitMsg: 'Please Wait',
+                                   url: 'service.php?action=updateField', 
+                                   params: { 
+                                        id: selections[0].data.Id,
+                                        table: 'template',
+                                        field: 'Title',
+                                        value: n
+                                   }, 
+                                   success: function(response){
+                                       var result = eval(response.responseText);
+                                       if(result[0].success){
+                                             Ext.MessageBox.alert('Success', result[0].msg);
+                                             template_store.reload();
+                                        }else{
+                                             Ext.MessageBox.alert('Failure', result[0].msg);
+                                             template_store.reload();
+                                        }
+                                   },
+                                   failure: function(response){
+                                       var result=response.responseText;
+                                       Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                   }
+                              });
+                         }
+                    }
+                    })
+               },
                {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
                {header: "Shipping Fee", width: 80, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
@@ -319,27 +354,30 @@ Ext.onReady(function(){
                     }
                     ids = ids.slice(0,-1);
                     //console.log(ids);
-                    
-                    Ext.Ajax.request({  
-                         waitMsg: 'Please Wait',
-                         url: 'service.php?action=templateDelete', 
-                         params: { 
-                                ids: ids
-                         }, 
-                         success: function(response){
-                             var result=eval(response.responseText);
-                             switch(result){
-                                case 1:  // Success : simply reload
-                                  template_store.reload();
-                                  break;
-                                default:
-                                  Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
-                                  break;
-                             }
-                         },
-                         failure: function(response){
-                             var result=response.responseText;
-                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                    Ext.Msg.confirm('Confirm', 'Delete template ' + ids, function(a, b, c){
+                         if (a == 'yes'){
+                              Ext.Ajax.request({  
+                                   waitMsg: 'Please Wait',
+                                   url: 'service.php?action=templateDelete', 
+                                   params: { 
+                                          ids: ids
+                                   }, 
+                                   success: function(response){
+                                       var result=eval(response.responseText);
+                                       switch(result){
+                                          case 1:  // Success : simply reload
+                                            template_store.reload();
+                                            break;
+                                          default:
+                                            Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
+                                            break;
+                                       }
+                                   },
+                                   failure: function(response){
+                                       var result=response.responseText;
+                                       Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                   }
+                              });
                          }
                     });
                     return 1;
@@ -880,13 +918,13 @@ Ext.onReady(function(){
               displayInfo: true
           })
      })
-     
+     /*
      template_grid.on("rowdblclick", function(oGrid){
           var oRecord = oGrid.getSelectionModel().getSelected();
           //console.log(oRecord);
           window.open(path + "template.php?id="+oRecord.data['Id'],"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
      })
-                                   
+     */                             
      var template_category_tree = new Ext.tree.TreePanel({
           useArrows:true,
           autoScroll:true,
@@ -903,6 +941,7 @@ Ext.onReady(function(){
           },
           listeners:{
                click: function(n, e){
+                    Ext.getCmp("template_category_name").setValue(n.text.slice(0, n.text.indexOf('(')));
                     //console.log(n);
                     template_store.baseParams = {
                          parent_id: n.id
@@ -926,6 +965,7 @@ Ext.onReady(function(){
                hideLabel:true
           }],
           buttons: [{
+                    width: 50,
                     text: 'Add',
                     handler: function(){
                          Ext.Ajax.request({  
@@ -953,6 +993,35 @@ Ext.onReady(function(){
                          });
                     }
           },{
+               width: 50,
+               text: 'modify',
+               handler: function(){
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=modifyTemplateCateogry', 
+                         params: { 
+                              templateCateogryId: template_category_tree.getSelectionModel().getSelectedNode().id ,
+                              templateCategoryName: Ext.getCmp("template_category_name").getValue()
+                         }, 
+                         success: function(response){
+                             var result=eval(response.responseText);
+                             switch(result){
+                                case 1:  // Success : simply reload
+                                  template_category_tree.root.reload();
+                                  break;
+                                default:
+                                  Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
+                                  break;
+                             }
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
+               }
+          },{
+               width: 50,
                text: 'Delete',
                handler: function(){
                     Ext.Ajax.request({  
@@ -1020,6 +1089,7 @@ Ext.onReady(function(){
                                    //title: 'Waiting To Upload SKU List',
                                    store: activity_store,
                                    autoHeight: true,
+                                   width: 980,
                                    //autoScroll: true,
                                    //width: 600,
                                    //height: 500,
@@ -1356,7 +1426,7 @@ Ext.onReady(function(){
      
      var viewport = new Ext.Viewport({
           layout:'border',
-          items:[
+          items:[/*
                //new Ext.BoxComponent({ // raw
                {
                    region:'north',
@@ -1377,7 +1447,7 @@ Ext.onReady(function(){
                     }],
                    //el: 'north',
                    height:32
-               },{
+               },*/{
                     region:'south',
                     id:'log-watch',
                     //contentEl: 'south',
@@ -1459,6 +1529,43 @@ Ext.onReady(function(){
                          iconCls:'waiting-to-upload',
                          listeners:{
                          expand: function(p){
+                              var wait_search =new Ext.FormPanel({
+                                   width: 1040,
+                                   title: 'Search',
+                                   items:[{
+                                        layout:"column",
+                                        items:[{
+                                             columnWidth:0.4,
+                                             layout:"form",
+                                             items:[{
+                                                  xtype:"textfield",
+                                                  width: 200,
+                                                  fieldLabel:"Sku",
+                                                  name:"SKU"
+                                             }]
+                                        },{
+                                             columnWidth:0.6,
+                                             layout:"form",
+                                             items:[{
+                                                  xtype:"textfield",
+                                                  width: 400,
+                                                  fieldLabel:"Title",
+                                                  name:"Title"
+                                             }]
+                                        }]
+                                   }],
+                                   buttons: [{
+                                             text: 'Submit',
+                                             handler: function(){
+                                                  wait_store.baseParams = {
+                                                       SKU: wait_search.getForm().findField("SKU").getValue(),
+                                                       Title: wait_search.getForm().findField("Title").getValue()
+                                                  };
+                                                  wait_store.load({params:{start:0, limit:20}});
+                                             }
+                                   }]
+                              })
+                              
                               var wait_store =new Ext.data.JsonStore({
                                    root: 'records',
                                    totalProperty: 'totalCount',
@@ -1477,6 +1584,7 @@ Ext.onReady(function(){
                                    title: 'Waiting To Upload SKU List',
                                    store: wait_store,
                                    autoHeight: true,
+                                   width: 1040,
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
                                         {header: "Id", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
@@ -1601,28 +1709,33 @@ Ext.onReady(function(){
                                                   }
                                                   ids = ids.slice(0,-1);
                                                   
-                                                  Ext.Ajax.request({  
-                                                       waitMsg: 'Please Wait',
-                                                       url: 'service.php?action=waitUploadItemDelete', 
-                                                       params: { 
-                                                              ids: ids
-                                                       }, 
-                                                       success: function(response){
-                                                           var result=eval(response.responseText);
-                                                           switch(result){
-                                                              case 1:  // Success : simply reload
-                                                                wait_store.reload();
-                                                                break;
-                                                              default:
-                                                                Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
-                                                                break;
-                                                           }
-                                                       },
-                                                       failure: function(response){
-                                                           var result=response.responseText;
-                                                           Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                  Ext.Msg.confirm('Confirm', 'Delete waiting to upload item ' + ids, function(a, b, c){
+                                                       if (a == 'yes'){
+                              
+                                                            Ext.Ajax.request({  
+                                                                 waitMsg: 'Please Wait',
+                                                                 url: 'service.php?action=waitUploadItemDelete', 
+                                                                 params: { 
+                                                                        ids: ids
+                                                                 }, 
+                                                                 success: function(response){
+                                                                     var result=eval(response.responseText);
+                                                                     switch(result){
+                                                                        case 1:  // Success : simply reload
+                                                                          wait_store.reload();
+                                                                          break;
+                                                                        default:
+                                                                          Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
+                                                                          break;
+                                                                     }
+                                                                 },
+                                                                 failure: function(response){
+                                                                     var result=response.responseText;
+                                                                     Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                                 }
+                                                            });
                                                        }
-                                                  });
+                                                  })
                                                   return 1;
                                              }
                                         },'-',{
@@ -1735,7 +1848,7 @@ Ext.onReady(function(){
                                         id:'waiting-to-upload-tab',
                                         iconCls: 'waiting-to-upload',
                                         title: "Waiting To Upload",
-                                        items: wait_grid,
+                                        items: [wait_search, wait_grid],
                                         closable: true,
                                         autoScroll:true
                                    })
