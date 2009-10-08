@@ -318,7 +318,7 @@ Ext.onReady(function(){
                                         //Ext.getCmp("currency-icon").setIconClass("currency-euro");
                                     break;
                                 }
-                                Ext.getCmp("SiteID").setValue(r.data.id);
+                                Ext.getCmp("SiteID").setValue(r.data.name);
                             }
                         }
                     }]
