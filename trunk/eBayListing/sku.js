@@ -3,7 +3,7 @@ Ext.onReady(function(){
     //var categoryPath = "";
     var today = new Date();
     //var path = "/eBayBO/eBayListing/";
-    var path = "/eBayListing/";
+    //var path = "/eBayListing/";
     
     var pictureForm = new Ext.form.FormPanel({
             labelAlign:"top",
@@ -1208,19 +1208,24 @@ Ext.onReady(function(){
                         layout:"column",
                         border:false,
                         items:[{
-                            width: 150,
+                            width: 180,
                             border:false,
                             items:[{
                                 xtype:"button",
-                                text:"Preview Description",
+                                text:"Copy Description From Inventory",
                                 handler: function(){
-                                    Ext.Ajax.request({
-                                        url: 'service.php?action=saveTempDescription&type=sku&id='+sku,
-                                        params: { description: tinyMCE.get("Description").getContent()},
-                                        success: function(a, b){
-                                            window.open(path + "preview.php?type=sku&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+sku,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
-                                        }
-                                    })
+                                    if(Ext.isEmpty(Ext.getCmp("SiteID").getValue())){
+                                        Ext.Msg.alert('Warn', 'Please choice Site.');
+                                    }else{
+                                        Ext.Ajax.request({
+                                            url: inventory_service + '?action=getSkuDescription&site=' + Ext.getCmp("SiteID").getValue() + '&sku=' + sku,
+                                            success: function(a, b){
+                                                //console.log(a);
+                                                //document.getElementById("Description").value = a.responseText;
+                                                tinyMCE.get("Description").setContent(a.responseText);
+                                            }
+                                        })
+                                    }
                                 }
                             }]
                         },{
@@ -1228,9 +1233,9 @@ Ext.onReady(function(){
                             border:false,
                             items:[{
                                 xtype:"button",
-                                text:"Edit Standard Footer",
+                                text:"Edit Standard Style",
                                 handler: function(){
-                                    window.open(path + "footer.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                    window.open(path + "style.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                 }
                             }]
                         },{
@@ -1246,9 +1251,25 @@ Ext.onReady(function(){
                                 fieldLabel:"",
                                 labelStyle: 'height:0px;padding:0px;',
                                 style:"padding:0px;",
-                                boxLabel:"Use Standard Footer",
+                                boxLabel:"Use Standard Style",
                                 name:"UseStandardFooter",
                                 inputValue:1
+                            }]
+                        },{
+                            width: 150,
+                            border:false,
+                            items:[{
+                                xtype:"button",
+                                text:"Preview Description",
+                                handler: function(){
+                                    Ext.Ajax.request({
+                                        url: 'service.php?action=saveTempDescription&type=sku&id='+sku,
+                                        params: { description: tinyMCE.get("Description").getContent()},
+                                        success: function(a, b){
+                                            window.open(path + "preview.php?type=sku&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+sku,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                        }
+                                    })
+                                }
                             }]
                         }]
                     }]

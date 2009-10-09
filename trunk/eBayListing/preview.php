@@ -34,7 +34,7 @@ switch($_GET['t']){
 }
 */
 session_start();
-echo str_replace("\\", "", $_SESSION[$_GET['type']][$_GET['id']]['description']);
+//echo str_replace("\\", "", $_SESSION[$_GET['type']][$_GET['id']]['description']);
 
 /*
 if(!empty($_SESSION[$_GET['type']][$_GET['id']]['description']) || $_GET['type'] == "sku"){
@@ -51,7 +51,10 @@ if($_GET['u'] == "true"){
     $sql = "select footer from account_footer where accountId = '".$_COOKIE['account_id']."'";
     $result = mysql_query($sql, $link);
     $row = mysql_fetch_assoc($result);
-    echo $row['footer'];
+    //echo $row['footer'];
+    echo str_replace("%description%", str_replace("\\", "", $_SESSION[$_GET['type']][$_GET['id']]['description']), $row['footer']);
     mysql_close($link);
+}else{
+    echo str_replace("\\", "", $_SESSION[$_GET['type']][$_GET['id']]['description']);
 }
 ?>
