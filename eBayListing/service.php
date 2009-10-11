@@ -407,10 +407,63 @@ class eBayListing{
     CHANGE `ReturnPolicyRefundOption` `ReturnPolicyRefundOption` ENUM( '', 'Exchange', 'MerchandiseCredit', 'MoneyBack' ) NOT NULL ,
     CHANGE `ReturnPolicyReturnsWithinOption` `ReturnPolicyReturnsWithinOption` ENUM( '', 'Days_3', 'Days_7', 'Days_10', 'Days_14', 'Days_30', 'Days_60' )  NOT NULL ,
     CHANGE `ReturnPolicyShippingCostPaidByOption` `ReturnPolicyShippingCostPaidByOption` ENUM( '', 'Buyer', 'Seller' ) NOT NULL;
+    
+    CREATE TABLE `ebaylisting`.`account_sku_picture` (
+	`account_id` INT NOT NULL ,
+	`sku` VARCHAR( 20 ) NOT NULL ,
+	`picture_1` VARCHAR( 200 ) NOT NULL ,
+	`picture_2` VARCHAR( 200 ) NOT NULL ,
+	`picture_3` VARCHAR( 200 ) NOT NULL ,
+	`picture_4` VARCHAR( 200 ) NOT NULL ,
+	`picture_5` VARCHAR( 200 ) NOT NULL ,
+	INDEX ( `account_id` , `sku` )
+    )
     */
+    
+    public function saveSkuPicture(){
+	$sql_1 = "select count(*) as num from account_sku_picture where account_id = '".$this->account_id."' and sku = '".$_POST['sku']."'";
+	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	$row_1 = mysql_fetch_assoc($result_1);
+	if($row_1['num'] == 0){
+	    $sql_2 = "insert into account_sku_picture (account_id,sku,picture_1,picture_2,picture_3,picture_4,picture_5) values 
+	    ('".$this->account_id."','".$_POST['sku']."','".$_POST['picture_1']."','".$_POST['picture_2']."','".$_POST['picture_3']."','".$_POST['picture_4']."','".$_POST['picture_5']."')";
+	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
+	    $row_2 = mysql_fetch_assoc($result_2);
+	}else{
+	    $sql_2 = "update account_sku_picture set picture_1='".$_POST['picture_1']."',picture_2='".$_POST['picture_2']."',
+	    picture_3='".$_POST['picture_3']."',picture_4='".$_POST['picture_4']."',picture_5='".$_POST['picture_5']."' 
+	    where account_id = '".$this->account_id."' and sku = '".$_POST['sku']."'";
+	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
+	    $row_2 = mysql_fetch_assoc($result_2);
+	}
+    }
+    
+    public function getSkuPicture(){
+	$sql = "select picture_1,picture_2,picture_3,picture_4,picture_5 from account_sku_picture 
+	where account_id = '".$this->account_id."' and sku = '".$_POST['sku']."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_array($result, MYSQL_NUM);
+	echo json_encode($row);
+    }
+    
     public function saveTempDescription(){
 	session_start();
-	$_SESSION[$_GET['type']][$_GET['id']]['description'] = $_POST['description'];
+	$_SESSION[$_GET['type']][$_GET['id']]['title'] = $_POST['title'];
+	$_SESSION[$_GET['type']][$_GET['id']]['description'] = htmlentities($_POST['description']);
+    }
+    
+    public function getDescriptionById(){
+	$sql = "select Title,Description,UseStandardFooter from template where Id = '".$_POST['id']."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	if($row['UseStandardFooter']){
+	    $sql_1 = "select footer from account_footer where accountId = '".$this->account_id."'";
+            $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+            $row_1 = mysql_fetch_assoc($result_1);
+	    echo str_replace(array("%title%", "%description%"), array($row['Title'], html_entity_decode($row['Description'])), $row_1['footer']);	
+	}else{
+	    echo html_entity_decode($row['Description']);
+	}
     }
     
     public function saveFooter(){
@@ -493,7 +546,7 @@ class eBayListing{
                 $_POST['limit'] = 20;
             }
 	    
-	    $sql = "select Id,Site,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ListingDuration from template where accountId = '".$this->account_id."' order by Id limit ".$_POST['start'].",".$_POST['limit'];
+	    $sql = "select Id,Site,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ListingDuration from template where accountId = '".$this->account_id."' order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
             $result = mysql_query($sql, eBayListing::$database_connect);
             
 	}else{
@@ -523,7 +576,7 @@ class eBayListing{
             $row = mysql_fetch_assoc($result);
             $totalCount = $row['count'];
             
-            $sql = "select Id,Site,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ListingDuration from template as t left join template_to_template_cateogry as tttc on t.Id = tttc.template_id ".$where." order by t.Id limit ".$_POST['start'].",".$_POST['limit'];
+            $sql = "select Id,Site,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ListingDuration from template as t left join template_to_template_cateogry as tttc on t.Id = tttc.template_id ".$where." order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
             //echo $sql;
             $result = mysql_query($sql, eBayListing::$database_connect);
 	}
@@ -540,6 +593,12 @@ class eBayListing{
 	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	    $row_1 = mysql_fetch_assoc($result_1);
 	    $row['ShippingFee'] = $row_1['ShippingServiceCost'];
+	    
+	    $sql_2 = "select tc.name from template_to_template_cateogry as tttc left join template_category as tc on tttc.template_category_id = tc.id where tttc.template_id = '".$row['Id']."' and account_id = '".$this->account_id."'";
+	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
+	    $row_2 = mysql_fetch_assoc($result_2);
+	    $row['Category'] = $row_2['name'];
+	    
 	    $array[] = $row;
 	}
 	
@@ -2129,7 +2188,7 @@ class eBayListing{
 	    $data['accountId'] = $this->account_id;
 	    $data['PaymentMethods'] = 'PayPal';
 	    while (!feof($handle)) {
-		$buffer = trim(fgets($handle, 4096));
+		$buffer = trim(fgets($handle/*, 4096*/));
 		//echo $buffer;
 		if(!empty($buffer) && $buffer[0] == "[" && $buffer[strlen($buffer)-1] == "]"){
 		    $var_name = substr($buffer, 1, -1);
@@ -2271,6 +2330,59 @@ class eBayListing{
 			case "GALLERY URL":
 			    $data['GalleryURL'] = $buffer;
 			break;
+		    
+			case "PICTURE URL":
+			    $picture = $buffer;
+			break;
+		    
+			case "INSURANCE OPTION":
+			    switch($buffer){
+				case "0":
+				    $data['InsuranceOption'] = "NotOffered";
+				break;
+			    
+				case "1":
+				    $data['InsuranceOption'] = "Optional";
+				break;
+			    
+				case "2":
+				    $data['InsuranceOption'] = "Required";
+				break;
+			    
+				case "3":
+				    $data['InsuranceOption'] = "IncludedInShippingHandling";
+				break;
+			    }
+			break;
+		    
+			case "INSURANCE":
+			    $data['InsuranceFee'] = $buffer;
+			break;
+		    
+			case "INTERNATIONAL INSURANCE OPTION":
+			    switch($buffer){
+				case "0":
+				    $data['InternationalInsurance'] = "NotOffered";
+				break;
+			    
+				case "1":
+				    $data['InternationalInsurance'] = "Optional";
+				break;
+			    
+				case "2":
+				    $data['InternationalInsurance'] = "Required";
+				break;
+			    
+				case "3":
+				    $data['InternationalInsurance'] = "IncludedInShippingHandling";
+				break;
+			    }
+			break;
+		    
+			case "INTERNATIONAL INSURANCE":
+			    $data['InternationalInsuranceFee'] = $buffer;
+			break;
+			
 		    //-------------------------- shipping service options  ----------------------------------------   
 			case "FREE SHIPPING":
 			    $data_1['shipping_service_options'][1]['FreeShipping'] = ($buffer=="TRUE")?1:0;
@@ -2278,6 +2390,7 @@ class eBayListing{
 		    
 			case "SHIPPING SERVICE NAME":
 			    $data_1['shipping_service_options'][1]['ShippingService'] = $buffer;
+			    $data_1['shipping_service_options'][1]['ShippingServicePriority'] = 1;
 			break;
 		    
 			case "SHIPPING COST":
@@ -2290,6 +2403,7 @@ class eBayListing{
 		    
 			case "SHIPPING SERVICE NAME2":
 			    $data_1['shipping_service_options'][2]['ShippingService'] = $buffer;
+			    $data_1['shipping_service_options'][2]['ShippingServicePriority'] = 2;
 			break;
 		    
 			case "SHIPPING COST2":
@@ -2302,6 +2416,7 @@ class eBayListing{
 		    
 			case "SHIPPING SERVICE NAME3":
 			    $data_1['shipping_service_options'][3]['ShippingService'] = $buffer;
+			    $data_1['shipping_service_options'][3]['ShippingServicePriority'] = 3;
 			break;
 		    
 			case "SHIPPING COST3":
@@ -2314,6 +2429,7 @@ class eBayListing{
 		    //--------------------------  international shipping service option --------------------------
 			case "INTERNATIONAL SHIPPING SERVICE NAME":
 			    $data_2['international_shipping_service_option'][1]['ShippingService'] = $buffer;
+			    $data_2['international_shipping_service_option'][1]['ShippingServicePriority'] = 1;
 			break;
 		    
 			case "INTERNATIONAL SHIPPING COST":
@@ -2325,11 +2441,15 @@ class eBayListing{
 			break;
 		    
 			case "INTERNATIONAL SHIP TO LOCATIONS":
+			    $buffer = str_replace(array("1","2","3","4","5","6","7","8","9","10","11","12"),
+						  array("None", "Worldwide", "Americas", "Asia", "AU", "CA",
+							"Europe", "DE", "JP", "MX", "GB", "Americas"), $buffer);
 			    $data_2['international_shipping_service_option'][1]['ShipToLocation'] = $buffer;
 			break;
 		    
 			case "INTERNATIONAL SHIPPING SERVICE NAME2":
 			    $data_2['international_shipping_service_option'][2]['ShippingService'] = $buffer;
+			    $data_2['international_shipping_service_option'][2]['ShippingServicePriority'] = 2;
 			break;
 		    
 			case "INTERNATIONAL SHIPPING COST2":
@@ -2341,11 +2461,15 @@ class eBayListing{
 			break;
 		     
 			case "INTERNATIONAL SHIP TO LOCATIONS2":
+			    $buffer = str_replace(array("1","2","3","4","5","6","7","8","9","10","11","12"),
+						  array("None", "Worldwide", "Americas", "Asia", "AU", "CA",
+							"Europe", "DE", "JP", "MX", "GB", "Americas"), $buffer);
 			    $data_2['international_shipping_service_option'][2]['ShipToLocation'] = $buffer;
 			break;
 		    
 			case "INTERNATIONAL SHIPPING SERVICE NAME3":
 			    $data_2['international_shipping_service_option'][3]['ShippingService'] = $buffer;
+			    $data_2['international_shipping_service_option'][3]['ShippingServicePriority'] = 3;
 			break;
 		    
 			case "INTERNATIONAL SHIPPING COST3":
@@ -2357,6 +2481,9 @@ class eBayListing{
 			break;
 		    
 			case "INTERNATIONAL SHIP TO LOCATIONS3":
+			    $buffer = str_replace(array("1","2","3","4","5","6","7","8","9","10","11","12"),
+						  array("None", "Worldwide", "Americas", "Asia", "AU", "CA",
+							"Europe", "DE", "JP", "MX", "GB", "Americas"), $buffer);
 			    $data_2['international_shipping_service_option'][3]['ShipToLocation'] = $buffer;
 			break;
 		    
@@ -2437,8 +2564,8 @@ class eBayListing{
 	    
 	    foreach($data_1['shipping_service_options'] as $t){
 		if(!empty($t['ShippingService'])){
-		    $sql_1 = "insert into template_shipping_service_options (templateId,FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost) 
-		    values ('".$template_id."','".$t['FreeShipping']."','".$t['ShippingService']."','".$t['ShippingServiceCost']."','".$t['ShippingServiceAdditionalCost']."')";
+		    $sql_1 = "insert into template_shipping_service_options (templateId,FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority) 
+		    values ('".$template_id."','".$t['FreeShipping']."','".$t['ShippingService']."','".$t['ShippingServiceCost']."','".$t['ShippingServiceAdditionalCost']."','".$t['ShippingServicePriority']."')";
 		    //echo $sql_1."\n";
 		    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 		}
@@ -2446,8 +2573,8 @@ class eBayListing{
 	    
 	    foreach($data_2['international_shipping_service_option'] as $t){
 		if(!empty($t['ShippingService'])){
-		    $sql_2 = "insert into template_international_shipping_service_option (templateId,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShipToLocation) 
-		    values ('".$template_id."','".$t['ShippingService']."','".$t['ShippingServiceCost']."','".$t['ShippingServiceAdditionalCost']."','".$t['ShipToLocation']."')";
+		    $sql_2 = "insert into template_international_shipping_service_option (templateId,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority,ShipToLocation) 
+		    values ('".$template_id."','".$t['ShippingService']."','".$t['ShippingServiceCost']."','".$t['ShippingServiceAdditionalCost']."','".$t['ShippingServicePriority']."','".$t['ShipToLocation']."')";
 		    //echo $sql_2."\n";
 		    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
 		}
@@ -2472,6 +2599,14 @@ class eBayListing{
 		}
 	    }
 	    
+	    $sql_5 = "insert into template_picture_url (templateId,url) values ('".$template_id."','".$picture."')";
+	    $result_5 = mysql_query($sql_5, eBayListing::$database_connect);
+	    
+	    if(!empty($_POST['template_category_id'])){
+		$sql_6 = "insert into template_to_template_cateogry (template_id,template_category_id) values ('".$template_id."','".$_POST['template_category_id']."')";
+		$result_6 = mysql_query($sql_6, eBayListing::$database_connect);
+	    }
+	    
 	    if($result){
 		echo '{success: true, msg: "Import SpoonFeeder Template Success, template id is '.$template_id.'"}';
 	    }else{
@@ -2484,7 +2619,7 @@ class eBayListing{
 	$handle = fopen($_FILES['turboLister']['tmp_name'], "r");
 	//$handle = fopen('./burbo lister.csv', "r");
 	$i = 0;
-	while (($data = fgetcsv($handle, 4602, ",")) !== FALSE) {
+	while (($data = fgetcsv($handle/*, 4602, ","*/)) !== FALSE) {
 	    if($i == 0){
 		$i++;
 		continue;
@@ -2605,6 +2740,10 @@ class eBayListing{
 		}
 	    }
 	    
+	    if(!empty($_POST['template_category_id'])){
+		$sql_3 = "insert into template_to_template_cateogry (template_id,template_category_id) values ('".$template_id."','".$_POST['template_category_id']."')";
+		$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+	    }
 	    //$array['SKU1'] = $data[194];
 	    
 	    //print_r($array);
@@ -3365,7 +3504,7 @@ class eBayListing{
                 $_POST['limit'] = 20;
             }
 	    
-	    $sql = "select Id,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,ScheduleTime,ScheduleLocalTime,Site from items where accountId = '".$this->account_id."' and Status = '0' order by Id limit ".$_POST['start'].",".$_POST['limit'];
+	    $sql = "select Id,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,ScheduleTime,ScheduleLocalTime,Site from items where accountId = '".$this->account_id."' and Status = '0' order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
             $result = mysql_query($sql, eBayListing::$database_connect);
             
 	}else{
@@ -3389,7 +3528,7 @@ class eBayListing{
             $row = mysql_fetch_assoc($result);
             $totalCount = $row['count'];
             
-            $sql = "select Id,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,ScheduleTime,ScheduleLocalTime,Site from items ".$where." order by Id limit ".$_POST['start'].",".$_POST['limit'];
+            $sql = "select Id,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,ScheduleTime,ScheduleLocalTime,Site from items ".$where." order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
             //echo $sql;
             $result = mysql_query($sql, eBayListing::$database_connect);
 	}
@@ -3504,7 +3643,7 @@ class eBayListing{
 	$row = mysql_fetch_assoc($result);
 	$totalCount = $row['count'];
 	
-	$sql_1 = "select Id,SKU,ItemID,Title,Site,ListingType,Quantity,ListingDuration,EndTime,StartPrice,BuyItNowPrice from items where ListingStatus = 'Active' or Status = 1 or Status = 2 order by Id limit ".$_POST['start'].",".$_POST['limit'];
+	$sql_1 = "select Id,SKU,ItemID,Title,Site,ListingType,Quantity,ListingDuration,EndTime,StartPrice,BuyItNowPrice from items where ListingStatus = 'Active' or Status = 1 or Status = 2 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
 	//echo $sql_1."\n";
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$data = array();
@@ -3534,7 +3673,7 @@ class eBayListing{
 	$row = mysql_fetch_assoc($result);
 	$totalCount = $row['count'];
 	
-	$sql_1 = "select * from items where Status = 5 order by Id limit ".$_POST['start'].",".$_POST['limit'];
+	$sql_1 = "select * from items where Status = 5 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$data = array();
 	while($row_1 = mysql_fetch_assoc($result_1)){
@@ -3563,7 +3702,7 @@ class eBayListing{
 	$row = mysql_fetch_assoc($result);
 	$totalCount = $row['count'];
 	
-	$sql_1 = "select * from items where Status = 4 order by Id limit ".$_POST['start'].",".$_POST['limit'];
+	$sql_1 = "select * from items where Status = 4 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$data = array();
 	while($row_1 = mysql_fetch_assoc($result_1)){
