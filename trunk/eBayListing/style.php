@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <title>Footer</title>
+    <title>Standard Style</title>
     <script type="text/javascript" src="tiny_mce/tiny_mce.js"></script>
     <script type="text/javascript">
 	tinyMCE.init({

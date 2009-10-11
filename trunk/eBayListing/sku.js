@@ -915,6 +915,7 @@ Ext.onReady(function(){
                     layout:"form",
                     tbar:[{
                         text:"Gallery thumbnail",
+                        iconCls :"gallery-url",
                         handler:function(){
                             var window = new Ext.Window({
                                 title:"Add gallery thumbnail picture",
@@ -944,9 +945,8 @@ Ext.onReady(function(){
                             })
                             Ext.getCmp("gallery-url").setValue(Ext.getCmp("GalleryURL").getValue());
                             window.show();
-                        },
-                        iconCls :"gallery-url"
-                    }],
+                        }
+                    },'-',pictureManage],
                     items:[{
                         layout:"column",
                         title:"Picture",
@@ -1264,9 +1264,12 @@ Ext.onReady(function(){
                                 handler: function(){
                                     Ext.Ajax.request({
                                         url: 'service.php?action=saveTempDescription&type=sku&id='+sku,
-                                        params: { description: tinyMCE.get("Description").getContent()},
+                                        params: {
+                                            title: Ext.getCmp("Title").getValue(),
+                                            description: tinyMCE.get("Description").getContent()
+                                        },
                                         success: function(a, b){
-                                            window.open(path + "preview.php?type=sku&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+sku,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                            window.open(path + "preview.php?type=sku&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+sku+"&sku="+Ext.getCmp("SKU").getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                         }
                                     })
                                 }
@@ -1326,6 +1329,7 @@ Ext.onReady(function(){
                   },{
                         xtype:"textfield",
                         fieldLabel:"<font color='red'>SKU</font>",
+                        id:"SKU",
                         name:"SKU",
                         value: sku,
                         readOnly: true

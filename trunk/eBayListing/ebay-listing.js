@@ -217,7 +217,12 @@ Ext.onReady(function(){
           totalProperty: 'totalCount',
           idProperty: 'id',
           //autoLoad:true,
-          fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'ShippingFee', 'Quantity', 'ListingDuration', 'ListingType'],
+          fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'ShippingFee', 'Quantity', 'ListingDuration', 'ListingType', 'Category'],
+          sortInfo: {
+               field: 'Id',
+               direction: 'ASC'
+          },
+          remoteSort: true,
           url: 'service.php?action=getAllTemplate',
           listeners: {
                load: function(t, r){
@@ -275,9 +280,28 @@ Ext.onReady(function(){
                {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
                {header: "Shipping Fee", width: 80, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
                {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
-               {header: "Duration", width: 100, align: 'center', sortable: true, dataIndex: 'ListingDuration'}
+               {header: "Duration", width: 100, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
+               {header: "Category", width: 100, align: 'center', sortable: true, dataIndex: 'Category'}
           ],
           tbar:[{
+                    text: 'Preview',
+                    icon: './images/magnifier.png',
+                    tooltip:'Preview Description',
+                    handler: function(){
+                         var selections = template_grid.selModel.getSelections();
+                         if(template_grid.selModel.getCount() == 0){
+                              Ext.MessageBox.alert('Warning','Please select the template you want to preview.');
+                              return 0;
+                         }
+                         var ids = "";
+                         for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                              ids += selections[i].data.Id + ","
+                         }
+                         ids = ids.slice(0,-1);
+                         window.open(path + "preview.php?h=s&id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                         return 1;
+                    }
+               },'-',{
                     text:'Copy',
                     icon: './images/plugin_link.png',
                     tooltip:'copy template',
@@ -610,7 +634,7 @@ Ext.onReady(function(){
                          title: 'Import SpoonFeeder Template' ,
                          closable:true,
                          width: 320,
-                         height: 150,
+                         height: 180,
                          plain:true,
                          iconCls: 'import-spoonfeeder',
                          layout: 'fit',
@@ -637,6 +661,22 @@ Ext.onReady(function(){
                                    buttonCfg: {
                                        iconCls: 'upload-icon'
                                    }
+                              },{
+                                   xtype: 'combo',
+                                   fieldLabel:"Category",
+                                   mode: 'local',
+                                   store: new Ext.data.JsonStore({
+                                       autoLoad: true,
+                                       fields: ['id', 'name'],
+                                       url: "service.php?action=getTemplateCategory"
+                                   }),
+                                   valueField:'id',
+                                   displayField:'name',
+                                   triggerAction: 'all',
+                                   editable: false,
+                                   selectOnFocus:true,
+                                   name: 'template_category_id',
+                                   hiddenName:'template_category_id'
                               },{
                                    xtype: 'button',
                                    text: 'Upload',
@@ -679,7 +719,7 @@ Ext.onReady(function(){
                          title: 'Import Turbo Lister Template' ,
                          closable:true,
                          width: 320,
-                         height: 150,
+                         height: 180,
                          plain:true,
                          layout: 'fit',
                          iconCls: 'import-turbo-lister',
@@ -706,6 +746,22 @@ Ext.onReady(function(){
                                    buttonCfg: {
                                        iconCls: 'upload-icon'
                                    }
+                              },{
+                                   xtype: 'combo',
+                                   fieldLabel:"Category",
+                                   mode: 'local',
+                                   store: new Ext.data.JsonStore({
+                                       autoLoad: true,
+                                       fields: ['id', 'name'],
+                                       url: "service.php?action=getTemplateCategory"
+                                   }),
+                                   valueField:'id',
+                                   displayField:'name',
+                                   triggerAction: 'all',
+                                   editable: false,
+                                   selectOnFocus:true,
+                                   name: 'template_category_id',
+                                   hiddenName:'template_category_id'
                               },{
                                    xtype: 'button',
                                    text: 'Import',
@@ -1081,6 +1137,11 @@ Ext.onReady(function(){
                                    idProperty: 'id',
                                    //autoLoad:true,
                                    fields: ['Id', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price', 'EndTime'],
+                                   sortInfo: {
+                                        field: 'Id',
+                                        direction: 'ASC'
+                                   },
+                                   remoteSort: true,
                                    //url: 'service.php?action=getWait'
                                    url: 'service.php?action=getActiveItem'
                               })
@@ -1275,6 +1336,11 @@ Ext.onReady(function(){
                                    idProperty: 'id',
                                    //autoLoad:true,
                                    fields: ['Id', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price', 'EndTime'],
+                                   sortInfo: {
+                                        field: 'Id',
+                                        direction: 'ASC'
+                                   },
+                                   remoteSort: true,
                                    url: 'service.php?action=getSoldItem'
                               })
                               
@@ -1355,6 +1421,11 @@ Ext.onReady(function(){
                                    idProperty: 'id',
                                    //autoLoad:true,
                                    fields: ['Id', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price'],
+                                   sortInfo: {
+                                        field: 'Id',
+                                        direction: 'ASC'
+                                   },
+                                   remoteSort: true,
                                    url: 'service.php?action=getUnSoldItem'
                               })
                               
@@ -1572,6 +1643,11 @@ Ext.onReady(function(){
                                    idProperty: 'id',
                                    //autoLoad:true,
                                    fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'ShippingFee', 'Quantity', 'ListingDuration', 'ListingType', 'ScheduleTime', 'ScheduleLocalTime'],
+                                   sortInfo: {
+                                        field: 'Id',
+                                        direction: 'ASC'
+                                   },
+                                   remoteSort: true,
                                    url: 'service.php?action=getWaitingUploadItem',
                                    listeners: {
                                         load: function(t, r){
