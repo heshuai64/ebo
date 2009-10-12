@@ -11,6 +11,7 @@ function ErrorLogFunction($errno, $errstr, $errfile, $errline){
 set_error_handler("ErrorLogFunction");
 
 $categoryPathArray = array();
+$nest = 0;
 
 class eBayListing{
     private static $database_connect;
@@ -2203,8 +2204,27 @@ class eBayListing{
 		    switch($var_name){
 			//EBAY FIXED PRICE UK, EBAY AUCTION UK,
 			case "SELLING SITE":
-			    $pos = strripos($buffer, " ");
-			    $data['Site'] = substr($buffer, $pos+1);
+			    //$pos = strripos($buffer, " ");
+			    //$data['Site'] = substr($buffer, $pos+1);
+			    if(strpos($buffer,"FIXED PRICE")){
+				$data['ListingType'] = "FixedPriceItem";
+			    }elseif(strpos($buffer,"AUCTION")){
+				$data['ListingType'] = "Dutch";
+			    }elseif(strpos($buffer,"SHOPS")){
+				$data['ListingType'] = "StoresFixedPrice";
+			    }
+			    
+			    if(strpos($buffer, "USD")){
+				$data['Site'] = "US";
+			    }elseif(strpos($buffer, "UK")){
+				$data['Site'] = "UK";
+			    }elseif(strpos($buffer, "AU")){
+				$data['Site'] = "Australia";
+			    }elseif(strpos($buffer, "FRANCE")){
+				$data['Site'] = "France";
+			    }elseif(strpos($buffer, "GERMANY")){
+				$data['Site'] = "Germany";
+			    }
 			    //$data['ListingType'] = substr($buffer, $pos+1);
 			break;
 		    
@@ -2225,8 +2245,9 @@ class eBayListing{
 			break;
 		    
 			case "CURRENCY":
-			    $pos = strpos($buffer, " ");
-			    $data['Currency'] = substr($buffer, 0, $pos);
+			    //$pos = strpos($buffer, " ");
+			    //$data['Currency'] = substr($buffer, 0, $pos);
+			    $data['Currency'] = $buffer;
 			break;
 		    
 			case "DESCRIPTION":
@@ -2628,25 +2649,49 @@ class eBayListing{
 	    $array['accountId'] = $this->account_id;
 	    $array['Site'] = $data[1];
 	    $array['ListingType'] = $data[2];
-	    $array['Title'] = $data[3];
+	    $array['Title'] = mysql_real_escape_string($data[3]);
 	    $array['SubTitle'] = $data[4];
 	    $array['SKU'] = $data[5];
+	    
+	    $sql_0 = "select id from site where name = '".$data[1]."'";
+	    $result_0 = mysql_query($sql_0, eBayListing::$database_connect);
+	    $row_0 = mysql_fetch_assoc($result_0);
 	    $array['PrimaryCategoryCategoryID'] = $data[6];
-	    $array['SecondaryCategoryCategoryID'] = $data[7];
-	    $array['StoreCategoryID'] = $data[8];
-	    $array['StoreCategory2ID'] = $data[9];
+	    $array['PrimaryCategoryCategoryName'] = $this->getCategoryPathById($row_0['id'], $data[6]);
+	    if(!empty($data[7])){
+		$array['SecondaryCategoryCategoryID'] = $data[7];
+		$array['SecondaryCategoryCategoryName'] = $this->getCategoryPathById($row_0['id'], $data[7]);
+	    }
+	    
+	    if(!empty($data[8])){
+		$array['StoreCategoryID'] = $data[8];
+		$array['StoreCategoryName'] = $data[8];
+	    }
+	    
+	    if(!empty($data[9])){
+		$array['StoreCategory2ID'] = $data[9];
+		$array['StoreCategory2Name'] = $data[9];
+	    }
+	    
 	    $array['Quantity'] = $data[10];
 	    $array['Currency'] = $data[12];
 	    $array['StartPrice'] = $data[13];
 	    $array['BuyItNowPrice'] = $data[14];
 	    $array['ReservePrice'] = $data[15];
+	    
+	    $array['InternationalInsurance'] = $data[16];
+	    $array['InternationalInsuranceFee'] = $data[17];
+	    
+	    $array['InsuranceOption'] = $data[18];
+	    $array['InsuranceFee'] = $data[19];
+	    
 	    $array['ListingDuration'] = 'Days_'.$data[22];
 	    $array['Country'] = $data[24];
 	    
-	    $data[28] = html_entity_decode($data[28]);
+	    
 	    $data[28] = str_replace("@@@@%", " ", $data[28]);
-	    $array['Description'] = str_replace("%0D%0A", " ", $data[28]);
-
+	    $data[28] = str_replace("%0D%0A", " ", $data[28]);
+	    $array['Description'] = $data[28];
 	    //$array['url'] = $data[30];//
 	    $array['BoldTitle'] = $data[31];
 	    $array['Featured'] = $data[32];
@@ -2671,6 +2716,15 @@ class eBayListing{
 	    $array['PayPalEmailAddress'] = $data[54];
 	    $array['ShippingType'] = $data[73];
 	    $array['DispatchTimeMax'] = $data[115];
+	    
+	    
+	    if(!empty($data[196])){
+		$array['ReturnPolicyRefundOption'] = $data[198];
+		$array['ReturnPolicyReturnsAcceptedOption'] = $data[196];
+		$array['ReturnPolicyReturnsWithinOption'] = $data[197];
+		$array['ReturnPolicyShippingCostPaidByOption'] = $data[199];
+		//$array['ReturnPolicyDescription'] = $data[115];
+	    }
 	    
 	    $fields = "";
 	    $values = "";
@@ -2699,20 +2753,22 @@ class eBayListing{
 	    $array['template_shipping_service_options'][1]['ShippingService'] = $data[88];
 	    $array['template_shipping_service_options'][1]['ShippingServiceCost'] = $data[89];
 	    $array['template_shipping_service_options'][1]['ShippingServiceAdditionalCost'] = $data[90];
-
+	    $array['template_shipping_service_options'][1]['ShippingServicePriority'] = $data[91];
 	    
 	    $array['template_shipping_service_options'][2]['ShippingService'] = $data[94];
 	    $array['template_shipping_service_options'][2]['ShippingServiceCost'] = $data[95];
 	    $array['template_shipping_service_options'][2]['ShippingServiceAdditionalCost'] = $data[96];
+	    $array['template_shipping_service_options'][2]['ShippingServicePriority'] = $data[97];
 	    
 	    $array['template_shipping_service_options'][3]['ShippingService'] = $data[99];
 	    $array['template_shipping_service_options'][3]['ShippingServiceCost'] = $data[100];
 	    $array['template_shipping_service_options'][3]['ShippingServiceAdditionalCost'] = $data[101];
+	    $array['template_shipping_service_options'][3]['ShippingServicePriority'] = $data[102];
 	    
 	    foreach($array['template_shipping_service_options'] as $t){
 		if(!empty($t['ShippingService'])){
-		    $sql_1 = "insert into template_shipping_service_options (templateId,FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost) 
-		    values ('".$template_id."','".$t['FreeShipping']."','".$t['ShippingService']."','".$t['ShippingServiceCost']."','".$t['ShippingServiceAdditionalCost']."')";
+		    $sql_1 = "insert into template_shipping_service_options (templateId,FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority) 
+		    values ('".$template_id."','".$t['FreeShipping']."','".$t['ShippingService']."','".$t['ShippingServiceCost']."','".$t['ShippingServiceAdditionalCost']."','".$t['ShippingServicePriority']."')";
 		    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 		}
 	    }
@@ -2721,21 +2777,24 @@ class eBayListing{
 	    $array['template_international_shipping_service_option'][1]['ShippingServiceCost'] = $data[117];
 	    $array['template_international_shipping_service_option'][1]['ShippingServiceAdditionalCost'] = $data[118];
 	    $array['template_international_shipping_service_option'][1]['ShipToLocation'] = str_replace('|', ',' ,$data[119]);
+	    $array['template_international_shipping_service_option'][1]['ShippingServicePriority'] = $data[120];
 	    
 	    $array['template_international_shipping_service_option'][2]['ShippingService'] = $data[121];
 	    $array['template_international_shipping_service_option'][2]['ShippingServiceCost'] = $data[122];
 	    $array['template_international_shipping_service_option'][2]['ShippingServiceAdditionalCost'] = $data[123];
 	    $array['template_international_shipping_service_option'][2]['ShipToLocation'] = str_replace('|', ',' ,$data[124]);
+	    $array['template_international_shipping_service_option'][2]['ShippingServicePriority'] = $data[125];
 	    
 	    $array['template_international_shipping_service_option'][3]['ShippingService'] = $data[126];
 	    $array['template_international_shipping_service_option'][3]['ShippingServiceCost'] = $data[127];
 	    $array['template_international_shipping_service_option'][3]['ShippingServiceAdditionalCost'] = $data[128];
 	    $array['template_international_shipping_service_option'][3]['ShipToLocation'] = str_replace('|', ',' ,$data[129]);
+	    $array['template_international_shipping_service_option'][3]['ShippingServicePriority'] = $data[130];
 	   
 	    foreach($array['template_international_shipping_service_option'] as $t){
 		if(!empty($t['ShippingService'])){
-		    $sql_2 = "insert into template_international_shipping_service_option (templateId,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShipToLocation) 
-		    values ('".$template_id."','".$t['ShippingService']."','".$t['ShippingServiceCost']."','".$t['ShippingServiceAdditionalCost']."','".$t['ShipToLocation']."')";
+		    $sql_2 = "insert into template_international_shipping_service_option (templateId,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority,ShipToLocation) 
+		    values ('".$template_id."','".$t['ShippingService']."','".$t['ShippingServiceCost']."','".$t['ShippingServiceAdditionalCost']."','".$t['ShippingServicePriority']."','".$t['ShipToLocation']."')";
 		    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
 		}
 	    }
@@ -2793,11 +2852,18 @@ class eBayListing{
     
     private function getCategoryPathById($SiteID, $CategoryID){
     	global $categoryPathArray;
+	global $nest;
+	
     	$sql = "select CategoryName,CategoryParentID,CategoryLevel from categories where  CategorySiteID = ".$SiteID." and CategoryID = ".$CategoryID;
     	//echo $sql."\n";
     	$result = mysql_query($sql, eBayListing::$database_connect);
     	$row = mysql_fetch_assoc($result);
+	$nest++;
+	
     	if($row['CategoryLevel'] != 1){
+		if($nest >= 30){
+		    return 0;
+		}
     		array_push($categoryPathArray, $row['CategoryName']);
     		return $this->getCategoryPathById($SiteID, $row['CategoryParentID']);
     	}else{
