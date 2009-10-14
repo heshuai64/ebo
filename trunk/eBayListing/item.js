@@ -278,6 +278,7 @@ Ext.onReady(function(){
             }
     });
     
+    /*
     var schedule = new Ext.Panel({                              
         //title:"Schedule",
         layout:"table",
@@ -371,6 +372,8 @@ Ext.onReady(function(){
             day++;
         }
     }
+    */
+    
     //---------------------------------------------------------------------------------------------------------
     var resultCategoryTpl = new Ext.XTemplate(
         '<tpl for="."><div class="search-item">',
@@ -1446,7 +1449,7 @@ Ext.onReady(function(){
                             }]
                         }]
                     }*/]
-                  },{
+                  },/*{
                     xtype:"panel",
                     title:"Schedule",
                     layout:"form",
@@ -1495,8 +1498,8 @@ Ext.onReady(function(){
                     },{
                             xtype:"panel",
                             items: schedule
-                        }]
-                  },{
+                    }]
+                  },*/{
                         xtype:"textfield",
                         fieldLabel:"<font color='red'>SKU</font>",
                         id:"SKU",
@@ -3124,7 +3127,8 @@ Ext.onReady(function(){
             }
         }
     );
-        
+    
+    /*
     //Schedule Time  --------------------------------------------------------------------------------
     Ext.select(".schedule-time").on("click",function(e, el){
         var tempArray = el.childNodes[0].id.split("-");
@@ -3304,17 +3308,7 @@ Ext.onReady(function(){
         
         //console.log(tempArray[2] + ":59:59 AM");
         timeWindow.show();
-        /*
-        if(Ext.getCmp(el.childNodes[0].id).getValue() == 0){
-            Ext.getCmp(el.childNodes[0].id + "-panel").body.applyStyles("background-color:red;");
-            Ext.getCmp(el.childNodes[0].id).setValue(1)
-        }else{
-            Ext.getCmp(el.childNodes[0].id + "-panel").body.applyStyles("background-color:white;");
-            Ext.getCmp(el.childNodes[0].id).setValue(0)
-        }
-        //el.addClass("schedule-time-y");
-        //console.log(el.childNodes[0].id);
-        */
     })
+    */
 })
 

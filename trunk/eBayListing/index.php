@@ -27,18 +27,21 @@ if(empty($_COOKIE['account_id'])){
 	    margin:5px;
 	}
 
-    .inventory {
-        background-image:url(./images/package.png);
-    }
-	.template {
-        background-image:url(./images/plugin.png);
-    }
-    .waiting-to-upload {
-        background-image:url(./images/package_go.png);
-    }
-    .listing-activity {
-        background-image:url(./images/money_dollar.png);
-    }
+	.inventory {
+	    background-image:url(./images/package.png);
+	}
+	    .template {
+	    background-image:url(./images/plugin.png);
+	}
+	.waiting-to-upload {
+	    background-image:url(./images/package_go.png);
+	}
+	.schedule{
+	    background-image:url(./images/time.png);
+	}
+	.listing-activity {
+	    background-image:url(./images/money_dollar.png);
+	}
 	.active-item-tab{
 	    background-image:url(./images/hourglass.png);
 	}
