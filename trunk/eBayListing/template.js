@@ -1954,6 +1954,7 @@ Ext.onReady(function(){
                                 items:[{
                                     xtype:"numberfield",
                                     fieldLabel:"Cost",
+                                    id:"ShippingServiceCost_1",
                                     name:"ShippingServiceCost_1",
                                     width:60
                                   }]
@@ -1968,7 +1969,16 @@ Ext.onReady(function(){
                                     fieldLabel:"",
                                     boxLabel:"Free",
                                     name:"ShippingServiceFree_1",
-                                    inputValue:"1"
+                                    inputValue:"1",
+                                    listeners: {
+                                        check: function(t, c){
+                                            if(c){
+                                                Ext.getCmp("ShippingServiceCost_1").disable();
+                                            }else{
+                                                Ext.getCmp("ShippingServiceCost_1").enable();
+                                            }
+                                        }
+                                    }
                                   }]
                               },{
                                 layout:"form",
@@ -2001,6 +2011,7 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
+                                    id:"ShippingServiceCost_2",
                                     name:"ShippingServiceCost_2",
                                     width:60
                                   }]
@@ -2015,7 +2026,16 @@ Ext.onReady(function(){
                                     fieldLabel:"",
                                     boxLabel:"Free",
                                     name:"ShippingServiceFree_2",
-                                    inputValue:"1"
+                                    inputValue:"1",
+                                    listeners: {
+                                        check: function(t, c){
+                                            if(c){
+                                                Ext.getCmp("ShippingServiceCost_2").disable();
+                                            }else{
+                                                Ext.getCmp("ShippingServiceCost_2").enable();
+                                            }
+                                        }
+                                    }
                                   }]
                               },{
                                 layout:"form",
@@ -2048,6 +2068,7 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
+                                    id:"ShippingServiceCost_3",
                                     name:"ShippingServiceCost_3",
                                     width:60
                                   }]
@@ -2062,7 +2083,16 @@ Ext.onReady(function(){
                                     fieldLabel:"",
                                     boxLabel:"Free",
                                     name:"ShippingServiceFree_3",
-                                    inputValue:"1"
+                                    inputValue:"1",
+                                    listeners: {
+                                        check: function(t, c){
+                                            if(c){
+                                                Ext.getCmp("ShippingServiceCost_3").disable();
+                                            }else{
+                                                Ext.getCmp("ShippingServiceCost_3").enable();
+                                            }
+                                        }
+                                    }
                                   }]
                               }]
                         },{
