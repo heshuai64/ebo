@@ -38,6 +38,7 @@ class eBayListing{
     private $account_id;
     
     public function __construct($site_id = 0){
+	
 	$this->site_id = $site_id;
 	
         eBayListing::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
@@ -493,7 +494,7 @@ class eBayListing{
 	}else{
 	    $parent_id = $_POST['node'];
 	}
-	$sql = "select * from template_category where account_id = '".$this->account_id."' and parent_id = '".$parent_id."'";
+	$sql = "select * from template_category where parent_id = '".$parent_id."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while($row = mysql_fetch_assoc($result)){
 	    
@@ -540,7 +541,7 @@ class eBayListing{
 	$array = array();
 	
 	if(empty($_POST) || $_POST['parent_id'] == '0'){
-	    $sql = "select count(*) as count from template where accountId = '".$this->account_id."'";
+	    $sql = "select count(*) as count from template";// where accountId = '".$this->account_id."'";
 	    $result = mysql_query($sql, eBayListing::$database_connect);
             $row = mysql_fetch_assoc($result);
             $totalCount = $row['count'];
@@ -550,7 +551,7 @@ class eBayListing{
                 $_POST['limit'] = 20;
             }
 	    
-	    $sql = "select Id,Site,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ListingDuration from template where accountId = '".$this->account_id."' order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
+	    $sql = "select Id,Site,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ListingDuration from template order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
             $result = mysql_query($sql, eBayListing::$database_connect);
             
 	}else{
@@ -558,7 +559,7 @@ class eBayListing{
 	    if(!empty($_POST['parent_id'])){
 		$where .= " and tttc.template_category_id = '".$_POST['parent_id']."'";
 	    }
-	    $where .= "and t.accountId = '".$this->account_id."' ";
+	    //$where .= "and t.accountId = '".$this->account_id."' ";
 		
 	    if(empty($_POST['start']) && empty($_POST['limit'])){
                 $_POST['start'] = 0;
@@ -598,7 +599,7 @@ class eBayListing{
 	    $row_1 = mysql_fetch_assoc($result_1);
 	    $row['ShippingFee'] = $row_1['ShippingServiceCost'];
 	    
-	    $sql_2 = "select tc.name from template_to_template_cateogry as tttc left join template_category as tc on tttc.template_category_id = tc.id where tttc.template_id = '".$row['Id']."' and account_id = '".$this->account_id."'";
+	    $sql_2 = "select tc.name from template_to_template_cateogry as tttc left join template_category as tc on tttc.template_category_id = tc.id where tttc.template_id = '".$row['Id']."'";// and account_id = '".$this->account_id."'";
 	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
 	    $row_2 = mysql_fetch_assoc($result_2);
 	    $row['Category'] = $row_2['name'];
@@ -607,6 +608,28 @@ class eBayListing{
 	}
 	
 	echo json_encode(array('totalCount'=>$totalCount, 'records'=>$array));
+	mysql_free_result($result);
+    }
+    
+    public function getTemplateDurationStore(){
+	$sql = "select ListingType from template where Id = '".$_POST['Id']."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	
+	$sql = "select id from listing_duration_type where name = '".$row['ListingType']."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	
+	$sql = "select name from listing_duration where id = '".$row['id']."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$array = array();
+	$i = 0;
+	while($row = mysql_fetch_assoc($result)){
+	    $array[$i]['id'] = $row['name'];
+	    $array[$i]['name'] = $row['name'];
+	    $i++;
+	}
+	echo json_encode($array);
 	mysql_free_result($result);
     }
     
@@ -3387,8 +3410,13 @@ class eBayListing{
     //----------------------------------------------------------------------------------
     public function getAttributes(){
 	session_start();
+	$sql = "select id from site where name = '".$_POST['SiteID']."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	$SiteID = $row['id'];
+	
 	//$_GET['CategoryID'] = 34;
-	$sql = "select AttributeSetID from CharacteristicsSets where SiteID = '".$_GET['SiteID']."' and CategoryID = '".$_GET['CategoryID']."'";
+	$sql = "select AttributeSetID from CharacteristicsSets where SiteID = '".$SiteID."' and CategoryID = '".$_GET['CategoryID']."'";
 	//echo $sql;
 	//echo "<br>";
 	$result = mysql_query($sql);
@@ -4659,7 +4687,7 @@ class eBayListing{
 			if($row_1['ScheduleTime'] > date("Y-m-d H:i:s")){
 			    $sql = "update items set ".$_POST['field']." = '".$_POST['value']."' where Id = '".$_POST['id']."'";
 			    $result = mysql_query($sql, eBayListing::$database_connect);
-			    echo "[{success: true, msg: 'update success.'}]";
+			    echo "[{success: true, msg: 'update ".$_POST['field']." success.'}]";
 			}else{
 			    echo "[{success: false, msg: 'item have been uploaded.'}]";
 			    return 0;
@@ -4671,7 +4699,7 @@ class eBayListing{
 		    case 2:
 			if($_POST['field'] == "Price"){
 			    if($row_1['ListingType'] == "Chinese" || $row_1['ListingType'] == "Dutch"){
-				echo "[{success: false, msg: 'revise failure.'}]";
+				echo "[{success: false, msg: 'revise ".$_POST['field']." failure.'}]";
 				//$_POST['field'] = "StartPrice";
 				//$sql = "update items set ".$_POST['field']." = '".$_POST['value']."',Status = 2 where Id = '".$_POST['id']."'";
 				//$result = mysql_query($sql, eBayListing::$database_connect);
@@ -4681,21 +4709,39 @@ class eBayListing{
 				$sql = "update items set ".$_POST['field']." = '".$_POST['value']."',Status = 2 where Id = '".$_POST['id']."'";
 				//echo $sql;
 				$result = mysql_query($sql, eBayListing::$database_connect);
-				echo "[{success: true, msg: 'revise success.'}]";
+				echo "[{success: true, msg: 'revise ".$_POST['field']." success.'}]";
 			    }
 			}else{
 			    $sql = "update items set ".$_POST['field']." = '".$_POST['value']."',Status = 2 where Id = '".$_POST['id']."'";
 			    $result = mysql_query($sql, eBayListing::$database_connect);
-			    echo "[{success: true, msg: 'revise success.'}]";
+			    echo "[{success: true, msg: 'revise ".$_POST['field']." success.'}]";
 			}
 		    break;
 		}
 	    break;
 	
 	    case "template":
-		$sql = "update template set ".$_POST['field']." = '".$_POST['value']."' where Id = '".$_POST['id']."'";
-		$result = mysql_query($sql, eBayListing::$database_connect);
-		echo "[{success: true, msg: 'update success.'}]";
+		if($_POST['field'] == "Price"){
+		    $sql_1 = "select ListingType from template where Id = '".$_POST['id']."'";
+		    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+		    $row_1 = mysql_fetch_assoc($result_1);
+		
+		    if($row_1['ListingType'] == "Chinese" || $row_1['ListingType'] == "Dutch"){
+			$sql = "update template set BuyItNowPrice = '".$_POST['value']."' where Id = '".$_POST['id']."'";
+			$result = mysql_query($sql, eBayListing::$database_connect);
+			echo "[{success: true, msg: 'update ".$_POST['field']." success.'}]";
+		    }elseif($row_1['ListingType'] == "StoresFixedPrice" || $row_1['ListingType'] == "FixedPriceItem"){
+			$sql = "update template set StartPrice = '".$_POST['value']."' where Id = '".$_POST['id']."'";
+			$result = mysql_query($sql, eBayListing::$database_connect);
+			echo "[{success: true, msg: 'update ".$_POST['field']." success.'}]";
+		    }else{
+			echo "[{success: false, msg: 'no listint type.'}]";
+		    }
+		}else{
+		    $sql = "update template set ".$_POST['field']." = '".$_POST['value']."' where Id = '".$_POST['id']."'";
+		    $result = mysql_query($sql, eBayListing::$database_connect);
+		    echo "[{success: true, msg: 'update ".$_POST['field']." success.'}]";
+		}
 	    break;
 	}
 	return 1;
@@ -5628,7 +5674,7 @@ class eBayListing{
 	//$sql = "select item_id from schedule where day = '".$day."' and time ='".$time."'";
 	//$sql = "select item_id from schedule where day = '".$day."'";
 	//$sql = "select Id from items where ScheduleTime <> '' and ScheduleTime <= now() and Status = 0";
-	$sql = "select Id from items where Status = 0";
+	$sql = "select Id from items where Status = 1";
 	
 	$result = mysql_query($sql);
 	while($row = mysql_fetch_assoc($result)){
@@ -7350,7 +7396,7 @@ if(!empty($argv[2])){
 }else{
     $service = new eBayListing();
 }
-$service->setAccount(1);
+//$service->setAccount(1);
 $acton = (!empty($_GET['action'])?$_GET['action']:$argv[1]);
 if(in_array($acton, array("getAllSiteShippingServiceDetails", "getAllSiteShippingLocationDetails", "getAllCategory2CS", "getAllAttributesCS"))){
     $service->$acton();

@@ -16,7 +16,15 @@ Ext.onReady(function(){
      function renderFlag(v, p, r){
           return "<img src='./images/"+v.toLowerCase()+".gif'>";
      }
-                              
+     
+     var listingTemplateDurationStore =  new Ext.data.JsonStore({
+        //root: 'records',
+        //totalProperty: 'totalCount',
+        //idProperty: 'id',
+        fields: ['id', 'name'],
+        url:'service.php?action=getTemplateDurationStore'
+     })
+     
      var getCookie = function(c_name){
           if (document.cookie.length>0){
                c_start=document.cookie.indexOf(c_name + "=");
@@ -277,10 +285,90 @@ Ext.onReady(function(){
                     })
                },
                {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
-               {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
+               {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price', editor: new Ext.form.NumberField({
+                    allowBlank: false,
+                    listeners: {
+                         change: function(t, n, o){
+                              var selections = template_grid.selModel.getSelections();
+                              //console.log(selections[0].data.Id);
+                              Ext.Ajax.request({  
+                                   waitMsg: 'Please Wait',
+                                   url: 'service.php?action=updateField', 
+                                   params: { 
+                                        id: selections[0].data.Id,
+                                        table: 'template',
+                                        field: 'Price',
+                                        value: n
+                                   }, 
+                                   success: function(response){
+                                       var result = eval(response.responseText);
+                                       if(result[0].success){
+                                             Ext.MessageBox.alert('Success', result[0].msg);
+                                             template_store.reload();
+                                        }else{
+                                             Ext.MessageBox.alert('Failure', result[0].msg);
+                                             template_store.reload();
+                                        }
+                                   },
+                                   failure: function(response){
+                                       var result=response.responseText;
+                                       Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                   }
+                              });
+                         }
+                    }
+                    })
+               },
                {header: "Shipping Fee", width: 80, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
                {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
-               {header: "Duration", width: 100, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
+               {header: "Duration", width: 100, align: 'center', sortable: true, dataIndex: 'ListingDuration', editor: new Ext.form.ComboBox({
+                    allowBlank: false,
+                    mode: 'local',
+                    store: listingTemplateDurationStore,
+                    valueField:'id',
+                    displayField:'name',
+                    triggerAction: 'all',
+                    editable: false,
+                    selectOnFocus:true,
+                    name: 'ListingDuration',
+                    hiddenName:'ListingDuration',
+                    listeners: {
+                         focus: function(t){
+                              var selections = template_grid.selModel.getSelections();
+                              //console.log(selections[0].data.Id);
+                              listingTemplateDurationStore.load({params: {Id: selections[0].data.Id}}); 
+                         },
+                         change: function(t, n, o){
+                              var selections = template_grid.selModel.getSelections();
+                              //console.log(selections[0].data.Id);
+                              Ext.Ajax.request({  
+                                   waitMsg: 'Please Wait',
+                                   url: 'service.php?action=updateField', 
+                                   params: { 
+                                        id: selections[0].data.Id,
+                                        table: 'template',
+                                        field: 'ListingDuration',
+                                        value: n
+                                   }, 
+                                   success: function(response){
+                                       var result = eval(response.responseText);
+                                       if(result[0].success){
+                                             Ext.MessageBox.alert('Success', result[0].msg);
+                                             template_store.reload();
+                                        }else{
+                                             Ext.MessageBox.alert('Failure', result[0].msg);
+                                             template_store.reload();
+                                        }
+                                   },
+                                   failure: function(response){
+                                       var result=response.responseText;
+                                       Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                   }
+                              });
+                         }
+                    }
+                    })
+               },
                {header: "Category", width: 100, align: 'center', sortable: true, dataIndex: 'Category'}
           ],
           tbar:[{
