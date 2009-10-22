@@ -38,6 +38,9 @@ class eBayListing{
     private $account_id;
     
     public function __construct($site_id = 0){
+	if(!empty($_COOKIE['account_id'])){
+	    $this->account_id = $_COOKIE['account_id'];
+	}
 	
 	$this->site_id = $site_id;
 	
@@ -494,7 +497,7 @@ class eBayListing{
 	}else{
 	    $parent_id = $_POST['node'];
 	}
-	$sql = "select * from template_category where parent_id = '".$parent_id."'";
+	$sql = "select * from template_category where account_id = '".$this->account_id."' and parent_id = '".$parent_id."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while($row = mysql_fetch_assoc($result)){
 	    
@@ -541,7 +544,7 @@ class eBayListing{
 	$array = array();
 	
 	if(empty($_POST) || $_POST['parent_id'] == '0'){
-	    $sql = "select count(*) as count from template";// where accountId = '".$this->account_id."'";
+	    $sql = "select count(*) as count from template where accountId = '".$this->account_id."'";
 	    $result = mysql_query($sql, eBayListing::$database_connect);
             $row = mysql_fetch_assoc($result);
             $totalCount = $row['count'];
@@ -551,7 +554,7 @@ class eBayListing{
                 $_POST['limit'] = 20;
             }
 	    
-	    $sql = "select Id,Site,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ListingDuration from template order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
+	    $sql = "select Id,Site,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ListingDuration from template where accountId = '".$this->account_id."' order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
             $result = mysql_query($sql, eBayListing::$database_connect);
             
 	}else{
@@ -559,7 +562,7 @@ class eBayListing{
 	    if(!empty($_POST['parent_id'])){
 		$where .= " and tttc.template_category_id = '".$_POST['parent_id']."'";
 	    }
-	    //$where .= "and t.accountId = '".$this->account_id."' ";
+	    $where .= "and t.accountId = '".$this->account_id."' ";
 		
 	    if(empty($_POST['start']) && empty($_POST['limit'])){
                 $_POST['start'] = 0;
@@ -599,7 +602,7 @@ class eBayListing{
 	    $row_1 = mysql_fetch_assoc($result_1);
 	    $row['ShippingFee'] = $row_1['ShippingServiceCost'];
 	    
-	    $sql_2 = "select tc.name from template_to_template_cateogry as tttc left join template_category as tc on tttc.template_category_id = tc.id where tttc.template_id = '".$row['Id']."'";// and account_id = '".$this->account_id."'";
+	    $sql_2 = "select tc.name from template_to_template_cateogry as tttc left join template_category as tc on tttc.template_category_id = tc.id where tttc.template_id = '".$row['Id']."' and account_id = '".$this->account_id."'";
 	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
 	    $row_2 = mysql_fetch_assoc($result_2);
 	    $row['Category'] = $row_2['name'];

@@ -4,8 +4,8 @@ Ext.onReady(function(){
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      
-     var path = "/eBayBO/eBayListing/";
-     //var path = "/eBayListing/";
+     //var path = "/eBayBO/eBayListing/";
+     var path = "/eBayListing/";
      /*
      var cp = new Ext.state.CookieProvider({
           path: "/eBayBO/eBayListing/"
@@ -1684,17 +1684,28 @@ Ext.onReady(function(){
      
      var viewport = new Ext.Viewport({
           layout:'border',
-          items:[/*
+          items:[
                //new Ext.BoxComponent({ // raw
                {
                    region:'north',
                    xtype:"panel",
                    items:[{
                          xtype:"button",
-                         text:"Ebay Account Manage",
+                         text:"Log Out",
                          style:"float:left;margin-right:5px",
-                         iconCls:'user'
-                    },{
+                         icon:'images/door_out.png',
+                         handler: function(){
+                              Ext.Ajax.request({
+                                   url: 'service.php?action=logout',
+                                   success: function(o){
+                                        window.location = "/eBayListing/login.html";
+                                   },
+                                   failure: function(){
+                                          alert('Lost connection to server.');
+                                   }
+                              });
+                         }
+                    }/*,{
                          xtype:"button",
                          text:"Ebay Account Manage",
                          style:"float:left;margin-right:5px"
@@ -1702,10 +1713,10 @@ Ext.onReady(function(){
                          xtype:"button",
                          text:"Ebay Account Manage",
                          style:"float:left;margin-right:5px"
-                    }],
+                    }*/],
                    //el: 'north',
                    height:32
-               },*/{
+               },{
                     region:'south',
                     id:'log-watch',
                     //contentEl: 'south',
