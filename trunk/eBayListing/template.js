@@ -404,9 +404,9 @@ Ext.onReady(function(){
                 'InternationalShippingService_2','InternationalShippingServiceCost_2',
                 'InternationalShippingService_3','InternationalShippingServiceCost_3',
                 'InternationalShippingToLocations_1','InternationalShippingToLocations_2','InternationalShippingToLocations_3',
-                'Americas_1','Europe_1','Asia_1','CA_1','GB_1','AU_1','MX_1','DE_1','JP_1',
-                'Americas_2','Europe_2','Asia_2','CA_2','GB_2','AU_2','MX_2','DE_2','JP_2',
-                'Americas_3','Europe_3','Asia_3','CA_3','GB_3','AU_3','MX_3','DE_3','JP_3',
+                'Americas_1','US_1','Europe_1','Asia_1','CA_1','GB_1','AU_1','MX_1','DE_1','JP_1',
+                'Americas_2','US_2','Europe_2','Asia_2','CA_2','GB_2','AU_2','MX_2','DE_2','JP_2',
+                'Americas_3','US_3','Europe_3','Asia_3','CA_3','GB_3','AU_3','MX_3','DE_3','JP_3',
                 'accountId','UseStandardFooter','ScheduleStartDate','ScheduleEndDate','Schedule'
         ]),
         items:[{
@@ -2430,6 +2430,22 @@ Ext.onReady(function(){
                                                     name:"JP_1",
                                                     inputValue:1
                                                 }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"US",
+                                                    name:"US_1",
+                                                    inputValue:1
+                                                }]
                                             }]
                                         }]
                                 }]
@@ -2660,6 +2676,22 @@ Ext.onReady(function(){
                                                     name:"JP_2",
                                                     inputValue:1
                                                 }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"US",
+                                                    name:"US_2",
+                                                    inputValue:1
+                                                }]
                                             }]
                                         }]
                                 }]
@@ -2887,6 +2919,22 @@ Ext.onReady(function(){
                                                     style:"padding:0px;",
                                                     boxLabel:"Japan",
                                                     name:"JP_3",
+                                                    inputValue:1
+                                                }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"US",
+                                                    name:"US_3",
                                                     inputValue:1
                                                 }]
                                             }]

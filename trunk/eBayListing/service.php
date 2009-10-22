@@ -91,8 +91,8 @@ class eBayListing{
 	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	    $row_1 = mysql_fetch_assoc($result_1);
 	    
-	    $row_1['host'] = null;
-	    $row_1['port'] = null;
+	    //$row_1['host'] = null;
+	    //$row_1['port'] = null;
 	    //------------------------------------------------------------------------------------------------
 	    // Load developer-specific configuration data from ini file
 	    $config = parse_ini_file('ebay.ini', true);
@@ -217,7 +217,10 @@ class eBayListing{
                 //----------   debug --------------------------------
                 //print "Request: \n".$client->__getLastRequest() ."\n";
                 //print "Response: \n".$client->__getLastResponse()."\n";
-                $this->saveFetchData("getStoreCategories-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		$sql = "delete from account_store_categories where AccountId = ".$account_id;
+		$result = mysql_query($sql, eBayListing::$database_connect);
+		
+                //$this->saveFetchData("getStoreCategories-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 		foreach($results->Store->CustomCategories->CustomCategory as $customCategory){
 		    $level = 1;
 		    $sql = "INSERT INTO `account_store_categories` (`CategoryID` , `CategoryParentID` ,`Name` ,`Order` ,`AccountId`) VALUES ('".$customCategory->CategoryID."','0','".$customCategory->Name."','".$customCategory->Order."','".$account_id."')";
@@ -261,6 +264,8 @@ class eBayListing{
 	$sql = "select * from account where status = 1";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while ($row = mysql_fetch_assoc($result)){
+	    $this->setAccount($row['id']);
+	    $this->configEbay();
 	    $this->getStoreCategories($row['name']);
 	}
     }
@@ -859,7 +864,7 @@ class eBayListing{
 		$handle = fopen($_FILES['stpcsv']['tmp_name'], "r");
 		while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
 		    //print_r($data);
-		    $sql = "update template set StartPrice='".$data[2]."' where SKU = '".$data[0]."' and Title = '".$data[1]."';";
+		    $sql = "update template set StartPrice='".$data[2]."' where SKU = '".$data[0]."' and Title = '".mysql_real_escape_string($data[1])."'";
 		    $result = mysql_query($sql, eBayListing::$database_connect);
 		}
 		fclose($handle);
@@ -869,7 +874,7 @@ class eBayListing{
 	    	$handle = fopen($_FILES['stcsv']['tmp_name'], "r");
 			while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
 			    //print_r($data);
-			    $sql = "select * from template where SKU = '".$data[0]."' and Title = '".$data[1]."';";
+			    $sql = "select * from template where SKU = '".$data[0]."' and Title = '".mysql_real_escape_string($data[1])."'";
 			    //echo $sql;
 			    $result = mysql_query($sql, eBayListing::$database_connect);
 			    while($row = mysql_fetch_assoc($result)){
@@ -1194,6 +1199,10 @@ class eBayListing{
 	    if($_POST['InternationalShippingToLocations-'.$i] == 'Custom Locations'){
 		if(!empty($_POST['Americas_'.$i]) && $_POST['Americas_'.$i] == 1){
 		    $ShipToLocation .= ',Americas';
+		}
+		
+		if(!empty($_POST['US_'.$i]) && $_POST['US_'.$i] == 1){
+		    $ShipToLocation .= ',US';
 		}
 		
 		if(!empty($_POST['Europe_'.$i]) && $_POST['Europe_'.$i] == 1){
@@ -2883,7 +2892,7 @@ class eBayListing{
 	    }else{
 		
 	    }
-	    $data .= $row['SKU'].",".$row['Title'].",".$row['StartPrice']."\n";
+	    $data .= '"'.$row['SKU'].'","'.$row['Title'].'","'.$row['StartPrice'].'"'."\n";
 	}
 	header("Content-type: application/x-msdownload");
         header("Content-Disposition: attachment; filename=template.csv");
