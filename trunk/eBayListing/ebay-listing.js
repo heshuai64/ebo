@@ -2365,7 +2365,7 @@ Ext.onReady(function(){
                                                   tooltip:'Delete before uploading',
                                                   handler:function(){
                                                        var selections = schedule_grid.selModel.getSelections();
-                                                       if(wait_grid.selModel.getCount() == 0){
+                                                       if(schedule_grid.selModel.getCount() == 0){
                                                             Ext.MessageBox.alert('Warning','Please select the need to delete.');
                                                             return 0;
                                                        }
@@ -3040,6 +3040,73 @@ Ext.onReady(function(){
                                              }
                                         }
                                         store.on('load', loadComplete);
+                                   }
+                              },{
+                                   text: 'Switch Account',
+                                   icon: 'images/group_link.png',
+                                   handler: function(){
+                                        var x = new Ext.form.ComboBox({
+                                             fieldLabel:"Account",
+                                             mode: 'local',
+                                             store: new Ext.data.JsonStore({
+                                                 autoLoad: true,
+                                                 fields: ['id', 'name'],
+                                                 url: "service.php?action=getAllAccount"
+                                             }),
+                                             valueField:'id',
+                                             displayField:'name',
+                                             triggerAction: 'all',
+                                             editable: false,
+                                             selectOnFocus:true,
+                                             name: 'account_id',
+                                             hiddenName:'account_id'
+                                        })
+                              
+                                        var  switchAccountWindow = new Ext.Window({
+                                             title: 'Switch Account' ,
+                                             closable:true,
+                                             width: 320,
+                                             height: 150,
+                                             plain:true,
+                                             layout: 'fit',
+                                             items: [{
+                                                  xtype:'form',
+                                                  id:'aie-form',
+                                                  fileUpload: true,
+                                                  frame: true,
+                                                  autoHeight: true,
+                                                  bodyStyle: 'padding: 10px 10px 0 10px;',
+                                                  labelWidth: 80,
+                                                  defaults: {
+                                                      anchor: '95%'
+                                                      //allowBlank: false
+                                                  },
+                                                  items:[x,{
+                                                       xtype: 'button',
+                                                       text: 'Switch',
+                                                       handler: function(){
+                                                            Ext.Ajax.request({
+                                                                 url: 'service.php?action=switchAccount',
+                                                                 params: { 
+                                                                      id: x.getValue()
+                                                                 }, 
+                                                                 success: function(a, b, c){
+                                                                      //console.log([a, b, c]);
+                                                                      switchAccountWindow.close();
+                                                                 }
+                                                            });
+                                                       }
+                                                  }]
+                                             }],                                           
+                                             buttons: [{
+                                                            text: 'Close',
+                                                            handler: function(){
+                                                                 switchAccountWindow.close();
+                                                            }
+                                                       }]
+                                                       
+                                        })
+                                        switchAccountWindow.show();   
                                    }
                               }]                      
                          },
