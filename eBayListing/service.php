@@ -1716,6 +1716,10 @@ class eBayListing{
 		    $ShipToLocation .= ',Americas';
 		}
 		
+		if(!empty($_POST['US_'.$i]) && $_POST['US_'.$i] == 1){
+		    $ShipToLocation .= ',US';
+		}
+		
 		if(!empty($_POST['Europe_'.$i]) && $_POST['Europe_'.$i] == 1){
 		    $ShipToLocation .= ',Europe';
 		}
@@ -3794,7 +3798,8 @@ class eBayListing{
 	    $sql = "select Site from items where Id = '".$_POST['ids']."'";
 	    $result = mysql_query($sql, eBayListing::$database_connect);
 	    $row = mysql_fetch_assoc($result);
-
+	    
+	    $localTime = date("Y-m-d H:i:s", strtotime($_POST['date'].' '.$_POST['time']));
 	    switch($row['Site']){
 		case "US":
 		    $time = date("Y-m-d H:i:s", strtotime("+12 hour ".$_POST['date'].' '.$_POST['time']));
@@ -3819,7 +3824,7 @@ class eBayListing{
 	    }
 		
 	    $temp .= $_POST['ids'] . " : " . $time;
-	    $sql_1 = "update items set ScheduleTime = '".$time."' where Id = '".$_POST['ids']."'";
+	    $sql_1 = "update items set ScheduleTime = '".$time."',ScheduleLocalTime = '".$localTime."' where Id = '".$_POST['ids']."'";
 	    $result_2 = mysql_query($sql_1, eBayListing::$database_connect);
 	}
 	if($result){
@@ -4237,7 +4242,7 @@ class eBayListing{
 	    StoreCategoryID='".$_POST['StoreCategoryID']."',StoreCategoryName='".$_POST['StoreCategoryName']."',SubTitle='".$_POST['SubTitle']."',
 	    Title='".mysql_real_escape_string($_POST['Title'])."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
 	    Border='".(empty($_POST['Border'])?0:1)."',Featured='".(empty($_POST['Featured'])?0:1)."',Highlight='".(empty($_POST['Highlight'])?0:1)."',
-	    HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',
+	    HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',GalleryURL='".$_POST['GalleryURL']."',
 	    InsuranceOption='".$_POST['InsuranceOption']."',InsuranceFee='".$_POST['InsuranceFee']."',
 	    InternationalInsurance='".$_POST['InternationalInsurance']."',InternationalInsuranceFee='".$_POST['InternationalInsuranceFee']."',
 	    accountId='".$this->account_id."' where Id = '".$id."'";
@@ -4255,7 +4260,7 @@ class eBayListing{
 	    StoreCategoryID='".$_POST['StoreCategoryID']."',StoreCategoryName='".$_POST['StoreCategoryName']."',SubTitle='".$_POST['SubTitle']."',
 	    Title='".mysql_real_escape_string($_POST['Title'])."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
 	    Border='".(empty($_POST['Border'])?0:1)."',Featured='".(empty($_POST['Featured'])?0:1)."',Highlight='".(empty($_POST['Highlight'])?0:1)."',
-	    HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',
+	    HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',GalleryURL='".$_POST['GalleryURL']."',
 	    InsuranceOption='".$_POST['InsuranceOption']."',InsuranceFee='".$_POST['InsuranceFee']."',
 	    InternationalInsurance='".$_POST['InternationalInsurance']."',InternationalInsuranceFee='".$_POST['InternationalInsuranceFee']."',
 	    accountId='".$this->account_id."' where Id = '".$id."'";
@@ -4292,6 +4297,10 @@ class eBayListing{
 	    if($_POST['InternationalShippingToLocations_'.$i] == 'Custom Locations'){
 		if(!empty($_POST['Americas_'.$i]) && $_POST['Americas_'.$i] == 1){
 		    $ShipToLocation .= ',Americas';
+		}
+		
+		if(!empty($_POST['US_'.$i]) && $_POST['US_'.$i] == 1){
+		    $ShipToLocation .= ',US';
 		}
 		
 		if(!empty($_POST['Europe_'.$i]) && $_POST['Europe_'.$i] == 1){
@@ -5686,17 +5695,35 @@ class eBayListing{
 	//$sql = "select item_id from schedule where day = '".$day."' and time ='".$time."'";
 	//$sql = "select item_id from schedule where day = '".$day."'";
 	//$sql = "select Id from items where ScheduleTime <> '' and ScheduleTime <= now() and Status = 0";
-	$sql = "select Id from items where Status = 1";
+	$twoBefore = date("Y-m-d H:i:s", time() - (2 * 60));
+	
+	$sql = "select Id from items where Status = 1 and ScheduleTime between '".$twoBefore."' and now()";
 	
 	$result = mysql_query($sql);
 	while($row = mysql_fetch_assoc($result)){
+	    $sql_0 = "update items set Status = 10 where Id = '".$row['Id']."'";
+	    $result_0 = mysql_query($sql_0);
+	    
 	    //$row['item_id'] = 98;
 	    $sql_1 = "select * from items where Id = '".$row['Id']."'";
 	    $result_1 = mysql_query($sql_1);
 	    $row_1 = mysql_fetch_assoc($result_1);
 	    
-	    $row_1['Description'] = html_entity_decode($row_1['Description']);
-	    
+	    if($row_1['UseStandardFooter']){
+		$sql_0 = "select * from account_sku_picture where account_id = '".$row_1['accountId']."' and sku = '".$row_1['SKU']."'";
+		$result_0 = mysql_query($sql_0);
+		$row_0 = mysql_fetch_assoc($result_0);
+		
+		$sql_01 = "select footer from account_footer where accountId = '".$_COOKIE['account_id']."'";
+		$result_01 = mysql_query($sql_01);
+		$row_01 = mysql_fetch_assoc($result_01);
+		
+		$row_1['Description'] = str_replace(array("%title%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
+						    array($row['Title'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'])), $row_01['footer']);
+	    }else{
+		$row_1['Description'] = html_entity_decode($row_1['Description']);
+	    }
+ 
 	    $sql_2 = "select * from shipping_service_options where ItemID = '".$row['Id']."'";
 	    $result_2 = mysql_query($sql_2);
 	    $ShippingServiceOptions = array();
@@ -6137,12 +6164,28 @@ class eBayListing{
 	
 	$result = mysql_query($sql);
 	while($row = mysql_fetch_assoc($result)){
+	    $sql_0 = "update items set Status = 11 where Id = '".$row['Id']."'";
+	    $result_0 = mysql_query($sql_0);
+	    
 	    //$row['item_id'] = 98;
 	    $sql_1 = "select * from items where Id = '".$row['Id']."'";
 	    $result_1 = mysql_query($sql_1);
 	    $row_1 = mysql_fetch_assoc($result_1);
 	    
-	    $row_1['Description'] = html_entity_decode($row_1['Description']);
+	    if($row_1['UseStandardFooter']){
+	    	$sql_0 = "select * from account_sku_picture where account_id = '".$row_1['accountId']."' and sku = '".$row_1['SKU']."'";
+		$result_0 = mysql_query($sql_0);
+		$row_0 = mysql_fetch_assoc($result_0);
+		
+		$sql_01 = "select footer from account_footer where accountId = '".$_COOKIE['account_id']."'";
+		$result_01 = mysql_query($sql_01);
+		$row_01 = mysql_fetch_assoc($result_01);
+		
+		$row_1['Description'] = str_replace(array("%title%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
+						    array($row['Title'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'])), $row_01['footer']);
+	    }else{
+		$row_1['Description'] = html_entity_decode($row_1['Description']);
+	    }
 	    
 	    $sql_2 = "select * from shipping_service_options where ItemID = '".$row['Id']."'";
 	    $result_2 = mysql_query($sql_2);
@@ -6423,12 +6466,27 @@ class eBayListing{
 	
 	$result = mysql_query($sql);
 	while($row = mysql_fetch_assoc($result)){
+	    $sql_0 = "update items set Status = 12 where Id = '".$row['Id']."'";
+	    $result_0 = mysql_query($sql_0);
 	    //$row['item_id'] = 98;
 	    $sql_1 = "select * from items where Id = '".$row['Id']."'";
 	    $result_1 = mysql_query($sql_1);
 	    $row_1 = mysql_fetch_assoc($result_1);
 	    
-	    $row_1['Description'] = html_entity_decode($row_1['Description']);
+	    if($row_1['UseStandardFooter']){
+	    	$sql_0 = "select * from account_sku_picture where account_id = '".$row_1['accountId']."' and sku = '".$row_1['SKU']."'";
+		$result_0 = mysql_query($sql_0);
+		$row_0 = mysql_fetch_assoc($result_0);
+		
+		$sql_01 = "select footer from account_footer where accountId = '".$_COOKIE['account_id']."'";
+		$result_01 = mysql_query($sql_01);
+		$row_01 = mysql_fetch_assoc($result_01);
+		
+		$row_1['Description'] = str_replace(array("%title%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
+						    array($row['Title'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'])), $row_01['footer']);
+	    }else{
+		$row_1['Description'] = html_entity_decode($row_1['Description']);
+	    }
 	    
 	    $sql_2 = "select * from shipping_service_options where ItemID = '".$row['Id']."'";
 	    $result_2 = mysql_query($sql_2);
@@ -6705,7 +6763,7 @@ class eBayListing{
     //-------------------------   Listing ----------------------------------------------------------------
     /*
     	Status
-	0 : uploading
+	0 : ready
 	1 : schedule
 	2 : selling
 	3 : revise
@@ -6713,6 +6771,9 @@ class eBayListing{
 	5 : unsold
 	6:  sold
 	
+	10: uploading
+	11: reviseing
+	12: relisting
     */
     private function checkItem($itemId){
 	$sql = "select count(*) as count from items where ItemID = '".$itemId."'";
@@ -7135,6 +7196,23 @@ class eBayListing{
     }
     
     //-------------------- Mange --------------------------------------------------------------------------
+    public function getAllAccount(){
+	$sql = "select id,name from account";
+        $result = mysql_query($sql, eBayListing::$database_connect);
+        $array = array();
+        while($row = mysql_fetch_assoc($result)){
+            $array[] = $row;
+        }
+        
+        echo json_encode($array);
+    }
+    
+    public function switchAccount(){
+	unset($_COOKIE['account_id']);
+	setcookie("account_id", $_POST['id'], time() + (60 * 60 * 24), '/');
+	echo 1;
+    }
+    
     public function getAlleBayAccount(){
 	$sql = "select * from account";
 	$result = mysql_query($sql);
