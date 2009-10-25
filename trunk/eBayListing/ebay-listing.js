@@ -184,7 +184,7 @@ Ext.onReady(function(){
      })
      
      var template_search_form = new Ext.FormPanel({
-          width: 980,
+          width: 1024,
           title: 'Search',
           items:[{
                layout:"column",
@@ -244,7 +244,7 @@ Ext.onReady(function(){
           title: 'Template List',
           store: template_store,
           autoHeight: true,
-          width: 980,
+          width: 1024,
           selModel: new Ext.grid.RowSelectionModel({}),
           columns:[
                {header: "Id", width: 50, align: 'center', sortable: true, dataIndex: 'Id'},
@@ -714,6 +714,222 @@ Ext.onReady(function(){
                     window.open("service.php?action=templateExport","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=100, height=100");  
                }
           },'-',{
+               text:'Add To Upload',
+               icon: './images/package_go.png',
+               tooltip:'add selected template to waiting to upload(no set date time)',
+               handler: function(){
+                    var selections = template_grid.selModel.getSelections();
+                    if(template_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','Please select template.');
+                         return 0;
+                    }
+                    var ids = "";
+                    for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=templateAddToUpload', 
+                         params: { 
+                              ids: ids
+                         }, 
+                         success: function(response){
+                             var result = eval(response.responseText);
+                              //console.log(result);
+                              if(result[0].success){
+                                   Ext.MessageBox.alert('Success', result[0].msg);      
+                              }else{
+                                   Ext.MessageBox.alert('Failure', result[0].msg);      
+                              }
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
+                    
+                    return 1;
+               }
+          },'-',{
+               text:'Immediately Upload',
+               icon: './images/arrow_up.png',
+               tooltip:'Immediately upload selected template',
+               handler: function(){
+                    var selections = template_grid.selModel.getSelections();
+                    if(template_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','Please select template.');
+                         return 0;
+                    }
+                    var ids = "";
+                    for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=templateImmediatelyUpload', 
+                         params: { 
+                              ids: ids
+                         }, 
+                         success: function(response){
+                             var result = eval(response.responseText);
+                              //console.log(result);
+                              if(result[0].success){
+                                   Ext.MessageBox.alert('Success', result[0].msg);      
+                              }else{
+                                   Ext.MessageBox.alert('Failure', result[0].msg);      
+                              }
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
+                    
+                    return 1;
+               }
+          },'-',{
+               text: 'Schedule Upload',
+               icon: './images/date_go.png',
+               tooltip:'add selected template to waiting to upload based on schedule date',
+               handler: function(){
+                    var selections = template_grid.selModel.getSelections();
+                    if(template_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','Please select the template you want to upload.');
+                         return 0;
+                    }
+                    var ids = "";
+                    for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    //console.log(ids);
+                    
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=templateScheduleUpload', 
+                         params: { 
+                                ids: ids
+                         }, 
+                         success: function(response){
+                             var result = eval(response.responseText);
+                              //console.log(result);
+                              if(result[0].success){
+                                   Ext.MessageBox.alert('Success', result[0].msg);      
+                              }else{
+                                   Ext.MessageBox.alert('Failure', result[0].msg);      
+                              }
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
+                    return 1;
+               }
+          },'-',{
+                    text:'Interval Upload',
+                    icon: './images/clock_add.png',
+                    tooltip:'add selected template to waiting to upload based on interval time',
+                    handler: function(){
+                         var selections = template_grid.selModel.getSelections();
+                         if(template_grid.selModel.getCount() == 0){
+                              Ext.MessageBox.alert('Warning','Please select template.');
+                              return 0;
+                         }
+                         var ids = "";
+                         for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                              ids += selections[i].data.Id + ","
+                         }
+                         ids = ids.slice(0,-1);
+                         
+                         //var today = new Date();
+                         //console.log(today.getFullYear()+'-'+minMonth+'-'+minDay);
+                         
+                         var  intervalUploadWindow = new Ext.Window({
+                              title: 'Interval Upload Set' ,
+                              closable:true,
+                              width: 300,
+                              height: 180,
+                              plain:true,
+                              layout: 'form',
+                              items: [{
+                                        id:'interval-date',
+                                        fieldLabel:'Date',
+                                        xtype:'datefield',
+                                        format:'Y-m-d',
+                                        minValue: new Date(),
+                                        selectOnFocus:true
+                                   },{
+                                        id:'interval-time',
+                                        fieldLabel:'Time',
+                                        xtype:'timefield',
+                                        increment:1,
+                                        triggerAction: 'all',
+                                        editable: false,
+                                        selectOnFocus:true,
+                                        listWidth:80,
+                                        width:80  
+                                   },{
+                                        id:'interval-minute',
+                                        fieldLabel:'Interval',
+                                        xtype:"combo",
+                                        store:[0,1,2,3,4,5,6,7,8,9,10],
+                                        listWidth:60,
+                                        width:60
+                                   }
+                              ],
+                              buttons: [{
+                                             text: 'Ok',
+                                             handler: function(){
+                                                  Ext.Ajax.request({  
+                                                       waitMsg: 'Please Wait',
+                                                       url: 'service.php?action=templateIntervalUpload', 
+                                                       params: {
+                                                            ids: ids,
+                                                            date: Ext.getCmp('interval-date').getValue(),
+                                                            time: Ext.getCmp('interval-time').getValue(),
+                                                            minute: Ext.getCmp('interval-minute').getValue()
+                                                       }, 
+                                                       success: function(response){
+                                                            //console.log(response);
+                                                            var result = eval(response.responseText);
+                                                            //console.log(result);
+                                                            if(result[0].success){
+                                                                 //template_store.reload();
+                                                                 intervalUploadWindow.close();
+                                                                 Ext.MessageBox.alert('Success', result[0].msg);
+                                                            }else{
+                                                                 Ext.MessageBox.alert('Warning', result[0].msg);
+                                                            }
+                                                       },
+                                                       failure: function(response){
+                                                           var result=response.responseText;
+                                                           Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                       }
+                                                  });
+                                             }
+                                        },{
+                                             text: 'Close',
+                                             handler: function(){
+                                                  intervalUploadWindow.close();
+                                             }
+                                        }]
+                                        
+                         })
+                         
+                         intervalUploadWindow.show();
+                         return 1;
+                    }
+          }],
+          bbar: [new Ext.PagingToolbar({
+              pageSize: 20,
+              store: template_store,
+              displayInfo: true
+          }),'-',{
                text: 'Import SpoonFeeder',
                icon: './images/spoon.png',
                tooltip:'Import SpoonFeeder template file',
@@ -982,184 +1198,7 @@ Ext.onReady(function(){
                     })
                     importTbWindow.show();   
                }
-          },'-',{
-               text:'Immediately Upload',
-               icon: './images/arrow_up.png',
-               tooltip:'Immediately upload template',
-               handler: function(){
-                    var selections = template_grid.selModel.getSelections();
-                    if(template_grid.selModel.getCount() == 0){
-                         Ext.MessageBox.alert('Warning','Please select template.');
-                         return 0;
-                    }
-                    var ids = "";
-                    for(var i = 0; i< template_grid.selModel.getCount(); i++){
-                         ids += selections[i].data.Id + ","
-                    }
-                    ids = ids.slice(0,-1);
-                    
-                    Ext.Ajax.request({  
-                         waitMsg: 'Please Wait',
-                         url: 'service.php?action=templateImmediatelyUpload', 
-                         params: { 
-                              ids: ids
-                         }, 
-                         success: function(response){
-                             var result = eval(response.responseText);
-                              //console.log(result);
-                              if(result[0].success){
-                                   Ext.MessageBox.alert('Success', result[0].msg);      
-                              }else{
-                                   Ext.MessageBox.alert('Failure', result[0].msg);      
-                              }
-                         },
-                         failure: function(response){
-                             var result=response.responseText;
-                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
-                         }
-                    });
-                    
-                    return 1;
-               }
-          },'-',{
-               text: 'Schedule Upload',
-               icon: './images/date_go.png',
-               tooltip:'add selected template to upload queue',
-               handler: function(){
-                    var selections = template_grid.selModel.getSelections();
-                    if(template_grid.selModel.getCount() == 0){
-                         Ext.MessageBox.alert('Warning','Please select the template you want to upload.');
-                         return 0;
-                    }
-                    var ids = "";
-                    for(var i = 0; i< template_grid.selModel.getCount(); i++){
-                         ids += selections[i].data.Id + ","
-                    }
-                    ids = ids.slice(0,-1);
-                    //console.log(ids);
-                    
-                    Ext.Ajax.request({  
-                         waitMsg: 'Please Wait',
-                         url: 'service.php?action=templateAddToUpload', 
-                         params: { 
-                                ids: ids
-                         }, 
-                         success: function(response){
-                             var result = eval(response.responseText);
-                              //console.log(result);
-                              if(result[0].success){
-                                   Ext.MessageBox.alert('Success', result[0].msg);      
-                              }else{
-                                   Ext.MessageBox.alert('Failure', result[0].msg);      
-                              }
-                         },
-                         failure: function(response){
-                             var result=response.responseText;
-                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
-                         }
-                    });
-                    return 1;
-               }
-          },'-',{
-                    text:'Interval Upload',
-                    icon: './images/clock_add.png',
-                    tooltip:'set interval upload time',
-                    handler: function(){
-                         var selections = template_grid.selModel.getSelections();
-                         if(template_grid.selModel.getCount() == 0){
-                              Ext.MessageBox.alert('Warning','Please select template.');
-                              return 0;
-                         }
-                         var ids = "";
-                         for(var i = 0; i< template_grid.selModel.getCount(); i++){
-                              ids += selections[i].data.Id + ","
-                         }
-                         ids = ids.slice(0,-1);
-                         
-                         //var today = new Date();
-                         //console.log(today.getFullYear()+'-'+minMonth+'-'+minDay);
-                         
-                         var  intervalUploadWindow = new Ext.Window({
-                              title: 'Interval Upload Set' ,
-                              closable:true,
-                              width: 300,
-                              height: 180,
-                              plain:true,
-                              layout: 'form',
-                              items: [{
-                                        id:'interval-date',
-                                        fieldLabel:'Date',
-                                        xtype:'datefield',
-                                        format:'Y-m-d',
-                                        minValue: new Date(),
-                                        selectOnFocus:true
-                                   },{
-                                        id:'interval-time',
-                                        fieldLabel:'Time',
-                                        xtype:'timefield',
-                                        increment:1,
-                                        triggerAction: 'all',
-                                        editable: false,
-                                        selectOnFocus:true,
-                                        listWidth:80,
-                                        width:80  
-                                   },{
-                                        id:'interval-minute',
-                                        fieldLabel:'Interval',
-                                        xtype:"combo",
-                                        store:[0,1,2,3,4,5,6,7,8,9,10],
-                                        listWidth:60,
-                                        width:60
-                                   }
-                              ],
-                              buttons: [{
-                                             text: 'Ok',
-                                             handler: function(){
-                                                  Ext.Ajax.request({  
-                                                       waitMsg: 'Please Wait',
-                                                       url: 'service.php?action=templateIntervalUpload', 
-                                                       params: {
-                                                            ids: ids,
-                                                            date: Ext.getCmp('interval-date').getValue(),
-                                                            time: Ext.getCmp('interval-time').getValue(),
-                                                            minute: Ext.getCmp('interval-minute').getValue()
-                                                       }, 
-                                                       success: function(response){
-                                                            //console.log(response);
-                                                            var result = eval(response.responseText);
-                                                            //console.log(result);
-                                                            if(result[0].success){
-                                                                 //template_store.reload();
-                                                                 intervalUploadWindow.close();
-                                                                 Ext.MessageBox.alert('Success', result[0].msg);
-                                                            }else{
-                                                                 Ext.MessageBox.alert('Warning', result[0].msg);
-                                                            }
-                                                       },
-                                                       failure: function(response){
-                                                           var result=response.responseText;
-                                                           Ext.MessageBox.alert('error','could not connect to the database. retry later');      
-                                                       }
-                                                  });
-                                             }
-                                        },{
-                                             text: 'Close',
-                                             handler: function(){
-                                                  intervalUploadWindow.close();
-                                             }
-                                        }]
-                                        
-                         })
-                         
-                         intervalUploadWindow.show();
-                         return 1;
-                    }
-          }],
-          bbar: new Ext.PagingToolbar({
-              pageSize: 20,
-              store: template_store,
-              displayInfo: true
-          })
+          }]
      })
      /*
      template_grid.on("rowdblclick", function(oGrid){
@@ -1196,7 +1235,7 @@ Ext.onReady(function(){
      })
      
      var template_category_form = new Ext.FormPanel({
-          title: 'Template Categories Manage',
+          title: 'Manage Categories',
           border: false,
           collapsible: true,
           collapsed: true,
@@ -1522,7 +1561,7 @@ Ext.onReady(function(){
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
-                                   fields: ['Id', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price', 'EndTime'],
+                                   fields: ['Id', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'QuantitySold', 'ListingDuration', 'Price', 'EndTime'],
                                    sortInfo: {
                                         field: 'Id',
                                         direction: 'ASC'
@@ -1548,6 +1587,7 @@ Ext.onReady(function(){
                                         {header: "Site", width: 50, align: 'center', sortable: true, dataIndex: 'Site'},
                                         {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                         {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
+                                        {header: "SQty", width: 50, align: 'center', sortable: true, dataIndex: 'QuantitySold'},
                                         {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
                                         {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
                                         {header: "End Time", width: 120, align: 'center', sortable: true, dataIndex: 'EndTime'}
@@ -1689,6 +1729,7 @@ Ext.onReady(function(){
                {
                    region:'north',
                    xtype:"panel",
+                   html: '<div style="background-image: url(images/logo.bmp) !important;background-repeat:no-repeat;width:100%;height:100%">',
                    items:[{
                          xtype:"button",
                          text:"Log Out",
@@ -1735,9 +1776,9 @@ Ext.onReady(function(){
                     id:'west-panel',
                     title:'Function Palette',
                     split:true,
-                    width: 200,
-                    minSize: 175,
-                    maxSize: 400,
+                    width: 180,
+                    minSize: 160,
+                    maxSize: 200,
                     collapsible: true,
                     margins:'0 0 0 5',
                     layout:'accordion',
