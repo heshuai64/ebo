@@ -1138,7 +1138,7 @@ class eBayListing{
 	    ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,PostalCode,
 	    PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,Quantity,
 	    ReturnPolicyDescription,ReturnPolicyRefundOption,ReturnPolicyReturnsAcceptedOption,ReturnPolicyReturnsWithinOption,ReturnPolicyShippingCostPaidByOption,
-	    ReservePrice,ShippingType,Site,SKU,StartPrice,StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,
+	    ReservePrice,Site,SKU,StartPrice,StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,
 	    BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypePlus,GalleryURL,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,accountId,UseStandardFooter) values (
 	    '".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
 	    '".htmlentities($_POST['Description'])."','".$_POST['DispatchTimeMax']."',
@@ -1148,7 +1148,7 @@ class eBayListing{
 	    '".@$_POST['Quantity']."',
 	    '".$_SESSION['ReturnPolicyReturns'][$_POST['SKU']]['ReturnPolicyDescription']."','".$_SESSION['ReturnPolicyReturns'][$_POST['SKU']]['ReturnPolicyRefundOption']."',
 	    '".$_SESSION['ReturnPolicyReturns'][$_POST['SKU']]['ReturnPolicyReturnsAcceptedOption']."','".$_SESSION['ReturnPolicyReturns'][$_POST['SKU']]['ReturnPolicyReturnsWithinOption']."',
-	    '".$_SESSION['ReturnPolicyReturns'][$_POST['SKU']]['ReturnPolicyShippingCostPaidByOption']."','".@$_POST['ReservePrice']."','".@$_POST['ShippingType']."',
+	    '".$_SESSION['ReturnPolicyReturns'][$_POST['SKU']]['ReturnPolicyShippingCostPaidByOption']."','".@$_POST['ReservePrice']."',
 	    '".$_POST['Site']."','".$_POST['SKU']."','".$_POST['StartPrice']."','".$_POST['StoreCategory2ID']."','".$_POST['StoreCategory2Name']."',
 	    '".$_POST['StoreCategoryID']."','".$_POST['StoreCategoryName']."','".$_POST['SubTitle']."',
 	    '".mysql_real_escape_string($_POST['Title'])."','".(empty($_POST['BoldTitle'])?0:1)."',
