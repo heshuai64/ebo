@@ -4,8 +4,8 @@ Ext.onReady(function(){
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      
-     var path = "/eBayBO/eBayListing/";
-     //var path = "/eBayListing/";
+     //var path = "/eBayBO/eBayListing/";
+     var path = "/eBayListing/";
      /*
      var cp = new Ext.state.CookieProvider({
           path: "/eBayBO/eBayListing/"
@@ -3159,32 +3159,126 @@ Ext.onReady(function(){
                               xtype: 'buttongroup',
                               columns: 1,
                               items: [{
-                                   text: 'Upload Log',
-                                   iconCls: 'upload-log',
+                                   text: 'Template Log',
+                                   iconCls: 'template-log',
                                    handler: function(){
                                         //console.log("test");
-                                        var log_store = new Ext.data.JsonStore({
+                                        var template_store = new Ext.data.JsonStore({
                                              root: 'records',
                                              totalProperty: 'totalCount',
                                              idProperty: 'id',
                                              //autoLoad:true,
                                              fields: ['id', 'level', 'content', 'time'],
-                                             url: 'service.php?action=getUploadLog'
+                                             url: 'service.php?action=getUploadLog&type=template'
                                         })
                                         //console.log("test1");
-                                        var log_grid = new Ext.grid.GridPanel({
-                                             title: 'Upload Log',
-                                             store: log_store,
+                                        var template_grid = new Ext.grid.GridPanel({
+                                             title: 'Template Log',
+                                             store: template_store,
                                              autoHeight: true,
                                              selModel: new Ext.grid.RowSelectionModel({}),
                                              columns:[
                                                   {header: "Level", width: 80, align: 'center', sortable: true, dataIndex: 'level'},
-                                                  {header: "Content", width: 600, align: 'center', sortable: true, dataIndex: 'content'},
+                                                  {header: "Content", width: 800, align: 'center', sortable: true, dataIndex: 'content'},
                                                   {header: "Time", width: 110, align: 'center', sortable: true, dataIndex: 'time'}
                                              ],
                                              bbar: new Ext.PagingToolbar({
                                                  pageSize: 20,
-                                                 store: log_store,
+                                                 store: template_store,
+                                                 displayInfo: true
+                                             })
+                                        })
+                                        //console.log(tabPanel);
+                                        if(tabPanel.isVisible('template-log-tab'))
+                                             tabPanel.remove('template-log-tab');
+                                             
+     
+                                        template_store.load();
+                                        tabPanel.add({
+                                             id:'template-log-tab',
+                                             iconCls: 'template-log',
+                                             title: "Template Log",
+                                             items: template_grid,
+                                             closable: true,
+                                             autoScroll:true
+                                        })
+                                        tabPanel.doLayout();
+                                        tabPanel.activate('template-log-tab');
+                                   }
+                              },{
+                                   text: 'Item   Log',
+                                   iconCls: 'item-log',
+                                   handler: function(){
+                                        //console.log("test");
+                                        var item_store = new Ext.data.JsonStore({
+                                             root: 'records',
+                                             totalProperty: 'totalCount',
+                                             idProperty: 'id',
+                                             //autoLoad:true,
+                                             fields: ['id', 'level', 'content', 'time'],
+                                             url: 'service.php?action=getUploadLog&type=item'
+                                        })
+                                        //console.log("test1");
+                                        var item_grid = new Ext.grid.GridPanel({
+                                             title: 'Item Log',
+                                             store: item_store,
+                                             autoHeight: true,
+                                             selModel: new Ext.grid.RowSelectionModel({}),
+                                             columns:[
+                                                  {header: "Level", width: 80, align: 'center', sortable: true, dataIndex: 'level'},
+                                                  {header: "Content", width: 800, align: 'center', sortable: true, dataIndex: 'content'},
+                                                  {header: "Time", width: 110, align: 'center', sortable: true, dataIndex: 'time'}
+                                             ],
+                                             bbar: new Ext.PagingToolbar({
+                                                 pageSize: 20,
+                                                 store: item_store,
+                                                 displayInfo: true
+                                             })
+                                        })
+                                        //console.log(tabPanel);
+                                        if(tabPanel.isVisible('item-log-tab'))
+                                             tabPanel.remove('item-log-tab');
+                                             
+     
+                                        item_store.load();
+                                        tabPanel.add({
+                                             id:'item-log-tab',
+                                             iconCls: 'item-log',
+                                             title: "Item Log",
+                                             items: item_grid,
+                                             closable: true,
+                                             autoScroll:true
+                                        })
+                                        tabPanel.doLayout();
+                                        tabPanel.activate('item-log-tab');
+                                   }
+                              },{
+                                   text: 'Upload Log',
+                                   iconCls: 'upload-log',
+                                   handler: function(){
+                                        //console.log("test");
+                                        var upload_store = new Ext.data.JsonStore({
+                                             root: 'records',
+                                             totalProperty: 'totalCount',
+                                             idProperty: 'id',
+                                             //autoLoad:true,
+                                             fields: ['id', 'level', 'content', 'time'],
+                                             url: 'service.php?action=getUploadLog&type=upload'
+                                        })
+                                        //console.log("test1");
+                                        var upload_grid = new Ext.grid.GridPanel({
+                                             title: 'Upload Log',
+                                             store: upload_store,
+                                             autoHeight: true,
+                                             selModel: new Ext.grid.RowSelectionModel({}),
+                                             columns:[
+                                                  {header: "Level", width: 80, align: 'center', sortable: true, dataIndex: 'level'},
+                                                  {header: "Content", width: 800, align: 'center', sortable: true, dataIndex: 'content'},
+                                                  {header: "Time", width: 110, align: 'center', sortable: true, dataIndex: 'time'}
+                                             ],
+                                             bbar: new Ext.PagingToolbar({
+                                                 pageSize: 20,
+                                                 store: upload_store,
                                                  displayInfo: true
                                              })
                                         })
@@ -3193,12 +3287,12 @@ Ext.onReady(function(){
                                              tabPanel.remove('upload-log-tab');
                                              
      
-                                        log_store.load();
+                                        upload_store.load();
                                         tabPanel.add({
                                              id:'upload-log-tab',
                                              iconCls: 'upload-log',
-                                             title: "Log",
-                                             items: log_grid,
+                                             title: "Upload Log",
+                                             items: upload_grid,
                                              closable: true,
                                              autoScroll:true
                                         })
@@ -3206,11 +3300,52 @@ Ext.onReady(function(){
                                         tabPanel.activate('upload-log-tab');
                                    }
                               },{
-                                   text: 'Template Log',
-                                   iconCls: 'template-log'
-                              },{
-                                   text: 'System Log',
-                                   iconCls: 'template-log'
+                                   text: 'Revise Log',
+                                   iconCls: 'revise-log',
+                                   handler: function(){
+                                        //console.log("test");
+                                        var revise_store = new Ext.data.JsonStore({
+                                             root: 'records',
+                                             totalProperty: 'totalCount',
+                                             idProperty: 'id',
+                                             //autoLoad:true,
+                                             fields: ['id', 'level', 'content', 'time'],
+                                             url: 'service.php?action=getUploadLog&type=revise'
+                                        })
+                                        //console.log("test1");
+                                        var revise_grid = new Ext.grid.GridPanel({
+                                             title: 'Upload Log',
+                                             store: revise_store,
+                                             autoHeight: true,
+                                             selModel: new Ext.grid.RowSelectionModel({}),
+                                             columns:[
+                                                  {header: "Level", width: 80, align: 'center', sortable: true, dataIndex: 'level'},
+                                                  {header: "Content", width: 800, align: 'center', sortable: true, dataIndex: 'content'},
+                                                  {header: "Time", width: 110, align: 'center', sortable: true, dataIndex: 'time'}
+                                             ],
+                                             bbar: new Ext.PagingToolbar({
+                                                 pageSize: 20,
+                                                 store: revise_store,
+                                                 displayInfo: true
+                                             })
+                                        })
+                                        //console.log(tabPanel);
+                                        if(tabPanel.isVisible('revise-log-tab'))
+                                             tabPanel.remove('revise-log-tab');
+                                             
+     
+                                        revise_store.load();
+                                        tabPanel.add({
+                                             id:'revise-log-tab',
+                                             iconCls: 'revise-log',
+                                             title: "Revise Log",
+                                             items: revise_grid,
+                                             closable: true,
+                                             autoScroll:true
+                                        })
+                                        tabPanel.doLayout();
+                                        tabPanel.activate('revise-log-tab');
+                                   }
                               }]                      
                          },
                          border:false,
