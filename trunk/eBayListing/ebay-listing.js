@@ -4,8 +4,8 @@ Ext.onReady(function(){
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      
-     //var path = "/eBayBO/eBayListing/";
-     var path = "/eBayListing/";
+     var path = "/eBayBO/eBayListing/";
+     //var path = "/eBayListing/";
      /*
      var cp = new Ext.state.CookieProvider({
           path: "/eBayBO/eBayListing/"
@@ -1508,7 +1508,7 @@ Ext.onReady(function(){
                                              }
                                              ids = ids.slice(0,-1);
                                              if(activity_grid.selModel.getCount() > 1){
-                                                  window.open(path + "mrevise.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                                  window.open(path + "mitem.php?id="+ids+"&Status=3","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                              }else{
                                                   window.open(path + "revise.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                              }     
@@ -1610,7 +1610,7 @@ Ext.onReady(function(){
                                              //console.log(ids);
                                              //return 0;
                                              if(sold_item_grid.selModel.getCount() > 1){
-                                                  window.open(path + "mrelist.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                                  window.open(path + "mitem.php?id="+ids+"&Status=4","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                              }else{
                                                   window.open(path + "relist.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                              }     
