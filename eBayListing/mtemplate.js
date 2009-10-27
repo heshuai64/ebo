@@ -4,7 +4,7 @@ Ext.onReady(function(){
     var today = new Date();
     var today = new Date();
     //var path = "/eBayBO/eBayListing/";
-    var path = "/eBayListing/";
+    //var path = "/eBayListing/";
     
     var pictureForm = new Ext.form.FormPanel({
             labelAlign:"top",
@@ -16,6 +16,7 @@ Ext.onReady(function(){
                 id:"picture_value_1",
                 xtype:"textfield",
                 fieldLabel:"Picture 1  (used for Gallery)",
+                emptyText: "Multi Value",
                 name:"picture_value_1",
                 listeners: {
                     render: function(t){
@@ -26,6 +27,7 @@ Ext.onReady(function(){
                 id:"picture_value_2",
                 xtype:"textfield",
                 fieldLabel:"Picture 2",
+                emptyText: "Multi Value",
                 name:"picture_value_2",
                 listeners: {
                     render: function(t){
@@ -36,6 +38,7 @@ Ext.onReady(function(){
                 id:"picture_value_3",
                 xtype:"textfield",
                 fieldLabel:"Picture 3",
+                emptyText: "Multi Value",
                 name:"picture_value_3",
                 listeners: {
                     render: function(t){
@@ -46,6 +49,7 @@ Ext.onReady(function(){
                 id:"picture_value_4",
                 xtype:"textfield",
                 fieldLabel:"Picture 4",
+                emptyText: "Multi Value",
                 name:"picture_value_4",
                 listeners: {
                     render: function(t){
@@ -56,6 +60,7 @@ Ext.onReady(function(){
                 id:"picture_value_5",
                 xtype:"textfield",
                 fieldLabel:"Picture 5",
+                emptyText: "Multi Value",
                 name:"picture_value_5",
                 listeners: {
                     render: function(t){
@@ -66,6 +71,7 @@ Ext.onReady(function(){
                 id:"picture_value_6",
                 xtype:"textfield",
                 fieldLabel:"Picture 6",
+                emptyText: "Multi Value",
                 name:"picture_value_6",
                 listeners: {
                     render: function(t){
@@ -76,6 +82,7 @@ Ext.onReady(function(){
                 id:"picture_value_7",
                 xtype:"textfield",
                 fieldLabel:"Picture 7",
+                emptyText: "Multi Value",
                 name:"picture_value_7",
                 listeners: {
                     render: function(t){
@@ -86,6 +93,7 @@ Ext.onReady(function(){
                 id:"picture_value_8",
                 xtype:"textfield",
                 fieldLabel:"Picture 8",
+                emptyText: "Multi Value",
                 name:"picture_value_8",
                 listeners: {
                     render: function(t){
@@ -96,6 +104,7 @@ Ext.onReady(function(){
                 id:"picture_value_9",
                 xtype:"textfield",
                 fieldLabel:"Picture 9",
+                emptyText: "Multi Value",
                 name:"picture_value_9",
                 listeners: {
                     render: function(t){
@@ -106,6 +115,7 @@ Ext.onReady(function(){
                 id:"picture_value_10",
                 xtype:"textfield",
                 fieldLabel:"Picture 10",
+                emptyText: "Multi Value",
                 name:"picture_value_10",
                 listeners: {
                     render: function(t){
@@ -182,6 +192,23 @@ Ext.onReady(function(){
         url:'service.php?action=getAllCountries'
     })
     
+    var currencyCombo = new Ext.form.ComboBox({
+        readOnly:true,
+        labelAlign:"left",
+        fieldLabel:"Currency",
+        mode: 'local',
+        store: ['USD', 'GBP', 'AUD', 'EUR'],
+        triggerAction: 'all',
+        editable: false,
+        selectOnFocus:true,
+        emptyText: "Multi Value",
+        //listWidth: 156,
+        //width: 156,
+        name:'Currency',
+        hiddenName:'Currency'
+    })
+    
+    
     var listTypeCombo = new Ext.form.ComboBox({
         mode: 'local',
         store: new Ext.data.JsonStore({
@@ -190,15 +217,14 @@ Ext.onReady(function(){
             url: "service.php?action=getListingDurationType"
         }),
         valueField:'id',
+        emptyText: "Multi Value",
         displayField:'name',
         triggerAction: 'all',
         editable: false,
         selectOnFocus:true,
         //name: 'ListingTypeCombo',
         //hiddenName:'ListingTypeCombo',
-        emptyText: "Multi Value",
         width: 150,
-        allowBlank:false,
         listeners: {
             "select": function(c, r, i){
                 switch(r.data.name){
@@ -232,9 +258,9 @@ Ext.onReady(function(){
             store: ['Flat', 'Calculated'],
             triggerAction: 'all',
             editable: false,
+            emptyText: "Multi Value",
             width: 150,
             listWidth: 150,
-            emptyText: "Multi Value",
             listeners: {
                 "select": function(c, r, i){
                     //console.log(c);
@@ -251,9 +277,9 @@ Ext.onReady(function(){
             store: ['Flat', 'Calculated'],
             triggerAction: 'all',
             editable: false,
+            emptyText: "Multi Value",
             width: 150,
             listWidth: 150,
-            emptyText: "Multi Value",
             listeners: {
                 "select": function(c, r, i){
                     //console.log(r);
@@ -376,71 +402,69 @@ Ext.onReady(function(){
         labelAlign:"top",
         //height: 600,
         buttonAlign:"center",
-        reader:new Ext.data.JsonReader({
-            }, ['Id','AutoPay','BuyItNowPrice','CategoryMappingAllowed','Country','Currency','Description','DispatchTimeMax','ListingDuration','ListingType','Location','PaymentMethods','PayPalEmailAddress',
-                'PostalCode','PrimaryCategoryCategoryID','PrimaryCategoryCategoryName','Quantity','ReturnPolicyDescription','ReturnPolicyReturnsAcceptedOption','ReturnPolicyReturnsAcceptedOption','ReturnPolicyReturnsWithinOption',
-                'ReturnPolicyShippingCostPaidByOption','ReservePrice','CurrentPrice','ListingStatus','ScheduleTime','SecondaryCategoryCategoryID','SecondaryCategoryCategoryName','Site','SiteID','SKU','StartPrice',
-                'StoreCategory2ID','StoreCategory2Name','StoreCategoryID','StoreCategoryName','SubTitle','Title','UserID','BoldTitle','Border','Featured','Highlight','HomePageFeatured','GalleryTypeFeatured','GalleryTypeGallery','GalleryTypePlus','GalleryURL',
-                'picture_1','picture_2','picture_3','picture_4','picture_5','picture_6','picture_7','picture_8',
-                'picture_9','picture_10','PhotoDisplay','ShippingServiceOptionsType','InternationalShippingServiceOptionType',
-                'ShippingService_1','ShippingServiceCost_1','ShippingServiceFree_1',
-                'ShippingService_2','ShippingServiceCost_2','ShippingServiceFree_2',
-                'ShippingService_3','ShippingServiceCost_3','ShippingServiceFree_3',
-                'InternationalShippingService_1','InternationalShippingServiceCost_1',
-                'InternationalShippingService_2','InternationalShippingServiceCost_2',
-                'InternationalShippingService_3','InternationalShippingServiceCost_3',
-                'InternationalShippingToLocations_1','InternationalShippingToLocations_2','InternationalShippingToLocations_3',
-                'Americas_1','Europe_1','Asia_1','CA_1','GB_1','AU_1','MX_1','DE_1','JP_1',
-                'Americas_2','Europe_2','Asia_2','CA_2','GB_2','AU_2','MX_2','DE_2','JP_2',
-                'Americas_3','Europe_3','Asia_3','CA_3','GB_3','AU_3','MX_3','DE_3','JP_3',
-                'accountId'
-        ]),
         items:[{
-                xtype:"combo",
-                labelAlign:"left",
-                fieldLabel:"Site",
-                mode: 'local',
-                store: siteStore,
-                valueField:'name',
-                displayField:'name',
-                triggerAction: 'all',
-                editable: false,
-                selectOnFocus:true,
-                //listWidth: 156,
-                //width: 156,
-                name: 'Site',
-                //allowBlank: false,
-                hiddenName:'Site',
-                emptyText: "Multi Value",
-                listeners: {
-                    "select": function(c, r, i){
-                        categoryStore.setBaseParam('SiteID', r.data.id);
-                        //console.log(r);
-                        switch(r.data.name){
-                            case "US":
-                               Ext.getCmp("Currency").setValue("USD");
-                            break;
-                        
-                            case "UK":
-                               Ext.getCmp("Currency").setValue("GBP");
-                            break;
-                        
-                            case "Australia":
-                                Ext.getCmp("Currency").setValue("AUD");
+                layout:"column",
+                border:false,
+                width: 300,
+                items:[{
+                    columnWidth:0.5,
+                    layout:"form",
+                    defaults:{
+                        width: 100,
+                        listWidth: 100
+                    },
+                    border:false,
+                    items:[{
+                        xtype:"combo",
+                        labelAlign:"left",
+                        fieldLabel:"Site",
+                        mode: 'local',
+                        store: siteStore,
+                        valueField:'name',
+                        displayField:'name',
+                        triggerAction: 'all',
+                        editable: false,
+                        selectOnFocus:true,
+                        //listWidth: 156,
+                        //width: 156,
+                        name: 'Site',
+                        hiddenName:'Site',
+                        emptyText: "Multi Value",
+                        listeners: {
+                            select: function(c, r, i){
+                                categoryStore.setBaseParam('SiteID', r.data.id);
+                                //console.log(r);
+                                switch(r.data.name){
+                                    case "US":
+                                       currencyCombo.setValue("USD");
+                                    break;
                                 
-                            break;
-                        
-                            case "France":
-                                Ext.getCmp("Currency").setValue("EUR");
-                            break;
+                                    case "UK":
+                                       currencyCombo.setValue("GBP");
+                                    break;
+                                
+                                    case "Australia":
+                                        currencyCombo.setValue("AUD");
+                                    break;
+                                
+                                    case "France":
+                                        currencyCombo.setValue("EUR");
+                                    break;
+                                }
+                                Ext.getCmp("SiteID").setValue(r.data.name);
+                            }
                         }
-                        Ext.getCmp("SiteID").setValue(r.data.name);
-                    }
-                }
-            },{
-                xtype:"hidden",
-                id:'Currency',
-                name:'Currency'
+                    }]
+                },{
+                    columnWidth:0.5,
+                    layout:"form",
+                    defaults:{
+                        width: 80,
+                        listWidth: 80
+                    },
+                    border:false,
+                    items: currencyCombo
+                }]
             },{
                 xtype:"hidden",
                 id:'SiteID',
@@ -559,7 +583,7 @@ Ext.onReady(function(){
                                                 handler:function(){
                                                     itemSpecificsForm.getForm().submit({
                                                         clientValidation: true,
-                                                        url: 'service.php?action=saveSpecifics&item_id='+item_id,
+                                                        url: 'service.php?action=saveSpecifics&template_id='+template_id,
                                                         success: function(form, action) {
                                                             itemSpecificsWindow.close();
                                                             //console.log(action);
@@ -590,7 +614,7 @@ Ext.onReady(function(){
                                         itemSpecificsWindow.show();
                                         
                                         itemSpecificsForm.getForm().load({
-                                            url: 'service.php?action=loadSpecifics&AttributeSetID='+temp.CharacteristicsSetId+'&item_id='+item_id,
+                                            url: 'service.php?action=loadSpecifics&AttributeSetID='+temp.CharacteristicsSetId+'&template_id='+template_id,
                                             waitMsg:'Please wait...',
                                             success: function(form, action){
                                                 //console.log(action);
@@ -617,14 +641,14 @@ Ext.onReady(function(){
                         id:"Title",
                         xtype:"textfield",
                         fieldLabel:"Title",
-                        name:"Title",
-                        emptyText: "Multi Value"
+                        emptyText: "Multi Value",
+                        name:"Title"
                       },{
                         id:"SubTitle",
                         xtype:"textfield",
                         fieldLabel:"Subtitle",
-                        name:"SubTitle",
-                        emptyText: "Multi Value"
+                        emptyText: "Multi Value",
+                        name:"SubTitle"
                       },{
                         layout:"column",
                         border: false,
@@ -639,13 +663,12 @@ Ext.onReady(function(){
                                 id:"category",
                                 xtype:"combo",
                                 fieldLabel:"Category",
+                                emptyText: "Multi Value",
                                 //editable:false,
                                 name:"PrimaryCategoryCategoryName",
                                 hiddenName:"PrimaryCategoryCategoryName",
                                 width: 600,
                                 listWidth: 600,
-                                emptyText: "Multi Value",
-                                
                                 store: categoryStore,
                                 displayField:'name',
                                 //typeAhead: false,
@@ -742,12 +765,12 @@ Ext.onReady(function(){
                                 id:"SCategory",
                                 xtype:"combo",
                                 fieldLabel:"2nd Category",
+                                emptyText: "Multi Value",
                                 //editable:false,
                                 name:"SecondaryCategoryCategoryName",
                                 hiddenName:"SecondaryCategoryCategoryName",
                                 width: 600,
                                 listWidth: 600,
-                                emptyText: "Multi Value",
                                 
                                 store: categoryStore,
                                 displayField:'name',
@@ -845,12 +868,11 @@ Ext.onReady(function(){
                                 id:"storeCategory",
                                 xtype:"combo",
                                 fieldLabel:"Store Category",
-                                editable:false,
+                                emptyText: "Multi Value",
                                 name:"StoreCategoryName",
                                 hiddenName:"StoreCategoryName",
                                 width: 600,
-                                listWidth: 600,
-                                emptyText: "Multi Value"
+                                listWidth: 600
                             }]
                           },{
                             columnWidth:0.1,
@@ -935,12 +957,11 @@ Ext.onReady(function(){
                                 id:"SStoreCategory",
                                 xtype:"combo",
                                 fieldLabel:"2nd Store Category",
-                                editable:false,
+                                emptyText: "Multi Value",
                                 name:"StoreCategory2Name",
                                 hiddenName:"StoreCategory2Name",
                                 width: 600,
-                                listWidth: 600,
-                                emptyText: "Multi Value"
+                                listWidth: 600
                             }]
                           },{
                             columnWidth:0.1,
@@ -1030,6 +1051,7 @@ Ext.onReady(function(){
                                 items: [{
                                     xtype:"textfield",
                                     fieldLabel:"url",
+                                    emptyText: "Multi Value",
                                     labelStyle:"width:50px;",
                                     id:"gallery-url",
                                     style:"padding-left:0px;",
@@ -1288,34 +1310,18 @@ Ext.onReady(function(){
                         width: 690,
                         height: 500,
                         title:"Description",
-                        html:'<textarea id="Description" name="Description" style="height:450px; width:100%;">Multi Value</textarea>'
+                        html:'<textarea id="Description" name="Description" style="height:450px; width:100%;">'
                     },{
                         layout:"column",
                         border:false,
                         items:[{
-                            width: 150,
-                            border:false,
-                            items:[{
-                                xtype:"button",
-                                text:"Preview Description",
-                                handler: function(){
-                                    Ext.Ajax.request({
-                                        url: 'service.php?action=saveTempDescription&type=items&id='+item_id,
-                                        params: { description: tinyMCE.get("Description").getContent()},
-                                        success: function(a, b){
-                                            window.open(path + "preview.php?type=items&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+item_id,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
-                                        }
-                                    })    
-                                }
-                            }]
-                        },{
                             width: 120,
                             border:false,
                             items:[{
                                 xtype:"button",
-                                text:"Edit Standard Footer",
+                                text:"Edit Standard Style",
                                 handler: function(){
-                                    window.open(path + "footer.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                    window.open(path + "style.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                 }
                             }]
                         },{
@@ -1331,51 +1337,32 @@ Ext.onReady(function(){
                                 fieldLabel:"",
                                 labelStyle: 'height:0px;padding:0px;',
                                 style:"padding:0px;",
-                                boxLabel:"Use Standard Footer",
-                                name:"UseStandardFooter",
-                                inputValue:1
-                            }]
-                        }]
-                    }/*{
-                        //autoScroll: true,
-                        id:"Description",
-                        width: 700,
-                        height: 500,
-                        xtype:"htmleditor",
-                        fieldLabel:"Descritpion",
-                        name:"Description",
-                        emptyText: "Multi Value"
-                    },{
-                        layout:"column",
-                        border:false,
-                        items:[{
-                            columnWidth:0.2,
-                            layout:"form",
-                            border:false,
-                            style:"padding:0px;",
-                            items:[{
-                                xtype:"checkbox",
-                                labelWidth: 0,
-                                labelSeparator: '',
-                                fieldLabel:"",
-                                labelStyle: 'height:0px;padding:0px;',
-                                style:"padding:0px;",
-                                boxLabel:"Use Standard Footer",
+                                boxLabel:"Use Standard Style",
                                 name:"UseStandardFooter",
                                 inputValue:1
                             }]
                         },{
-                            columnWidth:0.2,
+                            width: 150,
                             border:false,
                             items:[{
                                 xtype:"button",
-                                text:"Edit Standard Footer",
+                                text:"Preview Description",
                                 handler: function(){
-                                    window.open(path + "footer.html","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                    Ext.Ajax.request({
+                                        url: 'service.php?action=saveTempDescription&type=template&id='+template_id,
+                                        params: {
+                                            title: Ext.getCmp("Title").getValue(),
+                                            description: tinyMCE.get("Description").getContent(),
+                                            sku: Ext.getCmp("SKU").getValue()
+                                        },
+                                        success: function(a, b){
+                                            window.open(path + "preview.php?type=template&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+template_id+"&sku="+Ext.getCmp("SKU").getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                        }
+                                    })
                                 }
                             }]
                         }]
-                    }*/]
+                    }]
                   },{
                     xtype:"panel",
                     title:"Schedule",
@@ -1429,8 +1416,26 @@ Ext.onReady(function(){
                   },{
                         xtype:"textfield",
                         fieldLabel:"<font color='red'>SKU</font>",
-                        name:"SKU",
-                        emptyText: "Multi Value"
+                        emptyText: "Multi Value",
+                        id:"SKU",
+                        name:"SKU"
+                    },{
+                        xtype: 'combo',
+                        fieldLabel:"Template Category",
+                        emptyText: "Multi Value",
+                        mode: 'local',
+                        store: new Ext.data.JsonStore({
+                            autoLoad: true,
+                            fields: ['id', 'name'],
+                            url: "service.php?action=getTemplateCategory"
+                        }),
+                        valueField:'id',
+                        displayField:'name',
+                        triggerAction: 'all',
+                        editable: false,
+                        selectOnFocus:true,
+                        name: 'template_category_id',
+                        hiddenName:'template_category_id'
                     }]
               },{
                 columnWidth:0.3,
@@ -1458,21 +1463,21 @@ Ext.onReady(function(){
                                 items:[{
                                     xtype:"numberfield",
                                     fieldLabel:"Start Price",
+                                    emptyText: "Multi Value",
                                     id:"StartPrice",
-                                    name:"StartPrice",
-                                    emptyText: "Multi Value"
+                                    name:"StartPrice"
                                   },{
                                     xtype:"numberfield",
                                     fieldLabel:"Buy It Now Price",
+                                    emptyText: "Multi Value",
                                     id:"BuyItNowPrice",
-                                    name:"BuyItNowPrice",
-                                    emptyText: "Multi Value"
+                                    name:"BuyItNowPrice"
                                   },{
                                     id:"Quantity",
                                     xtype:"numberfield",
                                     fieldLabel:"Quantity",
-                                    name:"Quantity",
-                                    emptyText: "Multi Value"
+                                    emptyText: "Multi Value",
+                                    name:"Quantity"
                                   }]
                               },{
                                 columnWidth:0.5,
@@ -1485,12 +1490,13 @@ Ext.onReady(function(){
                                 items:[{
                                     xtype:"numberfield",
                                     fieldLabel:"Reserve Price",
+                                    emptyText: "Multi Value",
                                     id:"ReservePrice",
-                                    name:"ReservePrice",
-                                    emptyText: "Multi Value"
+                                    name:"ReservePrice"
                                   },{
                                     xtype:"combo",
                                     fieldLabel:"Duration",
+                                    emptyText: "Multi Value",
                                     mode: 'local',
                                     store: listingDurationStore,
                                     valueField:'id',
@@ -1502,64 +1508,14 @@ Ext.onReady(function(){
                                     //width: 156,
                                     name: 'ListingDuration',
                                     //allowBlank: false,
-                                    hiddenName:'ListingDuration',
-                                    emptyText: "Multi Value"
+                                    hiddenName:'ListingDuration'
                                   }]
                               }]
                         }],
                         cls: 'my-fieldset',
                         style: 'margin: 10px;',
                         listeners: {
-                            render: function(c){
-                                /*
-                                var combo = new Ext.form.ComboBox({
-                                    mode: 'local',
-                                    store: new Ext.data.JsonStore({
-                                        autoLoad: true,
-                                        fields: ['id', 'name'],
-                                        url: "service.php?action=getListingDurationType"
-                                    }),
-                                    valueField:'id',
-                                    displayField:'name',
-                                    triggerAction: 'all',
-                                    editable: false,
-                                    selectOnFocus:true,
-                                    //name: 'ListingTypeCombo',
-                                    //hiddenName:'ListingTypeCombo',
-                                    name: 'ListingType',
-                                    hiddenName:'ListingType',
-                                    width: 150,
-                                    allowBlank:false,
-                                    listeners: {
-                                        "select": function(c, r, i){
-                                            switch(r.data.name){
-                                                case "Chinese":
-                                                    Ext.getCmp("StartPrice").setDisabled(0);
-                                                    Ext.getCmp("ReservePrice").setDisabled(0);
-                                                    Ext.getCmp("Quantity").setValue(1);
-                                                    Ext.getCmp("Quantity").setDisabled(1);
-                                                break;
-                                            
-                                                case "FixedPriceItem":
-                                                    Ext.getCmp("Quantity").setDisabled(0);
-                                                    Ext.getCmp("StartPrice").setDisabled(1);
-                                                    Ext.getCmp("ReservePrice").setDisabled(1);
-                                                break;
-                                            
-                                                case "StoresFixedPrice":
-                                                    Ext.getCmp("Quantity").setDisabled(0);
-                                                    Ext.getCmp("StartPrice").setDisabled(1);
-                                                    Ext.getCmp("ReservePrice").setDisabled(1);
-                                                break;
-                                            }
-                                            
-                                            //document.getElementById("ListingType").value = r.data.name;
-                                            listingDurationStore.load({params: {id: r.data.id}});
-                                        }
-                                    }
-                                });
-                                */
-                                
+                            render: function(c){  
                                 listTypeCombo.render(c.header, 1);
                                 c.on('destroy', function(){
                                         listTypeCombo.destroy();
@@ -1666,6 +1622,7 @@ Ext.onReady(function(){
                         text:"Return Policy",
                         iconCls:"return-policy",
                         handler:function(){
+                            
                             var window = new Ext.Window({
                                 title:"Please specify a return policy",
                                 closeAction:"hide",
@@ -1678,16 +1635,19 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     fieldLabel:"",
                                     boxLabel:"Returns accepted",
-                                    name:"ReturnPolicyReturnsAcceptedOption",
-                                    inputValue:"ReturnsAccepted"
+                                    id:"ReturnPolicyReturnsAcceptedOption1",
+                                    name:"ReturnPolicyReturnsAcceptedOption"
+                                    //value:"ReturnsAccepted"
                                 },{
                                     xtype:"form",
+                                    id:"ReturnPolicyReturns",
                                     style:"padding-left:10px;",
                                     labelAlign:"top",
                                     items:[{
-                                            id:"ReturnPolicyReturnsWithinOption",
+                                            //id:"ReturnPolicyReturnsWithinOption",
                                             xtype:"combo",
                                             fieldLabel:"Item must be returned within",
+                                            emptyText: "Multi Value",
                                             store: new Ext.data.SimpleStore({
                                                 fields: ["id","name"],
                                                 data: [["Days_3", "3 Days"],["Days_7", "7 Days"], ["Days_10", "10 Days"], ["Days_14", "14 Days"], ["Days_30", "30 Days"], ["Days_60", "60 Days"]]
@@ -1698,14 +1658,19 @@ Ext.onReady(function(){
                                             triggerAction: 'all',
                                             editable: false,
                                             name: 'ReturnPolicyReturnsWithinOption',
-                                            hiddenName:'ReturnPolicyReturnsWithinOption'
+                                            hiddenName:'ReturnPolicyReturnsWithinOption',
+                                            listeners:{select : function(c, r, i){
+                                                    Ext.getCmp("ReturnPolicyReturnsAcceptedOption1").setValue(1);
+                                                }
+                                            }
                                         },/*{
                                             xtype:"label",
                                             text:"After the buyer receives the item, it can be returned within the time frame selected."
                                         },*/{
-                                            id:"ReturnPolicyRefundOption",
+                                            //id:"ReturnPolicyRefundOption",
                                             xtype:"combo",
                                             fieldLabel:"Refund will be given as",
+                                            emptyText: "Multi Value",
                                             store: new Ext.data.SimpleStore({
                                                 fields: ["id","name"],
                                                 data: [["Exchange", "Exchange"],["MerchandiseCredit", "Merchandise Credit"], ["MoneyBack", "Money Back"]]
@@ -1737,6 +1702,7 @@ Ext.onReady(function(){
                                             id:"ReturnPolicyDescription",
                                             xtype:"textarea",
                                             fieldLabel: 'Additional return policy details',
+                                            emptyText: "Multi Value",
                                             name: 'ReturnPolicyDescription',
                                             width:400
                                         }]
@@ -1746,21 +1712,14 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     fieldLabel:"",
                                     boxLabel:"Returns not accepted",
+                                    id:"ReturnPolicyReturnsAcceptedOption2",
                                     name:"ReturnPolicyReturnsAcceptedOption",
-                                    inputValue:"ReturnsNotAccepted",
+                                    //value:"ReturnsNotAccepted",
                                     listeners:{"check":function(t, c){
                                             if(c){
-                                                Ext.getCmp("ReturnPolicyReturnsWithinOption").setDisabled(1);
-                                                Ext.getCmp("ReturnPolicyRefundOption").setDisabled(1);
-                                                Ext.getCmp("ReturnPolicyShippingCostPaidByOption1").setDisabled(1);
-                                                Ext.getCmp("ReturnPolicyShippingCostPaidByOption2").setDisabled(1);
-                                                Ext.getCmp("ReturnPolicyDescription").setDisabled(1);
+                                                Ext.getCmp("ReturnPolicyReturns").setDisabled(1);
                                             }else{
-                                                Ext.getCmp("ReturnPolicyReturnsWithinOption").setDisabled(0);
-                                                Ext.getCmp("ReturnPolicyRefundOption").setDisabled(0);
-                                                Ext.getCmp("ReturnPolicyShippingCostPaidByOption2").setDisabled(0);
-                                                Ext.getCmp("ReturnPolicyShippingCostPaidByOption2").setDisabled(0);
-                                                Ext.getCmp("ReturnPolicyDescription").setDisabled(0);
+                                                Ext.getCmp("ReturnPolicyReturns").setDisabled(0);
                                             }
                                         }
                                     }
@@ -1771,8 +1730,26 @@ Ext.onReady(function(){
                                 buttons:[{
                                     text:"OK",
                                     handler:function(){
-                                        
-                                        window.close();
+                                        Ext.getCmp('ReturnPolicyReturns').getForm().submit({
+                                            params: {
+                                                ReturnPolicyReturnsAcceptedOption1: Ext.getCmp("ReturnPolicyReturnsAcceptedOption1").getValue(),
+                                                ReturnPolicyReturnsAcceptedOption2: Ext.getCmp("ReturnPolicyReturnsAcceptedOption2").getValue()
+                                            },
+                                            url: 'service.php?action=saveReturnPolicyReturns&template_id='+template_id,
+                                            success: function(form, action) {
+                                                //Ext.Msg.alert("Success", action.result.msg);
+                                                window.close();
+                                            },
+                                            failure: function(form, action) {
+                                                switch (action.failureType) {
+                                                    case Ext.form.Action.CONNECT_FAILURE:
+                                                        Ext.Msg.alert("Failure", "Ajax communication failed");
+                                                        break;
+                                                    case Ext.form.Action.SERVER_INVALID:
+                                                        Ext.Msg.alert("Failure", action.result.msg);
+                                                }
+                                            }
+                                        })
                                     }
                                 },{
                                     text:"Cancel",
@@ -1810,6 +1787,7 @@ Ext.onReady(function(){
                                 items:[{
                                     xtype:"combo",
                                     fieldLabel:"Domestic Services",
+                                    emptyText: "Multi Value",
                                     mode: 'local',
                                     store: shippingServiceStore,
                                     valueField:'id',
@@ -1832,6 +1810,8 @@ Ext.onReady(function(){
                                 items:[{
                                     xtype:"numberfield",
                                     fieldLabel:"Cost",
+                                    emptyText: "Multi Value",
+                                    id:"ShippingServiceCost_1",
                                     name:"ShippingServiceCost_1",
                                     width:60
                                   }]
@@ -1846,7 +1826,16 @@ Ext.onReady(function(){
                                     fieldLabel:"",
                                     boxLabel:"Free",
                                     name:"ShippingServiceFree_1",
-                                    inputValue:"1"
+                                    inputValue:"1",
+                                    listeners: {
+                                        check: function(t, c){
+                                            if(c){
+                                                Ext.getCmp("ShippingServiceCost_1").disable();
+                                            }else{
+                                                Ext.getCmp("ShippingServiceCost_1").enable();
+                                            }
+                                        }
+                                    }
                                   }]
                               },{
                                 layout:"form",
@@ -1857,6 +1846,7 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
+                                    emptyText: "Multi Value",
                                     title:'Select a Shipping Service',
                                     name:"ShippingService_2",
                                     hiddenName:"ShippingService_2",
@@ -1879,6 +1869,8 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
+                                    emptyText: "Multi Value",
+                                    id:"ShippingServiceCost_2",
                                     name:"ShippingServiceCost_2",
                                     width:60
                                   }]
@@ -1893,7 +1885,16 @@ Ext.onReady(function(){
                                     fieldLabel:"",
                                     boxLabel:"Free",
                                     name:"ShippingServiceFree_2",
-                                    inputValue:"1"
+                                    inputValue:"1",
+                                    listeners: {
+                                        check: function(t, c){
+                                            if(c){
+                                                Ext.getCmp("ShippingServiceCost_2").disable();
+                                            }else{
+                                                Ext.getCmp("ShippingServiceCost_2").enable();
+                                            }
+                                        }
+                                    }
                                   }]
                               },{
                                 layout:"form",
@@ -1904,6 +1905,7 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
+                                    emptyText: "Multi Value",
                                     title:'Select a Shipping Service',
                                     name:"ShippingService_3",
                                     hiddenName:"ShippingService_3",
@@ -1926,6 +1928,8 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
+                                    emptyText: "Multi Value",
+                                    id:"ShippingServiceCost_3",
                                     name:"ShippingServiceCost_3",
                                     width:60
                                   }]
@@ -1940,12 +1944,64 @@ Ext.onReady(function(){
                                     fieldLabel:"",
                                     boxLabel:"Free",
                                     name:"ShippingServiceFree_3",
-                                    inputValue:"1"
+                                    inputValue:"1",
+                                    listeners: {
+                                        check: function(t, c){
+                                            if(c){
+                                                Ext.getCmp("ShippingServiceCost_3").disable();
+                                            }else{
+                                                Ext.getCmp("ShippingServiceCost_3").enable();
+                                            }
+                                        }
+                                    }
                                   }]
                               }]
                         },{
+                            layout:"table",
+                            layoutConfig:{
+                            columns:2
+                            },
+                            defaults:{
+                              bodyStyle:"padding:0px;",
+                              style:"margin:0px;"
+                              //width:60
+                            },
+                            border:false,
+                            items:[{
+                                layout:"form",
+                                border:false,
+                                items:[{
+                                    xtype:"combo",
+                                    fieldLabel:"Domestic Insurance",
+                                    emptyText: "Multi Value",
+                                    mode: 'local',
+                                    store: ["", "IncludedInShippingHandling", "NotOffered", "Optional", "Required"],
+                                    valueField:'id',
+                                    displayField:'name',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    selectOnFocus:true,
+                                    name: 'InsuranceOption',
+                                    hiddenName:'InsuranceOption',
+                                    //allowBlank: false,
+                                    width:150,
+                                    listWidth:180
+                                  }]
+                              },{
+                                layout:"form",
+                                border:false,
+                                items:[{
+                                    xtype:"numberfield",
+                                    fieldLabel:"Cost",
+                                    emptyText: "Multi Value",
+                                    name:"InsuranceFee",
+                                    width:60
+                                  }]
+                            }]    
+                        },{
                             xtype:"combo",
                             fieldLabel:"Domestic Handling Time",
+                            emptyText: "Multi Value",
                             title:'Select a time Period',
                             name:"DispatchTimeMax",
                             hiddenName:"DispatchTimeMax",
@@ -1957,8 +2013,7 @@ Ext.onReady(function(){
                             editable: false,
                             selectOnFocus:true,
                             width:150,
-                            listWidth:150,
-                            emptyText: "Multi Value"
+                            listWidth:150
                         }],
                         cls: 'my-fieldset',
                         style: 'margin: 10px;',
@@ -1995,6 +2050,7 @@ Ext.onReady(function(){
                                 items:[{
                                     xtype:"combo",
                                     fieldLabel:"International Services",
+                                    emptyText: "Multi Value",
                                     title:'Select a Shipping Service',
                                     name:"InternationalShippingService_1",
                                     hiddenName:"InternationalShippingService_1",
@@ -2019,6 +2075,7 @@ Ext.onReady(function(){
                                 items:[{
                                     xtype:"numberfield",
                                     fieldLabel:"Cost",
+                                    emptyText: "Multi Value",
                                     name:"InternationalShippingServiceCost_1",
                                     width:60
                                   }]
@@ -2238,6 +2295,22 @@ Ext.onReady(function(){
                                                     name:"JP_1",
                                                     inputValue:1
                                                 }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"US",
+                                                    name:"US_1",
+                                                    inputValue:1
+                                                }]
                                             }]
                                         }]
                                 }]
@@ -2250,6 +2323,7 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
+                                    emptyText: "Multi Value",
                                     title:'Select a Shipping Service',
                                     name:"InternationalShippingService_2",
                                     hiddenName:"InternationalShippingService_2",
@@ -2277,6 +2351,7 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
+                                    emptyText: "Multi Value",
                                     name:"InternationalShippingServiceCost_2",
                                     width:60
                                   }]
@@ -2468,6 +2543,22 @@ Ext.onReady(function(){
                                                     name:"JP_2",
                                                     inputValue:1
                                                 }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"US",
+                                                    name:"US_2",
+                                                    inputValue:1
+                                                }]
                                             }]
                                         }]
                                 }]
@@ -2480,6 +2571,7 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
+                                    emptyText: "Multi Value",
                                     title:'Select a Shipping Service',
                                     name:"InternationalShippingService_3",
                                     hiddenName:"InternationalShippingService_3",
@@ -2507,6 +2599,7 @@ Ext.onReady(function(){
                                     labelSeparator: '',
                                     labelStyle:'height:0px;padding:0px;',
                                     fieldLabel:"",
+                                    emptyText: "Multi Value",
                                     name:"InternationalShippingServiceCost_3",
                                     width:60
                                   }]
@@ -2697,10 +2790,68 @@ Ext.onReady(function(){
                                                     name:"JP_3",
                                                     inputValue:1
                                                 }]
+                                            },{
+                                                columnWidth:0.3,
+                                                layout:"form",
+                                                style:"padding-left:8px;",
+                                                border:false,
+                                                items:[{
+                                                    xtype:"checkbox",
+                                                    labelWidth: 0,
+                                                    labelSeparator: '',
+                                                    fieldLabel:"",
+                                                    labelStyle: 'height:0px;padding:0px;',
+                                                    style:"padding:0px;",
+                                                    boxLabel:"US",
+                                                    name:"US_3",
+                                                    inputValue:1
+                                                }]
                                             }]
                                         }]
                                 }]
                               }]
+                        },{
+                            layout:"table",
+                            layoutConfig:{
+                            columns:2
+                            },
+                            defaults:{
+                              bodyStyle:"padding:0px;",
+                              style:"margin:0px;"
+                              //width:60
+                            },
+                            border:false,
+                            items:[{
+                                layout:"form",
+                                border:false,
+                                items:[{
+                                    xtype:"combo",
+                                    fieldLabel:"International Insurance",
+                                    emptyText: "Multi Value",
+                                    mode: 'local',
+                                    store: ["", "IncludedInShippingHandling", "NotOffered", "Optional", "Required"],
+                                    valueField:'id',
+                                    displayField:'name',
+                                    triggerAction: 'all',
+                                    editable: false,
+                                    selectOnFocus:true,
+                                    name: 'InternationalInsurance',
+                                    hiddenName:'InternationalInsurance',
+                                    //allowBlank: false,
+                                    width:150,
+                                    listWidth:180
+                                  }]
+                              },{
+                                layout:"form",
+                                border:false,
+                                items:[{
+                                    xtype:"numberfield",
+                                    fieldLabel:"Cost",
+                                    emptyText: "Multi Value",
+                                    name:"InternationalInsuranceFee",
+                                    width:60
+                                  }]
+                            }]    
                         }],
                         cls: 'my-fieldset',
                         style: 'margin: 10px;',
@@ -2718,6 +2869,7 @@ Ext.onReady(function(){
                         items:[{
                             xtype:"combo",
                             fieldLabel:"Country",
+                            emptyText: "Multi Value",
                             name:"Location",
                             hiddenName:"Location",
                             mode: 'local',
@@ -2727,14 +2879,13 @@ Ext.onReady(function(){
                             triggerAction: 'all',
                             editable: false,
                             selectOnFocus:true,
-                            emptyText: "Multi Value",
                             width:200,
                             listWidth:200
                         },{
                             xtype:"numberfield",
                             fieldLabel:"ZIP Code",
-                            name:"PostalCode",
                             emptyText: "Multi Value",
+                            name:"PostalCode",
                             width:60
                             
                         }]
@@ -2761,8 +2912,8 @@ Ext.onReady(function(){
                           },{
                             xtype:"textfield",
                             fieldLabel:"PayPal Account Email",
-                            name:"PayPalEmailAddress",
                             emptyText: "Multi Value",
+                            name:"PayPalEmailAddress",
                             width: 250
                           }]
                       }/*,{
@@ -2802,7 +2953,7 @@ Ext.onReady(function(){
                 }]
             }],
             buttons: [{
-                text: "Update Multi Template",
+                text: "Update Template",
                 handler: function(){
                     document.getElementById("Description").value = tinyMCE.get("Description").getContent();
                     itemForm.getForm().submit({
@@ -2845,39 +2996,39 @@ Ext.onReady(function(){
     itemPanel.render(document.body);
     
     tinyMCE.init({
-            // General options
-            mode : "textareas",
-            theme : "advanced",
-            plugins : "safari,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template",
+        // General options
+        mode : "textareas",
+        theme : "advanced",
+        plugins : "safari,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template",
 
-            // Theme options
-            theme_advanced_buttons1 : "save,newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,styleselect,formatselect,fontselect,fontsizeselect",
-            theme_advanced_buttons2 : "cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,code,|,insertdate,inserttime,preview,|,forecolor,backcolor",
-            theme_advanced_buttons3 : "tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen",
-            theme_advanced_buttons4 : "insertlayer,moveforward,movebackward,absolute,|,styleprops,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,template,pagebreak",
-            theme_advanced_toolbar_location : "top",
-            theme_advanced_toolbar_align : "left",
-            theme_advanced_statusbar_location : "bottom",
-            //theme_advanced_resizing : true,
+        // Theme options
+        theme_advanced_buttons1 : "save,newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,styleselect,formatselect,fontselect,fontsizeselect",
+        theme_advanced_buttons2 : "cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,code,|,insertdate,inserttime,preview,|,forecolor,backcolor",
+        theme_advanced_buttons3 : "tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen",
+        theme_advanced_buttons4 : "insertlayer,moveforward,movebackward,absolute,|,styleprops,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,template,pagebreak",
+        theme_advanced_toolbar_location : "top",
+        theme_advanced_toolbar_align : "left",
+        theme_advanced_statusbar_location : "bottom",
+        //theme_advanced_resizing : true,
 
-            // Example content CSS (should be your site CSS)
-            //content_css : "css/content.css",
+        // Example content CSS (should be your site CSS)
+        //content_css : "css/content.css",
 
-            // Drop lists for link/image/media/template dialogs
-            template_external_list_url : "lists/template_list.js"
-            //external_link_list_url : "lists/link_list.js",
-            //external_image_list_url : "lists/image_list.js",
-            //media_external_list_url : "lists/media_list.js",
+        // Drop lists for link/image/media/template dialogs
+        template_external_list_url : "lists/template_list.js"
+        //external_link_list_url : "lists/link_list.js",
+        //external_image_list_url : "lists/image_list.js",
+        //media_external_list_url : "lists/media_list.js",
 
-            // Replace values for the template plugin
-            /*
-            template_replace_values : {
-                    username : "Some User",
-                    staffid : "991234"
-            }
-            */
+        // Replace values for the template plugin
+        /*
+        template_replace_values : {
+                username : "Some User",
+                staffid : "991234"
+        }
+        */
     })
-    
+
     //Schedule Time  --------------------------------------------------------------------------------
     Ext.select(".schedule-time").on("click",function(e, el){
         var tempArray = el.childNodes[0].id.split("-");
@@ -2885,7 +3036,7 @@ Ext.onReady(function(){
         var timeStore = new Ext.data.JsonStore({
             //root:"timeList",
             autoLoad:true,
-            url:'service.php?action=getScheduleTime&item_id='+item_id+'&dayTime='+el.childNodes[0].id,
+            url:'service.php?action=getTemplateScheduleTime&template_id='+template_id+'&dayTime='+el.childNodes[0].id,
             fields: [{name:'time', type:'string'}],
             sortInfo: {
                 field: 'time',
@@ -2944,14 +3095,14 @@ Ext.onReady(function(){
                         handler: function(){
                             if(Ext.getCmp("nowStartTime").getValue != ""){
                                 Ext.Ajax.request({
-                                    url: 'service.php?action=addScheduleTime',
+                                    url: 'service.php?action=addTemplateScheduleTime',
                                     success: function(){
                                             timeStore.reload();
                                         },
                                     failure: function(){},
                                     params: {
                                             dayTime: el.childNodes[0].id,
-                                            item_id: item_id,
+                                            template_id: template_id,
                                             time: Ext.getCmp("nowStartTime").getValue()
                                         }
                                 });
@@ -2978,14 +3129,14 @@ Ext.onReady(function(){
                                 }
                                 //console.log(id);
                                 Ext.Ajax.request({
-                                    url: 'service.php?action=deleteScheduleTime',
+                                    url: 'service.php?action=deleteTemplateScheduleTime',
                                     success: function(){
                                             timeStore.reload();
                                         },
                                     failure: function(){},
                                     params: {
                                             dayTime: el.childNodes[0].id,
-                                            item_id: item_id,
+                                            template_id: template_id,
                                             id: id
                                         }
                                 });
@@ -3002,14 +3153,14 @@ Ext.onReady(function(){
                         text:"Delete All",
                         handler: function(){
                             Ext.Ajax.request({
-                                url: 'service.php?action=deleteAllScheduleTime',
+                                url: 'service.php?action=deleteAllTemplateScheduleTime',
                                 success: function(){
                                         timeStore.reload();
                                     },
                                 failure: function(){},
                                 params: {
                                         dayTime: el.childNodes[0].id,
-                                        item_id: item_id
+                                        template_id: template_id
                                     }
                             });
                         }
@@ -3022,7 +3173,7 @@ Ext.onReady(function(){
                         text:"Ok",
                         handler: function(){
                             Ext.Ajax.request({
-                                url: 'service.php?action=saveScheduleTime',
+                                url: 'service.php?action=updateTemplateScheduleTime',
                                 success: function(){
                                         if(timeStore.getCount() > 0){
                                             Ext.getCmp(el.childNodes[0].id + "-panel").body.applyStyles("background-color:red;");
@@ -3032,12 +3183,13 @@ Ext.onReady(function(){
                                             Ext.getCmp(el.childNodes[0].id).setValue(0)
                                         }
                                         timeWindow.close();
-                                    },
+                                },
+                                waitMsg:'updating, please wait.',
                                 failure: function(){},
                                 params: {
                                         dayTime: el.childNodes[0].id,
-                                        item_id: item_id
-                                    }
+                                        template_id: template_id
+                                }
                             });
                         }
                     }]
@@ -3069,5 +3221,6 @@ Ext.onReady(function(){
         //console.log(el.childNodes[0].id);
         */
     })
+    
 })
 

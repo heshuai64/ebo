@@ -2223,15 +2223,28 @@ class eBayListing{
     public function updateMultiTemplate(){
 	//print_r($_POST);
 	$ids = explode(',', $_GET['template_id']);
-	$where = " where ";
+	
+	$where = " where Id in (";
 	foreach($ids as $id){
-	    $where .= "Id = ".$id." or ";
+	    $where .= $id.",";
 	}
-	$where = substr($where, 0, -4);
+	$where = substr($where, 0, -1);
+	$where .= ")";
 	
 	$update = "update template set ";
-	if(!empty($_POST['BuyItNowPrice']) && $_POST['BuyItNowPrice'] != 'Multi Value'){
-	    $update .= "BuyItNowPrice = '".$_POST['BuyItNowPrice']."',";
+	
+	if(!empty($_POST['ListingType']) && $_POST['ListingType'] == "FixedPriceItem" || $_POST['ListingType'] == "StoresFixedPrice"){
+	    if(!empty($_POST['BuyItNowPrice']) && $_POST['BuyItNowPrice'] != 'Multi Value'){
+		$update .= "StartPrice = '".$_POST['BuyItNowPrice']."',";
+		$update .= "BuyItNowPrice = '0',";
+	    }
+	}else{
+	    if(!empty($_POST['BuyItNowPrice']) && $_POST['BuyItNowPrice'] != 'Multi Value'){
+		$update .= "BuyItNowPrice = '".$_POST['BuyItNowPrice']."',";
+	    }
+	    if(!empty($_POST['StartPrice']) && $_POST['StartPrice'] != 'Multi Value'){
+		$update .= "StartPrice = '".$_POST['StartPrice']."',";
+	    }
 	}
 	
 	if(!empty($_POST['Currency']) && $_POST['Currency'] != 'Multi Value'){
@@ -2298,10 +2311,6 @@ class eBayListing{
 	    $update .= "SKU = '".$_POST['SKU']."',";
 	}
 	
-	if(!empty($_POST['StartPrice']) && $_POST['StartPrice'] != 'Multi Value'){
-	    $update .= "StartPrice = '".$_POST['StartPrice']."',";
-	}
-	
 	if(!empty($_POST['StoreCategory2ID']) && $_POST['StoreCategory2ID'] != 'Multi Value'){
 	    $update .= "StoreCategory2ID = '".$_POST['StoreCategory2ID']."',";
 	}
@@ -2325,27 +2334,72 @@ class eBayListing{
 	if(!empty($_POST['Border'])){
 	    $update .= "Border = '".$_POST['Border']."',";
 	}
+	//---------------------------------------------------------------------------------
+	if(!empty($_POST['GalleryURL'])){
+	    $update .= "GalleryURL = '".$_POST['GalleryURL']."',";
+	}
+	
+	if(!empty($_POST['InsuranceOption']) && $_POST['InsuranceOption'] != 'Multi Value'){
+	    $update .= "InsuranceOption = '".$_POST['InsuranceOption']."',";
+	}
+	
+	if(!empty($_POST['InsuranceFee']) && $_POST['InsuranceFee'] != 'Multi Value'){
+	    $update .= "InsuranceFee = '".$_POST['InsuranceFee']."',";
+	}
+	
+	if(!empty($_POST['InternationalInsurance']) && $_POST['InternationalInsurance'] != 'Multi Value'){
+	    $update .= "InternationalInsurance = '".$_POST['InternationalInsurance']."',";
+	}
+	
+	if(!empty($_POST['InternationalInsuranceFee']) && $_POST['InternationalInsuranceFee'] != 'Multi Value'){
+	    $update .= "InternationalInsuranceFee = '".$_POST['InternationalInsuranceFee']."',";
+	}
+	
+	session_start();
+	if(!empty($_SESSION['ReturnPolicyReturns'][$_GET['template_id']])){
+	    if(!empty($_SESSION['ReturnPolicyReturns'][$_GET['template_id']]['ReturnPolicyReturnsAcceptedOption']) && $_SESSION['ReturnPolicyReturns'][$_GET['template_id']]['ReturnPolicyReturnsAcceptedOption'] != 'Multi Value'){
+		$update .= "ReturnPolicyReturnsAcceptedOption = '".$_SESSION['ReturnPolicyReturns'][$_GET['template_id']]['ReturnPolicyReturnsAcceptedOption']."',";
+	    }
+	    
+	    if(!empty($_SESSION['ReturnPolicyReturns'][$_GET['template_id']]['ReturnPolicyReturnsWithinOption']) && $_SESSION['ReturnPolicyReturns'][$_GET['template_id']]['ReturnPolicyReturnsWithinOption'] != 'Multi Value'){
+		$update .= "ReturnPolicyReturnsWithinOption = '".$_SESSION['ReturnPolicyReturns'][$_GET['template_id']]['ReturnPolicyReturnsWithinOption']."',";
+	    }
+	    
+	    if(!empty($_SESSION['ReturnPolicyReturns'][$_GET['template_id']]['ReturnPolicyRefundOption']) && $_SESSION['ReturnPolicyReturns'][$_GET['template_id']]['ReturnPolicyRefundOption'] != 'Multi Value'){
+		$update .= "ReturnPolicyRefundOption = '".$_SESSION['ReturnPolicyReturns'][$_GET['template_id']]['ReturnPolicyRefundOption']."',";
+	    }
+	    
+	    if(!empty($_SESSION['ReturnPolicyReturns'][$_GET['template_id']]['ReturnPolicyShippingCostPaidByOption']) && $_SESSION['ReturnPolicyReturns'][$_GET['template_id']]['ReturnPolicyShippingCostPaidByOption'] != 'Multi Value'){
+		$update .= "ReturnPolicyShippingCostPaidByOption = '".$_SESSION['ReturnPolicyReturns'][$_GET['template_id']]['ReturnPolicyShippingCostPaidByOption']."',";
+	    }
+	    
+	    if(!empty($_SESSION['ReturnPolicyReturns'][$_GET['template_id']]['ReturnPolicyDescription']) && $_SESSION['ReturnPolicyReturns'][$_GET['template_id']]['ReturnPolicyDescription'] != 'Multi Value'){
+		$update .= "ReturnPolicyDescription = '".$_SESSION['ReturnPolicyReturns'][$_GET['template_id']]['ReturnPolicyDescription']."',";
+	    }
+	}
 	
 	$update = substr($update, 0, -1);
 	$sql = $update . $where;
-	//echo $sql."\n";
+	//$this->log("template", $sql);
+	
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	//echo $result;
 	//print_r($_POST);
-	$where = " where ";
+	$where = " where templateId in (";
 	foreach($ids as $id){
-	    $where .= "templateId = ".$id." or ";
+	    $where .= $id.",";
 	}
-	$where = substr($where, 0, -4);
+	$where = substr($where, 0, -1);
+	$where .= ")";
 	
-	if(!empty($_POST['picture_1'])){
+	if(!empty($_POST['picture_1']) && $_POST['picture_1'] != 'Multi Value'){
 	    $sql_1 = "delete from template_picture_url ".$where;
 	    //echo $sql_1."\n";
 	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	    
 	    foreach($ids as $id){
 		$i = 1;
-		while(!empty($_POST['picture_'.$i])){
+		while(!empty($_POST['picture_'.$i]) && $_POST['picture_'.$i] != 'Multi Value'){
 		    $sql_1 = "insert into template_picture_url (templateId,url) values 
 		    ('".$id."','".$_POST['picture_'.$i]."')";
 		    //echo $sql_1."\n";
@@ -2384,6 +2438,10 @@ class eBayListing{
 		    if($_POST['InternationalShippingToLocations_'.$i] == 'Custom Locations'){
 			if(!empty($_POST['Americas_'.$i]) && $_POST['Americas_'.$i] == 1){
 			    $ShipToLocation .= ',Americas';
+			}
+			
+			if(!empty($_POST['US_'.$i]) && $_POST['US_'.$i] == 1){
+			    $ShipToLocation .= ',US';
 			}
 			
 			if(!empty($_POST['Europe_'.$i]) && $_POST['Europe_'.$i] == 1){
@@ -2431,25 +2489,29 @@ class eBayListing{
 	    }
 	}
 	
-	session_start();
 	$temp_array = array();
-	if(!empty($_SESSION['AttributeSet'][$_GET['item_id']])){
+	if(!empty($_SESSION['AttributeSet'][$_GET['template_id']])){
 	    //print_r($_SESSION['AttributeSet']);
+	    //exit;
 	    foreach($ids as $id){
 		//exit;
 		$sql_4 = "select attribute_set_id from template_attribute_set where templateId = '".$id."'";
 		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
 		$row_4 = mysql_fetch_assoc($result_4);
+		//$this->log("template", $sql_4);
 		
 		$sql_4 = "delete from template_attribute where attribute_set_id = '".$row_4['attribute_set_id']."'";
 		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+		//$this->log("template", $sql_4);
 		
-		$sql_4 = "delete from template_attribute_set where item_id = '".$id."'";
+		$sql_4 = "delete from template_attribute_set where templateId = '".$id."'";
 		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-	    
-		foreach($_SESSION['AttributeSet'][$_GET['item_id']] as $attributeSetID=>$Attribute){
+		//$this->log("template", $sql_4);
+		
+		foreach($_SESSION['AttributeSet'][$_GET['template_id']] as $attributeSetID=>$Attribute){
 		    $sql_4 = "insert into template_attribute_set (templateId,attributeSetID) values ('".$id."', '".$attributeSetID."')";
 		    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+		    //$this->log("template", $sql_4);
 		    
 		    $attribute_set_id = mysql_insert_id(eBayListing::$database_connect);
 		    $temp_array = array();
@@ -2466,7 +2528,7 @@ class eBayListing{
 				    $sql_4 = "insert into template_attribute (attributeID,attribute_set_id,ValueID) values 
 				    ('".$attributeID."', '".$attribute_set_id."', '".$ValueID."')";
 				    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-				    //echo $sql_4."\n";
+				    //$this->log("template", $sql_4);
 			    }
 			}
 		    }
@@ -2482,7 +2544,7 @@ class eBayListing{
 			    $sql_4 = "insert into template_attribute (attributeID,attribute_set_id,ValueID) values 
 			    ('".$key."', '".$attribute_set_id."', '".$ValueID."')";
 			    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-			    //echo $sql_4."\n";
+			    //$this->log("template", $sql_4);
 			}
 		    }
 		}
@@ -4442,22 +4504,37 @@ class eBayListing{
     public function updateMultiItem(){
 	//print_r($_POST);
 	$ids = explode(',', $_GET['item_id']);
-	$where = " where ";
+	$where = " where Id in (";
 	foreach($ids as $id){
-	    $where .= "Id = ".$id." or ";
+	    $where .= $id.",";
 	}
-	$where = substr($where, 0, -4);
+	$where = substr($where, 0, -1);
+	$where .= ")";
 	
 	$update = "update items set ";
-	if(!empty($_POST['BuyItNowPrice']) && $_POST['BuyItNowPrice'] != 'Multi Value'){
-	    $update .= "BuyItNowPrice = '".$_POST['BuyItNowPrice']."',";
+	if(!empty($_GET['Status'])){
+	    $update .= "Status = '".$_GET['Status']."',";
+	}
+	
+	if(!empty($_POST['ListingType']) && $_POST['ListingType'] == "FixedPriceItem" || $_POST['ListingType'] == "StoresFixedPrice"){
+	    if(!empty($_POST['BuyItNowPrice']) && $_POST['BuyItNowPrice'] != 'Multi Value'){
+		$update .= "StartPrice = '".$_POST['BuyItNowPrice']."',";
+		$update .= "BuyItNowPrice = '0',";
+	    }
+	}else{
+	    if(!empty($_POST['BuyItNowPrice']) && $_POST['BuyItNowPrice'] != 'Multi Value'){
+		$update .= "BuyItNowPrice = '".$_POST['BuyItNowPrice']."',";
+	    }
+	    if(!empty($_POST['StartPrice']) && $_POST['StartPrice'] != 'Multi Value'){
+		$update .= "StartPrice = '".$_POST['StartPrice']."',";
+	    }
 	}
 	
 	if(!empty($_POST['Currency']) && $_POST['Currency'] != 'Multi Value'){
 	    $update .= "Currency = '".$_POST['Currency']."',";
 	}
 	
-	if(!empty($_POST['Description']) && $_POST['Description'] != 'Multi Value'){
+	if(!empty($_POST['Description']) && strpos('Multi Value', $_POST['Description'])){
 	    $update .= "Description = '".htmlentities($_POST['Description'])."',";
 	}
 	
@@ -4517,10 +4594,6 @@ class eBayListing{
 	    $update .= "SKU = '".$_POST['SKU']."',";
 	}
 	
-	if(!empty($_POST['StartPrice']) && $_POST['StartPrice'] != 'Multi Value'){
-	    $update .= "StartPrice = '".$_POST['StartPrice']."',";
-	}
-	
 	if(!empty($_POST['StoreCategory2ID']) && $_POST['StoreCategory2ID'] != 'Multi Value'){
 	    $update .= "StoreCategory2ID = '".$_POST['StoreCategory2ID']."',";
 	}
@@ -4545,26 +4618,72 @@ class eBayListing{
 	    $update .= "Border = '".$_POST['Border']."',";
 	}
 	
+	//---------------------------------------------------------------------------------
+	if(!empty($_POST['GalleryURL'])){
+	    $update .= "GalleryURL = '".$_POST['GalleryURL']."',";
+	}
+	
+	if(!empty($_POST['InsuranceOption']) && $_POST['InsuranceOption'] != 'Multi Value'){
+	    $update .= "InsuranceOption = '".$_POST['InsuranceOption']."',";
+	}
+	
+	if(!empty($_POST['InsuranceFee']) && $_POST['InsuranceFee'] != 'Multi Value'){
+	    $update .= "InsuranceFee = '".$_POST['InsuranceFee']."',";
+	}
+	
+	if(!empty($_POST['InternationalInsurance']) && $_POST['InternationalInsurance'] != 'Multi Value'){
+	    $update .= "InternationalInsurance = '".$_POST['InternationalInsurance']."',";
+	}
+	
+	if(!empty($_POST['InternationalInsuranceFee']) && $_POST['InternationalInsuranceFee'] != 'Multi Value'){
+	    $update .= "InternationalInsuranceFee = '".$_POST['InternationalInsuranceFee']."',";
+	}
+	
+	session_start();
+	if(!empty($_SESSION['ReturnPolicyReturns'][$_GET['item_id']])){
+	    if(!empty($_SESSION['ReturnPolicyReturns'][$_GET['item_id']]['ReturnPolicyReturnsAcceptedOption']) && $_SESSION['ReturnPolicyReturns'][$_GET['item_id']]['ReturnPolicyReturnsAcceptedOption'] != 'Multi Value'){
+		$update .= "ReturnPolicyReturnsAcceptedOption = '".$_SESSION['ReturnPolicyReturns'][$_GET['item_id']]['ReturnPolicyReturnsAcceptedOption']."',";
+	    }
+	    
+	    if(!empty($_SESSION['ReturnPolicyReturns'][$_GET['item_id']]['ReturnPolicyReturnsWithinOption']) && $_SESSION['ReturnPolicyReturns'][$_GET['item_id']]['ReturnPolicyReturnsWithinOption'] != 'Multi Value'){
+		$update .= "ReturnPolicyReturnsWithinOption = '".$_SESSION['ReturnPolicyReturns'][$_GET['item_id']]['ReturnPolicyReturnsWithinOption']."',";
+	    }
+	    
+	    if(!empty($_SESSION['ReturnPolicyReturns'][$_GET['item_id']]['ReturnPolicyRefundOption']) && $_SESSION['ReturnPolicyReturns'][$_GET['item_id']]['ReturnPolicyRefundOption'] != 'Multi Value'){
+		$update .= "ReturnPolicyRefundOption = '".$_SESSION['ReturnPolicyReturns'][$_GET['item_id']]['ReturnPolicyRefundOption']."',";
+	    }
+	    
+	    if(!empty($_SESSION['ReturnPolicyReturns'][$_GET['item_id']]['ReturnPolicyShippingCostPaidByOption']) && $_SESSION['ReturnPolicyReturns'][$_GET['item_id']]['ReturnPolicyShippingCostPaidByOption'] != 'Multi Value'){
+		$update .= "ReturnPolicyShippingCostPaidByOption = '".$_SESSION['ReturnPolicyReturns'][$_GET['item_id']]['ReturnPolicyShippingCostPaidByOption']."',";
+	    }
+	    
+	    if(!empty($_SESSION['ReturnPolicyReturns'][$_GET['item_id']]['ReturnPolicyDescription']) && $_SESSION['ReturnPolicyReturns'][$_GET['item_id']]['ReturnPolicyDescription'] != 'Multi Value'){
+		$update .= "ReturnPolicyDescription = '".$_SESSION['ReturnPolicyReturns'][$_GET['item_id']]['ReturnPolicyDescription']."',";
+	    }
+	}
+	
 	$update = substr($update, 0, -1);
 	$sql = $update . $where;
-	//echo $sql."\n";
+	//$this->log("item", $sql);
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	//echo $result;
 	//print_r($_POST);
-	$where = " where ";
-	foreach($ids as $id){
-	    $where .= "ItemID = ".$id." or ";
-	}
-	$where = substr($where, 0, -4);
 	
-	if(!empty($_POST['picture_1'])){
+	$where = " where ItemID in (";
+	foreach($ids as $id){
+	    $where .= $id.",";
+	}
+	$where = substr($where, 0, -1);
+	$where .= ")";
+	
+	if(!empty($_POST['picture_1']) && $_POST['picture_1'] != 'Multi Value'){
 	    $sql_1 = "delete from picture_url ".$where;
 	    //echo $sql_1."\n";
 	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	    
 	    foreach($ids as $id){
 		$i = 1;
-		while(!empty($_POST['picture_'.$i])){
+		while(!empty($_POST['picture_'.$i]) && $_POST['picture_'.$i] != 'Multi Value'){
 		    $sql_1 = "insert into picture_url (ItemID,url) values 
 		    ('".$id."','".$_POST['picture_'.$i]."')";
 		    //echo $sql_1."\n";
@@ -4603,6 +4722,10 @@ class eBayListing{
 		    if($_POST['InternationalShippingToLocations_'.$i] == 'Custom Locations'){
 			if(!empty($_POST['Americas_'.$i]) && $_POST['Americas_'.$i] == 1){
 			    $ShipToLocation .= ',Americas';
+			}
+			
+			if(!empty($_POST['US_'.$i]) && $_POST['US_'.$i] == 1){
+			    $ShipToLocation .= ',US';
 			}
 			
 			if(!empty($_POST['Europe_'.$i]) && $_POST['Europe_'.$i] == 1){
@@ -4650,7 +4773,6 @@ class eBayListing{
 	    }
 	}
 	
-	session_start();
 	$temp_array = array();
 	if(!empty($_SESSION['AttributeSet'][$_GET['item_id']])){
 	    //print_r($_SESSION['AttributeSet']);
