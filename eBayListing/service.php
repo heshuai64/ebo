@@ -329,6 +329,274 @@ class eBayListing{
                 print $f; // error handling
         }
     }
+    
+    //-----------------   GeteBayDetails     ------------------------------------------
+    public function getShippingServiceDetails(){
+	try {
+                $client = new eBaySOAP($this->session);
+                $Version = '607';
+                $DetailName = "ShippingServiceDetails";
+             
+                $params = array('Version' => $Version, 'DetailName' => $DetailName);
+                $results = $client->GeteBayDetails($params);
+                //print_r($results);
+		//----------   debug --------------------------------
+                $this->saveFetchData("ShippingServiceDetails-Request-".date("Y-m-d H:i:s").".xml", $client->__getLastRequest());
+                $this->saveFetchData("ShippingServiceDetails-Response-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		
+		if(!empty($results->ShippingServiceDetails)){
+		    //clear up
+		    $sql = "delete from shipping_service_details where SiteID = '".$this->site_id."'";
+		    $result = mysql_query($sql, eBayListing::$database_connect);
+		    
+		    foreach($results->ShippingServiceDetails as $shippingServiceDetail){
+			if(@empty($shippingServiceDetail->InternationalService)){
+			    $shippingServiceDetail->InternationalService = false;
+			}
+			
+			if(@empty($shippingServiceDetail->ShippingTimeMax)){
+			    $shippingServiceDetail->ShippingTimeMax = false;
+			}
+			
+			if(@empty($shippingServiceDetail->ShippingTimeMin)){
+			    $shippingServiceDetail->ShippingTimeMin = false;
+			}
+			
+			$ServiceTypeFlat = false;
+			$ServiceTypeCalculated = false;
+			if(@is_array($shippingServiceDetail->ServiceType)){
+			    foreach($shippingServiceDetail->ServiceType as $serviceType){
+				if($serviceType == "Flat"){
+				    $ServiceTypeFlat = true;
+				}elseif($serviceType == "Calculated"){
+				    $ServiceTypeCalculated = true;
+				}
+			    }
+			}else{
+			    if(@$shippingServiceDetail->ServiceType == "Flat"){
+				$ServiceTypeFlat = true;
+			    }elseif(@$shippingServiceDetail->ServiceType == "Calculated"){
+				$ServiceTypeCalculated = true;
+			    }
+			}
+			
+			$ShippingPackageLetter = false;
+			$ShippingPackageLargeEnvelope = false;
+			$ShippingPackagePackageThickEnvelope = false;
+			if(@is_array($shippingServiceDetail->ShippingPackage)){
+			    foreach($shippingServiceDetail->ShippingPackage as $shippingPackage){
+				switch($shippingPackage){
+				    case "Letter":
+					$ShippingPackageLetter = true;
+					break;
+				    
+				    case "LargeEnvelope":
+					$ShippingPackageLargeEnvelope = true;
+					break;
+				    
+				    case "PackageThickEnvelope":
+					$ShippingPackagePackageThickEnvelope = true;
+					break;
+				}
+			    }
+			}else{
+			    switch(@$shippingServiceDetail->ShippingPackage){
+				case "Letter":
+				    $ShippingPackageLetter = true;
+				    break;
+				
+				case "LargeEnvelope":
+				    $ShippingPackageLargeEnvelope = true;
+				    break;
+				
+				case "PackageThickEnvelope":
+				    $ShippingPackagePackageThickEnvelope = true;
+				    break;
+			    }
+			}
+			
+			if(@empty($shippingServiceDetail->ShippingCarrier)){
+			    $shippingServiceDetail->ShippingCarrier = false;
+			}
+			
+			if(@empty($shippingServiceDetail->DimensionsRequired)){
+			    $shippingServiceDetail->DimensionsRequired = false;
+			}
+			
+			if(@empty($shippingServiceDetail->WeightRequired)){
+			    $shippingServiceDetail->WeightRequired = false;
+			}
+			
+			echo "<font color='red'>".$shippingServiceDetail->Description."</font>";
+			echo "<br>";
+			
+			$sql = "insert into shipping_service_details (SiteID,Description,InternationalService,ShippingService,
+			ShippingServiceID,ShippingTimeMax,ShippingTimeMin,ServiceTypeFlat,ServiceTypeCalculated,
+			ShippingPackageLetter,ShippingPackageLargeEnvelope,ShippingPackagePackageThickEnvelope,
+			ShippingCarrier,DimensionsRequired,WeightRequired) values ('".$this->site_id."','".mysql_escape_string($shippingServiceDetail->Description)."',
+			'".$shippingServiceDetail->InternationalService."','".mysql_escape_string($shippingServiceDetail->ShippingService)."',
+			'".$shippingServiceDetail->ShippingServiceID."','".$shippingServiceDetail->ShippingTimeMax."',
+			'".$shippingServiceDetail->ShippingTimeMin."','".$ServiceTypeFlat."',
+			'".$ServiceTypeCalculated."','".$ShippingPackageLetter."',
+			'".$ShippingPackageLargeEnvelope."','".$ShippingPackagePackageThickEnvelope."',
+			'".$shippingServiceDetail->ShippingCarrier."','".$shippingServiceDetail->DimensionsRequired."',
+			'".$shippingServiceDetail->WeightRequired."')";
+			
+			echo $sql;
+			echo "<br>";
+			$result = mysql_query($sql, eBayListing::$database_connect);
+		    }
+		}
+		echo "<h2>Fetch ".$this->site_id." End.</h2>";
+		echo "<br>";
+		echo "<br>";
+		echo "<br>";
+		flush();
+        } catch (SOAPFault $f) {
+                print $f; // error handling
+        }
+    }
+    
+    public function getAllSiteShippingServiceDetails(){
+	$sql = "select id from site where status = 1";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	while ($row = mysql_fetch_assoc($result)){
+	    $this->configEbay($row['id']);
+	    $this->getShippingServiceDetails();
+	}
+    }
+    
+    public function getShippingLocationDetails(){
+	try {
+	    $client = new eBaySOAP($this->session);
+	    $Version = '607';
+	    $DetailName = "ShippingLocationDetails";
+	 
+	    $params = array('Version' => $Version, 'DetailName' => $DetailName);
+	    $results = $client->GeteBayDetails($params);
+	    print_r($results);
+	    
+	    foreach($results->ShippingLocationDetails as $shippingLocationDetails){
+		$sql = "insert into ship_to_location (SiteID,ShippingLocation,Description) 
+		values ('".$this->site_id."','".$shippingLocationDetails->ShippingLocation."','".mysql_escape_string($shippingLocationDetails->Description)."')";
+		echo $sql;
+		echo "<br>";
+		$result = mysql_query($sql, eBayListing::$database_connect);
+	    }
+	    echo "<h2>Fetch ".$this->site_id." End.</h2>";
+	    echo "<br>";
+	    echo "<br>";
+	    echo "<br>";
+	    //----------   debug --------------------------------
+	    //print "Request: \n".$client->__getLastRequest() ."\n";
+	    //print "Response: \n".$client->__getLastResponse()."\n";
+	    //$this->("ShippingLocationDetails-Request-".date("Y-m-d H:i:s").".xml", $client->__getLastRequest());
+	    //$this->saveFetchData("ShippingLocationDetails-Response-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+	} catch (SOAPFault $f) {
+            print $f; // error handling
+        }
+    }
+    
+    public function getAllSiteShippingLocationDetails(){
+	$sql = "select id from site where status = 1";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	while ($row = mysql_fetch_assoc($result)){
+	    $this->configEbay($row['id']);
+	    $this->getShippingLocationDetails();
+	    //exit();
+	}
+    }
+    
+    public function getShippingLocation(){
+	$sql = "select ShippingLocation from ship_to_location where SiteID = '".$_GET['SiteID']."'";
+	//echo $sql;
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$array = array();
+	while ($row = mysql_fetch_assoc($result)){
+	    if($row['ShippingLocation'] != 'Worldwide' && $row['ShippingLocation'] != 'None'){
+		$array[] = $row['ShippingLocation'];
+	    }
+	}
+	echo json_encode($array);
+    }
+    
+    //http://127.0.0.1:6666/eBayBO/eBaylisting/service.php?action=getAllCategory2CS
+    //-----------------  Fetch Item Specifics From eBay ------------------------------------------
+    public function getCategory2CS(){
+	global $argv;
+	if(!empty($argv[2])){
+	    $this->configEbay($argv[2]);
+	}
+	
+	$sql = "delete from CharacteristicsSets where SiteID = '".$this->site_id."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+		    
+	try {
+	    echo $this->site_id;
+	    echo "\n";
+	    $client = new eBaySOAP($this->session);
+	    $Version = '607';
+	    $DetailLevel = "ReturnAll";
+	 
+	    $params = array('Version' => $Version, 'DetailLevel' => $DetailLevel);
+	    $results = $client->GetCategory2CS($params);
+	    
+	    foreach ($results->MappedCategoryArray->Category as $category){
+		$sql = "insert into CharacteristicsSets (SiteID,CategoryID,Name,AttributeSetID,AttributeSetVersion) values 
+		('".$this->site_id."','".$category->CategoryID."','".$category->CharacteristicsSets->Name."',
+		'".$category->CharacteristicsSets->AttributeSetID."','".$category->CharacteristicsSets->AttributeSetVersion."')";
+		//echo $sql;
+		//echo "\n";
+		$result = mysql_query($sql, eBayListing::$database_connect);
+	    }
+	    
+	    echo "\n****************************************************************\n";
+	    flush();
+	    //exit();
+	} catch (SOAPFault $f) {
+            print $f; // error handling
+        }
+    }
+    
+    public function getAllCategory2CS(){
+	$sql = "select id from site where status = 1";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	while ($row = mysql_fetch_assoc($result)){
+	    $this->configEbay($row['id']);
+	    $this->getCategory2CS();
+	}
+    }
+    
+    public function getAttributesCS(){
+	global $argv;
+	if(!empty($argv[2])){
+	    $this->configEbay($argv[2]);
+	}
+	try {
+	    $client = new eBaySOAP($this->session);
+	    $Version = '607';
+	    $DetailLevel = "ReturnAll";
+	 
+	    $params = array('Version' => $Version, 'DetailLevel' => $DetailLevel);
+	    $results = $client->GetAttributesCS($params);
+	    
+	    file_put_contents("GetAttributesCS-".$this->site_id.".xml", $results->AttributeData);
+	    echo "\n******************   getAttributesCS Site ".$this->site_id." **************************\n";
+	    flush();
+	    //exit();
+	} catch (SOAPFault $f) {
+            print $f; // error handling
+        }
+    }
+    
+    public function getAllAttributesCS(){
+	$sql = "select id from site where status = 1";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	while ($row = mysql_fetch_assoc($result)){
+	    $this->configEbay($row['id']);
+	    $this->getAttributesCS();
+	}
+    }
     // ----------------   GET  POST -----------------------------------------------------------------------
     private function get($request){
 	$session = curl_init($request);
@@ -3180,275 +3448,8 @@ class eBayListing{
     public function synchronize(){
 	
     }
-    
-    //-----------------   GeteBayDetails     ------------------------------------------
-    public function getShippingServiceDetails(){
-	try {
-                $client = new eBaySOAP($this->session);
-                $Version = '607';
-                $DetailName = "ShippingServiceDetails";
-             
-                $params = array('Version' => $Version, 'DetailName' => $DetailName);
-                $results = $client->GeteBayDetails($params);
-                //print_r($results);
-		//----------   debug --------------------------------
-                $this->saveFetchData("ShippingServiceDetails-Request-".date("Y-m-d H:i:s").".xml", $client->__getLastRequest());
-                $this->saveFetchData("ShippingServiceDetails-Response-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
-		
-		if(!empty($results->ShippingServiceDetails)){
-		    //clear up
-		    $sql = "delete from shipping_service_details where SiteID = '".$this->site_id."'";
-		    $result = mysql_query($sql, eBayListing::$database_connect);
-		    
-		    foreach($results->ShippingServiceDetails as $shippingServiceDetail){
-			if(@empty($shippingServiceDetail->InternationalService)){
-			    $shippingServiceDetail->InternationalService = false;
-			}
-			
-			if(@empty($shippingServiceDetail->ShippingTimeMax)){
-			    $shippingServiceDetail->ShippingTimeMax = false;
-			}
-			
-			if(@empty($shippingServiceDetail->ShippingTimeMin)){
-			    $shippingServiceDetail->ShippingTimeMin = false;
-			}
-			
-			$ServiceTypeFlat = false;
-			$ServiceTypeCalculated = false;
-			if(@is_array($shippingServiceDetail->ServiceType)){
-			    foreach($shippingServiceDetail->ServiceType as $serviceType){
-				if($serviceType == "Flat"){
-				    $ServiceTypeFlat = true;
-				}elseif($serviceType == "Calculated"){
-				    $ServiceTypeCalculated = true;
-				}
-			    }
-			}else{
-			    if(@$shippingServiceDetail->ServiceType == "Flat"){
-				$ServiceTypeFlat = true;
-			    }elseif(@$shippingServiceDetail->ServiceType == "Calculated"){
-				$ServiceTypeCalculated = true;
-			    }
-			}
-			
-			$ShippingPackageLetter = false;
-			$ShippingPackageLargeEnvelope = false;
-			$ShippingPackagePackageThickEnvelope = false;
-			if(@is_array($shippingServiceDetail->ShippingPackage)){
-			    foreach($shippingServiceDetail->ShippingPackage as $shippingPackage){
-				switch($shippingPackage){
-				    case "Letter":
-					$ShippingPackageLetter = true;
-					break;
-				    
-				    case "LargeEnvelope":
-					$ShippingPackageLargeEnvelope = true;
-					break;
-				    
-				    case "PackageThickEnvelope":
-					$ShippingPackagePackageThickEnvelope = true;
-					break;
-				}
-			    }
-			}else{
-			    switch(@$shippingServiceDetail->ShippingPackage){
-				case "Letter":
-				    $ShippingPackageLetter = true;
-				    break;
-				
-				case "LargeEnvelope":
-				    $ShippingPackageLargeEnvelope = true;
-				    break;
-				
-				case "PackageThickEnvelope":
-				    $ShippingPackagePackageThickEnvelope = true;
-				    break;
-			    }
-			}
-			
-			if(@empty($shippingServiceDetail->ShippingCarrier)){
-			    $shippingServiceDetail->ShippingCarrier = false;
-			}
-			
-			if(@empty($shippingServiceDetail->DimensionsRequired)){
-			    $shippingServiceDetail->DimensionsRequired = false;
-			}
-			
-			if(@empty($shippingServiceDetail->WeightRequired)){
-			    $shippingServiceDetail->WeightRequired = false;
-			}
-			
-			echo "<font color='red'>".$shippingServiceDetail->Description."</font>";
-			echo "<br>";
-			
-			$sql = "insert into shipping_service_details (SiteID,Description,InternationalService,ShippingService,
-			ShippingServiceID,ShippingTimeMax,ShippingTimeMin,ServiceTypeFlat,ServiceTypeCalculated,
-			ShippingPackageLetter,ShippingPackageLargeEnvelope,ShippingPackagePackageThickEnvelope,
-			ShippingCarrier,DimensionsRequired,WeightRequired) values ('".$this->site_id."','".mysql_escape_string($shippingServiceDetail->Description)."',
-			'".$shippingServiceDetail->InternationalService."','".mysql_escape_string($shippingServiceDetail->ShippingService)."',
-			'".$shippingServiceDetail->ShippingServiceID."','".$shippingServiceDetail->ShippingTimeMax."',
-			'".$shippingServiceDetail->ShippingTimeMin."','".$ServiceTypeFlat."',
-			'".$ServiceTypeCalculated."','".$ShippingPackageLetter."',
-			'".$ShippingPackageLargeEnvelope."','".$ShippingPackagePackageThickEnvelope."',
-			'".$shippingServiceDetail->ShippingCarrier."','".$shippingServiceDetail->DimensionsRequired."',
-			'".$shippingServiceDetail->WeightRequired."')";
-			
-			echo $sql;
-			echo "<br>";
-			$result = mysql_query($sql, eBayListing::$database_connect);
-		    }
-		}
-		echo "<h2>Fetch ".$this->site_id." End.</h2>";
-		echo "<br>";
-		echo "<br>";
-		echo "<br>";
-		flush();
-        } catch (SOAPFault $f) {
-                print $f; // error handling
-        }
-    }
-    
-    public function getAllSiteShippingServiceDetails(){
-	$sql = "select id from site where status = 1";
-	$result = mysql_query($sql, eBayListing::$database_connect);
-	while ($row = mysql_fetch_assoc($result)){
-	    $this->configEbay($row['id']);
-	    $this->getShippingServiceDetails();
-	}
-    }
-    
-    public function getShippingLocationDetails(){
-	try {
-	    $client = new eBaySOAP($this->session);
-	    $Version = '607';
-	    $DetailName = "ShippingLocationDetails";
-	 
-	    $params = array('Version' => $Version, 'DetailName' => $DetailName);
-	    $results = $client->GeteBayDetails($params);
-	    print_r($results);
-	    
-	    foreach($results->ShippingLocationDetails as $shippingLocationDetails){
-		$sql = "insert into ship_to_location (SiteID,ShippingLocation,Description) 
-		values ('".$this->site_id."','".$shippingLocationDetails->ShippingLocation."','".mysql_escape_string($shippingLocationDetails->Description)."')";
-		echo $sql;
-		echo "<br>";
-		$result = mysql_query($sql, eBayListing::$database_connect);
-	    }
-	    echo "<h2>Fetch ".$this->site_id." End.</h2>";
-	    echo "<br>";
-	    echo "<br>";
-	    echo "<br>";
-	    //----------   debug --------------------------------
-	    //print "Request: \n".$client->__getLastRequest() ."\n";
-	    //print "Response: \n".$client->__getLastResponse()."\n";
-	    //$this->("ShippingLocationDetails-Request-".date("Y-m-d H:i:s").".xml", $client->__getLastRequest());
-	    //$this->saveFetchData("ShippingLocationDetails-Response-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
-	} catch (SOAPFault $f) {
-            print $f; // error handling
-        }
-    }
-    
-    public function getAllSiteShippingLocationDetails(){
-	$sql = "select id from site where status = 1";
-	$result = mysql_query($sql, eBayListing::$database_connect);
-	while ($row = mysql_fetch_assoc($result)){
-	    $this->configEbay($row['id']);
-	    $this->getShippingLocationDetails();
-	    //exit();
-	}
-    }
-    
-    public function getShippingLocation(){
-	$sql = "select ShippingLocation from ship_to_location where SiteID = '".$_GET['SiteID']."'";
-	//echo $sql;
-	$result = mysql_query($sql, eBayListing::$database_connect);
-	$array = array();
-	while ($row = mysql_fetch_assoc($result)){
-	    if($row['ShippingLocation'] != 'Worldwide' && $row['ShippingLocation'] != 'None'){
-		$array[] = $row['ShippingLocation'];
-	    }
-	}
-	echo json_encode($array);
-    }
-    
-    //-----------------  Fetch Item Specifics From eBay ------------------------------------------
-    //http://127.0.0.1:6666/eBayBO/eBaylisting/service.php?action=getAllCategory2CS
-    public function getCategory2CS(){
-	global $argv;
-	if(!empty($argv[2])){
-	    $this->configEbay($argv[2]);
-	}
-	
-	$sql = "delete from CharacteristicsSets where SiteID = '".$this->site_id."'";
-	$result = mysql_query($sql, eBayListing::$database_connect);
-		    
-	try {
-	    echo $this->site_id;
-	    echo "\n";
-	    $client = new eBaySOAP($this->session);
-	    $Version = '607';
-	    $DetailLevel = "ReturnAll";
-	 
-	    $params = array('Version' => $Version, 'DetailLevel' => $DetailLevel);
-	    $results = $client->GetCategory2CS($params);
-	    
-	    foreach ($results->MappedCategoryArray->Category as $category){
-		$sql = "insert into CharacteristicsSets (SiteID,CategoryID,Name,AttributeSetID,AttributeSetVersion) values 
-		('".$this->site_id."','".$category->CategoryID."','".$category->CharacteristicsSets->Name."',
-		'".$category->CharacteristicsSets->AttributeSetID."','".$category->CharacteristicsSets->AttributeSetVersion."')";
-		//echo $sql;
-		//echo "\n";
-		$result = mysql_query($sql, eBayListing::$database_connect);
-	    }
-	    
-	    echo "\n****************************************************************\n";
-	    flush();
-	    //exit();
-	} catch (SOAPFault $f) {
-            print $f; // error handling
-        }
-    }
-    
-    public function getAllCategory2CS(){
-	$sql = "select id from site where status = 1";
-	$result = mysql_query($sql, eBayListing::$database_connect);
-	while ($row = mysql_fetch_assoc($result)){
-	    $this->configEbay($row['id']);
-	    $this->getCategory2CS();
-	}
-    }
-    
-    public function getAttributesCS(){
-	global $argv;
-	if(!empty($argv[2])){
-	    $this->configEbay($argv[2]);
-	}
-	try {
-	    $client = new eBaySOAP($this->session);
-	    $Version = '607';
-	    $DetailLevel = "ReturnAll";
-	 
-	    $params = array('Version' => $Version, 'DetailLevel' => $DetailLevel);
-	    $results = $client->GetAttributesCS($params);
-	    
-	    file_put_contents("GetAttributesCS-".$this->site_id.".xml", $results->AttributeData);
-	    echo "\n******************   getAttributesCS Site ".$this->site_id." **************************\n";
-	    flush();
-	    //exit();
-	} catch (SOAPFault $f) {
-            print $f; // error handling
-        }
-    }
-    
-    public function getAllAttributesCS(){
-	$sql = "select id from site where status = 1";
-	$result = mysql_query($sql, eBayListing::$database_connect);
-	while ($row = mysql_fetch_assoc($result)){
-	    $this->configEbay($row['id']);
-	    $this->getAttributesCS();
-	}
-    }
-    //----------------------------------------------------------------------------------
+
+    // -----------------  Item Specifics ---------------------------------------------
     public function getAttributes(){
 	session_start();
 	$sql = "select id from site where name = '".$_POST['SiteID']."'";
@@ -3532,7 +3533,6 @@ class eBayListing{
 	echo json_encode($array);
     }
     
-    // -----------------  Specifics ---------------------------------------------
     public function loadSpecifics(){
 	if(!empty($_GET['sku'])){
 	    $id = $_GET['sku'];
@@ -3638,8 +3638,6 @@ class eBayListing{
     }
     
     //-------------------------- Item  -------------------------------------------------------------------
-    //ALTER TABLE `items` ADD `InsertionFee` DECIMAL( 10, 2 ) NOT NULL AFTER `ListingType` ;
-    //ALTER TABLE `items` ADD `ListingFee` DECIMAL( 10, 2 ) NOT NULL AFTER `InsertionFee` ;
     public function activeItemExport(){
 	$data = "SKU,Item Title,Insertion Fee,Item ID,Start Time,End Time,Duration,Qty,Slod Qty,Price,Listing Type\n";
 	$sql = "select ItemID,SKU,Title,ListingType,InsertionFee,ListingFee,Quantity,QuantitySold,ListingDuration,StartTime,EndTime,StartPrice,BuyItNowPrice from items where ListingStatus = 'Active' or Status = 1 or Status = 2";
@@ -3866,12 +3864,12 @@ class eBayListing{
 	}
 
 	//Active, Completed, Ended
-	$sql = "select count(*) as count from items where ListingStatus = 'Active' or Status = 2";
+	$sql = "select count(*) as count from items where accountId = '".$this->account_id."' and (ListingStatus = 'Active' or Status = 2)";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
 	$totalCount = $row['count'];
 	
-	$sql_1 = "select Id,SKU,ItemID,Title,Site,ListingType,Quantity,ListingDuration,EndTime,StartPrice,BuyItNowPrice from items where ListingStatus = 'Active' or Status = 2 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
+	$sql_1 = "select Id,SKU,ItemID,Title,Site,ListingType,Quantity,ListingDuration,EndTime,StartPrice,BuyItNowPrice from items where accountId = '".$this->account_id."' and (ListingStatus = 'Active' or Status = 2) order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
 	//echo $sql_1."\n";
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$data = array();
@@ -3896,12 +3894,12 @@ class eBayListing{
 	}
 
 	//Active, Completed, Ended
-	$sql = "select count(*) as count from items where Status = 6";
+	$sql = "select count(*) as count from items where accountId = '".$this->account_id."' and Status = 6";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
 	$totalCount = $row['count'];
 	
-	$sql_1 = "select * from items where Status = 6 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
+	$sql_1 = "select * from items where accountId = '".$this->account_id."' and Status = 6 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$data = array();
 	while($row_1 = mysql_fetch_assoc($result_1)){
@@ -3925,12 +3923,12 @@ class eBayListing{
 	}
 
 	//Active, Completed, Ended
-	$sql = "select count(*) as count from items where Status = 5";
+	$sql = "select count(*) as count from items where accountId = '".$this->account_id."' and Status = 5";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
 	$totalCount = $row['count'];
 	
-	$sql_1 = "select * from items where Status = 5 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
+	$sql_1 = "select * from items where accountId = '".$this->account_id."' and Status = 5 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$data = array();
 	while($row_1 = mysql_fetch_assoc($result_1)){
@@ -6573,6 +6571,7 @@ class eBayListing{
         }
     }
     
+    //--------------------------  Relist ----------------------------------------------------------------
     public function reUploadItem(){
 	$sql = "select Id,accountId from items where Status = 4";
 	
@@ -6928,7 +6927,7 @@ class eBayListing{
         }
     }
     
-    //-------------------------   Listing ----------------------------------------------------------------
+    //-------------------------   Get Seller Listing ------------------------------------------------------
     /*
     	Status
 	0 : ready
@@ -7697,8 +7696,13 @@ class eBayListing{
     
     public function getUploadLog(){
 	$array = array();
+	$type = $_GET['type'];
 	
-	$sql = "select count(*) as num from log where account_id = '".$this->account_id."' and type = 'upload'";
+	if($_COOKIE['role'] == "admin"){
+	    $sql = "select count(*) as num from log where type = '".$type."'";
+	}else{
+	    $sql = "select count(*) as num from log where account_id = '".$this->account_id."' and type = '".$type."'";
+	}
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
 	$totalCount = $row['num'];
@@ -7707,8 +7711,12 @@ class eBayListing{
 	    $_POST['start'] = 0;
 	    $_POST['limit'] = 20;
 	}
-	    
-	$sql = "select * from log where account_id = '".$this->account_id."' and type = 'upload' limit ".$_POST['start'].",".$_POST['limit'];
+	
+	if($_COOKIE['role'] == "admin"){	
+	    $sql = "select * from log where type = '".$type."' limit ".$_POST['start'].",".$_POST['limit'];
+	}else{
+	    $sql = "select * from log where account_id = '".$this->account_id."' and type = '".$type."' limit ".$_POST['start'].",".$_POST['limit'];   
+	}
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while($row = mysql_fetch_assoc($result)){
 	    $array[] = $row;
