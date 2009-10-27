@@ -48,7 +48,7 @@ if(!empty($_SESSION[$_GET['type']][$_GET['id']]['description']) || $_GET['type']
 */
 if($_GET['h'] == 's'){
     if(strpos($_GET['id'], ',') == false){
-        $sql = "select Title,Description,UseStandardFooter from template where Id = '".$_GET['id']."' and accountId = '".$_COOKIE['account_id']."'";
+        $sql = "select Title,Description,SKU,UseStandardFooter from template where Id = '".$_GET['id']."' and accountId = '".$_COOKIE['account_id']."'";
         $result = mysql_query($sql, $link);
         $row = mysql_fetch_assoc($result);
         
@@ -60,8 +60,8 @@ if($_GET['h'] == 's'){
             $sql_1 = "select footer from account_footer where accountId = '".$_COOKIE['account_id']."'";
             $result_1 = mysql_query($sql_1, $link);
             $row_1 = mysql_fetch_assoc($result_1);
-            echo str_replace(array("%title%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
-                             array($row['Title'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row['Description'])), $row_1['footer']);
+            echo str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
+                             array($row['Title'], $row['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row['Description'])), $row_1['footer']);
         }else{
             echo html_entity_decode($row['Description']);
         }
@@ -71,15 +71,15 @@ if($_GET['h'] == 's'){
         $row_0 = mysql_fetch_assoc($result_0);
         
         $t = explode(",", $_GET['id']);
-        $sql = "select Title,Description,UseStandardFooter from template where Id = '".$t[0]."'";
+        $sql = "select Title,Description,SKU,UseStandardFooter from template where Id = '".$t[0]."'";
 	$result = mysql_query($sql, $link);
 	$row = mysql_fetch_assoc($result);
 	if($row['UseStandardFooter']){
 	    $sql_1 = "select footer from account_footer where accountId = '".$_COOKIE['account_id']."'";
             $result_1 = mysql_query($sql_1, $link);
             $row_1 = mysql_fetch_assoc($result_1);
-	    $x = str_replace(array("%title%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
-                             array($row['Title'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row['Description'])), $row_1['footer']);	
+	    $x = str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
+                             array($row['Title'], $row['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row['Description'])), $row_1['footer']);	
 	}else{
 	    $x = html_entity_decode($row['Description']);
 	}
@@ -147,8 +147,8 @@ if($_GET['h'] == 's'){
         $result = mysql_query($sql, $link);
         $row = mysql_fetch_assoc($result);
         //echo $row['footer'];
-        echo str_replace(array("%title%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
-                         array($_SESSION[$_GET['type']][$_GET['id']]['title'],
+        echo str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
+                         array($_SESSION[$_GET['type']][$_GET['id']]['title'], $_SESSION[$_GET['type']][$_GET['id']]['sku'], 
                                '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode(str_replace("\\", "",$_SESSION[$_GET['type']][$_GET['id']]['description']))), $row['footer']);
         mysql_close($link);
     }else{

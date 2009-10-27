@@ -1382,7 +1382,8 @@ Ext.onReady(function(){
                                         url: 'service.php?action=saveTempDescription&type=items&id='+item_id,
                                         params: {
                                             title: Ext.getCmp("Title").getValue(),
-                                            description: tinyMCE.get("Description").getContent()
+                                            description: tinyMCE.get("Description").getContent(),
+                                            sku: Ext.getCmp("SKU").getValue()
                                         },
                                         success: function(a, b){
                                             window.open(path + "preview.php?type=items&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+item_id+"&sku="+Ext.getCmp("SKU").getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
