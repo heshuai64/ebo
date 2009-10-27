@@ -719,6 +719,7 @@ class eBayListing{
 	session_start();
 	$_SESSION[$_GET['type']][$_GET['id']]['title'] = $_POST['title'];
 	$_SESSION[$_GET['type']][$_GET['id']]['description'] = htmlentities($_POST['description']);
+	$_SESSION[$_GET['type']][$_GET['id']]['sku'] = $_POST['sku'];
     }
     
     public function getDescriptionById(){
@@ -3452,7 +3453,7 @@ class eBayListing{
     // -----------------  Item Specifics ---------------------------------------------
     public function getAttributes(){
 	session_start();
-	$sql = "select id from site where name = '".$_POST['SiteID']."'";
+	$sql = "select id from site where name = '".$_GET['SiteID']."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
 	$SiteID = $row['id'];
