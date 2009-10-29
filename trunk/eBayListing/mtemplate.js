@@ -450,6 +450,10 @@ Ext.onReady(function(){
                                     case "France":
                                         currencyCombo.setValue("EUR");
                                     break;
+                                
+                                    case "Germany":
+                                        currencyCombo.setValue("EUR");
+                                    break;
                                 }
                                 Ext.getCmp("SiteID").setValue(r.data.name);
                             }

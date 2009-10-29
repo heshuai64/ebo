@@ -317,6 +317,14 @@ Ext.onReady(function(){
                                         Ext.getCmp("ReservePrice").setRawValue(currency_symbol.France);
                                         //Ext.getCmp("currency-icon").setIconClass("currency-euro");
                                     break;
+                                
+                                    case "Germany":
+                                        currencyCombo.setValue("EUR");
+                                        Ext.getCmp("StartPrice").setRawValue(currency_symbol.France);
+                                        Ext.getCmp("BuyItNowPrice").setRawValue(currency_symbol.France);
+                                        Ext.getCmp("ReservePrice").setRawValue(currency_symbol.France);
+                                        //Ext.getCmp("currency-icon").setIconClass("currency-euro");
+                                    break;
                                 }
                                 Ext.getCmp("SiteID").setValue(r.data.name);
                             }

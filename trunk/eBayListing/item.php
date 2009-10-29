@@ -11,6 +11,7 @@
     <script type="text/javascript" src="tiny_mce/tiny_mce.js"></script>
     <script type="text/javascript">
             var item_id = "<?=$_GET['id']?>";
+	    var status = "<?=$_GET['Status']?>";
     </script>
     <style type="text/css">
 	html, body {
