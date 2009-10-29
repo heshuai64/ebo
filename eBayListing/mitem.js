@@ -347,6 +347,10 @@ Ext.onReady(function(){
                                     case "France":
                                         currencyCombo.setValue("EUR");
                                     break;
+                                
+                                    case "Germany":
+                                        currencyCombo.setValue("EUR");
+                                    break;
                                 }
                                 Ext.getCmp("SiteID").setValue(r.data.name);
                             }
@@ -2789,7 +2793,7 @@ Ext.onReady(function(){
                     document.getElementById("Description").value = tinyMCE.get("Description").getContent();
                     itemForm.getForm().submit({
                         clientValidation: true,
-                        url: 'service.php?action=updateMultiItem&item_id='+item_id,
+                        url: 'service.php?action=updateMultiItem&item_id='+item_id+'&status='+status,
                         success: function(form, action) {
                             //console.log(action);
                             Ext.Msg.alert("Success", action.result.msg);

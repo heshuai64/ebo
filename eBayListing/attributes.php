@@ -208,7 +208,7 @@ if (!mysql_select_db("ebaylisting")) {
 }
 
 
-if(!empty($argv[2])){
+if(!empty($argv[1])){
     $a = new Attributes();
     $f = fopen('GetAttributesCS-'.$argv[2].'.xml', 'r' );
     while( $data = fread($f, 4096)){

@@ -6,6 +6,7 @@ Ext.onReady(function(){
      
      var path = "/eBayBO/eBayListing/";
      //var path = "/eBayListing/";
+     
      /*
      var cp = new Ext.state.CookieProvider({
           path: "/eBayBO/eBayListing/"
@@ -269,7 +270,7 @@ Ext.onReady(function(){
                                        var result = eval(response.responseText);
                                        if(result[0].success){
                                              Ext.MessageBox.alert('Success', result[0].msg);
-                                             template_store.reload();
+                                             //template_store.reload();
                                         }else{
                                              Ext.MessageBox.alert('Failure', result[0].msg);
                                              template_store.reload();
@@ -304,7 +305,7 @@ Ext.onReady(function(){
                                        var result = eval(response.responseText);
                                        if(result[0].success){
                                              Ext.MessageBox.alert('Success', result[0].msg);
-                                             template_store.reload();
+                                             //template_store.reload();
                                         }else{
                                              Ext.MessageBox.alert('Failure', result[0].msg);
                                              template_store.reload();
@@ -354,7 +355,7 @@ Ext.onReady(function(){
                                        var result = eval(response.responseText);
                                        if(result[0].success){
                                              Ext.MessageBox.alert('Success', result[0].msg);
-                                             template_store.reload();
+                                             //template_store.reload();
                                         }else{
                                              Ext.MessageBox.alert('Failure', result[0].msg);
                                              template_store.reload();
@@ -415,6 +416,7 @@ Ext.onReady(function(){
                                   switch(result){
                                      case 1:  // Success : simply reload
                                        template_store.reload();
+                                       template_category_tree.root.reload();
                                        break;
                                      default:
                                        Ext.MessageBox.alert('Warning','Data error, please check template data.');
@@ -479,6 +481,7 @@ Ext.onReady(function(){
                                        switch(result){
                                           case 1:  // Success : simply reload
                                             template_store.reload();
+                                            template_category_tree.root.reload();
                                             break;
                                           default:
                                             Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
@@ -1405,7 +1408,7 @@ Ext.onReady(function(){
                                                                 var result = eval(response.responseText);
                                                                 if(result[0].success){
                                                                       Ext.MessageBox.alert('Success', result[0].msg);
-                                                                      activity_store.reload();
+                                                                      //activity_store.reload();
                                                                  }else{
                                                                       Ext.MessageBox.alert('Failure', result[0].msg);
                                                                       activity_store.reload();
@@ -1440,10 +1443,10 @@ Ext.onReady(function(){
                                                                 var result = eval(response.responseText);
                                                                 if(result[0].success){
                                                                       Ext.MessageBox.alert('Success', result[0].msg);
-                                                                      activity_store.reload();
+                                                                      //activity_store.reload();
                                                                  }else{
                                                                       Ext.MessageBox.alert('Failure', result[0].msg);
-                                                                      activity_store.reload();
+                                                                      //activity_store.reload();
                                                                  }
                                                             },
                                                             failure: function(response){
@@ -1475,10 +1478,10 @@ Ext.onReady(function(){
                                                                 var result = eval(response.responseText);
                                                                 if(result[0].success){
                                                                       Ext.MessageBox.alert('Success', result[0].msg);
-                                                                      activity_store.reload();
+                                                                      //activity_store.reload();
                                                                  }else{
                                                                       Ext.MessageBox.alert('Failure', result[0].msg);
-                                                                      activity_store.reload();
+                                                                      //activity_store.reload();
                                                                  }
                                                             },
                                                             failure: function(response){
@@ -1510,7 +1513,7 @@ Ext.onReady(function(){
                                              if(activity_grid.selModel.getCount() > 1){
                                                   window.open(path + "mitem.php?id="+ids+"&Status=3","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                              }else{
-                                                  window.open(path + "revise.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                                  window.open(path + "item.php?id="+ids+"&Status=3","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                              }     
                                              return 1;
                                         }
@@ -1612,7 +1615,7 @@ Ext.onReady(function(){
                                              if(sold_item_grid.selModel.getCount() > 1){
                                                   window.open(path + "mitem.php?id="+ids+"&Status=4","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                              }else{
-                                                  window.open(path + "relist.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                                  window.open(path + "item.php?id="+ids+"&Status=4","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                              }     
                                              return 1;
                                         }
@@ -1924,10 +1927,10 @@ Ext.onReady(function(){
                                                                 var result = eval(response.responseText);
                                                                 if(result[0].success){
                                                                       Ext.MessageBox.alert('Success', result[0].msg);
-                                                                      wait_store.reload();
+                                                                      //wait_store.reload();
                                                                  }else{
                                                                       Ext.MessageBox.alert('Failure', result[0].msg);
-                                                                      wait_store.reload();
+                                                                      //wait_store.reload();
                                                                  }
                                                             },
                                                             failure: function(response){
@@ -2316,10 +2319,10 @@ Ext.onReady(function(){
                                                                      var result = eval(response.responseText);
                                                                      if(result[0].success){
                                                                            Ext.MessageBox.alert('Success', result[0].msg);
-                                                                           schedule_store.reload();
+                                                                           //schedule_store.reload();
                                                                       }else{
                                                                            Ext.MessageBox.alert('Failure', result[0].msg);
-                                                                           schedule_store.reload();
+                                                                           //schedule_store.reload();
                                                                       }
                                                                  },
                                                                  failure: function(response){
@@ -2575,7 +2578,18 @@ Ext.onReady(function(){
                                    
                               }
                          }
-                   },{
+                    },{
+                         title:'Processing',
+                         //items: processing,
+                         border:false,
+                         iconCls:'processing',
+                         listeners:{
+                              expand: function(p){
+                                   
+                                   
+                              }
+                         }
+                    },{
                          title:'Manage',
                          hidden:(getCookie("role")=='admin')?false:true,
                          items:{
