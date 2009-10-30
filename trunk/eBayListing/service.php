@@ -1437,7 +1437,7 @@ class eBayListing{
 	    ReservePrice,Site,SKU,StartPrice,StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,
 	    BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypePlus,GalleryURL,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,accountId,UseStandardFooter) values (
 	    '".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
-	    '".htmlentities($_POST['Description'])."','".$_POST['DispatchTimeMax']."',
+	    '".mysql_real_escape_string($_POST['Description'])."','".$_POST['DispatchTimeMax']."',
 	    '".$_POST['ListingDuration']."','".$_POST['ListingType']."','".$_POST['Location']."','PayPal',
 	    '".$_POST['PayPalEmailAddress']."','".$_POST['PostalCode']."',
 	    '".$_POST['PrimaryCategoryCategoryID']."','".$_POST['PrimaryCategoryCategoryName']."','".$_POST['SecondaryCategoryCategoryID']."','".$_POST['SecondaryCategoryCategoryName']."',
@@ -1463,7 +1463,7 @@ class eBayListing{
 	    ,Site,SKU,StartPrice,StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,
 	    BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypePlus,GalleryURL,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,accountId,UseStandardFooter) values (
 	    '".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
-	    '".htmlentities($_POST['Description'])."','".$_POST['DispatchTimeMax']."',
+	    '".mysql_real_escape_string($_POST['Description'])."','".$_POST['DispatchTimeMax']."',
 	    '".$_POST['ListingDuration']."','".$_POST['ListingType']."','".$_POST['Location']."','PayPal',
 	    '".$_POST['PayPalEmailAddress']."','".$_POST['PostalCode']."',
 	    '".$_POST['PrimaryCategoryCategoryID']."','".$_POST['PrimaryCategoryCategoryName']."','".$_POST['SecondaryCategoryCategoryID']."','".$_POST['SecondaryCategoryCategoryName']."',
@@ -1955,7 +1955,7 @@ class eBayListing{
 	if(!empty($_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyReturnsAcceptedOption'])){
 	    $sql = "update template set 
 	    BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
-	    Description='".htmlentities($_POST['Description'])."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
+	    Description='".htmlentities(mysql_real_escape_string($_POST['Description']))."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
 	    ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
 	    PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
 	    PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
@@ -1975,7 +1975,7 @@ class eBayListing{
 	}else{
 	    $sql = "update template set 
 	    BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
-	    Description='".htmlentities($_POST['Description'])."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
+	    Description='".htmlentities(mysql_real_escape_string($_POST['Description']))."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
 	    ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
 	    PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
 	    PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
@@ -1993,6 +1993,7 @@ class eBayListing{
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	//echo $sql;
 	//exit;
+	$this->log("template", $sql);
 	
 	$sql_1 = "delete from template_picture_url where templateId = '".$id."'";
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
@@ -2280,7 +2281,7 @@ class eBayListing{
 	}
 	
 	if(!empty($_POST['Description']) && $_POST['Description'] != 'Multi Value'){
-	    $update .= "Description = '".htmlentities($_POST['Description'])."',";
+	    $update .= "Description = '".htmlentities(mysql_real_escape_string($_POST['Description']))."',";
 	}
 	
 	if(!empty($_POST['DispatchTimeMax']) && $_POST['DispatchTimeMax'] != 'Multi Value'){
@@ -3278,13 +3279,11 @@ class eBayListing{
     
     public function templateExport(){
 	$data = "SKU,Title,Price\n";
-	$sql = "select SKU,Title,ListingType,BuyItNowPrice,StartPrice from template";
+	$sql = "select SKU,Title,ListingType,BuyItNowPrice,StartPrice from template where accountId = '".$this->account_id."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while($row = mysql_fetch_assoc($result)){
-	    if($row['ListingType'] == "Chinese" || $row['ListingType'] == "Dutch"){
-		
-	    }else{
-		
+	    if($row['ListingType'] == "FixedPriceItem" || $row['ListingType'] == "StoresFixedPrice"){
+		$_POST['StartPrice'] = $_POST['BuyItNowPrice'];
 	    }
 	    $data .= '"'.$row['SKU'].'","'.$row['Title'].'","'.$row['StartPrice'].'"'."\n";
 	}
@@ -3751,7 +3750,7 @@ class eBayListing{
     //-------------------------- Item  -------------------------------------------------------------------
     public function activeItemExport(){
 	$data = "SKU,Item Title,Insertion Fee,Item ID,Start Time,End Time,Duration,Qty,Slod Qty,Price,Listing Type\n";
-	$sql = "select ItemID,SKU,Title,ListingType,InsertionFee,ListingFee,Quantity,QuantitySold,ListingDuration,StartTime,EndTime,StartPrice,BuyItNowPrice from items where ListingStatus = 'Active' or Status = 1 or Status = 2";
+	$sql = "select ItemID,SKU,Title,ListingType,InsertionFee,ListingFee,Quantity,QuantitySold,ListingDuration,StartTime,EndTime,StartPrice,BuyItNowPrice from items where Status = 2 and accountId = '".$this->account_id."'";
 	//echo $sql_1."\n";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while($row = mysql_fetch_assoc($result)){
@@ -3975,12 +3974,12 @@ class eBayListing{
 	}
 
 	//Active, Completed, Ended
-	$sql = "select count(*) as count from items where accountId = '".$this->account_id."' and (ListingStatus = 'Active' or Status = 2)";
+	$sql = "select count(*) as count from items where accountId = '".$this->account_id."' and Status = 2";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
 	$totalCount = $row['count'];
 	
-	$sql_1 = "select Id,SKU,ItemID,Title,Site,ListingType,Quantity,ListingDuration,EndTime,StartPrice,BuyItNowPrice from items where accountId = '".$this->account_id."' and (ListingStatus = 'Active' or Status = 2) order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
+	$sql_1 = "select Id,SKU,ItemID,Title,Site,ListingType,Quantity,ListingDuration,EndTime,StartPrice,BuyItNowPrice from items where accountId = '".$this->account_id."' and Status = 2 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
 	//echo $sql_1."\n";
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$data = array();
@@ -4367,7 +4366,7 @@ class eBayListing{
 	if(!empty($_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyReturnsAcceptedOption'])){
 	    $sql = "update items set 
 	    BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
-	    Description='".htmlentities($_POST['Description'])."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
+	    Description='".htmlentities(mysql_real_escape_string($_POST['Description']))."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
 	    ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
 	    PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
 	    PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
@@ -4388,7 +4387,7 @@ class eBayListing{
 	}else{
 	    $sql = "update items set 
 	    BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
-	    Description='".htmlentities($_POST['Description'])."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
+	    Description='".htmlentities(mysql_real_escape_string($_POST['Description']))."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
 	    ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
 	    PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
 	    PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
@@ -4406,6 +4405,7 @@ class eBayListing{
 	}
 	//echo $sql;
 	//exit;
+	//$this->log("item", $sql);
 	
 	$sql_1 = "delete from picture_url where ItemID = '".$id."'";
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
@@ -4587,7 +4587,7 @@ class eBayListing{
 	}
 	
 	if(!empty($_POST['Description']) && strpos('Multi Value', $_POST['Description'])){
-	    $update .= "Description = '".htmlentities($_POST['Description'])."',";
+	    $update .= "Description = '".htmlentities(mysql_real_escape_string($_POST['Description']))."',";
 	}
 	
 	if(!empty($_POST['DispatchTimeMax']) && $_POST['DispatchTimeMax'] != 'Multi Value'){
@@ -4905,8 +4905,10 @@ class eBayListing{
 		$sql_1 = "select ScheduleTime,Status,ListingType from items where Id = '".$_POST['id']."'";
 		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 		$row_1 = mysql_fetch_assoc($result_1);
+		//print_r($row_1);
 		switch($row_1['Status']){
 		    case 0:
+			/*
 			if($row_1['ScheduleTime'] > date("Y-m-d H:i:s")){
 			    $sql = "update items set ".$_POST['field']." = '".$_POST['value']."' where Id = '".$_POST['id']."'";
 			    $result = mysql_query($sql, eBayListing::$database_connect);
@@ -4915,10 +4917,18 @@ class eBayListing{
 			    echo "[{success: false, msg: 'item have been uploaded.'}]";
 			    return 0;
 			}
+			*/
+			$sql = "update items set ".$_POST['field']." = '".$_POST['value']."' where Id = '".$_POST['id']."'";
+			$result = mysql_query($sql, eBayListing::$database_connect);
+			echo "[{success: true, msg: 'update ".$_POST['field']." success.'}]";
 		    break;
 		
 		    case 1:
-			
+			$sql = "update items set ".$_POST['field']." = '".$_POST['value']."' where Id = '".$_POST['id']."'";
+			$result = mysql_query($sql, eBayListing::$database_connect);
+			echo "[{success: true, msg: 'update ".$_POST['field']." success.'}]";
+		    break;
+		
 		    case 2:
 			if($_POST['field'] == "Price"){
 			    if($row_1['ListingType'] == "Chinese" || $row_1['ListingType'] == "Dutch"){
@@ -4929,13 +4939,13 @@ class eBayListing{
 				//echo "[{success: true, msg: 'revise success.'}]";
 			    }elseif($row_1['ListingType'] == "StoresFixedPrice" || $row_1['ListingType'] == "FixedPriceItem"){
 				$_POST['field'] = "StartPrice";
-				$sql = "update items set ".$_POST['field']." = '".$_POST['value']."',Status = 2 where Id = '".$_POST['id']."'";
+				$sql = "update items set ".$_POST['field']." = '".$_POST['value']."',Status = 3 where Id = '".$_POST['id']."'";
 				//echo $sql;
 				$result = mysql_query($sql, eBayListing::$database_connect);
 				echo "[{success: true, msg: 'revise ".$_POST['field']." success.'}]";
 			    }
 			}else{
-			    $sql = "update items set ".$_POST['field']." = '".$_POST['value']."',Status = 2 where Id = '".$_POST['id']."'";
+			    $sql = "update items set ".$_POST['field']." = '".$_POST['value']."',Status = 3 where Id = '".$_POST['id']."'";
 			    $result = mysql_query($sql, eBayListing::$database_connect);
 			    echo "[{success: true, msg: 'revise ".$_POST['field']." success.'}]";
 			}
@@ -4963,931 +4973,19 @@ class eBayListing{
 		}else{
 		    $sql = "update template set ".$_POST['field']." = '".$_POST['value']."' where Id = '".$_POST['id']."'";
 		    $result = mysql_query($sql, eBayListing::$database_connect);
-		    echo "[{success: true, msg: 'update ".$_POST['field']." success.'}]";
+		    if($result){
+			echo "[{success: true, msg: 'update ".$_POST['field']." success.'}]";
+		    }else{
+			echo "[{success: failure, msg: '".$sql."'}]";
+		    }
 		}
 	    break;
 	}
 	return 1;
     }
     
-    public function updateActiveItem(){
-			
-	if($_POST['ListingType'] == "FixedPriceItem" || $_POST['ListingType'] == "StoresFixedPrice"){
-	    $_POST['StartPrice'] = $_POST['BuyItNowPrice'];
-	    $_POST['BuyItNowPrice'] = 0;
-	}
-	
-	if($_POST['ListingType'] == "Chinese"){
-	    $_POST['Quantity'] = 1;   
-	}
-	
-	$id = $_GET['item_id'];
-	//StartTime,EndTime
-	//$PaymentMethods = ($_POST['PayPalPayment'] == 1)?'PayPal':'';
-	$sql = "update items set 
-	BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
-	Description='".htmlentities($_POST['Description'])."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
-	ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
-	PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
-	PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
-	SecondaryCategoryCategoryID='".$_POST['SecondaryCategoryCategoryID']."',SecondaryCategoryCategoryName='".$_POST['SecondaryCategoryCategoryName']."',
-	Quantity='".@$_POST['Quantity']."',ReservePrice='".@$_POST['ReservePrice']."',
-	Site='".$_POST['Site']."',SKU='".$_POST['SKU']."',StartPrice='".$_POST['StartPrice']."',StoreCategory2ID='".$_POST['StoreCategory2ID']."',StoreCategory2Name='".$_POST['StoreCategory2Name']."',
-	StoreCategoryID='".$_POST['StoreCategoryID']."',StoreCategoryName='".$_POST['StoreCategoryName']."',SubTitle='".$_POST['SubTitle']."',
-	Title='".mysql_real_escape_string($_POST['Title'])."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
-	Border='".(empty($_POST['Border'])?0:1)."',Featured='".(empty($_POST['Featured'])?0:1)."',Highlight='".(empty($_POST['Highlight'])?0:1)."',
-	HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',
-	ShippingServiceOptionsType='".$_POST['ShippingServiceOptionsType']."',InsuranceOption='".$_POST['InsuranceOption']."',InsuranceFee='".$_POST['InsuranceFee']."',
-	InternationalShippingServiceOptionType='".$_POST['InternationalShippingServiceOptionType']."',InternationalInsurance='".$_POST['InternationalInsurance']."',InternationalInsuranceFee='".$_POST['InternationalInsuranceFee']."',
-	accountId='".$this->account_id."',Status=3 where Id = '".$id."'";
-	$result = mysql_query($sql, eBayListing::$database_connect);
-	
-	//echo $sql;
-	//exit;
-	
-	$sql_1 = "delete from picture_url where ItemID = '".$id."'";
-	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	$i = 1;
-	while(!empty($_POST['picture_'.$i])){
-	    $sql_1 = "insert into picture_url (ItemID,url) values 
-	    ('".$id."','".$_POST['picture_'.$i]."')";
-	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	    $i++;
-	}
-	
-	$sql_1 = "delete from shipping_service_options where ItemID = '".$id."'";
-	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	$i = 1;
-	while(!empty($_POST['ShippingService_'.$i])){
-	    $sql_1 = "insert into shipping_service_options (ItemID,FreeShipping,ShippingService,ShippingServiceCost,ShippingServicePriority) values
-	    ('".$id."','".@$_POST['ShippingServiceFree_'.$i]."','".$_POST['ShippingService_'.$i]."','".$_POST['ShippingServiceCost_'.$i]."','".$i."')";
-	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	    $i++;
-	}
-	
-	$sql_1 = "delete from international_shipping_service_option where ItemID = '".$id."'";
-	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	$i = 1;
-	while(!empty($_POST['InternationalShippingService_'.$i])){
-	    $ShipToLocation = '';
-	    if($_POST['InternationalShippingToLocations_'.$i] == 'Custom Locations'){
-		if(!empty($_POST['Americas_'.$i]) && $_POST['Americas_'.$i] == 1){
-		    $ShipToLocation .= ',Americas';
-		}
-		
-		if(!empty($_POST['Europe_'.$i]) && $_POST['Europe_'.$i] == 1){
-		    $ShipToLocation .= ',Europe';
-		}
-		
-		if(!empty($_POST['Asia_'.$i]) && $_POST['Asia_'.$i] == 1){
-		    $ShipToLocation .= ',Asia';
-		}
-		
-		if(!empty($_POST['CA_'.$i]) && $_POST['CA_'.$i] == 1){
-		    $ShipToLocation .= ',CA';
-		}
-		
-		if(!empty($_POST['GB_'.$i]) && $_POST['GB_'.$i] == 1){
-		    $ShipToLocation .= ',GB';
-		}
-		
-		if(!empty($_POST['AU_'.$i]) && $_POST['AU_'.$i] == 1){
-		    $ShipToLocation .= ',AU';
-		}
-		
-		if(!empty($_POST['MX_'.$i]) && $_POST['MX_'.$i] == 1){
-		    $ShipToLocation .= ',MX';
-		}
-		
-		if(!empty($_POST['DE_'.$i]) && $_POST['DE_'.$i] == 1){
-		    $ShipToLocation .= ',DE';
-		}
-		
-		if(!empty($_POST['JP_'.$i]) && $_POST['JP_'.$i] == 1){
-		    $ShipToLocation .= ',JP';
-		}
-		
-		$ShipToLocation = substr($ShipToLocation, 1);
-	    }else{
-		$ShipToLocation = 'Worldwide';
-	    }
-	    $sql_2 = "insert into international_shipping_service_option (ItemID,ShippingService,ShippingServiceCost,ShippingServicePriority,ShipToLocation) values
-	    ('".$id."','".$_POST['InternationalShippingService_'.$i]."','".$_POST['InternationalShippingServiceCost_'.$i]."','".$i."','".$ShipToLocation."')";
-	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
-	    $i++;
-	}
-	
-	session_start();
-	$temp_array = array();
-	if(!empty($_SESSION['AttributeSet'][$id])){
-	    //print_r($_SESSION['AttributeSet']);
-	    //exit;
-	    $sql_4 = "select attribute_set_id from attribute_set where item_id = '".$id."'";
-	    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-	    $row_4 = mysql_fetch_assoc($result_4);
-	    
-	    $sql_4 = "delete from attribute where attribute_set_id = '".$row_4['attribute_set_id']."'";
-	    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-	    
-	    $sql_4 = "delete from attribute_set where item_id = '".$id."'";
-	    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-	
-	    foreach($_SESSION['AttributeSet'][$id] as $attributeSetID=>$Attribute){
-		$sql_4 = "insert into attribute_set (item_id,attributeSetID) values ('".$id."', '".$attributeSetID."')";
-		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-		
-		$attribute_set_id = mysql_insert_id(eBayListing::$database_connect);
-		$temp_array = array();
-		foreach($Attribute as $attributeID=>$ValueID){
-		    if(!empty($ValueID)){
-			if(strpos($ValueID, "on") != false){
-			    $tempAttributeID = $attributeID;
-			    $attributeID = substr($ValueID, 0, -3);
-			    $ValueID = substr($tempAttributeID, 0, -9);
-			    //echo $attributeID.":".$ValueID;
-			    //echo "\n";
-			    $temp_array[$attributeID][] = $ValueID;
-			}else{
-				$sql_4 = "insert into attribute (attributeID,attribute_set_id,ValueID) values 
-				('".$attributeID."', '".$attribute_set_id."', '".$ValueID."')";
-				$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-				
-				//echo $sql_4;
-				//echo "\n";
-			}
-		    }
-		}
-		
-		//print_r($temp_array);
-		if(count($temp_array) > 0){
-		    foreach($temp_array as $key=>$value){
-			$ValueID = "";
-			foreach($value as $name){
-			    $ValueID .= $name.',';
-			}
-			$ValueID = substr($ValueID, 0, -1);
-			$sql_4 = "insert into attribute (attributeID,attribute_set_id,ValueID) values 
-			('".$key."', '".$attribute_set_id."', '".$ValueID."')";
-			$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-		    }
-		}
-	    }
-	}
-	
-	if($result && $result_1){
-	    //unset($_SESSION['Schedule']);
-	    //unset($_SESSION['AttributeSet']);
-	    echo '{success: true, msg: "Revise Item '.$id.' Success!"}';
-	    $this->log("item", "revise item ".$id." success.");
-	}else{
-	    echo '{success: false,
-		    errors: {message: "can\'t update, please notice admin."}
-		}';
-	    $this->log("item", "revise item ".$id." failure.", "error");
-	}
-    }
-    
-    public function updateMultiActiveItem(){
-	//print_r($_POST);
-	$ids = explode(',', $_GET['item_id']);
-	$where = " where ";
-	foreach($ids as $id){
-	    $where .= "Id = ".$id." or ";
-	}
-	$where = substr($where, 0, -4);
-	
-	$update = "update items set ";
-	if(!empty($_POST['BuyItNowPrice']) && $_POST['BuyItNowPrice'] != 'Multi Value'){
-	    $update .= "BuyItNowPrice = '".$_POST['BuyItNowPrice']."',";
-	}
-	
-	if(!empty($_POST['Currency']) && $_POST['Currency'] != 'Multi Value'){
-	    $update .= "Currency = '".$_POST['Currency']."',";
-	}
-	
-	if(!empty($_POST['Description']) && $_POST['Description'] != 'Multi Value'){
-	    $update .= "Description = '".htmlentities($_POST['Description'])."',";
-	}
-	
-	if(!empty($_POST['DispatchTimeMax']) && $_POST['DispatchTimeMax'] != 'Multi Value'){
-	    $update .= "DispatchTimeMax = '".$_POST['DispatchTimeMax']."',";
-	}
-	
-	if(!empty($_POST['ListingDuration']) && $_POST['ListingDuration'] != 'Multi Value'){
-	    $update .= "ListingDuration = '".$_POST['ListingDuration']."',";
-	}
-	
-	if(!empty($_POST['ListingType']) && $_POST['ListingType'] != 'Multi Value'){
-	    $update .= "ListingType = '".$_POST['ListingType']."',";
-	}
-	
-	if(!empty($_POST['Location']) && $_POST['Location'] != 'Multi Value'){
-	    $update .= "Location = '".$_POST['Location']."',";
-	}
-	
-	if(!empty($_POST['PayPalEmailAddress']) && $_POST['PayPalEmailAddress'] != 'Multi Value'){
-	    $update .= "PayPalEmailAddress = '".$_POST['PayPalEmailAddress']."',";
-	}
-	
-	if(!empty($_POST['PostalCode']) && $_POST['PostalCode'] != 'Multi Value'){
-	    $update .= "PostalCode = '".$_POST['PostalCode']."',";
-	}
-	
-	if(!empty($_POST['PrimaryCategoryCategoryID']) && $_POST['PrimaryCategoryCategoryID'] != 'Multi Value'){
-	    $update .= "PrimaryCategoryCategoryID = '".$_POST['PrimaryCategoryCategoryID']."',";
-	}
-	
-	if(!empty($_POST['PrimaryCategoryCategoryName']) && $_POST['PrimaryCategoryCategoryName'] != 'Multi Value'){
-	    $update .= "PrimaryCategoryCategoryName = '".$_POST['PrimaryCategoryCategoryName']."',";
-	}
-	
-	if(!empty($_POST['SecondaryCategoryCategoryID']) && $_POST['SecondaryCategoryCategoryID'] != 'Multi Value'){
-	    $update .= "SecondaryCategoryCategoryID = '".$_POST['SecondaryCategoryCategoryID']."',";
-	}
-	
-	if(!empty($_POST['SecondaryCategoryCategoryName']) && $_POST['SecondaryCategoryCategoryName'] != 'Multi Value'){
-	    $update .= "SecondaryCategoryCategoryName = '".$_POST['SecondaryCategoryCategoryName']."',";
-	}
-	
-	if(!empty($_POST['Quantity']) && $_POST['Quantity'] != 'Multi Value'){
-	    $update .= "Quantity = '".$_POST['Quantity']."',";
-	}
-	
-	if(!empty($_POST['ReservePrice']) && $_POST['ReservePrice'] != 'Multi Value'){
-	    $update .= "ReservePrice = '".$_POST['ReservePrice']."',";
-	}
-	
-	if(!empty($_POST['Site']) && $_POST['Site'] != 'Multi Value'){
-	    $update .= "Site = '".$_POST['Site']."',";
-	}
-	
-	if(!empty($_POST['SKU']) && $_POST['SKU'] != 'Multi Value'){
-	    $update .= "SKU = '".$_POST['SKU']."',";
-	}
-	
-	if(!empty($_POST['StartPrice']) && $_POST['StartPrice'] != 'Multi Value'){
-	    $update .= "StartPrice = '".$_POST['StartPrice']."',";
-	}
-	
-	if(!empty($_POST['StoreCategory2ID']) && $_POST['StoreCategory2ID'] != 'Multi Value'){
-	    $update .= "StoreCategory2ID = '".$_POST['StoreCategory2ID']."',";
-	}
-	
-	if(!empty($_POST['StoreCategory2Name']) && $_POST['StoreCategory2Name'] != 'Multi Value'){
-	    $update .= "StoreCategory2Name = '".$_POST['StoreCategory2Name']."',";
-	}
-	
-	if(!empty($_POST['SubTitle']) && $_POST['SubTitle'] != 'Multi Value'){
-	    $update .= "SubTitle = '".mysql_real_escape_string($_POST['SubTitle'])."',";
-	}
-	
-	if(!empty($_POST['Title']) && $_POST['Title'] != 'Multi Value'){
-	    $update .= "Title = '".mysql_real_escape_string($_POST['Title'])."',";
-	}
-	
-	if(!empty($_POST['SKU']) && $_POST['SKU'] != 'Multi Value'){
-	    $update .= "SKU = '".$_POST['SKU']."',";
-	}
-	
-	if(!empty($_POST['Border'])){
-	    $update .= "Border = '".$_POST['Border']."',";
-	}
-	
-	$update .= "Status=3,";
-	$update = substr($update, 0, -1);
-	$sql = $update . $where;
-	//echo $sql."\n";
-	$result = mysql_query($sql, eBayListing::$database_connect);
-	//echo $result;
-	//print_r($_POST);
-	$where = " where ";
-	foreach($ids as $id){
-	    $where .= "ItemID = ".$id." or ";
-	}
-	$where = substr($where, 0, -4);
-	
-	if(!empty($_POST['picture_1'])){
-	    $sql_1 = "delete from picture_url ".$where;
-	    //echo $sql_1."\n";
-	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	    
-	    foreach($ids as $id){
-		$i = 1;
-		while(!empty($_POST['picture_'.$i])){
-		    $sql_1 = "insert into picture_url (ItemID,url) values 
-		    ('".$id."','".$_POST['picture_'.$i]."')";
-		    //echo $sql_1."\n";
-		    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-		    $i++;
-		}
-	    }
-	}
-	
-	if(!empty($_POST['ShippingService_1'])){
-	    $sql_1 = "delete from shipping_service_options ".$where;
-	    //echo $sql_1."\n";
-	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	    
-	    foreach($ids as $id){
-		$i = 1;
-		while(!empty($_POST['ShippingService_'.$i])){
-		    $sql_1 = "insert into shipping_service_options (ItemID,FreeShipping,ShippingService,ShippingServiceCost,ShippingServicePriority) values
-		    ('".$id."','".@$_POST['ShippingServiceFree_'.$i]."','".$_POST['ShippingService_'.$i]."','".$_POST['ShippingServiceCost_'.$i]."','".$i."')";
-		    //echo $sql_1."\n";
-		    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-		    $i++;
-		}
-	    }
-	}
-	
-	if(!empty($_POST['InternationalShippingService_1'])){
-	    $sql_1 = "delete from international_shipping_service_option ".$where;
-	    //echo $sql_1."\n";
-	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-
-	    foreach($ids as $id){
-		$i = 1;
-		while(!empty($_POST['InternationalShippingService_'.$i])){
-		    $ShipToLocation = '';
-		    if($_POST['InternationalShippingToLocations_'.$i] == 'Custom Locations'){
-			if(!empty($_POST['Americas_'.$i]) && $_POST['Americas_'.$i] == 1){
-			    $ShipToLocation .= ',Americas';
-			}
-			
-			if(!empty($_POST['Europe_'.$i]) && $_POST['Europe_'.$i] == 1){
-			    $ShipToLocation .= ',Europe';
-			}
-			
-			if(!empty($_POST['Asia_'.$i]) && $_POST['Asia_'.$i] == 1){
-			    $ShipToLocation .= ',Asia';
-			}
-			
-			if(!empty($_POST['CA_'.$i]) && $_POST['CA_'.$i] == 1){
-			    $ShipToLocation .= ',CA';
-			}
-			
-			if(!empty($_POST['GB_'.$i]) && $_POST['GB_'.$i] == 1){
-			    $ShipToLocation .= ',GB';
-			}
-			
-			if(!empty($_POST['AU_'.$i]) && $_POST['AU_'.$i] == 1){
-			    $ShipToLocation .= ',AU';
-			}
-			
-			if(!empty($_POST['MX_'.$i]) && $_POST['MX_'.$i] == 1){
-			    $ShipToLocation .= ',MX';
-			}
-			
-			if(!empty($_POST['DE_'.$i]) && $_POST['DE_'.$i] == 1){
-			    $ShipToLocation .= ',DE';
-			}
-			
-			if(!empty($_POST['JP_'.$i]) && $_POST['JP_'.$i] == 1){
-			    $ShipToLocation .= ',JP';
-			}
-			
-			$ShipToLocation = substr($ShipToLocation, 1);
-		    }else{
-			$ShipToLocation = 'Worldwide';
-		    }
-		    $sql_2 = "insert into international_shipping_service_option (ItemID,ShippingService,ShippingServiceCost,ShippingServicePriority,ShipToLocation) values
-		    ('".$id."','".$_POST['InternationalShippingService_'.$i]."','".$_POST['InternationalShippingServiceCost_'.$i]."','".$i."','".$ShipToLocation."')";
-		    //echo $sql_2."\n";
-		    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
-		    $i++;
-		}
-	    }
-	}
-	
-	session_start();
-	$temp_array = array();
-	if(!empty($_SESSION['AttributeSet'][$_GET['item_id']])){
-	    //print_r($_SESSION['AttributeSet']);
-	    foreach($ids as $id){
-		//exit;
-		$sql_4 = "select attribute_set_id from attribute_set where item_id = '".$id."'";
-		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-		$row_4 = mysql_fetch_assoc($result_4);
-		
-		$sql_4 = "delete from attribute where attribute_set_id = '".$row_4['attribute_set_id']."'";
-		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-		
-		$sql_4 = "delete from attribute_set where item_id = '".$id."'";
-		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-	    
-		foreach($_SESSION['AttributeSet'][$_GET['item_id']] as $attributeSetID=>$Attribute){
-		    $sql_4 = "insert into attribute_set (item_id,attributeSetID) values ('".$id."', '".$attributeSetID."')";
-		    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-		    
-		    $attribute_set_id = mysql_insert_id(eBayListing::$database_connect);
-		    $temp_array = array();
-		    foreach($Attribute as $attributeID=>$ValueID){
-			if(!empty($ValueID)){
-			    if(strpos($ValueID, "on") != false){
-				$tempAttributeID = $attributeID;
-				$attributeID = substr($ValueID, 0, -3);
-				$ValueID = substr($tempAttributeID, 0, -9);
-				//echo $attributeID.":".$ValueID;
-				//echo "\n";
-				$temp_array[$attributeID][] = $ValueID;
-			    }else{
-				    $sql_4 = "insert into attribute (attributeID,attribute_set_id,ValueID) values 
-				    ('".$attributeID."', '".$attribute_set_id."', '".$ValueID."')";
-				    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-				    //echo $sql_4."\n";
-			    }
-			}
-		    }
-		    
-		    //print_r($temp_array);
-		    if(count($temp_array) > 0){
-			foreach($temp_array as $key=>$value){
-			    $ValueID = "";
-			    foreach($value as $name){
-				$ValueID .= $name.',';
-			    }
-			    $ValueID = substr($ValueID, 0, -1);
-			    $sql_4 = "insert into attribute (attributeID,attribute_set_id,ValueID) values 
-			    ('".$key."', '".$attribute_set_id."', '".$ValueID."')";
-			    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-			    //echo $sql_4."\n";
-			}
-		    }
-		}
-	    }
-	}
-	
-	if($result){
-	    //unset($_SESSION['Schedule']);
-	    //unset($_SESSION['AttributeSet']);
-	    echo '{success: true, msg: "Update Item '.$_GET['item_id'].' Success!"}';
-	    $this->log("item", "update multi item ".$_GET['item_id']." success.");
-	}else{
-	    echo '{success: false,
-		    errors: {message: "can\'t update, please notice admin."}
-		}';
-	    $this->log("item", "update multi item ".$_GET['item_id']." failure.", "error");
-	}
-    }
-    
-    public function updateSoldItem(){
-	if($_POST['ListingType'] == "FixedPriceItem" || $_POST['ListingType'] == "StoresFixedPrice"){
-	    $_POST['StartPrice'] = $_POST['BuyItNowPrice'];
-	    $_POST['BuyItNowPrice'] = 0;
-	}
-	
-	if($_POST['ListingType'] == "Chinese"){
-	    $_POST['Quantity'] = 1;   
-	}
-	
-	$id = $_GET['item_id'];
-	//StartTime,EndTime
-	//$PaymentMethods = ($_POST['PayPalPayment'] == 1)?'PayPal':'';
-	$sql = "update items set 
-	BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
-	Description='".htmlentities($_POST['Description'])."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
-	ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
-	PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
-	PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
-	SecondaryCategoryCategoryID='".$_POST['SecondaryCategoryCategoryID']."',SecondaryCategoryCategoryName='".$_POST['SecondaryCategoryCategoryName']."',
-	Quantity='".@$_POST['Quantity']."',ReservePrice='".@$_POST['ReservePrice']."',
-	Site='".$_POST['Site']."',SKU='".$_POST['SKU']."',StartPrice='".$_POST['StartPrice']."',StoreCategory2ID='".$_POST['StoreCategory2ID']."',StoreCategory2Name='".$_POST['StoreCategory2Name']."',
-	StoreCategoryID='".$_POST['StoreCategoryID']."',StoreCategoryName='".$_POST['StoreCategoryName']."',SubTitle='".$_POST['SubTitle']."',
-	Title='".mysql_real_escape_string($_POST['Title'])."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
-	Border='".(empty($_POST['Border'])?0:1)."',Featured='".(empty($_POST['Featured'])?0:1)."',Highlight='".(empty($_POST['Highlight'])?0:1)."',
-	HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',
-	ShippingServiceOptionsType='".$_POST['ShippingServiceOptionsType']."',InsuranceOption='".$_POST['InsuranceOption']."',InsuranceFee='".$_POST['InsuranceFee']."',
-	InternationalShippingServiceOptionType='".$_POST['InternationalShippingServiceOptionType']."',InternationalInsurance='".$_POST['InternationalInsurance']."',InternationalInsuranceFee='".$_POST['InternationalInsuranceFee']."',
-	accountId='".$this->account_id."',Status=4 where Id = '".$id."'";
-	$result = mysql_query($sql, eBayListing::$database_connect);
-	
-	//echo $sql;
-	//exit;
-	
-	$sql_1 = "delete from picture_url where ItemID = '".$id."'";
-	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	$i = 1;
-	while(!empty($_POST['picture_'.$i])){
-	    $sql_1 = "insert into picture_url (ItemID,url) values 
-	    ('".$id."','".$_POST['picture_'.$i]."')";
-	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	    $i++;
-	}
-	
-	$sql_1 = "delete from shipping_service_options where ItemID = '".$id."'";
-	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	$i = 1;
-	while(!empty($_POST['ShippingService_'.$i])){
-	    $sql_1 = "insert into shipping_service_options (ItemID,FreeShipping,ShippingService,ShippingServiceCost,ShippingServicePriority) values
-	    ('".$id."','".@$_POST['ShippingServiceFree_'.$i]."','".$_POST['ShippingService_'.$i]."','".$_POST['ShippingServiceCost_'.$i]."','".$i."')";
-	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	    $i++;
-	}
-	
-	$sql_1 = "delete from international_shipping_service_option where ItemID = '".$id."'";
-	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	$i = 1;
-	while(!empty($_POST['InternationalShippingService_'.$i])){
-	    $ShipToLocation = '';
-	    if($_POST['InternationalShippingToLocations_'.$i] == 'Custom Locations'){
-		if(!empty($_POST['Americas_'.$i]) && $_POST['Americas_'.$i] == 1){
-		    $ShipToLocation .= ',Americas';
-		}
-		
-		if(!empty($_POST['Europe_'.$i]) && $_POST['Europe_'.$i] == 1){
-		    $ShipToLocation .= ',Europe';
-		}
-		
-		if(!empty($_POST['Asia_'.$i]) && $_POST['Asia_'.$i] == 1){
-		    $ShipToLocation .= ',Asia';
-		}
-		
-		if(!empty($_POST['CA_'.$i]) && $_POST['CA_'.$i] == 1){
-		    $ShipToLocation .= ',CA';
-		}
-		
-		if(!empty($_POST['GB_'.$i]) && $_POST['GB_'.$i] == 1){
-		    $ShipToLocation .= ',GB';
-		}
-		
-		if(!empty($_POST['AU_'.$i]) && $_POST['AU_'.$i] == 1){
-		    $ShipToLocation .= ',AU';
-		}
-		
-		if(!empty($_POST['MX_'.$i]) && $_POST['MX_'.$i] == 1){
-		    $ShipToLocation .= ',MX';
-		}
-		
-		if(!empty($_POST['DE_'.$i]) && $_POST['DE_'.$i] == 1){
-		    $ShipToLocation .= ',DE';
-		}
-		
-		if(!empty($_POST['JP_'.$i]) && $_POST['JP_'.$i] == 1){
-		    $ShipToLocation .= ',JP';
-		}
-		
-		$ShipToLocation = substr($ShipToLocation, 1);
-	    }else{
-		$ShipToLocation = 'Worldwide';
-	    }
-	    $sql_2 = "insert into international_shipping_service_option (ItemID,ShippingService,ShippingServiceCost,ShippingServicePriority,ShipToLocation) values
-	    ('".$id."','".$_POST['InternationalShippingService_'.$i]."','".$_POST['InternationalShippingServiceCost_'.$i]."','".$i."','".$ShipToLocation."')";
-	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
-	    $i++;
-	}
-	
-	session_start();
-	$temp_array = array();
-	if(!empty($_SESSION['AttributeSet'][$id])){
-	    //print_r($_SESSION['AttributeSet']);
-	    //exit;
-	    $sql_4 = "select attribute_set_id from attribute_set where item_id = '".$id."'";
-	    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-	    $row_4 = mysql_fetch_assoc($result_4);
-	    
-	    $sql_4 = "delete from attribute where attribute_set_id = '".$row_4['attribute_set_id']."'";
-	    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-	    
-	    $sql_4 = "delete from attribute_set where item_id = '".$id."'";
-	    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-	
-	    foreach($_SESSION['AttributeSet'][$id] as $attributeSetID=>$Attribute){
-		$sql_4 = "insert into attribute_set (item_id,attributeSetID) values ('".$id."', '".$attributeSetID."')";
-		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-		
-		$attribute_set_id = mysql_insert_id(eBayListing::$database_connect);
-		$temp_array = array();
-		foreach($Attribute as $attributeID=>$ValueID){
-		    if(!empty($ValueID)){
-			if(strpos($ValueID, "on") != false){
-			    $tempAttributeID = $attributeID;
-			    $attributeID = substr($ValueID, 0, -3);
-			    $ValueID = substr($tempAttributeID, 0, -9);
-			    //echo $attributeID.":".$ValueID;
-			    //echo "\n";
-			    $temp_array[$attributeID][] = $ValueID;
-			}else{
-				$sql_4 = "insert into attribute (attributeID,attribute_set_id,ValueID) values 
-				('".$attributeID."', '".$attribute_set_id."', '".$ValueID."')";
-				$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-				
-				//echo $sql_4;
-				//echo "\n";
-			}
-		    }
-		}
-		
-		//print_r($temp_array);
-		if(count($temp_array) > 0){
-		    foreach($temp_array as $key=>$value){
-			$ValueID = "";
-			foreach($value as $name){
-			    $ValueID .= $name.',';
-			}
-			$ValueID = substr($ValueID, 0, -1);
-			$sql_4 = "insert into attribute (attributeID,attribute_set_id,ValueID) values 
-			('".$key."', '".$attribute_set_id."', '".$ValueID."')";
-			$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-		    }
-		}
-	    }
-	}
-	
-	if($result && $result_1){
-	    //unset($_SESSION['Schedule']);
-	    //unset($_SESSION['AttributeSet']);
-	    echo '{success: true, msg: "Relist Item '.$id.' Success!"}';
-	    $this->log("item", "relist item ".$id." success.");
-	}else{
-	    echo '{success: false,
-		    errors: {message: "can\'t update, please notice admin."}
-		}';
-	    $this->log("item", "relist item ".$id." failure.", "error");
-	}
-    }
-    
-    public function updateMultiSoldItem(){
-	//print_r($_POST);
-	$ids = explode(',', $_GET['item_id']);
-	$where = " where ";
-	foreach($ids as $id){
-	    $where .= "Id = ".$id." or ";
-	}
-	$where = substr($where, 0, -4);
-	
-	$update = "update items set ";
-	if(!empty($_POST['BuyItNowPrice']) && $_POST['BuyItNowPrice'] != 'Multi Value'){
-	    $update .= "BuyItNowPrice = '".$_POST['BuyItNowPrice']."',";
-	}
-	
-	if(!empty($_POST['Currency']) && $_POST['Currency'] != 'Multi Value'){
-	    $update .= "Currency = '".$_POST['Currency']."',";
-	}
-	
-	if(!empty($_POST['Description']) && $_POST['Description'] != 'Multi Value'){
-	    $update .= "Description = '".htmlentities($_POST['Description'])."',";
-	}
-	
-	if(!empty($_POST['DispatchTimeMax']) && $_POST['DispatchTimeMax'] != 'Multi Value'){
-	    $update .= "DispatchTimeMax = '".$_POST['DispatchTimeMax']."',";
-	}
-	
-	if(!empty($_POST['ListingDuration']) && $_POST['ListingDuration'] != 'Multi Value'){
-	    $update .= "ListingDuration = '".$_POST['ListingDuration']."',";
-	}
-	
-	if(!empty($_POST['ListingType']) && $_POST['ListingType'] != 'Multi Value'){
-	    $update .= "ListingType = '".$_POST['ListingType']."',";
-	}
-	
-	if(!empty($_POST['Location']) && $_POST['Location'] != 'Multi Value'){
-	    $update .= "Location = '".$_POST['Location']."',";
-	}
-	
-	if(!empty($_POST['PayPalEmailAddress']) && $_POST['PayPalEmailAddress'] != 'Multi Value'){
-	    $update .= "PayPalEmailAddress = '".$_POST['PayPalEmailAddress']."',";
-	}
-	
-	if(!empty($_POST['PostalCode']) && $_POST['PostalCode'] != 'Multi Value'){
-	    $update .= "PostalCode = '".$_POST['PostalCode']."',";
-	}
-	
-	if(!empty($_POST['PrimaryCategoryCategoryID']) && $_POST['PrimaryCategoryCategoryID'] != 'Multi Value'){
-	    $update .= "PrimaryCategoryCategoryID = '".$_POST['PrimaryCategoryCategoryID']."',";
-	}
-	
-	if(!empty($_POST['PrimaryCategoryCategoryName']) && $_POST['PrimaryCategoryCategoryName'] != 'Multi Value'){
-	    $update .= "PrimaryCategoryCategoryName = '".$_POST['PrimaryCategoryCategoryName']."',";
-	}
-	
-	if(!empty($_POST['SecondaryCategoryCategoryID']) && $_POST['SecondaryCategoryCategoryID'] != 'Multi Value'){
-	    $update .= "SecondaryCategoryCategoryID = '".$_POST['SecondaryCategoryCategoryID']."',";
-	}
-	
-	if(!empty($_POST['SecondaryCategoryCategoryName']) && $_POST['SecondaryCategoryCategoryName'] != 'Multi Value'){
-	    $update .= "SecondaryCategoryCategoryName = '".$_POST['SecondaryCategoryCategoryName']."',";
-	}
-	
-	if(!empty($_POST['Quantity']) && $_POST['Quantity'] != 'Multi Value'){
-	    $update .= "Quantity = '".$_POST['Quantity']."',";
-	}
-	
-	if(!empty($_POST['ReservePrice']) && $_POST['ReservePrice'] != 'Multi Value'){
-	    $update .= "ReservePrice = '".$_POST['ReservePrice']."',";
-	}
-	
-	if(!empty($_POST['Site']) && $_POST['Site'] != 'Multi Value'){
-	    $update .= "Site = '".$_POST['Site']."',";
-	}
-	
-	if(!empty($_POST['SKU']) && $_POST['SKU'] != 'Multi Value'){
-	    $update .= "SKU = '".$_POST['SKU']."',";
-	}
-	
-	if(!empty($_POST['StartPrice']) && $_POST['StartPrice'] != 'Multi Value'){
-	    $update .= "StartPrice = '".$_POST['StartPrice']."',";
-	}
-	
-	if(!empty($_POST['StoreCategory2ID']) && $_POST['StoreCategory2ID'] != 'Multi Value'){
-	    $update .= "StoreCategory2ID = '".$_POST['StoreCategory2ID']."',";
-	}
-	
-	if(!empty($_POST['StoreCategory2Name']) && $_POST['StoreCategory2Name'] != 'Multi Value'){
-	    $update .= "StoreCategory2Name = '".$_POST['StoreCategory2Name']."',";
-	}
-	
-	if(!empty($_POST['SubTitle']) && $_POST['SubTitle'] != 'Multi Value'){
-	    $update .= "SubTitle = '".mysql_real_escape_string($_POST['SubTitle'])."',";
-	}
-	
-	if(!empty($_POST['Title']) && $_POST['Title'] != 'Multi Value'){
-	    $update .= "Title = '".mysql_real_escape_string($_POST['Title'])."',";
-	}
-	
-	if(!empty($_POST['SKU']) && $_POST['SKU'] != 'Multi Value'){
-	    $update .= "SKU = '".$_POST['SKU']."',";
-	}
-	
-	if(!empty($_POST['Border'])){
-	    $update .= "Border = '".$_POST['Border']."',";
-	}
-	
-	$update .= "Status=4,";
-	$update = substr($update, 0, -1);
-	$sql = $update . $where;
-	//echo $sql."\n";
-	$result = mysql_query($sql, eBayListing::$database_connect);
-	//echo $result;
-	//print_r($_POST);
-	$where = " where ";
-	foreach($ids as $id){
-	    $where .= "ItemID = ".$id." or ";
-	}
-	$where = substr($where, 0, -4);
-	
-	if(!empty($_POST['picture_1'])){
-	    $sql_1 = "delete from picture_url ".$where;
-	    //echo $sql_1."\n";
-	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	    
-	    foreach($ids as $id){
-		$i = 1;
-		while(!empty($_POST['picture_'.$i])){
-		    $sql_1 = "insert into picture_url (ItemID,url) values 
-		    ('".$id."','".$_POST['picture_'.$i]."')";
-		    //echo $sql_1."\n";
-		    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-		    $i++;
-		}
-	    }
-	}
-	
-	if(!empty($_POST['ShippingService_1'])){
-	    $sql_1 = "delete from shipping_service_options ".$where;
-	    //echo $sql_1."\n";
-	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	    
-	    foreach($ids as $id){
-		$i = 1;
-		while(!empty($_POST['ShippingService_'.$i])){
-		    $sql_1 = "insert into shipping_service_options (ItemID,FreeShipping,ShippingService,ShippingServiceCost,ShippingServicePriority) values
-		    ('".$id."','".@$_POST['ShippingServiceFree_'.$i]."','".$_POST['ShippingService_'.$i]."','".$_POST['ShippingServiceCost_'.$i]."','".$i."')";
-		    //echo $sql_1."\n";
-		    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-		    $i++;
-		}
-	    }
-	}
-	
-	if(!empty($_POST['InternationalShippingService_1'])){
-	    $sql_1 = "delete from international_shipping_service_option ".$where;
-	    //echo $sql_1."\n";
-	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-
-	    foreach($ids as $id){
-		$i = 1;
-		while(!empty($_POST['InternationalShippingService_'.$i])){
-		    $ShipToLocation = '';
-		    if($_POST['InternationalShippingToLocations_'.$i] == 'Custom Locations'){
-			if(!empty($_POST['Americas_'.$i]) && $_POST['Americas_'.$i] == 1){
-			    $ShipToLocation .= ',Americas';
-			}
-			
-			if(!empty($_POST['Europe_'.$i]) && $_POST['Europe_'.$i] == 1){
-			    $ShipToLocation .= ',Europe';
-			}
-			
-			if(!empty($_POST['Asia_'.$i]) && $_POST['Asia_'.$i] == 1){
-			    $ShipToLocation .= ',Asia';
-			}
-			
-			if(!empty($_POST['CA_'.$i]) && $_POST['CA_'.$i] == 1){
-			    $ShipToLocation .= ',CA';
-			}
-			
-			if(!empty($_POST['GB_'.$i]) && $_POST['GB_'.$i] == 1){
-			    $ShipToLocation .= ',GB';
-			}
-			
-			if(!empty($_POST['AU_'.$i]) && $_POST['AU_'.$i] == 1){
-			    $ShipToLocation .= ',AU';
-			}
-			
-			if(!empty($_POST['MX_'.$i]) && $_POST['MX_'.$i] == 1){
-			    $ShipToLocation .= ',MX';
-			}
-			
-			if(!empty($_POST['DE_'.$i]) && $_POST['DE_'.$i] == 1){
-			    $ShipToLocation .= ',DE';
-			}
-			
-			if(!empty($_POST['JP_'.$i]) && $_POST['JP_'.$i] == 1){
-			    $ShipToLocation .= ',JP';
-			}
-			
-			$ShipToLocation = substr($ShipToLocation, 1);
-		    }else{
-			$ShipToLocation = 'Worldwide';
-		    }
-		    $sql_2 = "insert into international_shipping_service_option (ItemID,ShippingService,ShippingServiceCost,ShippingServicePriority,ShipToLocation) values
-		    ('".$id."','".$_POST['InternationalShippingService_'.$i]."','".$_POST['InternationalShippingServiceCost_'.$i]."','".$i."','".$ShipToLocation."')";
-		    //echo $sql_2."\n";
-		    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
-		    $i++;
-		}
-	    }
-	}
-	
-	session_start();
-	$temp_array = array();
-	if(!empty($_SESSION['AttributeSet'][$_GET['item_id']])){
-	    //print_r($_SESSION['AttributeSet']);
-	    foreach($ids as $id){
-		//exit;
-		$sql_4 = "select attribute_set_id from attribute_set where item_id = '".$id."'";
-		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-		$row_4 = mysql_fetch_assoc($result_4);
-		
-		$sql_4 = "delete from attribute where attribute_set_id = '".$row_4['attribute_set_id']."'";
-		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-		
-		$sql_4 = "delete from attribute_set where item_id = '".$id."'";
-		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-	    
-		foreach($_SESSION['AttributeSet'][$_GET['item_id']] as $attributeSetID=>$Attribute){
-		    $sql_4 = "insert into attribute_set (item_id,attributeSetID) values ('".$id."', '".$attributeSetID."')";
-		    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-		    
-		    $attribute_set_id = mysql_insert_id(eBayListing::$database_connect);
-		    $temp_array = array();
-		    foreach($Attribute as $attributeID=>$ValueID){
-			if(!empty($ValueID)){
-			    if(strpos($ValueID, "on") != false){
-				$tempAttributeID = $attributeID;
-				$attributeID = substr($ValueID, 0, -3);
-				$ValueID = substr($tempAttributeID, 0, -9);
-				//echo $attributeID.":".$ValueID;
-				//echo "\n";
-				$temp_array[$attributeID][] = $ValueID;
-			    }else{
-				    $sql_4 = "insert into attribute (attributeID,attribute_set_id,ValueID) values 
-				    ('".$attributeID."', '".$attribute_set_id."', '".$ValueID."')";
-				    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-				    //echo $sql_4."\n";
-			    }
-			}
-		    }
-		    
-		    //print_r($temp_array);
-		    if(count($temp_array) > 0){
-			foreach($temp_array as $key=>$value){
-			    $ValueID = "";
-			    foreach($value as $name){
-				$ValueID .= $name.',';
-			    }
-			    $ValueID = substr($ValueID, 0, -1);
-			    $sql_4 = "insert into attribute (attributeID,attribute_set_id,ValueID) values 
-			    ('".$key."', '".$attribute_set_id."', '".$ValueID."')";
-			    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-			    //echo $sql_4."\n";
-			}
-		    }
-		}
-	    }
-	}
-	
-	if($result){
-	    //unset($_SESSION['Schedule']);
-	    //unset($_SESSION['AttributeSet']);
-	    echo '{success: true, msg: "Relist Item '.$_GET['item_id'].' Success!"}';
-	    $this->log("item", "relist multi item ".$_GET['item_id']." success.");
-	}else{
-	    echo '{success: false,
-		    errors: {message: "can\'t update, please notice admin."}
-		}';
-	    $this->log("item", "relist multi item ".$_GET['item_id']." failure.", "error");
-	}
-    }
+    /*
+    */
     //-------------------------- Upload  -----------------------------------------------------------------
     public function uploadItem(){
 	$date = date("Y-m-d");
@@ -5900,7 +4998,7 @@ class eBayListing{
 	$twoBefore = date("Y-m-d H:i:s", time() - (2 * 60));
 	
 	//$sql = "select Id from items where Status = 1 and ScheduleTime between '".$twoBefore."' and now()";
-	$sql = "select Id,accountId from items where Status = 1 and accountId = 1";
+	$sql = "select Id,accountId from items where Status = 1";
 	
 	$result = mysql_query($sql);
 	while($row = mysql_fetch_assoc($result)){
@@ -6270,11 +5368,19 @@ class eBayListing{
 		    if(!empty($i['ShipToLocation'])){
 			if(strpos($i['ShipToLocation'], ',') != false){
 			    //echo "test1";
-			    $ShipToLocations = array_merge($ShipToLocations, explode(',', $i['ShipToLocation']));
+			    $stl_array = explode(',', $i['ShipToLocation']);
+			    foreach($stl_array as $stl){
+				if(!in_array($stl, $ShipToLocations)){
+				    array_push($ShipToLocations, $stl);
+				}
+			    }
+			    //$ShipToLocations = array_merge($ShipToLocations, explode(',', $i['ShipToLocation']));
 			    $itemArray['ShippingDetails']['InternationalShippingServiceOption'][$j]['ShipToLocation'] = explode(',', $i['ShipToLocation']);
 			}else{
 			    //echo "test2";
-			    array_push($ShipToLocations, $i['ShipToLocation']);
+			    if(!in_array($i['ShipToLocation'], $ShipToLocations)){
+				array_push($ShipToLocations, $i['ShipToLocation']);
+			    }
 			    $itemArray['ShippingDetails']['InternationalShippingServiceOption'][$j]['ShipToLocation'] = $i['ShipToLocation'];
 			}
 		    }
@@ -6636,11 +5742,19 @@ class eBayListing{
 		    if(!empty($i['ShipToLocation'])){
 			if(strpos($i['ShipToLocation'], ',') != false){
 			    //echo "test1";
-			    $ShipToLocations = array_merge($ShipToLocations, explode(',', $i['ShipToLocation']));
+			    $stl_array = explode(',', $i['ShipToLocation']);
+			    foreach($stl_array as $stl){
+				if(!in_array($stl, $ShipToLocations)){
+				    array_push($ShipToLocations, $stl);
+				}
+			    }
+			    //$ShipToLocations = array_merge($ShipToLocations, explode(',', $i['ShipToLocation']));
 			    $itemArray['ShippingDetails']['InternationalShippingServiceOption'][$j]['ShipToLocation'] = explode(',', $i['ShipToLocation']);
 			}else{
 			    //echo "test2";
-			    array_push($ShipToLocations, $i['ShipToLocation']);
+			    if(!in_array($i['ShipToLocation'], $ShipToLocations)){
+				array_push($ShipToLocations, $i['ShipToLocation']);
+			    }
 			    $itemArray['ShippingDetails']['InternationalShippingServiceOption'][$j]['ShipToLocation'] = $i['ShipToLocation'];
 			}
 		    }
@@ -6984,11 +6098,19 @@ class eBayListing{
 		    if(!empty($i['ShipToLocation'])){
 			if(strpos($i['ShipToLocation'], ',') != false){
 			    //echo "test1";
-			    $ShipToLocations = array_merge($ShipToLocations, explode(',', $i['ShipToLocation']));
+			    $stl_array = explode(',', $i['ShipToLocation']);
+			    foreach($stl_array as $stl){
+				if(!in_array($stl, $ShipToLocations)){
+				    array_push($ShipToLocations, $stl);
+				}
+			    }
+			    //$ShipToLocations = array_merge($ShipToLocations, explode(',', $i['ShipToLocation']));
 			    $itemArray['ShippingDetails']['InternationalShippingServiceOption'][$j]['ShipToLocation'] = explode(',', $i['ShipToLocation']);
 			}else{
 			    //echo "test2";
-			    array_push($ShipToLocations, $i['ShipToLocation']);
+			    if(!in_array($i['ShipToLocation'], $ShipToLocations)){
+				array_push($ShipToLocations, $i['ShipToLocation']);
+			    }
 			    $itemArray['ShippingDetails']['InternationalShippingServiceOption'][$j]['ShipToLocation'] = $i['ShipToLocation'];
 			}
 		    }
