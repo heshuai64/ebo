@@ -3,14 +3,14 @@
 require_once 'eBaySOAP.php';
 
 function errorLog($file_name, $data){
-    file_put_contents("/export/eBayListing/log/".$file_name, $data, FILE_APPEND);
+    file_put_contents("/export/eBayListing/log/".$file_name, $data ."\n", FILE_APPEND);
     //file_put_contents("C:\\xampp\\htdocs\\eBayBO\\eBayListing\\log\\".$file_name, $data, FILE_APPEND);
 }
 
 function ErrorLogFunction($errno, $errstr, $errfile, $errline){
     //echo "<b>Custom error:</b> [$errno] $errstr<br />";
     //echo " Error on line $errline in $errfile<br />";
-    //errorLog('errorLog.log', $errno. ' : '.$errstr.' on line '.$errline.' in '.$errfile . "\n");
+    errorLog('errorLog.log', date("Y-m-d H:i:s"). '  '.$errno. ' : '.$errstr.' on line '.$errline.' in '.$errfile . "\n");
 }
 
 set_error_handler("ErrorLogFunction");
@@ -1955,7 +1955,7 @@ class eBayListing{
 	if(!empty($_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyReturnsAcceptedOption'])){
 	    $sql = "update template set 
 	    BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
-	    Description='".htmlentities(mysql_real_escape_string($_POST['Description']))."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
+	    Description='".mysql_real_escape_string(htmlentities($_POST['Description']))."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
 	    ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
 	    PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
 	    PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
@@ -1975,7 +1975,7 @@ class eBayListing{
 	}else{
 	    $sql = "update template set 
 	    BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
-	    Description='".htmlentities(mysql_real_escape_string($_POST['Description']))."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
+	    Description='".mysql_real_escape_string(htmlentities($_POST['Description']))."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
 	    ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
 	    PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
 	    PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
@@ -1993,7 +1993,8 @@ class eBayListing{
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	//echo $sql;
 	//exit;
-	$this->log("template", $sql);
+	//$this->log("template", $sql);
+	errorLog("template-tack.log", $sql);
 	
 	$sql_1 = "delete from template_picture_url where templateId = '".$id."'";
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
@@ -2281,7 +2282,7 @@ class eBayListing{
 	}
 	
 	if(!empty($_POST['Description']) && $_POST['Description'] != 'Multi Value'){
-	    $update .= "Description = '".htmlentities(mysql_real_escape_string($_POST['Description']))."',";
+	    $update .= "Description = '".mysql_real_escape_string(htmlentities($_POST['Description']))."',";
 	}
 	
 	if(!empty($_POST['DispatchTimeMax']) && $_POST['DispatchTimeMax'] != 'Multi Value'){
@@ -4366,7 +4367,7 @@ class eBayListing{
 	if(!empty($_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyReturnsAcceptedOption'])){
 	    $sql = "update items set 
 	    BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
-	    Description='".htmlentities(mysql_real_escape_string($_POST['Description']))."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
+	    Description='".mysql_real_escape_string(htmlentities($_POST['Description']))."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
 	    ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
 	    PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
 	    PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
@@ -4387,7 +4388,7 @@ class eBayListing{
 	}else{
 	    $sql = "update items set 
 	    BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
-	    Description='".htmlentities(mysql_real_escape_string($_POST['Description']))."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
+	    Description='".mysql_real_escape_string(htmlentities($_POST['Description']))."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
 	    ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
 	    PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
 	    PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
@@ -4587,7 +4588,7 @@ class eBayListing{
 	}
 	
 	if(!empty($_POST['Description']) && strpos('Multi Value', $_POST['Description'])){
-	    $update .= "Description = '".htmlentities(mysql_real_escape_string($_POST['Description']))."',";
+	    $update .= "Description = '".mysql_real_escape_string(htmlentities($_POST['Description']))."',";
 	}
 	
 	if(!empty($_POST['DispatchTimeMax']) && $_POST['DispatchTimeMax'] != 'Multi Value'){
