@@ -13,6 +13,19 @@ Ext.onReady(function(){
      });
      Ext.state.Manager.setProvider(cp);
      */
+
+     function showWait(){
+          Ext.MessageBox.wait("please wait, thank you.");
+     }
+     
+     function hideWait(){
+          Ext.MessageBox.hide();
+     }
+     
+     Ext.Ajax.on('beforerequest', showWait);
+     Ext.Ajax.on('requestcomplete', hideWait);
+     Ext.Ajax.on('requestexception', hideWait);
+
      Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
      function renderFlag(v, p, r){
           return "<img src='./images/"+v.toLowerCase()+".gif'>";
@@ -24,6 +37,12 @@ Ext.onReady(function(){
         //idProperty: 'id',
         fields: ['id', 'name'],
         url:'service.php?action=getTemplateDurationStore'
+     })
+     
+     var templateCategoryStore =  new Ext.data.JsonStore({
+          autoLoad: true,
+          fields: ['id', 'name'],
+          url: "service.php?action=getTemplateCategory"
      })
      
      var getCookie = function(c_name){
@@ -221,6 +240,73 @@ Ext.onReady(function(){
           }]
      })
           
+     var template_grid_editor = new Ext.ux.grid.RowEditor({
+          saveText: 'Update',
+          listeners: {
+               afteredit : function(a, b, c, d){
+                    //console.log([a, b, c, d]);
+                    //console.log(selections[0].data.Id);
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=updateFields', 
+                         params: { 
+                              id: c.data.Id,
+                              table: 'template',
+                              Title: b.Title,
+                              Price: b.Price,
+                              ListingDuration : b.ListingDuration,
+                              Category: b.Category
+                         }, 
+                         success: function(response){
+                             var result = eval(response.responseText);
+                             if(result[0].success){
+                                   Ext.MessageBox.alert('Success', result[0].msg);
+                                   //template_store.reload();
+                              }else{
+                                   Ext.MessageBox.alert('Failure', result[0].msg);
+                                   //template_store.reload();
+                              }
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
+               }
+          }
+     });
+     
+     var item_grid_editor = new Ext.ux.grid.RowEditor({
+          saveText: 'Update',
+          listeners: {
+               afteredit : function(a, b, c, d){
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=updateFields', 
+                         params: { 
+                              id: c.data.Id,
+                              table: 'items',
+                              Title: b.Title,
+                              Quantity: b.Quantity,
+                              Price: b.Price
+                         }, 
+                         success: function(response){
+                             var result = eval(response.responseText);
+                             if(result[0].success){
+                                   Ext.MessageBox.alert('Success', result[0].msg);
+                              }else{
+                                   Ext.MessageBox.alert('Failure', result[0].msg);
+                              }
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
+               }
+          }
+     })
+     
      var template_store = new Ext.data.JsonStore({
           root: 'records',
           totalProperty: 'totalCount',
@@ -241,136 +327,65 @@ Ext.onReady(function(){
           }
      })
      
-     var template_grid = new Ext.grid.EditorGridPanel({
+     var template_grid = new Ext.grid.GridPanel({
           title: 'Template List',
           store: template_store,
           autoHeight: true,
           width: 1024,
           selModel: new Ext.grid.RowSelectionModel({}),
+          plugins: [template_grid_editor],
           columns:[
-               {header: "Id", width: 50, align: 'center', sortable: true, dataIndex: 'Id'},
-               {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
+               {header: "Id", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
+               {header: "Site", width: 30, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
-               {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title', editor: new Ext.form.TextField({
-                    allowBlank: false,
-                    listeners: {
-                         change: function(t, n, o){
-                              var selections = template_grid.selModel.getSelections();
-                              //console.log(selections[0].data.Id);
-                              Ext.Ajax.request({  
-                                   waitMsg: 'Please Wait',
-                                   url: 'service.php?action=updateField', 
-                                   params: { 
-                                        id: selections[0].data.Id,
-                                        table: 'template',
-                                        field: 'Title',
-                                        value: n
-                                   }, 
-                                   success: function(response){
-                                       var result = eval(response.responseText);
-                                       if(result[0].success){
-                                             Ext.MessageBox.alert('Success', result[0].msg);
-                                             //template_store.reload();
-                                        }else{
-                                             Ext.MessageBox.alert('Failure', result[0].msg);
-                                             template_store.reload();
-                                        }
-                                   },
-                                   failure: function(response){
-                                       var result=response.responseText;
-                                       Ext.MessageBox.alert('error','could not connect to the database. retry later');      
-                                   }
-                              });
-                         }
+               {header: "Title", width: 380, align: 'center', sortable: true, dataIndex: 'Title',
+                    editor: {
+                         xtype: 'textfield',
+                         allowBlank: false
                     }
-                    })
                },
                {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
-               {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price', editor: new Ext.form.NumberField({
-                    allowBlank: false,
-                    listeners: {
-                         change: function(t, n, o){
-                              var selections = template_grid.selModel.getSelections();
-                              //console.log(selections[0].data.Id);
-                              Ext.Ajax.request({  
-                                   waitMsg: 'Please Wait',
-                                   url: 'service.php?action=updateField', 
-                                   params: { 
-                                        id: selections[0].data.Id,
-                                        table: 'template',
-                                        field: 'Price',
-                                        value: n
-                                   }, 
-                                   success: function(response){
-                                       var result = eval(response.responseText);
-                                       if(result[0].success){
-                                             Ext.MessageBox.alert('Success', result[0].msg);
-                                             //template_store.reload();
-                                        }else{
-                                             Ext.MessageBox.alert('Failure', result[0].msg);
-                                             template_store.reload();
-                                        }
-                                   },
-                                   failure: function(response){
-                                       var result=response.responseText;
-                                       Ext.MessageBox.alert('error','could not connect to the database. retry later');      
-                                   }
-                              });
-                         }
+               {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price',
+                    editor: {
+                         xtype: 'numberfield',
+                         allowBlank: false
                     }
-                    })
                },
                {header: "Shipping Fee", width: 80, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
                {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
-               {header: "Duration", width: 100, align: 'center', sortable: true, dataIndex: 'ListingDuration', editor: new Ext.form.ComboBox({
-                    allowBlank: false,
-                    mode: 'local',
-                    store: listingTemplateDurationStore,
-                    valueField:'id',
-                    displayField:'name',
-                    triggerAction: 'all',
-                    editable: false,
-                    selectOnFocus:true,
-                    name: 'ListingDuration',
-                    hiddenName:'ListingDuration',
-                    listeners: {
-                         focus: function(t){
-                              var selections = template_grid.selModel.getSelections();
-                              //console.log(selections[0].data.Id);
-                              listingTemplateDurationStore.load({params: {Id: selections[0].data.Id}}); 
-                         },
-                         change: function(t, n, o){
-                              var selections = template_grid.selModel.getSelections();
-                              //console.log(selections[0].data.Id);
-                              Ext.Ajax.request({  
-                                   waitMsg: 'Please Wait',
-                                   url: 'service.php?action=updateField', 
-                                   params: { 
-                                        id: selections[0].data.Id,
-                                        table: 'template',
-                                        field: 'ListingDuration',
-                                        value: n
-                                   }, 
-                                   success: function(response){
-                                       var result = eval(response.responseText);
-                                       if(result[0].success){
-                                             Ext.MessageBox.alert('Success', result[0].msg);
-                                             //template_store.reload();
-                                        }else{
-                                             Ext.MessageBox.alert('Failure', result[0].msg);
-                                             template_store.reload();
-                                        }
-                                   },
-                                   failure: function(response){
-                                       var result=response.responseText;
-                                       Ext.MessageBox.alert('error','could not connect to the database. retry later');      
-                                   }
-                              });
+               {header: "Duration", width: 100, align: 'center', sortable: true, dataIndex: 'ListingDuration',
+                    editor: {
+                         xtype: 'combo',
+                         allowBlank: false,
+                         store: listingTemplateDurationStore,
+                         mode: 'local',
+                         valueField:'id',
+                         displayField:'name',
+                         triggerAction: 'all',
+                         editable: false,
+                         selectOnFocus:true,
+                         listeners: {
+                              focus: function(t){
+                                   var selections = template_grid.selModel.getSelections();
+                                   //console.log(selections[0].data.Id);
+                                   listingTemplateDurationStore.load({params: {Id: selections[0].data.Id}}); 
+                              }
                          }
                     }
-                    })
                },
-               {header: "Category", width: 100, align: 'center', sortable: true, dataIndex: 'Category'}
+               {header: "Category", width: 100, align: 'center', sortable: true, dataIndex: 'Category',
+                    editor: {
+                         xtype: 'combo',
+                         //allowBlank: false,
+                         mode: 'local',
+                         store: templateCategoryStore,
+                         valueField:'id',
+                         displayField:'name',
+                         triggerAction: 'all',
+                         editable: false,
+                         selectOnFocus:true
+                    }
+               }
           ],
           tbar:[{
                     text: 'Preview',
@@ -1335,6 +1350,104 @@ Ext.onReady(function(){
           }]
      })
      
+     var activity_store = new Ext.data.JsonStore({
+          root: 'records',
+          totalProperty: 'totalCount',
+          idProperty: 'id',
+          //autoLoad:true,
+          fields: ['Id', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price', 'EndTime'],
+          sortInfo: {
+               field: 'Id',
+               direction: 'ASC'
+          },
+          remoteSort: true,
+          //url: 'service.php?action=getWait'
+          url: 'service.php?action=getActiveItem'
+     })
+     
+     var activity_grid = new Ext.grid.GridPanel({
+          //title: 'Waiting To Upload SKU List',
+          store: activity_store,
+          plugins: [item_grid_editor],
+          //autoHeight: true,
+          width: 1024,
+          //autoScroll: true,
+          //width: 600,
+          height: 460,
+          selModel: new Ext.grid.RowSelectionModel({}),
+          columns:[
+               {header: "Id", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
+               {header: "Site", width: 30, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
+               {header: "SKU", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
+               {header: "Item ID", width: 80, align: 'center', sortable: true, dataIndex: 'ItemID'},
+               {header: "Item Title", width: 350, align: 'center', sortable: true, dataIndex: 'Title', 
+                    editor: {
+                         xtype: 'textfield',
+                         allowBlank: false
+                    }
+               },
+               {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
+               {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity', 
+                    editor: {
+                         xtype: 'numberfield',
+                         allowBlank: false
+                    }
+               },
+               {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
+               {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price', 
+                    editor: {
+                         xtype: 'numberfield',
+                         allowBlank: false
+                    }
+               },
+               {header: "End Time", width: 120, align: 'center', sortable: true, dataIndex: 'EndTime'}
+          ],
+          //clicksToEdit: 1,
+          tbar:[{
+               text: "Revise",
+               icon: "./images/building_edit.png",
+               handler: function(){
+                    var selections = activity_grid.selModel.getSelections();
+                    if(activity_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','Please select the item you want to revise.');
+                         return 0;
+                    }
+                    var ids = "";
+                    for(var i = 0; i< activity_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    if(activity_grid.selModel.getCount() > 1){
+                         window.open(path + "mitem.php?id="+ids+"&Status=3","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                    }else{
+                         window.open(path + "item.php?id="+ids+"&Status=3","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                    }     
+                    return 1;
+               }
+          },'-',{
+               text: 'Export CSV',
+               icon: './images/server_go.png',
+               tooltip:'export csv file',
+               handler: function(){
+                    /*
+                    var selections = template_grid.selModel.getSelections();
+                    var ids = "";
+                    for(var i = 0; i< template_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    */
+                    //console.log(ids);
+                    window.open("service.php?action=activeItemExport","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=100, height=100");
+               }
+          }],
+          bbar: new Ext.PagingToolbar({
+              pageSize: 20,
+              store: activity_store,
+              displayInfo: true
+          })
+     })
+                              
      var listing_activity_tree = new Ext.tree.TreePanel({
           useArrows:true,
           autoScroll:true,
@@ -1360,202 +1473,34 @@ Ext.onReady(function(){
                     //console.log(n);
                     switch(n.id){
                          case 1:
-                              var activity_store = new Ext.data.JsonStore({
-                                   root: 'records',
-                                   totalProperty: 'totalCount',
-                                   idProperty: 'id',
-                                   //autoLoad:true,
-                                   fields: ['Id', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price', 'EndTime'],
-                                   sortInfo: {
-                                        field: 'Id',
-                                        direction: 'ASC'
-                                   },
-                                   remoteSort: true,
-                                   //url: 'service.php?action=getWait'
-                                   url: 'service.php?action=getActiveItem'
-                              })
-                              
-                              var activity_grid = new Ext.grid.EditorGridPanel({
-                                   //title: 'Waiting To Upload SKU List',
-                                   store: activity_store,
-                                   autoHeight: true,
-                                   width: 980,
-                                   //autoScroll: true,
-                                   //width: 600,
-                                   //height: 500,
-                                   selModel: new Ext.grid.RowSelectionModel({}),
-                                   columns:[
-                                        {header: "Id", width: 40, align: 'center', sortable: true, dataIndex: 'Id'},
-                                        {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
-                                        {header: "SKU", width: 120, align: 'center', sortable: true, dataIndex: 'SKU'},
-                                        {header: "Item ID", width: 120, align: 'center', sortable: true, dataIndex: 'ItemID'},
-                                        {header: "Item Title", width: 120, align: 'center', sortable: true, dataIndex: 'Title', editor: new Ext.form.TextField({
-                                             allowBlank: false,
-                                             listeners: {
-                                                  change: function(t, n, o){
-                                                       var selections = activity_grid.selModel.getSelections();
-                                                       //console.log(selections[0].data.Id);
-                                                       Ext.Ajax.request({  
-                                                            waitMsg: 'Please Wait',
-                                                            url: 'service.php?action=updateField', 
-                                                            params: { 
-                                                                 id: selections[0].data.Id,
-                                                                 table: 'items',
-                                                                 field: 'Title',
-                                                                 value: n
-                                                            }, 
-                                                            success: function(response){
-                                                                var result = eval(response.responseText);
-                                                                if(result[0].success){
-                                                                      Ext.MessageBox.alert('Success', result[0].msg);
-                                                                      //activity_store.reload();
-                                                                 }else{
-                                                                      Ext.MessageBox.alert('Failure', result[0].msg);
-                                                                      activity_store.reload();
-                                                                 }
-                                                            },
-                                                            failure: function(response){
-                                                                var result=response.responseText;
-                                                                Ext.MessageBox.alert('error','could not connect to the database. retry later');      
-                                                            }
-                                                       });
-                                                  }
-                                             }
-                                             })
-                                        },
-                                        {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
-                                        {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity', editor: new Ext.form.NumberField({
-                                             allowBlank: false,
-                                             listeners: {
-                                                  change: function(t, n, o){
-                                                       var selections = activity_grid.selModel.getSelections();
-                                                       //console.log(selections[0].data.Id);
-                                                       Ext.Ajax.request({  
-                                                            waitMsg: 'Please Wait',
-                                                            url: 'service.php?action=updateField', 
-                                                            params: { 
-                                                                 id: selections[0].data.Id,
-                                                                 table: 'items',
-                                                                 field: 'Quantity',
-                                                                 value: n
-                                                            }, 
-                                                            success: function(response){
-                                                                var result = eval(response.responseText);
-                                                                if(result[0].success){
-                                                                      Ext.MessageBox.alert('Success', result[0].msg);
-                                                                      //activity_store.reload();
-                                                                 }else{
-                                                                      Ext.MessageBox.alert('Failure', result[0].msg);
-                                                                      //activity_store.reload();
-                                                                 }
-                                                            },
-                                                            failure: function(response){
-                                                                var result=response.responseText;
-                                                                Ext.MessageBox.alert('error','could not connect to the database. retry later');      
-                                                            }
-                                                       });
-                                                  }
-                                             }
-                                             })
-                                        },
-                                        {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
-                                        {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price', editor: new Ext.form.NumberField({
-                                             allowBlank: false,
-                                             listeners: {
-                                                  change: function(t, n, o){
-                                                       var selections = activity_grid.selModel.getSelections();
-                                                       //console.log(selections[0].data.Id);
-                                                       Ext.Ajax.request({  
-                                                            waitMsg: 'Please Wait',
-                                                            url: 'service.php?action=updateField', 
-                                                            params: { 
-                                                                 id: selections[0].data.Id,
-                                                                 table: 'items',
-                                                                 field: 'Price',
-                                                                 value: n
-                                                            }, 
-                                                            success: function(response){
-                                                                var result = eval(response.responseText);
-                                                                if(result[0].success){
-                                                                      Ext.MessageBox.alert('Success', result[0].msg);
-                                                                      //activity_store.reload();
-                                                                 }else{
-                                                                      Ext.MessageBox.alert('Failure', result[0].msg);
-                                                                      //activity_store.reload();
-                                                                 }
-                                                            },
-                                                            failure: function(response){
-                                                                var result=response.responseText;
-                                                                Ext.MessageBox.alert('error','could not connect to the database. retry later');      
-                                                            }
-                                                       });
-                                                  }
-                                             }
-                                             })
-                                        },
-                                        {header: "End Time", width: 120, align: 'center', sortable: true, dataIndex: 'EndTime'}
-                                   ],
-                                   clicksToEdit: 1,
-                                   tbar:[{
-                                        text: "Revise",
-                                        icon: "./images/building_edit.png",
-                                        handler: function(){
-                                             var selections = activity_grid.selModel.getSelections();
-                                             if(activity_grid.selModel.getCount() == 0){
-                                                  Ext.MessageBox.alert('Warning','Please select the item you want to revise.');
-                                                  return 0;
-                                             }
-                                             var ids = "";
-                                             for(var i = 0; i< activity_grid.selModel.getCount(); i++){
-                                                  ids += selections[i].data.Id + ","
-                                             }
-                                             ids = ids.slice(0,-1);
-                                             if(activity_grid.selModel.getCount() > 1){
-                                                  window.open(path + "mitem.php?id="+ids+"&Status=3","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
-                                             }else{
-                                                  window.open(path + "item.php?id="+ids+"&Status=3","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
-                                             }     
-                                             return 1;
-                                        }
-                                   },'-',{
-                                        text: 'Export CSV',
-                                        icon: './images/server_go.png',
-                                        tooltip:'export csv file',
-                                        handler: function(){
-                                             /*
-                                             var selections = template_grid.selModel.getSelections();
-                                             var ids = "";
-                                             for(var i = 0; i< template_grid.selModel.getCount(); i++){
-                                                  ids += selections[i].data.Id + ","
-                                             }
-                                             ids = ids.slice(0,-1);
-                                             */
-                                             //console.log(ids);
-                                             window.open("service.php?action=activeItemExport","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=100, height=100");
-                                        }
-                                   }],
-                                   bbar: new Ext.PagingToolbar({
-                                       pageSize: 20,
-                                       store: activity_store,
-                                       displayInfo: true
-                                   })
-                              })
-                              
-                              if(tabPanel.isVisible('active-item-tab'))
-                                   tabPanel.remove('active-item-tab');
-
                               activity_store.load();
                               tabPanel.add({
                                    id:'activity-tab',
                                    iconCls: 'active-item-tab',
                                    title: "Listing Activity",
                                    items: activity_grid,
-                                   closable: true,
+                                   //closable: true,
+                                   //height: 768,
+                                   autoScroll:true
+                              })
+                              tabPanel.activate('activity-tab');
+                              tabPanel.doLayout();
+                              
+                              /*
+                              activity_store.load();
+                              tabPanel.add({
+                                   id:'activity-tab',
+                                   iconCls: 'active-item-tab',
+                                   title: "Listing Activity",
+                                   items: activity_grid,
+                                   //closable: true,
+                                   //height: 768,
                                    autoScroll:true
                               })
                               
                               tabPanel.activate('activity-tab');
                               tabPanel.doLayout();
+                              */
                          break;
                     
                          case 21:
@@ -1901,6 +1846,7 @@ Ext.onReady(function(){
                               var wait_grid = new Ext.grid.EditorGridPanel({
                                    title: 'Waiting To Upload List',
                                    store: wait_store,
+                                   plugins: [item_grid_editor],
                                    autoHeight: true,
                                    width: 1040,
                                    selModel: new Ext.grid.RowSelectionModel({}),
@@ -1908,39 +1854,11 @@ Ext.onReady(function(){
                                         {header: "Id", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
                                         {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                                         {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
-                                        {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title', editor: new Ext.form.TextField({
-                                             allowBlank: false,
-                                             listeners: {
-                                                  change: function(t, n, o){
-                                                       var selections = wait_grid.selModel.getSelections();
-                                                       //console.log(selections[0].data.Id);
-                                                       Ext.Ajax.request({  
-                                                            waitMsg: 'Please Wait',
-                                                            url: 'service.php?action=updateField', 
-                                                            params: { 
-                                                                 id: selections[0].data.Id,
-                                                                 table: 'items',
-                                                                 field: 'Title',
-                                                                 value: n
-                                                            }, 
-                                                            success: function(response){
-                                                                var result = eval(response.responseText);
-                                                                if(result[0].success){
-                                                                      Ext.MessageBox.alert('Success', result[0].msg);
-                                                                      //wait_store.reload();
-                                                                 }else{
-                                                                      Ext.MessageBox.alert('Failure', result[0].msg);
-                                                                      //wait_store.reload();
-                                                                 }
-                                                            },
-                                                            failure: function(response){
-                                                                var result=response.responseText;
-                                                                Ext.MessageBox.alert('error','could not connect to the database. retry later');      
-                                                            }
-                                                       });
-                                                  }
+                                        {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title',
+                                             editor: {
+                                                  xtype: 'textfield',
+                                                  allowBlank: false
                                              }
-                                             })
                                         },
                                         {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                         {header: "Price", width: 50, align: 'center', sortable: true, dataIndex: 'Price'},
@@ -1967,7 +1885,7 @@ Ext.onReady(function(){
                                                   ids = ids.slice(0,-1);
                                                   Ext.Ajax.request({  
                                                        waitMsg: 'Please Wait',
-                                                       url: 'service.php?action=copyItem&type=schedule', 
+                                                       url: 'service.php?action=copyItem&type=wait', 
                                                        params: { 
                                                             ids: ids
                                                        }, 
@@ -2293,6 +2211,7 @@ Ext.onReady(function(){
                                    var schedule_grid = new Ext.grid.EditorGridPanel({
                                         title: 'Schedule List',
                                         store: schedule_store,
+                                        plugins: [item_grid_editor],
                                         autoHeight: true,
                                         width: 1040,
                                         selModel: new Ext.grid.RowSelectionModel({}),
@@ -2300,39 +2219,11 @@ Ext.onReady(function(){
                                              {header: "Id", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
                                              {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                                              {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
-                                             {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title', editor: new Ext.form.TextField({
-                                                  allowBlank: false,
-                                                  listeners: {
-                                                       change: function(t, n, o){
-                                                            var selections = schedule_grid.selModel.getSelections();
-                                                            //console.log(selections[0].data.Id);
-                                                            Ext.Ajax.request({  
-                                                                 waitMsg: 'Please Wait',
-                                                                 url: 'service.php?action=updateField', 
-                                                                 params: { 
-                                                                      id: selections[0].data.Id,
-                                                                      table: 'items',
-                                                                      field: 'Title',
-                                                                      value: n
-                                                                 }, 
-                                                                 success: function(response){
-                                                                     var result = eval(response.responseText);
-                                                                     if(result[0].success){
-                                                                           Ext.MessageBox.alert('Success', result[0].msg);
-                                                                           //schedule_store.reload();
-                                                                      }else{
-                                                                           Ext.MessageBox.alert('Failure', result[0].msg);
-                                                                           //schedule_store.reload();
-                                                                      }
-                                                                 },
-                                                                 failure: function(response){
-                                                                     var result=response.responseText;
-                                                                     Ext.MessageBox.alert('error','could not connect to the database. retry later');      
-                                                                 }
-                                                            });
-                                                       }
+                                             {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title', 
+                                                  editor: {
+                                                  xtype: 'textfield',
+                                                  allowBlank: false
                                                   }
-                                                  })
                                              },
                                              {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                              {header: "Price", width: 50, align: 'center', sortable: true, dataIndex: 'Price'},

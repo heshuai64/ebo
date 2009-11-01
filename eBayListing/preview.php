@@ -52,7 +52,7 @@ if($_GET['h'] == 's'){
         $result = mysql_query($sql, $link);
         $row = mysql_fetch_assoc($result);
         
-        $sql_0 = "select * from account_sku_picture where account_id = '".$_COOKIE['account_id']."' and sku = '".$_GET['sku']."'";
+        $sql_0 = "select * from account_sku_picture where account_id = '".$_COOKIE['account_id']."' and sku = '".$row['SKU']."'";
         $result_0 = mysql_query($sql_0, $link);
         $row_0 = mysql_fetch_assoc($result_0);
         
@@ -66,14 +66,15 @@ if($_GET['h'] == 's'){
             echo html_entity_decode($row['Description']);
         }
     }else{
-        $sql_0 = "select * from account_sku_picture where account_id = '".$_COOKIE['account_id']."' and sku = '".$_GET['sku']."'";
-        $result_0 = mysql_query($sql_0, $link);
-        $row_0 = mysql_fetch_assoc($result_0);
-        
         $t = explode(",", $_GET['id']);
         $sql = "select Title,Description,SKU,UseStandardFooter from template where Id = '".$t[0]."'";
 	$result = mysql_query($sql, $link);
 	$row = mysql_fetch_assoc($result);
+        
+        $sql_0 = "select * from account_sku_picture where account_id = '".$_COOKIE['account_id']."' and sku = '".$row['SKU']."'";
+        $result_0 = mysql_query($sql_0, $link);
+        $row_0 = mysql_fetch_assoc($result_0);
+        
 	if($row['UseStandardFooter']){
 	    $sql_1 = "select footer from account_footer where accountId = '".$_COOKIE['account_id']."'";
             $result_1 = mysql_query($sql_1, $link);
@@ -90,7 +91,7 @@ if($_GET['h'] == 's'){
                 var array = id.split(",");
                 var length = array.length;
                 var index = 0;
-                console.log(array);
+                //console.log(array);
                 function back(){
                     index--;
                     if(index < 0){
@@ -124,7 +125,16 @@ if($_GET['h'] == 's'){
                         params: { id: array[index]}
                     });
                 }
+                
+                Ext.Ajax.on('beforerequest',  function(){
+                                Ext.get("process").show();
+                            });
+                    
+                Ext.Ajax.on('requestcomplete', function(){
+                                Ext.get("process").hide();
+                            });
             </script>
+            
             <div id="nav" style="text-align:center;">
                 <img src="images/Back.png" onclick="back();" style="cursor: pointer;"/>
                 <img width=30 height=1/>
@@ -132,7 +142,8 @@ if($_GET['h'] == 's'){
                 <img width=30 height=1/>
                 <img src="images/Next.png" onclick="next();" style="cursor: pointer; "/>
             </div>
-            <div id="preview" style="text-align:center;"><?=$x?></div>
+            <div id="process" style="display: none;text-align:center;"><img src="images/ajax-loader.gif"/></div>
+            <div id="preview"><?=$x?></div>
         <?php
     }
 }else{

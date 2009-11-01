@@ -9,9 +9,11 @@ if(empty($_COOKIE['account_id'])){
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <!--<title>eBay Listing</title>-->
     <link rel="stylesheet" type="text/css" href="../ext-3.0.0/resources/css/ext-all.css" />
+    <link rel="stylesheet" type="text/css" href="ux/css/RowEditor.css" />
     <script src="../ext-3.0.0/adapter/ext/ext-base.js"></script>
     <script src="../ext-3.0.0/ext-all.js"></script>
     <script src="FileUploadField.js"></script>
+    <script src="ux/RowEditor.js"></script>
     <script src="ebay-listing.js"></script>
     <link rel="stylesheet" type="text/css" href="fileuploadfield.css"/>
     <style type="text/css">
