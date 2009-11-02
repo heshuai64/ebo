@@ -1229,7 +1229,7 @@ Ext.onReady(function(){
           useArrows:true,
           autoScroll:true,
           animate:true,
-          height: 500,
+          //height: 500,
           // auto create TreeLoader
           dataUrl: 'service.php?action=getTemplateTree',
           root: {
@@ -1748,6 +1748,7 @@ Ext.onReady(function(){
                          id:'template-accordion',
                          title:'Template',
                          border:false,
+                         autoScroll:true,
                          items:[template_category_form, template_category_tree],
                          iconCls:'template',
                          listeners:{
