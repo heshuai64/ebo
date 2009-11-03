@@ -255,41 +255,43 @@ Ext.onReady(function(){
     });
     
     var ShippingServiceOptionsTypeCombo = new Ext.form.ComboBox({
-            store: ['Flat', 'Calculated'],
-            triggerAction: 'all',
-            editable: false,
-            emptyText: "Multi Value",
-            width: 150,
-            listWidth: 150,
-            listeners: {
-                "select": function(c, r, i){
-                    //console.log(c);
-                    if(Ext.isEmpty(Ext.getCmp("SiteID").getValue())){
-                        Ext.Msg.alert('Warn', 'Please choice Site.');
-                    }else{
-                        shippingServiceStore.load({params: {serviceType: c.value, SiteID: Ext.getCmp("SiteID").getValue()}});
-                    }
+        id: 'ShippingServiceOptionsType',
+        store: ['Flat', 'Calculated'],
+        triggerAction: 'all',
+        editable: false,
+        emptyText: "Multi Value",
+        width: 150,
+        listWidth: 150,
+        listeners: {
+            "select": function(c, r, i){
+                //console.log(c);
+                if(Ext.isEmpty(Ext.getCmp("SiteID").getValue())){
+                    Ext.Msg.alert('Warn', 'Please choice Site.');
+                }else{
+                    shippingServiceStore.load({params: {serviceType: c.value, SiteID: Ext.getCmp("SiteID").getValue()}});
                 }
             }
+        }
     });
     
     var InternationalShippingServiceOptionTypeCombo = new Ext.form.ComboBox({
-            store: ['Flat', 'Calculated'],
-            triggerAction: 'all',
-            editable: false,
-            emptyText: "Multi Value",
-            width: 150,
-            listWidth: 150,
-            listeners: {
-                "select": function(c, r, i){
-                    //console.log(r);
-                    if(Ext.isEmpty(Ext.getCmp("SiteID").getValue())){
-                        Ext.Msg.alert('Warn', 'Please choice Site.');
-                    }else{
-                        internationalShippingServiceStore.load({params: {serviceType: c.value, SiteID: Ext.getCmp("SiteID").getValue()}});
-                    }
+        id: 'InternationalShippingServiceOptionType',
+        store: ['Flat', 'Calculated'],
+        triggerAction: 'all',
+        editable: false,
+        emptyText: "Multi Value",
+        width: 150,
+        listWidth: 150,
+        listeners: {
+            "select": function(c, r, i){
+                //console.log(r);
+                if(Ext.isEmpty(Ext.getCmp("SiteID").getValue())){
+                    Ext.Msg.alert('Warn', 'Please choice Site.');
+                }else{
+                    internationalShippingServiceStore.load({params: {serviceType: c.value, SiteID: Ext.getCmp("SiteID").getValue()}});
                 }
             }
+        }
     });
     
     var schedule = new Ext.Panel({                              
@@ -1647,6 +1649,11 @@ Ext.onReady(function(){
                                     id:"ReturnPolicyReturns",
                                     style:"padding-left:10px;",
                                     labelAlign:"top",
+                                    reader:new Ext.data.JsonReader({
+                                        }, ['ReturnPolicyReturnsAcceptedOption','ReturnPolicyReturnsWithinOption',
+                                            'ReturnPolicyRefundOption','ReturnPolicyShippingCostPaidByOption',
+                                            'ReturnPolicyDescription'
+                                    ]),
                                     items:[{
                                             //id:"ReturnPolicyReturnsWithinOption",
                                             xtype:"combo",
@@ -1761,6 +1768,20 @@ Ext.onReady(function(){
                                         window.close();
                                     }
                                 }]
+                            })
+                            
+                            Ext.getCmp('ReturnPolicyReturns').getForm().load({
+                                url:'service.php?action=loadReturnPolicyReturns', 
+                                method:'GET', 
+                                params: {template_id: template_id}, 
+                                waitMsg:'Please wait...',
+                                success: function(f, a){
+                                    if(a.result.data.ReturnPolicyReturnsAcceptedOption == "ReturnsAccepted"){
+                                        Ext.getCmp("ReturnPolicyReturnsAcceptedOption1").setValue(true);
+                                    }else if(a.result.data.ReturnPolicyReturnsAcceptedOption == "ReturnsNotAccepted"){
+                                        Ext.getCmp("ReturnPolicyReturnsAcceptedOption2").setValue(true);
+                                    }
+                                }
                             })
                             
                             window.show();

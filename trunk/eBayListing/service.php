@@ -2490,12 +2490,21 @@ class eBayListing{
 	    $update .= "GalleryURL = '".$_POST['GalleryURL']."',";
 	}
 	
+	
+	if(!empty($_POST['ShippingServiceOptionsType']) && $_POST['ShippingServiceOptionsType'] != 'Multi Value'){
+	    $update .= "ShippingServiceOptionsType = '".$_POST['ShippingServiceOptionsType']."',";
+	}
+	
 	if(!empty($_POST['InsuranceOption']) && $_POST['InsuranceOption'] != 'Multi Value'){
 	    $update .= "InsuranceOption = '".$_POST['InsuranceOption']."',";
 	}
 	
 	if(!empty($_POST['InsuranceFee']) && $_POST['InsuranceFee'] != 'Multi Value'){
 	    $update .= "InsuranceFee = '".$_POST['InsuranceFee']."',";
+	}
+	
+	if(!empty($_POST['InternationalShippingServiceOptionType']) && $_POST['InternationalShippingServiceOptionType'] != 'Multi Value'){
+	    $update .= "InternationalShippingServiceOptionType = '".$_POST['InternationalShippingServiceOptionType']."',";
 	}
 	
 	if(!empty($_POST['InternationalInsurance']) && $_POST['InternationalInsurance'] != 'Multi Value'){
@@ -4853,12 +4862,20 @@ class eBayListing{
 	    $update .= "GalleryURL = '".$_POST['GalleryURL']."',";
 	}
 	
+	if(!empty($_POST['ShippingServiceOptionsType']) && $_POST['ShippingServiceOptionsType'] != 'Multi Value'){
+	    $update .= "ShippingServiceOptionsType = '".$_POST['ShippingServiceOptionsType']."',";
+	}
+	
 	if(!empty($_POST['InsuranceOption']) && $_POST['InsuranceOption'] != 'Multi Value'){
 	    $update .= "InsuranceOption = '".$_POST['InsuranceOption']."',";
 	}
 	
 	if(!empty($_POST['InsuranceFee']) && $_POST['InsuranceFee'] != 'Multi Value'){
 	    $update .= "InsuranceFee = '".$_POST['InsuranceFee']."',";
+	}
+	
+	if(!empty($_POST['InternationalShippingServiceOptionType']) && $_POST['InternationalShippingServiceOptionType'] != 'Multi Value'){
+	    $update .= "InternationalShippingServiceOptionType = '".$_POST['InternationalShippingServiceOptionType']."',";
 	}
 	
 	if(!empty($_POST['InternationalInsurance']) && $_POST['InternationalInsurance'] != 'Multi Value'){
