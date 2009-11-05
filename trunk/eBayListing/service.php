@@ -246,7 +246,7 @@ class eBayListing{
 	}
     }
     
-    public function getStoreCategories($userID){
+    public function getStoreCategories($userID = 0){
 	global $argv;
 	if(!empty($argv[2])){
 	    $userID = $argv[2];
