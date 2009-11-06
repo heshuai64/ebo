@@ -2470,6 +2470,15 @@ class eBayListing{
 	    $update .= "StoreCategory2Name = '".$_POST['StoreCategory2Name']."',";
 	}
 	
+	if(!empty($_POST['StoreCategoryID']) && $_POST['StoreCategoryID'] != 'Multi Value'){
+	    $update .= "StoreCategoryID = '".$_POST['StoreCategoryID']."',";
+	}
+	
+	if(!empty($_POST['StoreCategoryName']) && $_POST['StoreCategoryName'] != 'Multi Value'){
+	    $update .= "StoreCategoryName = '".$_POST['StoreCategoryName']."',";
+	}
+	
+	
 	if(!empty($_POST['SubTitle']) && $_POST['SubTitle'] != 'Multi Value'){
 	    $update .= "SubTitle = '".mysql_real_escape_string($_POST['SubTitle'])."',";
 	}
@@ -4839,6 +4848,14 @@ class eBayListing{
 	
 	if(!empty($_POST['StoreCategory2Name']) && $_POST['StoreCategory2Name'] != 'Multi Value'){
 	    $update .= "StoreCategory2Name = '".$_POST['StoreCategory2Name']."',";
+	}
+	
+	if(!empty($_POST['StoreCategoryID']) && $_POST['StoreCategoryID'] != 'Multi Value'){
+	    $update .= "StoreCategoryID = '".$_POST['StoreCategoryID']."',";
+	}
+	
+	if(!empty($_POST['StoreCategoryName']) && $_POST['StoreCategoryName'] != 'Multi Value'){
+	    $update .= "StoreCategoryName = '".$_POST['StoreCategoryName']."',";
 	}
 	
 	if(!empty($_POST['SubTitle']) && $_POST['SubTitle'] != 'Multi Value'){
