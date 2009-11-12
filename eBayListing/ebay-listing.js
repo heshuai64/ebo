@@ -1595,7 +1595,7 @@ Ext.onReady(function(){
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
-                                   fields: ['Id', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price'],
+                                   fields: ['Id', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price', 'EndTime'],
                                    sortInfo: {
                                         field: 'Id',
                                         direction: 'ASC'
@@ -1622,7 +1622,8 @@ Ext.onReady(function(){
                                         {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                         {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
                                         {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
-                                        {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'}
+                                        {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
+                                        {header: "End Time", width: 120, align: 'center', sortable: true, dataIndex: 'EndTime'}
                                    ],
                                    bbar: new Ext.PagingToolbar({
                                        pageSize: 20,

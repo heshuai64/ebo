@@ -650,6 +650,17 @@ Ext.onReady(function(){
                                 });
                             }
                         }
+                    },{
+                        text:"Sync Online Store Category",
+                        icon :"images/database_gear.png",
+                        handler:function(){
+                            Ext.Ajax.request({
+                                    url: 'service.php?action=getStoreCategories',
+                                    success: function(a, b){
+                                        Ext.Msg.alert('Success', 'Sync online store category success.');
+                                    }
+                            })
+                        }
                     }],
                     items:[{
                         id:"Title",
