@@ -256,6 +256,14 @@ class eBayListing{
 	
 	    $this->setAccount($row['id']);
 	    $this->configEbay();
+	}else if(!empty($this->account_id)){
+	    
+	    $sql = "select name from account where id = ".$this->account_id;
+	    $result = mysql_query($sql, eBayListing::$database_connect);
+	    $row = mysql_fetch_assoc($result);
+	    $userID = $row['name'];
+	    
+	    $this->configEbay();
 	}
 	
 	try {
@@ -266,12 +274,13 @@ class eBayListing{
 		$UserID = $userID;
 		
                 $params = array('Version' => $Version, 'CategoryStructureOnly' => $CategoryStructureOnly, 'UserID' => $UserID);
-                $results = $client->GetStore($params);
+                //print_r($params);
+		$results = $client->GetStore($params);
 		//print_r($results);
                 //----------   debug --------------------------------
                 //print "Request: \n".$client->__getLastRequest() ."\n";
                 //print "Response: \n".$client->__getLastResponse()."\n";
-		$sql = "delete from account_store_categories where AccountId = ".$account_id;
+		$sql = "delete from account_store_categories where AccountId = ".$this->account_id;
 		$result = mysql_query($sql, eBayListing::$database_connect);
 		
                 $this->saveFetchData("getStoreCategories-".$userID."-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
@@ -3933,7 +3942,7 @@ class eBayListing{
 	//echo $sql_1."\n";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while($row = mysql_fetch_assoc($result)){
-	    $data .= $row['SKU'].",".$row['Title'].",".$row['InsertionFee'].",".$row['ItemID'].",".$row['StartTime'].",".$row['EndTime'].",".$row['ListingDuration'].",".$row['Quantity'].",".$row['QuantitySold'].",".$row['StartPrice'].",".$row['ListingType']."\n";
+	    $data .= '"'.$row['SKU'].'","'.mysql_escape_string(str_replace("\\", "", $row['Title'])).'","'.$row['InsertionFee'].'","'.$row['ItemID'].'","'.$row['StartTime'].'","'.$row['EndTime'].'","'.$row['ListingDuration'].'","'.$row['Quantity'].'","'.$row['QuantitySold'].'","'.$row['StartPrice'].'","'.$row['ListingType'].'"'."\n";
 	}
 	header("Content-type: application/x-msdownload");
         header("Content-Disposition: attachment; filename=activeItem.csv");
@@ -6732,7 +6741,7 @@ class eBayListing{
 	
 	$sql = "update items set AutoPay='".mysql_escape_string($item->AutoPay)."',
 	BuyItNowPrice='".mysql_escape_string($item->BuyItNowPrice)."',Country='".mysql_escape_string($item->Country)."',
-	Currency='".mysql_escape_string($item->Currency)."',Description='".mysql_escape_string($item->Description)."',
+	Currency='".mysql_escape_string($item->Currency)."',
 	DispatchTimeMax='".mysql_escape_string($item->DispatchTimeMax)."',StartTime='".mysql_escape_string($item->ListingDetails->StartTime)."',
 	EndTime='".mysql_escape_string($item->ListingDetails->EndTime)."',ListingDuration='".mysql_escape_string($item->ListingDuration)."',
 	ListingType='".mysql_escape_string($item->ListingType)."',Location='".mysql_escape_string($item->Location)."',

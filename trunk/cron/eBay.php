@@ -92,6 +92,8 @@ class eBay{
     const DATABASE_PASSWORD = '5333533';
     const DATABASE_NAME = 'ebaybo';
     const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
+    const LOG_DIR = '/export/eBayBO/log/';
+    
     private $startTime;
     private $endTime;
     
@@ -147,8 +149,17 @@ class eBay{
 	return $session;
     }
     
-    private function saveFetchData($file_name, $data){
-	file_put_contents("/export/eBayBO/log/".$file_name, $data);
+    private function saveFetchData($account_name, $file_name, $data){
+	if(!file_exists(self::LOG_DIR.$account_name)){
+            mkdir(self::LOG_DIR.$account_name, 0777);
+        }
+	
+	if(!file_exists(self::LOG_DIR.$account_name."/".date("Ymd"))){
+            mkdir(self::LOG_DIR.$account_name."/".date("Ymd"), 0777);
+        }
+	
+	file_put_contents(self::LOG_DIR.$account_name."/".date("Ymd")."/".$file_name, $data);
+	//file_put_contents("/export/eBayBO/log/".$file_name, $data);
     }
     
     private function GetSellerTransactions($ModTimeFrom, $ModTimeTo, $sellerId, $dev, $app, $cert, $token, $proxy_host, $proxy_port){
@@ -178,7 +189,7 @@ class eBay{
                 //print "Response: \n".$client->__getLastResponse()."\n";
 		//$this->saveFetchData("/GetSellerTransactions/".$sellerId."-Request-GetSellerTransactions-".date("Y-m-d H:i:s").".xml", $client->__getLastRequest());
 		//$this->saveFetchData("/GetSellerTransactions/".$sellerId."-Response-GetSellerTransactions-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
-                $this->saveFetchData("/GetSellerTransactions/".$sellerId.'-'.date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+                $this->saveFetchData($sellerId, "GetSellerTransactions-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 		return $results;
                 
         } catch (SOAPFault $f) {
@@ -731,7 +742,7 @@ class eBay{
                 //print "Response: \n".$client->__getLastResponse()."\n";
 		//$this->saveFetchData("/GetSellerList/".$sellerId.'-Request-'.date("Y-m-d H:i:s").".xml", $client->__getLastRequest());
 		//$this->saveFetchData("/GetSellerList/".$sellerId.'-Response-'.date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
-		$this->saveFetchData("/GetSellerList/".$sellerId.'-'.date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		$this->saveFetchData($sellerId, "GetSellerList-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 		
 		if($results->PaginationResult->TotalNumberOfPages == 0)
 			return 0;
@@ -774,7 +785,7 @@ class eBay{
 						$this->updateEbayItem($results->ItemArray->Item, $UserID);
 					}
 				}
-				$this->saveFetchData("/GetSellerList/".$sellerId.'-'.date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+				$this->saveFetchData($sellerId, "GetSellerList-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 				sleep(1);
 			}	
 		}

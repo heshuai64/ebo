@@ -215,3 +215,15 @@ var pictureManage = {
         window.show();
     }
 }
+
+function showWait(){
+    Ext.MessageBox.wait("please wait, thank you.");
+}
+
+function hideWait(){
+    Ext.MessageBox.hide();
+}
+
+Ext.Ajax.on('beforerequest', showWait);
+Ext.Ajax.on('requestcomplete', hideWait);
+Ext.Ajax.on('requestexception', hideWait);
