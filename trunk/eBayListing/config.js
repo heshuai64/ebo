@@ -4,8 +4,8 @@ var currency_symbol = {
     Australia: 'AUD$',
     France: '€'
 }
-var path = "/eBayBO/eBayListing/"
-//var path = "/eBayListing/"
+//var path = "/eBayBO/eBayListing/"
+var path = "/eBayListing/"
 var inventory_service = "/inventory/service.php";
 
 function previewSkuPicture(index){                                   
