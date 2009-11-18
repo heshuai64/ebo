@@ -20,6 +20,7 @@ Ext.onReady(function(){
      
      function hideWait(){
           Ext.MessageBox.hide();
+          Ext.Msg.alert('Failure', 'network error, please try again.');
      }
      
      Ext.Ajax.on('beforerequest', showWait);
