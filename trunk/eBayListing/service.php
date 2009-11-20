@@ -4178,13 +4178,31 @@ class eBayListing{
 	       $_POST['limit'] = 20;
 	}
 
+	$where = "";
+	
+	if(!empty($_POST['SKU'])){
+	    $where .= " and SKU like '".$_POST['SKU']."%'";
+	}
+	
+	if(!empty($_POST['ItemID'])){
+	    $where .= " and ItemID like '".$_POST['ItemID']."%'";
+	}
+	
+	if(!empty($_POST['Title'])){
+	    $where .= " and Title like '".$_POST['Title']."%'";
+	}
+	
+	if(!empty($_POST['ListingDuration'])){
+	    $where .= " and ListingDuration = '".$_POST['ListingDuration']."'";
+	}
+	
 	//Active, Completed, Ended
-	$sql = "select count(*) as count from items where accountId = '".$this->account_id."' and Status = 2";
+	$sql = "select count(*) as count from items where accountId = '".$this->account_id."' ".$where." and Status = 2";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
 	$totalCount = $row['count'];
 	
-	$sql_1 = "select Id,SKU,ItemID,Title,Site,ListingType,Quantity,ListingDuration,EndTime,StartPrice,BuyItNowPrice from items where accountId = '".$this->account_id."' and Status = 2 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
+	$sql_1 = "select Id,SKU,ItemID,Title,Site,ListingType,Quantity,ListingDuration,EndTime,StartPrice,BuyItNowPrice from items where accountId = '".$this->account_id."' ".$where." and Status = 2 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
 	//echo $sql_1."\n";
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$data = array();
@@ -7198,6 +7216,7 @@ class eBayListing{
 	//$_SESSION['account_id'] = $row['id'];
 	if(!empty($row['id'])){
 	    setcookie("account_id", $row['id'], time() + (60 * 60 * 24), '/');
+	    setcookie("account_name", $_POST['name'], time() + (60 * 60 * 24), '/');
 	    setcookie("role", $row['role'], time() + (60 * 60 * 24), '/');
 	    echo "{success: true}";
 	}else{
@@ -7207,6 +7226,7 @@ class eBayListing{
     
     public function logout(){
 	unset($_COOKIE['account_id']);
+	unset($_COOKIE['account_name']);
 	unset($_COOKIE['role']);
     }
     
