@@ -20,12 +20,15 @@ Ext.onReady(function(){
      
      function hideWait(){
           Ext.MessageBox.hide();
+     }
+     
+     function exception(){
           Ext.Msg.alert('Failure', 'network error, please try again.');
      }
      
      Ext.Ajax.on('beforerequest', showWait);
      Ext.Ajax.on('requestcomplete', hideWait);
-     Ext.Ajax.on('requestexception', hideWait);
+     Ext.Ajax.on('requestexception', exception);
 
      Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
      function renderFlag(v, p, r){
@@ -1441,6 +1444,71 @@ Ext.onReady(function(){
                     //console.log(ids);
                     window.open("service.php?action=activeItemExport","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=100, height=100");
                }
+          },'-',{
+               text: 'Search',
+               icon: './images/magnifier.png',
+               handler: function(){
+                    var  searchWindow = new Ext.Window({
+                              title: 'Active Listing Search' ,
+                              closable:true,
+                              width: 300,
+                              height: 180,
+                              plain:true,
+                              layout: 'form',
+                              items: [/*{
+                                        id:'interval-date',
+                                        fieldLabel:'Date',
+                                        xtype:'datefield',
+                                        format:'Y-m-d',
+                                        minValue: new Date(),
+                                        selectOnFocus:true
+                                   },*/{
+                                        id:'SKU',
+                                        fieldLabel:'SKU',
+                                        xtype:'textfield'
+                                   },{
+                                        id:'ItemID',
+                                        fieldLabel:'Item ID',
+                                        xtype:'textfield'
+                                   },{
+                                        id:'Title',
+                                        fieldLabel:'Item Title',
+                                        xtype:'textfield'
+                                   },{
+                                        id:'ListingDuration',
+                                        fieldLabel:'Duration',
+                                        xtype:"combo",
+                                        store:['', 'Days_3', 'Days_5', 'Days_7', 'Days_10', 'Days_30', 'Days_60', 'Days_90'],
+                                        triggerAction: 'all',
+                                        editable: false,
+                                        selectOnFocus:true,
+                                        listWidth:100,
+                                        width:100
+                                   }
+                              ],
+                              buttons: [{
+                                             text: 'Submit',
+                                             handler: function(){
+                                                  activity_store.baseParams = {
+                                                       SKU: Ext.getCmp("SKU").getValue(),
+                                                       ItemID: Ext.getCmp("ItemID").getValue(),
+                                                       Title: Ext.getCmp("Title").getValue(),
+                                                       ListingDuration: Ext.getCmp("ListingDuration").getValue()
+                                                  };
+                                                  activity_store.load({params:{start:0, limit:20}});
+                                                  searchWindow.close();
+                                             }
+                                        },{
+                                             text: 'Close',
+                                             handler: function(){
+                                                  searchWindow.close();
+                                             }
+                                        }]
+                                        
+                         })
+                         
+                         searchWindow.show();
+               }
           }],
           bbar: new Ext.PagingToolbar({
               pageSize: 20,
@@ -1696,6 +1764,11 @@ Ext.onReady(function(){
                                    }
                               });
                          }
+                    },{
+                         xtype:"button",
+                         text: getCookie("account_name"),
+                         style:"float:left;margin-left:5px",
+                         icon:'images/user.png'
                     }/*,{
                          xtype:"button",
                          text:"Ebay Account Manage",
