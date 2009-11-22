@@ -1596,12 +1596,11 @@ Ext.onReady(function(){
                                    //height: 500,
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
-                                        {header: "Id", width: 40, align: 'center', sortable: true, dataIndex: 'Id'},
+                                        {header: "Id", width: 50, align: 'center', sortable: true, dataIndex: 'Id'},
                                         {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
-                                        {header: "SKU", width: 120, align: 'center', sortable: true, dataIndex: 'SKU'},
+                                        {header: "SKU", width: 100, align: 'center', sortable: true, dataIndex: 'SKU'},
                                         {header: "Item ID", width: 120, align: 'center', sortable: true, dataIndex: 'ItemID'},
-                                        {header: "Item Title", width: 120, align: 'center', sortable: true, dataIndex: 'Title'},
-                                        {header: "Site", width: 50, align: 'center', sortable: true, dataIndex: 'Site'},
+                                        {header: "Item Title", width: 150, align: 'center', sortable: true, dataIndex: 'Title'},
                                         {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                         {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
                                         {header: "SQty", width: 50, align: 'center', sortable: true, dataIndex: 'QuantitySold'},
@@ -1632,6 +1631,49 @@ Ext.onReady(function(){
                                                   window.open(path + "item.php?id="+ids+"&Status=4","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                              }     
                                              return 1;
+                                        }
+                                   },'-',{
+                                        text: "Export CSV",     
+                                        icon: './images/server_go.png',
+                                        tooltip:'export csv file',
+                                        handler: function(){
+                                             var  searchWindow = new Ext.Window({
+                                                  title: 'Export Sold Item' ,
+                                                  closable:true,
+                                                  width: 250,
+                                                  height: 120,
+                                                  plain:true,
+                                                  layout: 'form',
+                                                  items: [{
+                                                            id:'StartTime',
+                                                            fieldLabel:'Start Date',
+                                                            format:'Y-m-d',
+                                                            allowBlank:false,
+                                                            xtype:'datefield'
+                                                       },{
+                                                            id:'EndTime',
+                                                            fieldLabel:'End Date',
+                                                            format:'Y-m-d',
+                                                            allowBlank:false,
+                                                            xtype:'datefield'
+                                                       }
+                                                  ],
+                                                  buttons: [{
+                                                                 text: 'Submit',
+                                                                 handler: function(){
+                                                                      window.open("service.php?action=soldItemExport&StartTime="+Ext.getCmp("StartTime").getValue().format("Y-m-d")+"&EndTime="+Ext.getCmp("EndTime").getValue().format("Y-m-d"),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=100, height=100");
+                                                                      searchWindow.close();
+                                                                 }
+                                                            },{
+                                                                 text: 'Close',
+                                                                 handler: function(){
+                                                                      searchWindow.close();
+                                                                 }
+                                                            }]
+                                                            
+                                             })
+                                             
+                                             searchWindow.show();
                                         }
                                    }],
                                    bbar: new Ext.PagingToolbar({
@@ -1682,18 +1724,61 @@ Ext.onReady(function(){
                                    //height: 500,
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
-                                        {header: "Id", width: 40, align: 'center', sortable: true, dataIndex: 'Id'},
+                                        {header: "Id", width: 50, align: 'center', sortable: true, dataIndex: 'Id'},
                                         {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
-                                        {header: "SKU", width: 120, align: 'center', sortable: true, dataIndex: 'SKU'},
+                                        {header: "SKU", width: 100, align: 'center', sortable: true, dataIndex: 'SKU'},
                                         {header: "Item ID", width: 120, align: 'center', sortable: true, dataIndex: 'ItemID'},
-                                        {header: "Item Title", width: 120, align: 'center', sortable: true, dataIndex: 'Title'},
-                                        {header: "Site", width: 50, align: 'center', sortable: true, dataIndex: 'Site'},
+                                        {header: "Item Title", width: 150, align: 'center', sortable: true, dataIndex: 'Title'},
                                         {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                         {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
                                         {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
                                         {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
                                         {header: "End Time", width: 120, align: 'center', sortable: true, dataIndex: 'EndTime'}
                                    ],
+                                   tbar:[{
+                                        text: "Export CSV",     
+                                        icon: './images/server_go.png',
+                                        tooltip:'export csv file',
+                                        handler: function(){
+                                             var  searchWindow = new Ext.Window({
+                                                  title: 'Export unSold Item' ,
+                                                  closable:true,
+                                                  width: 250,
+                                                  height: 120,
+                                                  plain:true,
+                                                  layout: 'form',
+                                                  items: [{
+                                                            id:'StartTime',
+                                                            fieldLabel:'Start Date',
+                                                            format:'Y-m-d',
+                                                            allowBlank:false,
+                                                            xtype:'datefield'
+                                                       },{
+                                                            id:'EndTime',
+                                                            fieldLabel:'End Date',
+                                                            format:'Y-m-d',
+                                                            allowBlank:false,
+                                                            xtype:'datefield'
+                                                       }
+                                                  ],
+                                                  buttons: [{
+                                                                 text: 'Submit',
+                                                                 handler: function(){
+                                                                      window.open("service.php?action=unSoldItemExport&StartTime="+Ext.getCmp("StartTime").getValue().format("Y-m-d")+"&EndTime="+Ext.getCmp("EndTime").getValue().format("Y-m-d"),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=100, height=100");
+                                                                      searchWindow.close();
+                                                                 }
+                                                            },{
+                                                                 text: 'Close',
+                                                                 handler: function(){
+                                                                      searchWindow.close();
+                                                                 }
+                                                            }]
+                                                            
+                                             })
+                                             
+                                             searchWindow.show();
+                                        }
+                                   }],
                                    bbar: new Ext.PagingToolbar({
                                        pageSize: 20,
                                        store: unsold_item_store,
@@ -3141,7 +3226,7 @@ Ext.onReady(function(){
                               columns: 1,
                               items: [{
                                    text: 'Template Log',
-                                   iconCls: 'template-log',
+                                   icon: 'images/plugin.png',
                                    handler: function(){
                                         //console.log("test");
                                         var template_store = new Ext.data.JsonStore({
@@ -3188,7 +3273,7 @@ Ext.onReady(function(){
                                    }
                               },{
                                    text: 'Item   Log',
-                                   iconCls: 'item-log',
+                                   icon: 'images/table.png',
                                    handler: function(){
                                         //console.log("test");
                                         var item_store = new Ext.data.JsonStore({
@@ -3235,7 +3320,7 @@ Ext.onReady(function(){
                                    }
                               },{
                                    text: 'Upload Log',
-                                   iconCls: 'upload-log',
+                                   icon: 'images/table_go.png',
                                    handler: function(){
                                         //console.log("test");
                                         var upload_store = new Ext.data.JsonStore({
@@ -3282,7 +3367,7 @@ Ext.onReady(function(){
                                    }
                               },{
                                    text: 'Revise Log',
-                                   iconCls: 'revise-log',
+                                   icon: 'images/table_edit.png',
                                    handler: function(){
                                         //console.log("test");
                                         var revise_store = new Ext.data.JsonStore({
