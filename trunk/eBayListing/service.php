@@ -2,15 +2,15 @@
 
 require_once 'eBaySOAP.php';
 
-function errorLog($file_name, $data){
+function debugLog($file_name, $data){
     //file_put_contents("C:\\xampp\\htdocs\\eBayBO\\eBayListing\\log\\".$file_name, $data ."\n", FILE_APPEND);
-    file_put_contents("/export/eBayListing/log/".$file_name, $data ."\n", FILE_APPEND);
+    @file_put_contents("/export/eBayListing/log/".$file_name, $data ."\n", FILE_APPEND);
 }
 
 function ErrorLogFunction($errno, $errstr, $errfile, $errline){
     //echo "<b>Custom error:</b> [$errno] $errstr<br />";
     //echo " Error on line $errline in $errfile<br />";
-    errorLog('errorLog.log', date("Y-m-d H:i:s"). '  '.$errno. ' : '.$errstr.' on line '.$errline.' in '.$errfile . "\n");
+    debugLog('errorLog/'.date("Ymd").'.log', date("Y-m-d H:i:s"). '  '.$errno. ' : '.$errstr.' on line '.$errline.' in '.$errfile . "\n");
 }
 
 set_error_handler("ErrorLogFunction");
@@ -1575,7 +1575,7 @@ class eBayListing{
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	//echo $sql;
 	//exit;
-	//errorLog("add-template-tack.log", $sql);
+	//debugLog("add-template-tack.log", $sql);
 	
 	$id = mysql_insert_id(eBayListing::$database_connect);
 	
@@ -2107,7 +2107,7 @@ class eBayListing{
 	//echo $sql;
 	//exit;
 	//$this->log("template", $sql);
-	//errorLog("template-tack.log", $sql);
+	//debugLog("template-tack.log", $sql);
 	
 	$sql_1 = "delete from template_picture_url where templateId = '".$id."'";
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
@@ -3540,17 +3540,81 @@ class eBayListing{
     }
     
     //--------  Template Schedule Time  --------------------------------------------------
-    public function addTemplateScheduleTime(){
-	if(!empty($_POST['time'])){
-	    session_start();
-	    if(@!is_array($_SESSION['Schedule'][$_POST['template_id'].'-'.$_POST['dayTime']])){
-		$_SESSION['Schedule'][$_POST['template_id'].'-'.$_POST['dayTime']] = array();
+    public function getScheduleTemplate(){
+	$sql = "select name from schedule_template where account_id = '".$this->account_id."' group by name";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$array = array();
+	$i = 0;
+	while($row = mysql_fetch_assoc($result)){
+	    $array[$i]['id'] = $row['name'];
+	    $array[$i]['name'] = $row['name'];
+	    $i++;
+	}
+	echo json_encode($array);
+	mysql_free_result($result);
+    }
+    
+    public function saveScheduleTemplate(){
+	session_start();
+	print_r($_SESSION['Schedule']);
+	$sql_1 = "select count(*) as num from schedule_template where name = '".$_POST['name']."'";
+	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	$row_1 = mysql_fetch_assoc($result_1);
+	if($row_1['num'] > 0){
+	    if(!empty($_SESSION['Schedule'])){
+		//$sql_1 = "delete from schedule_template where name = '".$_POST['name']."'";
+		//$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+		
+		foreach($_SESSION['Schedule'] as $key=>$value){
+		    $keyArray = explode("-", $key);
+		    foreach($value as $name){
+			$day = date("D", strtotime($keyArray[1]." ".$name));
+			$time = date("H:i:s", strtotime($name));
+			
+			$sql_1 = "select id from schedule_template where 
+			name = '".$_POST['name']."' and day = '".$day."' and time = '".$time."' and account_id = '".$this->account_id."'";
+			$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+			$row_1 = mysql_fetch_assoc($result_1);
+			if(empty($row_1['id'])){
+			    $sql_3 = "insert into schedule_template (name,day,time,account_id) values 
+			    ('".$_POST['name']."','".$day."','".$time."','".$this->account_id."')";
+			    //echo $sql_3;
+			    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+			}
+		    }
+		}
 	    }
-	    if(@!in_array($_POST['time'], $_SESSION['Schedule'][$_POST['sku'].'-'.$_POST['dayTime']])){
-		$_SESSION['Schedule'][$_POST['template_id'].'-'.$_POST['dayTime']][] = $_POST['time'];
+	}else{
+	    if(!empty($_SESSION['Schedule'])){
+		
+		foreach($_SESSION['Schedule'] as $key=>$value){
+		    $keyArray = explode("-", $key);
+		    foreach($value as $name){
+			$day = date("D", strtotime($keyArray[1]." ".$name));
+			$time = date("H:i:s", strtotime($name));
+			$sql_3 = "insert into schedule_template (name,day,time,account_id) values 
+			('".$_POST['name']."','".$day."','".$time."','".$this->account_id."')";
+			//echo $sql_3;
+			$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+		    }
+		}
 	    }
 	}
-	print_r($_SESSION['Schedule'][$_POST['template_id'].'-'.$_POST['dayTime']]);
+    }
+    
+    public function addTemplateScheduleTime(){
+	$id = (!empty($_POST['template_id']))?$_POST['template_id']:$_POST['sku'];
+	
+	if(!empty($_POST['time'])){
+	    session_start();
+	    if(@!is_array($_SESSION['Schedule'][$id.'-'.$_POST['dayTime']])){
+		$_SESSION['Schedule'][$id.'-'.$_POST['dayTime']] = array();
+	    }
+	    if(@!in_array($_POST['time'], $_SESSION['Schedule'][$id.'-'.$_POST['dayTime']])){
+		$_SESSION['Schedule'][$id.'-'.$_POST['dayTime']][] = $_POST['time'];
+	    }
+	}
+	print_r($_SESSION['Schedule'][$id.'-'.$_POST['dayTime']]);
     }
     
     public function deleteTemplateScheduleTime(){
@@ -3946,6 +4010,38 @@ class eBayListing{
 	}
 	header("Content-type: application/x-msdownload");
         header("Content-Disposition: attachment; filename=activeItem.csv");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+        echo $data;
+    }
+    
+    public function soldItemExport(){
+	$data = "SKU,Item Title,Insertion Fee,Item ID,Start Time,End Time,Duration,Qty,Slod Qty,Price,Listing Type\n";
+	$sql = "select ItemID,SKU,Title,ListingType,sum(InsertionFee) as InsertionFee,sum(ListingFee) as ListingFee,sum(Quantity) as Quantity,sum(QuantitySold) as QuantitySold,ListingDuration,StartTime,EndTime,sum(StartPrice) as StartPrice,sum(BuyItNowPrice) as BuyItNowPrice from items where Status = 6 and StartTime > '".$_GET['StartTime']."' and EndTime < '".$_GET['EndTime']."' and accountId = '".$this->account_id."' group by Title";
+	//echo $sql."\n";
+	//exit;
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	while($row = mysql_fetch_assoc($result)){
+	    $data .= '"'.$row['SKU'].'","'.mysql_escape_string(str_replace("\\", "", $row['Title'])).'","'.$row['InsertionFee'].'","'.$row['ItemID'].'","'.$row['StartTime'].'","'.$row['EndTime'].'","'.$row['ListingDuration'].'","'.$row['Quantity'].'","'.$row['QuantitySold'].'","'.$row['StartPrice'].'","'.$row['ListingType'].'"'."\n";
+	}
+	header("Content-type: application/x-msdownload");
+        header("Content-Disposition: attachment; filename=soldItem(".$_GET['StartTime']."--".$_GET['EndTime'].").csv");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+        echo $data;
+    }
+    
+    public function unSoldItemExport(){
+	$data = "SKU,Item Title,Insertion Fee,Item ID,Start Time,End Time,Duration,Qty,Price,Listing Type\n";
+	$sql = "select ItemID,SKU,Title,ListingType,sum(InsertionFee) as InsertionFee,sum(ListingFee) as ListingFee,sum(Quantity) as Quantity,ListingDuration,StartTime,EndTime,sum(StartPrice) as StartPrice,sum(BuyItNowPrice) as BuyItNowPrice from items where Status = 5 and StartTime > '".$_GET['StartTime']."' and EndTime < '".$_GET['EndTime']."' and accountId = '".$this->account_id."' group by Title";
+	//echo $sql."\n";
+	//exit;
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	while($row = mysql_fetch_assoc($result)){
+	    $data .= '"'.$row['SKU'].'","'.mysql_escape_string(str_replace("\\", "", $row['Title'])).'","'.$row['InsertionFee'].'","'.$row['ItemID'].'","'.$row['StartTime'].'","'.$row['EndTime'].'","'.$row['ListingDuration'].'","'.$row['Quantity'].'","'.$row['StartPrice'].'","'.$row['ListingType'].'"'."\n";
+	}
+	header("Content-type: application/x-msdownload");
+        header("Content-Disposition: attachment; filename=unSoldItem(".$_GET['StartTime']."--".$_GET['EndTime'].").csv");
         header("Pragma: no-cache");
         header("Expires: 0");
         echo $data;
@@ -6779,7 +6875,7 @@ class eBayListing{
 	GalleryTypeFeatured=".$GalleryTypeFeatured.",GalleryTypeGallery=".$GalleryTypeGallery.",GalleryTypePlus=".$GalleryTypePlus.",GalleryURL='".$item->PictureDetails->GalleryURL."' where ItemID = '".$item->ItemID."'";
 	//echo $sql;
 	//echo "<br>";
-	errorLog("eBay-update-item-track.log", $sql);
+	//debugLog("eBay-update-item-track.log", $sql);
 	//$sql = "update items set CurrentPrice='".$item->SellingStatus->CurrentPrice."',QuantitySold='".$item->SellingStatus->QuantitySold."',ListingStatus='".$item->SellingStatus->ListingStatus.",Status='".$Status."'' 
 	//where ItemID = '".$item->ItemID."'";
 	//echo $sql;
@@ -6964,6 +7060,7 @@ class eBayListing{
 		    return 0;
 	    
 		if(is_array($results->ItemArray->Item)){
+		    //multi item
 		    foreach($results->ItemArray->Item as $item){
 			if($this->checkItem($item->ItemID) == 0){
 			    $id = $this->eBayInsertItem($item, $results->Seller->UserID);
@@ -7025,6 +7122,7 @@ class eBayListing{
 			
 		    }
 		}else{
+		    //one item
 		    if($this->checkItem($results->ItemArray->Item->ItemID) == 0){
 		    	$id = $this->eBayInsertItem($results->ItemArray->Item, $results->Seller->UserID);
 			
@@ -7425,6 +7523,16 @@ class eBayListing{
 	}
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while($row = mysql_fetch_assoc($result)){
+	    if(strlen($row['content']) > 130){
+		$temp = "";
+		for($i=0; $i< strlen($row['content']); $i++){
+		    $temp .= $row['content'][$i];
+		    if($i !=0 && $i % 130 == 0){
+			$temp .= "<br>";
+		    }
+		}
+		$row['content'] = $temp;
+	    }
 	    $array[] = $row;
 	}
 	echo json_encode(array('totalCount'=>$totalCount, 'records'=>$array));

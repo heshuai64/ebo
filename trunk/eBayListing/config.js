@@ -4,8 +4,8 @@ var currency_symbol = {
     Australia: 'AUD$',
     France: '€'
 }
-//var path = "/eBayBO/eBayListing/"
-var path = "/eBayListing/"
+var path = "/eBayBO/eBayListing/"
+//var path = "/eBayListing/"
 var inventory_service = "/inventory/service.php";
 
 function previewSkuPicture(index){                                   
@@ -224,6 +224,10 @@ function hideWait(){
     Ext.MessageBox.hide();
 }
 
+function exception(){
+    Ext.Msg.alert('Failure', 'network error, please try again.');
+}
+     
 Ext.Ajax.on('beforerequest', showWait);
 Ext.Ajax.on('requestcomplete', hideWait);
-Ext.Ajax.on('requestexception', hideWait);
+Ext.Ajax.on('requestexception', exception);
