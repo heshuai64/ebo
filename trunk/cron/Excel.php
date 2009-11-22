@@ -151,6 +151,7 @@ class eBayBOExcel{
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 1, 'Sku');
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, 1, 'Item Model');
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(6, 1, 'Quantity');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(7, 1, 'Stock');
 		
 		$i = 2;
 		while($row = mysql_fetch_assoc($result)){
@@ -177,6 +178,9 @@ class eBayBOExcel{
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $sku);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $skuTitle);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $quantity);
+			$request = eBayBOExcel::INVENTORY_SERVICE."?action=getSkuInfo&data=".urlencode($sku);
+                        $json_result = json_decode($this->getService($request));
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $json_result->skuStock);
 			$i++;
 		}
 		$writer = PHPExcel_IOFactory::createWriter($this->php_excel, 'Excel5');

@@ -68,6 +68,38 @@ class Reports{
 
     }
     
+    private function getService($request){
+        //$request =  'http://search.yahooapis.com/ImageSearchService/V1/imageSearch?appid=YahooDemo&query='.urlencode('Al Gore').'&results=1';
+        
+        // Make the request
+        $json = file_get_contents($request);
+        //var_dump($json);
+        //echo $request;
+        // Retrieve HTTP status code
+        list($version,$status_code,$msg) = explode(' ',$http_response_header[0], 3);
+        
+        // Check the HTTP Status code
+        switch($status_code) {
+                case 200:
+                        return $json;
+                        // Success
+                        break;
+                case 503:
+                        echo('Your call to Web Services failed and returned an HTTP status of 503. That means: Service unavailable. An internal problem prevented us from returning data to you.');
+                        break;
+                case 403:
+                        echo('Your call to Web Services failed and returned an HTTP status of 403. That means: Forbidden. You do not have permission to access this resource, or are over your rate limit.');
+                        break;
+                case 400:
+                        // You may want to fall through here and read the specific XML error
+                        echo('Your call to Web Services failed and returned an HTTP status of 400. That means:  Bad request. The parameters passed to the service did not match as expected. The exact error is returned in the JSON response.');
+                        break;
+                default:
+                        echo('Your call to Web Services returned an unexpected HTTP status of:' . $status_code);
+                        return false;
+        }
+    }
+            
     public function skuSellReport($seller_id, $start_date, $end_date){
         require ("class/class-excel-xml.inc.php");
         if(empty($seller_id)){
@@ -78,15 +110,18 @@ class Reports{
         //echo $sql;
         $result = mysql_query($sql, Reports::$database_connect);
         $data = array();
-        $data[0] = array('Seller', 'SKU', 'MODEL', 'Quantity');
+        $data[0] = array('Seller', 'SKU', 'MODEL', 'Quantity', 'Stock');
         $i = 1;
         while($row = mysql_fetch_assoc($result)){
             $service_result = $this->get(self::INVENTORY_SERVICE.'?action=getModelBySkuId&skuId='.urlencode($row['skuId']));
-            $this->log('getModelBySkuId.html','skuId:'.$row['skuId'].', return:'.$service_result);
+            //$this->log('getModelBySkuId.html','skuId:'.$row['skuId'].', return:'.$service_result);
             $data[$i]['sellerId'] = $row['sellerId'];
             $data[$i]['skuId'] = $row['skuId'];
             $data[$i]['model'] = substr($service_result, 6);
             $data[$i]['quantity'] = $row['quantity'];
+            $request = self::INVENTORY_SERVICE."?action=getSkuInfo&data=".urlencode($row['skuId']);
+            $json_result = json_decode($this->getService($request));
+            $data[$i]['stock'] = $json_result->skuStock;
             $i++;
         }
         //var_dump($data);
