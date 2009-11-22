@@ -3,7 +3,7 @@ Ext.onReady(function(){
             root: 'records',
             totalProperty: 'totalCount',
             idProperty: 'id',
-            fields: ['id', 'sellerId', 'shipmentMethod', 'skuId', 'skuTitle', 'itemId', 'itemTitle', 'quantity', 'galleryURL'],
+            fields: ['id', 'sellerId', 'shipmentMethod', 'skuId', 'skuTitle', 'skuStock', 'itemId', 'itemTitle', 'quantity', 'galleryURL'],
             url:'connect.php?moduleId=qo-shipments&action=verifyShipment'
         });
         
@@ -45,10 +45,15 @@ Ext.onReady(function(){
                 selModel: new Ext.grid.RowSelectionModel({}),
                 loadMask: new Ext.LoadMask(Ext.getBody(), {msg:"Please wait..."}),
                 columns:[{
+                    header: "Stock",
+                    dataIndex: 'skuStock',
+                    width: 50,
+                    align: 'center'     
+                },{
                     header: "Image",
                     dataIndex: 'galleryURL',
                     renderer: renderSkuImage,
-                    width: 450,
+                    width: 400,
                     align: 'center'
                 },{
                     header: "Info",
