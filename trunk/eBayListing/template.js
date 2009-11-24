@@ -190,8 +190,8 @@ Ext.onReady(function(){
         displayField:'name',
         triggerAction: 'all',
         selectOnFocus:true,
-        name: 'schedule_template',
-        hiddenName:'schedule_template'
+        name: 'scheduleTemplateName',
+        hiddenName:'scheduleTemplateName'
     })
     
     var countriesStore = new Ext.data.JsonStore({
@@ -334,7 +334,7 @@ Ext.onReady(function(){
                 'Americas_1','US_1','Europe_1','Asia_1','CA_1','GB_1','AU_1','MX_1','DE_1','JP_1',
                 'Americas_2','US_2','Europe_2','Asia_2','CA_2','GB_2','AU_2','MX_2','DE_2','JP_2',
                 'Americas_3','US_3','Europe_3','Asia_3','CA_3','GB_3','AU_3','MX_3','DE_3','JP_3',
-                'accountId','UseStandardFooter','ScheduleStartDate','ScheduleEndDate','Schedule'
+                'accountId','UseStandardFooter','ScheduleStartDate','ScheduleEndDate','scheduleTemplateName'
         ]),
         items:[{
                 layout:"column",
@@ -1459,7 +1459,7 @@ Ext.onReady(function(){
                                         icon:"images/date_add.png",
                                         style:"margin-top: 15px;",
                                         handler: function(){
-                                            window.open(path + "scheduleTemplate.php?name=temp","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=700, height=300");
+                                            window.open(path + "scheduleTemplate.php?name=heshuai-temp","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=700, height=300");
                                         }
                                     }]
                             },{
@@ -1476,7 +1476,11 @@ Ext.onReady(function(){
                                         icon:"images/date_edit.png",
                                         style:"margin-top: 15px;",
                                         handler: function(){
-                                            window.open(path + "scheduleTemplate.php?name="+schedule_template.getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=700, height=300");
+                                            if(!Ext.isEmpty(schedule_template.getValue())){
+                                                window.open(path + "scheduleTemplate.php?name="+schedule_template.getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=700, height=300");
+                                            }else{
+                                                Ext.Msg.alert('Warn', 'Please first select schedule template.');
+                                            }
                                         }
                                     }]
                             }]

@@ -29,12 +29,15 @@ Ext.onReady(function(){
         width:688
     })
     
-    var schedulePanel = new Ext.Panel({
+    var scheduleForm = new Ext.form.FormPanel({
         title:"Schedule",
-        layout:"form",
+        //layout:"form",
         //labelAlign:"left",
         //labelPad:0,
-        items:[schedule,(template_id == "temp")?{
+        reader:new Ext.data.JsonReader({
+            }, ['Schedule']
+        ),
+        items:[schedule,(template_id == "heshuai-temp")?{
             xtype: 'textfield',
             fieldLabel:"Schedule Template Name",
             labelStyle: "width: 160px; left: 180px;",
@@ -156,7 +159,7 @@ Ext.onReady(function(){
         }
     }
     
-    schedulePanel.render(document.body);
+    scheduleForm.render(document.body);
     
     //Schedule time edit windows --------------------------------------------------------------------------------
     Ext.select(".schedule-time").on("click",function(e, el){
@@ -349,5 +352,21 @@ Ext.onReady(function(){
         //el.addClass("schedule-time-y");
         //console.log(el.childNodes[0].id);
         */
+    })
+    
+    scheduleForm.getForm().load({
+            url:'service.php?action=loadScheduleTemplate', 
+            method:'GET', 
+            params: {name: template_id},
+            success: function(f, a){
+                if(!Ext.isEmpty(a.result.data.Schedule)){
+                    var Schedule = a.result.data.Schedule.split(',');
+                    for(var i in Schedule){
+                        if(!Ext.isFunction(Schedule[i])){
+                            Ext.getCmp(Schedule[i]).body.applyStyles("background-color:red;");
+                        }
+                    }
+                }
+            }
     })
 })

@@ -124,6 +124,24 @@ Ext.onReady(function(){
         url:'service.php?action=getAllSites'
     })
     
+    var scheduleTemplateStore = new Ext.data.JsonStore({
+        autoLoad :true,
+        fields: ['id', 'name'],
+        url:'service.php?action=getScheduleTemplate'
+    })
+    
+    var schedule_template = new Ext.form.ComboBox({
+        fieldLabel:"Schedule Template",
+        mode: 'local',
+        store: scheduleTemplateStore,
+        valueField:'id',
+        displayField:'name',
+        triggerAction: 'all',
+        selectOnFocus:true,
+        name: 'scheduleTemplateName',
+        hiddenName:'scheduleTemplateName'
+    })
+    
     var countriesStore = new Ext.data.JsonStore({
         autoLoad :true,
         fields: ['id', 'name'],
@@ -144,7 +162,8 @@ Ext.onReady(function(){
         name:'Currency',
         hiddenName:'Currency'
     })
-                        
+       
+    /*                 
     var schedule = new Ext.Panel({                              
         //title:"Schedule",
         layout:"table",
@@ -238,6 +257,9 @@ Ext.onReady(function(){
             day++;
         }
     }
+    
+    */
+    
     //---------------------------------------------------------------------------------------------------------
     var resultCategoryTpl = new Ext.XTemplate(
         '<tpl for="."><div class="search-item">',
@@ -1295,7 +1317,7 @@ Ext.onReady(function(){
                             layout:"column",
                             border:false,
                             items:[{
-                                columnWidth:0.5,
+                                columnWidth:0.15,
                                 layout:"form",
                                 defaults:{
                                     width: 90,
@@ -1313,7 +1335,7 @@ Ext.onReady(function(){
                                         //allowBlank:false
                                     }]
                             },{
-                                columnWidth:0.5,
+                                columnWidth:0.15,
                                 layout:"form",
                                 defaults:{
                                     width: 90,
@@ -1330,11 +1352,55 @@ Ext.onReady(function(){
                                         format : 'Y-m-d'
                                         //allowBlank:false
                                     }]
+                            },{
+                                columnWidth:0.2,
+                                layout:"form",
+                                defaults:{
+                                    width: 120,
+                                    listWidth: 120
+                                },
+                                border:false,
+                                items: schedule_template
+                            },{
+                                columnWidth:0.25,
+                                layout:"form",
+                                defaults:{
+                                    width: 120,
+                                    listWidth: 120
+                                },
+                                border:false,
+                                items:[{
+                                        xtype:"button",
+                                        text:"Add Schedule Template",
+                                        icon:"images/date_add.png",
+                                        style:"margin-top: 15px;",
+                                        handler: function(){
+                                            window.open(path + "scheduleTemplate.php?name=heshuai-temp","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=700, height=300");
+                                        }
+                                    }]
+                            },{
+                                columnWidth:0.25,
+                                layout:"form",
+                                defaults:{
+                                    width: 120,
+                                    listWidth: 120
+                                },
+                                border:false,
+                                items:[{
+                                        xtype:"button",
+                                        text:"Edit Select Schedule Template",
+                                        icon:"images/date_edit.png",
+                                        style:"margin-top: 15px;",
+                                        handler: function(){
+                                            if(!Ext.isEmpty(schedule_template.getValue())){
+                                                window.open(path + "scheduleTemplate.php?name="+schedule_template.getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=700, height=300");
+                                            }else{
+                                                Ext.Msg.alert('Warn', 'Please first select schedule template.');
+                                            }
+                                        }
+                                    }]
                             }]
-                    },{
-                            xtype:"panel",
-                            items: schedule
-                        }]
+                    }]
                   },{
                         xtype:"textfield",
                         fieldLabel:"<font color='red'>SKU</font>",
@@ -3021,6 +3087,7 @@ Ext.onReady(function(){
     
     itemPanel.render(document.body);
     
+    /*
     //Schedule Time  --------------------------------------------------------------------------------
     Ext.select(".schedule-time").on("click",function(e, el){
         var tempArray = el.childNodes[0].id.split("-");
@@ -3201,18 +3268,8 @@ Ext.onReady(function(){
         
         //console.log(tempArray[2] + ":59:59 AM");
         timeWindow.show();
-        /*
-        if(Ext.getCmp(el.childNodes[0].id).getValue() == 0){
-            Ext.getCmp(el.childNodes[0].id + "-panel").body.applyStyles("background-color:red;");
-            Ext.getCmp(el.childNodes[0].id).setValue(1)
-        }else{
-            Ext.getCmp(el.childNodes[0].id + "-panel").body.applyStyles("background-color:white;");
-            Ext.getCmp(el.childNodes[0].id).setValue(0)
-        }
-        //el.addClass("schedule-time-y");
-        //console.log(el.childNodes[0].id);
-        */
     })
+    */
     
     tinyMCE.init({
             // General options
