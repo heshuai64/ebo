@@ -2026,7 +2026,7 @@ Ext.onReady(function(){
                                         {header: "Shipping Fee", width: 80, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
                                         {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
                                         {header: "Duration", width: 70, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
-                                        {header: "Upload Time", width: 110, align: 'center', sortable: true, dataIndex: 'ScheduleTime'},
+                                        {header: "BeiJing Upload Time", width: 110, align: 'center', sortable: true, dataIndex: 'ScheduleTime'},
                                         {header: "Local Upload Time", width: 110, align: 'center', sortable: true, dataIndex: 'ScheduleLocalTime'}
                                    ],
                                    tbar: [{
@@ -2391,7 +2391,7 @@ Ext.onReady(function(){
                                              {header: "Shipping Fee", width: 80, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
                                              {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
                                              {header: "Duration", width: 70, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
-                                             {header: "Upload Time", width: 110, align: 'center', sortable: true, dataIndex: 'ScheduleTime'},
+                                             {header: "BeiJing Upload Time", width: 110, align: 'center', sortable: true, dataIndex: 'ScheduleTime'},
                                              {header: "Local Upload Time", width: 110, align: 'center', sortable: true, dataIndex: 'ScheduleLocalTime'}
                                         ],
                                         tbar: [{

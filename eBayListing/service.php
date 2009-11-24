@@ -781,7 +781,7 @@ class eBayListing{
     public function saveTempDescription(){
 	session_start();
 	$_SESSION[$_GET['type']][$_GET['id']]['title'] = $_POST['title'];
-	$_SESSION[$_GET['type']][$_GET['id']]['description'] = htmlentities($_POST['description']);
+	$_SESSION[$_GET['type']][$_GET['id']]['description'] = htmlentities($_POST['description'], ENT_QUOTES);
 	$_SESSION[$_GET['type']][$_GET['id']]['sku'] = $_POST['sku'];
     }
     
@@ -800,9 +800,9 @@ class eBayListing{
             $row_1 = mysql_fetch_assoc($result_1);
 	    //echo str_replace(array("%title%", "%description%"), array($row['Title'], html_entity_decode($row['Description'])), $row_1['footer']);	
 	    echo str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
-                             array($row['Title'], $row['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row['Description'])), $row_1['footer']);
+                             array($row['Title'], $row['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row['Description'], ENT_QUOTES)), $row_1['footer']);
 	}else{
-	    echo html_entity_decode($row['Description']);
+	    echo html_entity_decode($row['Description'], ENT_QUOTES);
 	}
     }
     
@@ -905,11 +905,11 @@ class eBayListing{
             }
 	    
             if(!empty($_POST['SKU'])){
-                $where .= " and t.SKU like '%".$_POST['SKU']."%'";
+                $where .= " and t.SKU like '%".mysql_real_escape_string($_POST['SKU'])."%'";
             }
             
             if(!empty($_POST['Title'])){
-                $where .= " and t.Title like '%".$_POST['Title']."%'";
+                $where .= " and t.Title like '%".mysql_real_escape_string($_POST['Title'])."%'";
             }
                 
             $sql = "select count(*) as count from template as t left join template_to_template_cateogry as tttc on t.Id = tttc.template_id  ".$where;
@@ -1044,7 +1044,7 @@ class eBayListing{
 		$handle = fopen($_FILES['spcsv']['tmp_name'], "r");
 		while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
 		    //print_r($data);
-		    $sql = "update template set StartPrice='".$data[1]."' where SKU = '".$data[0]."'";
+		    $sql = "update template set StartPrice='".$data[1]."' where SKU = '".$data[0]."' and accountId = '".$this->account_id."'";
 		    $result = mysql_query($sql, eBayListing::$database_connect);
 		}
 		fclose($handle);
@@ -1054,7 +1054,7 @@ class eBayListing{
 		$handle = fopen($_FILES['sqcsv']['tmp_name'], "r");
 		while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
 		    //print_r($data);
-		    $sql = "update template set Quantity='".$data[1]."' where SKU = '".$data[0]."'";
+		    $sql = "update template set Quantity='".$data[1]."' where SKU = '".$data[0]."' and accountId = '".$this->account_id."'";
 		    $result = mysql_query($sql, eBayListing::$database_connect);
 		}
 		fclose($handle);
@@ -1064,7 +1064,7 @@ class eBayListing{
 		$handle = fopen($_FILES['stpcsv']['tmp_name'], "r");
 		while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
 		    //print_r($data);
-		    $sql = "update template set StartPrice='".$data[2]."' where SKU = '".$data[0]."' and Title = '".mysql_real_escape_string($data[1])."'";
+		    $sql = "update template set StartPrice='".$data[2]."' where SKU = '".$data[0]."' and Title = '".mysql_real_escape_string($data[1])."' and accountId = '".$this->account_id."'";
 		    $result = mysql_query($sql, eBayListing::$database_connect);
 		}
 		fclose($handle);
@@ -1074,7 +1074,7 @@ class eBayListing{
 	    	$handle = fopen($_FILES['stcsv']['tmp_name'], "r");
 			while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
 			    //print_r($data);
-			    $sql = "select * from template where SKU = '".$data[0]."' and Title = '".mysql_real_escape_string($data[1])."'";
+			    $sql = "select * from template where SKU = '".$data[0]."' and Title = '".mysql_real_escape_string($data[1])."' and accountId = '".$this->account_id."'";
 			    //echo $sql;
 			    $result = mysql_query($sql, eBayListing::$database_connect);
 			    while($row = mysql_fetch_assoc($result)){
@@ -1180,33 +1180,54 @@ class eBayListing{
 	    $ids = explode(',', $_POST['ids']);
 	    $item_id = "";
 	    foreach($ids as $id){
-		$sql_10 = "select * from schedule where template_id = '$id'";
+		$sql_10 = "select * from template where Id = '$id'";
 		$result_10 = mysql_query($sql_10, eBayListing::$database_connect);
-		$num_rows = mysql_num_rows($result_10);
-		if($num_rows == 0){
-		    echo "[{success: false, msg: 'template ".$_POST['ids']." no set schedule date.'}]";;
+		$row_10 = mysql_fetch_assoc($result_10);
+		//$num_rows = mysql_num_rows($result_10);
+		if(empty($row_10['scheduleTemplateName'])){
+		    echo "[{success: false, msg: 'template ".$_POST['ids']." no set schedule template.'}]";;
 		    return 1;
 		}
 		
-		while($row_10 = mysql_fetch_assoc($result_10)){
-		    $startTimestamp = strtotime($row_10['startDate']);
-		    $endTimestamp = strtotime($row_10['endDate']);
+		$sql_11 = "select * from schedule_template where name = '".$row_10['scheduleTemplateName']."'";
+		$result_11 = mysql_query($sql_11, eBayListing::$database_connect);
+		while($row_11 = mysql_fetch_assoc($result_11)){
+		    $startTimestamp = strtotime($row_10['ScheduleStartDate']);
+		    $endTimestamp = strtotime($row_10['ScheduleEndDate']);	
 		    while($startTimestamp <= $endTimestamp){
-			if(date("D", $startTimestamp) == $row_10['day']){
-			    if(date("D", $startTimestamp + 24 * 60 * 60) == $row_10['china_day']){
-				$localTimestamp = $startTimestamp + 24 * 60 * 60;
-			    }elseif(date("D", $startTimestamp - 24 * 60 * 60) == $row_10['china_day']){
-				$localTimestamp = $tempTimestamp - 24 * 60 * 60;
-			    }elseif(date("D", $startTimestamp) == $row_10['china_day']){
-				$localTimestamp = $startTimestamp;
-			    }
-			    $item_id .= $this->tempalteChangeToItem($id, date("Y-m-d", $startTimestamp) . ' ' .$row_10['time'], date("Y-m-d", $localTimestamp) . ' ' .$row_10['china_time']) . ", ";
+			if(date("D", $startTimestamp) == $row_11['day']){
+			    $local_time = $this->getSiteTime($row_10['Site'], date("Y-m-d", $startTimestamp), $row_11['time']);
+			    $item_id .= $this->tempalteChangeToItem($id, $local_time, date("Y-m-d", $startTimestamp) . " " .$row_11['time']) . ", ";
 			}
 			$startTimestamp += 24 * 60 * 60;
 		    }
 		}
 	    }
 	}else{
+	    $id = $_POST['ids'];
+	    $sql_10 = "select * from template where Id = '$id'";
+	    $result_10 = mysql_query($sql_10, eBayListing::$database_connect);
+	    $row_10 = mysql_fetch_assoc($result_10);
+	    //$num_rows = mysql_num_rows($result_10);
+	    if(empty($row_10['scheduleTemplateName'])){
+		echo "[{success: false, msg: 'template ".$_POST['ids']." no set schedule template.'}]";;
+		return 1;
+	    }
+	    
+	    $sql_11 = "select * from schedule_template where name = '".$row_10['scheduleTemplateName']."'";
+	    $result_11 = mysql_query($sql_11, eBayListing::$database_connect);
+	    while($row_11 = mysql_fetch_assoc($result_11)){
+		$startTimestamp = strtotime($row_10['ScheduleStartDate']);
+		$endTimestamp = strtotime($row_10['ScheduleEndDate']);
+		while($startTimestamp <= $endTimestamp){
+		    if(date("D", $startTimestamp) == $row_11['day']){
+			$local_time = $this->getSiteTime($row_10['Site'], date("Y-m-d", $startTimestamp), $row_11['time']);
+			$item_id .= $this->tempalteChangeToItem($id, $local_time, date("Y-m-d", $startTimestamp) . " " .$row_11['time']) . ", ";
+		    }
+		    $startTimestamp += 24 * 60 * 60;
+		}
+	    }
+	    /*
 	    $sql_10 = "select * from schedule where template_id = '".$_POST['ids']."'";
 	    $result_10 = mysql_query($sql_10, eBayListing::$database_connect);
 	    $num_rows = mysql_num_rows($result_10);
@@ -1242,10 +1263,11 @@ class eBayListing{
 		    $startTimestamp += 24 * 60 * 60;
 		}
 	    }
+	    */
 	}
 	$item_id = substr($item_id, 0, -2);
 	if(!empty($item_id)){
-	    echo "[{success: true, msg: 'Schedule item id is ".$item_id.".'}]";;
+	    echo "[{success: true, msg: 'Schedule upload success, item id is ".$item_id.".'}]";;
 	}
     }
     
@@ -1529,9 +1551,11 @@ class eBayListing{
 	    PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,Quantity,
 	    ReturnPolicyDescription,ReturnPolicyRefundOption,ReturnPolicyReturnsAcceptedOption,ReturnPolicyReturnsWithinOption,ReturnPolicyShippingCostPaidByOption,
 	    ReservePrice,Site,SKU,StartPrice,StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,
-	    BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypePlus,GalleryURL,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,accountId,UseStandardFooter) values (
+	    BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypePlus,GalleryURL,ShippingServiceOptionsType,InsuranceOption,
+	    InsuranceFee,InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,accountId,UseStandardFooter,
+	    scheduleTemplateName,ScheduleStartDate,ScheduleEndDate) values (
 	    '".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
-	    '".mysql_real_escape_string(htmlentities($_POST['Description']))."','".$_POST['DispatchTimeMax']."',
+	    '".htmlentities($_POST['Description'], ENT_QUOTES)."','".$_POST['DispatchTimeMax']."',
 	    '".$_POST['ListingDuration']."','".$_POST['ListingType']."','".$_POST['Location']."','PayPal',
 	    '".$_POST['PayPalEmailAddress']."','".$_POST['PostalCode']."',
 	    '".$_POST['PrimaryCategoryCategoryID']."','".$_POST['PrimaryCategoryCategoryName']."','".$_POST['SecondaryCategoryCategoryID']."','".$_POST['SecondaryCategoryCategoryName']."',
@@ -1546,7 +1570,8 @@ class eBayListing{
 	    '".(empty($_POST['HomePageFeatured'])?0:1)."','".(empty($_POST['GalleryTypeFeatured'])?0:1)."','".(empty($_POST['GalleryTypePlus'])?0:1)."','".$_POST['GalleryURL']."',
 	    '".$_POST['ShippingServiceOptionsType']."','".$_POST['InsuranceOption']."','".$_POST['InsuranceFee']."',
 	    '".$_POST['InternationalShippingServiceOptionType']."','".$_POST['InternationalInsurance']."','".$_POST['InternationalInsuranceFee']."',
-	    '".$this->account_id."','".(empty($_POST['UseStandardFooter'])?0:1)."')";
+	    '".$this->account_id."','".(empty($_POST['UseStandardFooter'])?0:1)."',
+	    '".$_POST['scheduleTemplateName']."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."')";
 	}else{
 	
 	    //StartTime,EndTime
@@ -1555,9 +1580,11 @@ class eBayListing{
 	    ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,PostalCode,
 	    PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,Quantity,ReservePrice,
 	    Site,SKU,StartPrice,StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,
-	    BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypePlus,GalleryURL,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,accountId,UseStandardFooter) values (
+	    BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypePlus,GalleryURL,ShippingServiceOptionsType,InsuranceOption,
+	    InsuranceFee,InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,accountId,UseStandardFooter,
+	    scheduleTemplateName,ScheduleStartDate,ScheduleEndDate) values (
 	    '".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
-	    '".mysql_real_escape_string(htmlentities($_POST['Description']))."','".$_POST['DispatchTimeMax']."',
+	    '".htmlentities($_POST['Description'], ENT_QUOTES)."','".$_POST['DispatchTimeMax']."',
 	    '".$_POST['ListingDuration']."','".$_POST['ListingType']."','".$_POST['Location']."','PayPal',
 	    '".$_POST['PayPalEmailAddress']."','".$_POST['PostalCode']."',
 	    '".$_POST['PrimaryCategoryCategoryID']."','".$_POST['PrimaryCategoryCategoryName']."','".$_POST['SecondaryCategoryCategoryID']."','".$_POST['SecondaryCategoryCategoryName']."',
@@ -1569,7 +1596,8 @@ class eBayListing{
 	    '".(empty($_POST['HomePageFeatured'])?0:1)."','".(empty($_POST['GalleryTypeFeatured'])?0:1)."','".(empty($_POST['GalleryTypePlus'])?0:1)."','".$_POST['GalleryURL']."',
 	    '".$_POST['ShippingServiceOptionsType']."','".$_POST['InsuranceOption']."','".$_POST['InsuranceFee']."',
 	    '".$_POST['InternationalShippingServiceOptionType']."','".$_POST['InternationalInsurance']."','".$_POST['InternationalInsuranceFee']."',
-	    '".$this->account_id."','".(empty($_POST['UseStandardFooter'])?0:1)."')";
+	    '".$this->account_id."','".(empty($_POST['UseStandardFooter'])?0:1)."',
+	    '".$_POST['scheduleTemplateName']."','".$_POST['ScheduleStartDate']."','".$_POST['ScheduleEndDate']."')";
 	    
 	}
 	$result = mysql_query($sql, eBayListing::$database_connect);
@@ -1659,7 +1687,7 @@ class eBayListing{
 		    [2] => 1:02 AM
 		)
 	)
-	*/
+	
 	
 	if(!empty($_SESSION['Schedule'])){
 	    switch($_POST['Site']){
@@ -1750,6 +1778,7 @@ class eBayListing{
 		break;
 	    }
 	}
+	*/
 	
 	$temp_array = array();
 	if(!empty($_SESSION['AttributeSet'][$_POST['SKU']])){
@@ -1943,7 +1972,7 @@ class eBayListing{
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
 	$row['SiteID'] = $row['Site'];
-	$row['Description'] = html_entity_decode($row['Description']);
+	$row['Description'] = html_entity_decode($row['Description'], ENT_QUOTES);
 	
 	$_SESSION['ReturnPolicyReturns'][$_GET['id']]['ReturnPolicyReturnsAcceptedOption'] = $row['ReturnPolicyReturnsAcceptedOption'];
 	$_SESSION['ReturnPolicyReturns'][$_GET['id']]['ReturnPolicyReturnsWithinOption'] = $row['ReturnPolicyReturnsWithinOption'];
@@ -2017,7 +2046,7 @@ class eBayListing{
 		$_SESSION['AttributeSet'][$row['Id']][$row_5['attributeSetID']][$row_6['attributeID']] = $row_6['ValueID'];
 	    }
 	}
-	
+	/*
 	unset($_SESSION['Schedule']);
 	
 	$sql_7 = "select * from schedule where template_id = '".$_GET['id']."'";
@@ -2038,7 +2067,7 @@ class eBayListing{
 	    }
 	}
 	$row['Schedule'] = implode(",", $temp);
-	
+	*/
 	echo '['.json_encode($row).']';
 	mysql_free_result($result);
     }
@@ -2068,7 +2097,7 @@ class eBayListing{
 	if(!empty($_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyReturnsAcceptedOption'])){
 	    $sql = "update template set 
 	    BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
-	    Description='".mysql_real_escape_string(htmlentities($_POST['Description']))."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
+	    Description='".htmlentities($_POST['Description'], ENT_QUOTES)."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
 	    ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
 	    PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
 	    PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
@@ -2084,11 +2113,12 @@ class eBayListing{
 	    HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',
 	    ShippingServiceOptionsType='".$_POST['ShippingServiceOptionsType']."',InsuranceOption='".$_POST['InsuranceOption']."',InsuranceFee='".$_POST['InsuranceFee']."',
 	    InternationalShippingServiceOptionType='".$_POST['InternationalShippingServiceOptionType']."',InternationalInsurance='".$_POST['InternationalInsurance']."',InternationalInsuranceFee='".$_POST['InternationalInsuranceFee']."',
-	    UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."',accountId='".$this->account_id."',UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."' where Id = '".$id."'";
+	    UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."',accountId='".$this->account_id."',UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."',
+	    ".((!empty($_POST['ScheduleStartDate']))?"ScheduleStartDate='".$_POST['ScheduleStartDate']."',":"").((!empty($_POST['ScheduleEndDate']))?"ScheduleEndDate='".$_POST['ScheduleEndDate']."',":"")."scheduleTemplateName='".$_POST['scheduleTemplateName']."' where Id = '".$id."'";
 	}else{
 	    $sql = "update template set 
 	    BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
-	    Description='".mysql_real_escape_string(htmlentities($_POST['Description']))."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
+	    Description='".htmlentities($_POST['Description'], ENT_QUOTES)."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
 	    ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
 	    PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
 	    PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
@@ -2101,7 +2131,8 @@ class eBayListing{
 	    HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',
 	    ShippingServiceOptionsType='".$_POST['ShippingServiceOptionsType']."',InsuranceOption='".$_POST['InsuranceOption']."',InsuranceFee='".$_POST['InsuranceFee']."',
 	    InternationalShippingServiceOptionType='".$_POST['InternationalShippingServiceOptionType']."',InternationalInsurance='".$_POST['InternationalInsurance']."',InternationalInsuranceFee='".$_POST['InternationalInsuranceFee']."',
-	    UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."',accountId='".$this->account_id."',UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."' where Id = '".$id."'";
+	    UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."',accountId='".$this->account_id."',UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."',
+	    ".((!empty($_POST['ScheduleStartDate']))?"ScheduleStartDate='".$_POST['ScheduleStartDate']."',":"").((!empty($_POST['ScheduleEndDate']))?"ScheduleEndDate='".$_POST['ScheduleEndDate']."',":"")."scheduleTemplateName='".$_POST['scheduleTemplateName']."' where Id = '".$id."'";
 	}
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	//echo $sql;
@@ -2204,7 +2235,7 @@ class eBayListing{
 		)
 	)
 
-	*/
+	 
 	$sql_1 = "delete from schedule where template_id = '".$id."'";
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);    
 	
@@ -2297,6 +2328,7 @@ class eBayListing{
 		break;
 	    }
 	}
+	*/
 	
 	$temp_array = array();
 	if(!empty($_SESSION['AttributeSet'][$id])){
@@ -2374,7 +2406,7 @@ class eBayListing{
 	    $this->log("template", "update template ".$id." success.");
 	}else{
 	    echo '{success: false,
-		    errors: {message: "can\'t create."}
+		    errors: {message: "can\'t update template."}
 		}';
 	    $this->log("template", "update template ".$id." failure.", "error");
 	}
@@ -2412,7 +2444,7 @@ class eBayListing{
 	}
 	
 	if(!empty($_POST['Description']) && $_POST['Description'] != 'Multi Value'){
-	    $update .= "Description = '".mysql_real_escape_string(htmlentities($_POST['Description']))."',";
+	    $update .= "Description = '".htmlentities($_POST['Description'], ENT_QUOTES)."',";
 	}
 	
 	if(!empty($_POST['DispatchTimeMax']) && $_POST['DispatchTimeMax'] != 'Multi Value'){
@@ -2558,6 +2590,18 @@ class eBayListing{
 	
 	if(!empty($_POST['UseStandardFooter'])){
 	    $update .= "UseStandardFooter = '1',";
+	}
+	
+	if(!empty($_POST['ScheduleStartDate'])){
+	    $update .= "ScheduleStartDate = '".$_POST['ScheduleStartDate']."',";
+	}
+	
+	if(!empty($_POST['ScheduleEndDate'])){
+	    $update .= "ScheduleEndDate = '".$_POST['ScheduleEndDate']."',";
+	}
+	
+	if(!empty($_POST['scheduleTemplateName'])){
+	    $update .= "scheduleTemplateName = '".$_POST['scheduleTemplateName']."',";
 	}
 	
 	$update = substr($update, 0, -1);
@@ -3554,6 +3598,30 @@ class eBayListing{
 	mysql_free_result($result);
     }
     
+    public function loadScheduleTemplate(){
+	session_start();
+	
+	$sql_7 = "select * from schedule_template where name = '".$_GET['name']."'";
+	$result_7 = mysql_query($sql_7, eBayListing::$database_connect);
+	
+	unset($_SESSION['Schedule']);
+	$temp = array();
+	while($row_7 = mysql_fetch_assoc($result_7)){
+	    if(array_key_exists($_GET['name'].'-'.$row_7['day'].'-'.date('a-g', strtotime($row_7['time'])), $_SESSION['Schedule'])){
+		$_SESSION['Schedule'][$_GET['name'].'-'.$row_7['day'].'-'.date('a-g', strtotime($row_7['time']))][count($_SESSION['Schedule'][$_GET['name'].'-'.$row_7['day'].'-'.date('a-g', strtotime($row_7['time']))])] = date('g:i A', strtotime($row_7['time']));
+	    }else{
+		$_SESSION['Schedule'][$_GET['name'].'-'.$row_7['day'].'-'.date('a-g', strtotime($row_7['time']))][0] = date('g:i A', strtotime($row_7['time']));
+	    }
+	    $t = date("D-a-g", strtotime($row_7['day'] . " " . $row_7['time']))."-panel";
+	    if(!in_array($t, $temp)){
+		$temp[] = $t;
+	    }
+	}
+	//$row['Schedule'] = implode(",", $temp);
+	echo '['.json_encode(array('Schedule'=>implode(",", $temp))).']';
+	mysql_free_result($result);
+    }
+    
     public function saveScheduleTemplate(){
 	session_start();
 	print_r($_SESSION['Schedule']);
@@ -3562,25 +3630,26 @@ class eBayListing{
 	$row_1 = mysql_fetch_assoc($result_1);
 	if($row_1['num'] > 0){
 	    if(!empty($_SESSION['Schedule'])){
-		//$sql_1 = "delete from schedule_template where name = '".$_POST['name']."'";
-		//$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+		$sql_1 = "delete from schedule_template where name = '".$_POST['name']."'";
+		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 		
 		foreach($_SESSION['Schedule'] as $key=>$value){
 		    $keyArray = explode("-", $key);
 		    foreach($value as $name){
 			$day = date("D", strtotime($keyArray[1]." ".$name));
 			$time = date("H:i:s", strtotime($name));
-			
+			/*
 			$sql_1 = "select id from schedule_template where 
 			name = '".$_POST['name']."' and day = '".$day."' and time = '".$time."' and account_id = '".$this->account_id."'";
 			$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 			$row_1 = mysql_fetch_assoc($result_1);
 			if(empty($row_1['id'])){
+			*/
 			    $sql_3 = "insert into schedule_template (name,day,time,account_id) values 
 			    ('".$_POST['name']."','".$day."','".$time."','".$this->account_id."')";
 			    //echo $sql_3;
 			    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
-			}
+			//}
 		    }
 		}
 	    }
@@ -4073,11 +4142,11 @@ class eBayListing{
             }
 	    
             if(!empty($_POST['SKU'])){
-                $where .= " and SKU like '%".$_POST['SKU']."%'";
+                $where .= " and SKU like '%".mysql_real_escape_string($_POST['SKU'])."%'";
             }
             
             if(!empty($_POST['Title'])){
-                $where .= " and Title like '%".$_POST['Title']."%'";
+                $where .= " and Title like '%".mysql_real_escape_string($_POST['Title'])."%'";
             }
                 
             $sql = "select count(*) as count from items ".$where;
@@ -4135,11 +4204,11 @@ class eBayListing{
             }
 	    
             if(!empty($_POST['SKU'])){
-                $where .= " and SKU like '%".$_POST['SKU']."%'";
+                $where .= " and SKU like '%".mysql_real_escape_string($_POST['SKU'])."%'";
             }
             
             if(!empty($_POST['Title'])){
-                $where .= " and Title like '%".$_POST['Title']."%'";
+                $where .= " and Title like '%".mysql_real_escape_string($_POST['Title'])."%'";
             }
                 
             $sql = "select count(*) as count from items ".$where;
@@ -4582,7 +4651,7 @@ class eBayListing{
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
 	$row['SiteID'] = $row['Site'];
-	$row['Description'] = html_entity_decode($row['Description']);
+	$row['Description'] = html_entity_decode($row['Description'], ENT_QUOTES);
 	$_SESSION['ReturnPolicyReturns'][$_GET['id']]['ReturnPolicyReturnsAcceptedOption'] = $row['ReturnPolicyReturnsAcceptedOption'];
 	$_SESSION['ReturnPolicyReturns'][$_GET['id']]['ReturnPolicyReturnsWithinOption'] = $row['ReturnPolicyReturnsWithinOption'];
 	$_SESSION['ReturnPolicyReturns'][$_GET['id']]['ReturnPolicyRefundOption'] = $row['ReturnPolicyRefundOption'];
@@ -4685,7 +4754,7 @@ class eBayListing{
 	if(!empty($_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyReturnsAcceptedOption'])){
 	    $sql = "update items set 
 	    BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
-	    Description='".mysql_real_escape_string(htmlentities($_POST['Description']))."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
+	    Description='".htmlentities($_POST['Description'], ENT_QUOTES)."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
 	    ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
 	    PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
 	    PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
@@ -4706,7 +4775,7 @@ class eBayListing{
 	}else{
 	    $sql = "update items set 
 	    BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
-	    Description='".mysql_real_escape_string(htmlentities($_POST['Description']))."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
+	    Description='".htmlentities($_POST['Description'], ENT_QUOTES)."',DispatchTimeMax='".$_POST['DispatchTimeMax']."',
 	    ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',Location='".$_POST['Location']."',PaymentMethods='PayPal',
 	    PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',PostalCode='".$_POST['PostalCode']."',
 	    PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
@@ -4906,7 +4975,7 @@ class eBayListing{
 	}
 	
 	if(!empty($_POST['Description']) && strpos('Multi Value', $_POST['Description'])){
-	    $update .= "Description = '".mysql_real_escape_string(htmlentities($_POST['Description']))."',";
+	    $update .= "Description = '".htmlentities($_POST['Description'], ENT_QUOTES)."',";
 	}
 	
 	if(!empty($_POST['DispatchTimeMax']) && $_POST['DispatchTimeMax'] != 'Multi Value'){
@@ -5448,7 +5517,7 @@ class eBayListing{
 	//$sql = "select item_id from schedule where day = '".$day."' and time ='".$time."'";
 	//$sql = "select item_id from schedule where day = '".$day."'";
 	//$sql = "select Id from items where ScheduleTime <> '' and ScheduleTime <= now() and Status = 0";
-	$from = date("Y-m-d H:i:s", time() - 30);
+	$from = date("Y-m-d H:i:s", time() - 60);
 	$to = date("Y-m-d H:i:s", time() + 30);
 	
 	$sql = "select Id,AccountId from items where Status = 1 and ScheduleTime between '".$from."' and '".$to."'";
@@ -5475,9 +5544,9 @@ class eBayListing{
 		$row_01 = mysql_fetch_assoc($result_01);
 		
 		$row_1['Description'] = str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
-						    array($row_1['Title'], $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'])), $row_01['footer']);
+						    array($row_1['Title'], $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'], ENT_QUOTES)), $row_01['footer']);
 	    }else{
-		$row_1['Description'] = html_entity_decode($row_1['Description']);
+		$row_1['Description'] = html_entity_decode($row_1['Description'], ENT_QUOTES);
 	    }
  
 	    $sql_2 = "select * from shipping_service_options where ItemID = '".$row['Id']."'";
@@ -5985,9 +6054,9 @@ class eBayListing{
 		$row_01 = mysql_fetch_assoc($result_01);
 		
 		$row_1['Description'] = str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
-						    array($row_1['Title'], $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'])), $row_01['footer']);
+						    array($row_1['Title'], $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'], ENT_QUOTES)), $row_01['footer']);
 	    }else{
-		$row_1['Description'] = html_entity_decode($row_1['Description']);
+		$row_1['Description'] = html_entity_decode($row_1['Description'], ENT_QUOTES);
 	    }
 	    
 	    $sql_2 = "select * from shipping_service_options where ItemID = '".$row['Id']."'";
@@ -6350,9 +6419,9 @@ class eBayListing{
 		$row_01 = mysql_fetch_assoc($result_01);
 		
 		$row_1['Description'] = str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
-						    array($row_1['Title'], $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'])), $row_01['footer']);
+						    array($row_1['Title'], $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'], ENT_QUOTES)), $row_01['footer']);
 	    }else{
-		$row_1['Description'] = html_entity_decode($row_1['Description']);
+		$row_1['Description'] = html_entity_decode($row_1['Description'], ENT_QUOTES);
 	    }
 	    
 	    $sql_2 = "select * from shipping_service_options where ItemID = '".$row['Id']."'";
