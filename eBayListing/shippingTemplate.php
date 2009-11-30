@@ -9,7 +9,7 @@
     <script src="shipping-template.js"></script>
     <script type="text/javascript">
 	var template_id = "<?=$_GET['name']?>";
-        var site = "US";
+        var site = "<?=$_GET['site']?>";
     </script>
     <style type="text/css">
 	html, body {

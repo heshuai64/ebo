@@ -17,7 +17,12 @@ Ext.onReady(function(){
     Ext.Ajax.on('requestcomplete', hideWait);
     Ext.Ajax.on('requestexception', hideWait);
     
-    
+    var countriesStore = new Ext.data.JsonStore({
+        autoLoad :true,
+        fields: ['id', 'name'],
+        url:'service.php?action=getAllCountries'
+    })
+        
     var shippingServiceStore = new Ext.data.JsonStore({
         //root: 'records',
         //totalProperty: 'totalCount',
@@ -65,7 +70,7 @@ Ext.onReady(function(){
     var shipping = new Ext.FormPanel({          
         title:"Shipping Template",
         reader:new Ext.data.JsonReader({
-            }, ['DispatchTimeMax','ShippingServiceOptionsType','InsuranceOption','InsuranceFee',
+            }, ['Location','PostalCode','DispatchTimeMax','ShippingServiceOptionsType','InsuranceOption','InsuranceFee',
                 'InternationalShippingServiceOptionType','InternationalInsurance','InternationalInsuranceFee',
                 'ShippingService_1','ShippingServiceCost_1','ShippingServiceFree_1',
                 'ShippingService_2','ShippingServiceCost_2','ShippingServiceFree_2',
@@ -503,6 +508,30 @@ Ext.onReady(function(){
                                 }, c, {single: true});
                             }
                         }
+                    },{
+                        xtype:"fieldset",
+                        title: 'Locations',
+                        items:[{
+                            xtype:"combo",
+                            fieldLabel:"Country",
+                            name:"Location",
+                            hiddenName:"Location",
+                            mode: 'local',
+                            store: countriesStore,
+                            valueField:'id',
+                            displayField:'name',
+                            triggerAction: 'all',
+                            //editable: false,
+                            selectOnFocus:true,
+                            width:200,
+                            listWidth:200
+                        },{
+                            xtype:"numberfield",
+                            fieldLabel:"ZIP Code",
+                            name:"PostalCode",
+                            width:60
+                            
+                        }]
                     }]
             },{
                 columnWidth:0.5,
