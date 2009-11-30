@@ -316,7 +316,7 @@ Ext.onReady(function(){
           totalProperty: 'totalCount',
           idProperty: 'id',
           //autoLoad:true,
-          fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'ShippingFee', 'Quantity', 'ListingDuration', 'ListingType', 'Category'],
+          fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'shippingTemplateName', 'Quantity', 'ListingDuration', 'ListingType', 'Category'],
           sortInfo: {
                field: 'Id',
                direction: 'ASC'
@@ -348,14 +348,15 @@ Ext.onReady(function(){
                          allowBlank: false
                     }
                },
-               {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
+               {header: "Listing Type", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price',
                     editor: {
                          xtype: 'numberfield',
                          allowBlank: false
                     }
                },
-               {header: "Shipping Fee", width: 80, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
+               //{header: "Shipping Fee", width: 80, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
+               {header: "Shipping TP", width: 80, align: 'center', sortable: true, dataIndex: 'shippingTemplateName'},
                {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
                {header: "Duration", width: 100, align: 'center', sortable: true, dataIndex: 'ListingDuration',
                     editor: {

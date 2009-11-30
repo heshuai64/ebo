@@ -212,7 +212,6 @@ Ext.onReady(function(){
         hiddenName:'shippingTemplateName'
     })
     
-    
     var countriesStore = new Ext.data.JsonStore({
         autoLoad :true,
         fields: ['id', 'name'],
@@ -337,8 +336,8 @@ Ext.onReady(function(){
         buttonAlign:"center",
         reader:new Ext.data.JsonReader({
             }, ['Id','AutoPay','BuyItNowPrice','CategoryMappingAllowed','Country','Currency','Description','DispatchTimeMax','ListingDuration','ListingType','Location','PaymentMethods','PayPalEmailAddress',
-                'PostalCode','PrimaryCategoryCategoryID','PrimaryCategoryCategoryName','Quantity','ReturnPolicyDescription','ReturnPolicyReturnsAcceptedOption','ReturnPolicyReturnsAcceptedOption','ReturnPolicyReturnsWithinOption',
-                'ReturnPolicyShippingCostPaidByOption','ReservePrice','CurrentPrice','ListingStatus','ScheduleTime','SecondaryCategoryCategoryID','SecondaryCategoryCategoryName','Site','SiteID','SKU','StartPrice',
+                'PostalCode','PrimaryCategoryCategoryID','PrimaryCategoryCategoryName','Quantity',
+                'ReservePrice','CurrentPrice','ListingStatus','ScheduleTime','SecondaryCategoryCategoryID','SecondaryCategoryCategoryName','Site','SiteID','SKU','StartPrice',
                 'StoreCategory2ID','StoreCategory2Name','StoreCategoryID','StoreCategoryName','SubTitle','Title','UserID','BoldTitle','Border','Featured','Highlight','HomePageFeatured','GalleryTypeFeatured','GalleryTypeGallery','GalleryTypePlus','GalleryURL',
                 'picture_1','picture_2','picture_3','picture_4','picture_5','picture_6','picture_7','picture_8',
                 'picture_9','picture_10','template_category_id','PhotoDisplay',
@@ -1702,7 +1701,7 @@ Ext.onReady(function(){
                                 icon:"images/lorry_add.png",
                                 style:"margin-top: 15px;",
                                 handler: function(){
-                                    window.open(path + "shippingTemplate.php?name=heshuai-temp","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=600, height=400");
+                                    window.open(path + "shippingTemplate.php?name=heshuai-temp&site="+Ext.getCmp("SiteID").getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=600, height=400");
                                 }
                                     
                             },{
@@ -1711,10 +1710,14 @@ Ext.onReady(function(){
                                 icon:"images/lorry_link.png",
                                 style:"margin-top: 15px;",
                                 handler: function(){
-                                    if(!Ext.isEmpty(shippingTemplateCombo.getValue())){
-                                        window.open(path + "shippingTemplate.php?name="+shippingTemplateCombo.getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=600, height=400");
+                                    if(!Ext.isEmpty(Ext.getCmp("SiteID").getValue())){
+                                        if(!Ext.isEmpty(shippingTemplateCombo.getValue())){
+                                            window.open(path + "shippingTemplate.php?name="+shippingTemplateCombo.getValue()+"&site="+Ext.getCmp("SiteID").getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=600, height=400");
+                                        }else{
+                                            Ext.Msg.alert('Warn', 'Please first select a shipping template.');
+                                        }
                                     }else{
-                                        Ext.Msg.alert('Warn', 'Please first select schedule template.');
+                                        Ext.Msg.alert('Warn', 'Please first select Site.');
                                     }
                                 }  
                             }]
