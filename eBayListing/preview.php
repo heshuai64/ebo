@@ -48,14 +48,16 @@ if(!empty($_SESSION[$_GET['type']][$_GET['id']]['description']) || $_GET['type']
 */
 if($_GET['h'] == 's'){
     if(strpos($_GET['id'], ',') == false){
-        $sql = "select Title,Description,SKU,UseStandardFooter from template where Id = '".$_GET['id']."' and accountId = '".$_COOKIE['account_id']."'";
+        $sql = "select Title,Description,SKU,UseStandardFooter,PrimaryCategoryCategoryName,StoreCategoryName from template where Id = '".$_GET['id']."' and accountId = '".$_COOKIE['account_id']."'";
         $result = mysql_query($sql, $link);
         $row = mysql_fetch_assoc($result);
         
         $sql_0 = "select * from account_sku_picture where account_id = '".$_COOKIE['account_id']."' and sku = '".$row['SKU']."'";
         $result_0 = mysql_query($sql_0, $link);
         $row_0 = mysql_fetch_assoc($result_0);
-        
+        echo '<div style="text-align:center; border: solid;">'.$row['PrimaryCategoryCategoryName'].'<br>'.
+                    $row['StoreCategoryName'].'
+            </div>';
         if($row['UseStandardFooter']){
             $sql_1 = "select footer from account_footer where accountId = '".$_COOKIE['account_id']."'";
             $result_1 = mysql_query($sql_1, $link);
@@ -67,14 +69,14 @@ if($_GET['h'] == 's'){
         }
     }else{
         $t = explode(",", $_GET['id']);
-        $sql = "select Title,Description,SKU,UseStandardFooter from template where Id = '".$t[0]."'";
+        $sql = "select Title,Description,SKU,UseStandardFooter,PrimaryCategoryCategoryName,StoreCategoryName from template where Id = '".$t[0]."'";
 	$result = mysql_query($sql, $link);
 	$row = mysql_fetch_assoc($result);
         
         $sql_0 = "select * from account_sku_picture where account_id = '".$_COOKIE['account_id']."' and sku = '".$row['SKU']."'";
         $result_0 = mysql_query($sql_0, $link);
         $row_0 = mysql_fetch_assoc($result_0);
-        
+      
 	if($row['UseStandardFooter']){
 	    $sql_1 = "select footer from account_footer where accountId = '".$_COOKIE['account_id']."'";
             $result_1 = mysql_query($sql_1, $link);
@@ -84,6 +86,10 @@ if($_GET['h'] == 's'){
 	}else{
 	    $x = html_entity_decode($row['Description']);
 	}
+        
+        $x = '<div style="text-align:center; border: solid;">'.$row['PrimaryCategoryCategoryName'].'<br>'.
+                    $row['StoreCategoryName'].'
+            </div>'.$x;
         ?>
             <script type="text/javascript" src="./ext-core.js"></script>
             <script type="text/javascript">

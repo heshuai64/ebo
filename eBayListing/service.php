@@ -3,8 +3,8 @@
 require_once 'eBaySOAP.php';
 
 function debugLog($file_name, $data){
-    file_put_contents("C:\\xampp\\htdocs\\eBayBO\\eBayListing\\log\\".$file_name, $data ."\n", FILE_APPEND);
-    //@file_put_contents("/export/eBayListing/log/".$file_name, $data ."\n", FILE_APPEND);
+    //file_put_contents("C:\\xampp\\htdocs\\eBayBO\\eBayListing\\log\\".$file_name, $data ."\n", FILE_APPEND);
+    @file_put_contents("/export/eBayListing/log/".$file_name, $data ."\n", FILE_APPEND);
 }
 
 function ErrorLogFunction($errno, $errstr, $errfile, $errline){
@@ -789,13 +789,17 @@ class eBayListing{
     }
     
     public function getDescriptionById(){
-	$sql = "select Title,Description,UseStandardFooter,SKU from template where Id = '".$_POST['id']."'";
+	$sql = "select Title,Description,UseStandardFooter,SKU,PrimaryCategoryCategoryName,StoreCategoryName from template where Id = '".$_POST['id']."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
 	
 	$sql_0 = "select * from account_sku_picture where account_id = '".$this->account_id."' and sku = '".$row['SKU']."'";
         $result_0 = mysql_query($sql_0, eBayListing::$database_connect);
         $row_0 = mysql_fetch_assoc($result_0);
+	
+	echo '<div style="text-align:center; border: solid;">'.$row['PrimaryCategoryCategoryName'].'<br>'.
+                    $row['StoreCategoryName'].'
+            </div>';
 	
 	if($row['UseStandardFooter']){
 	    $sql_1 = "select footer from account_footer where accountId = '".$this->account_id."'";
@@ -1127,6 +1131,11 @@ class eBayListing{
 	$result_0 = mysql_query($sql_0, eBayListing::$database_connect);
 	$row_0 = mysql_fetch_assoc($result_0);
 	
+	if(empty($row_0['shippingTemplateName'])){
+	    echo "[{success: false, msg: 'template ".$template_id." no set shipping template.'}]";
+	    exit;
+	}
+	
 	$sql_8 = "select * from shipping_template where name = '".$row_0['shippingTemplateName']."' and account_id = '".$this->account_id."'";
 	$result_8 = mysql_query($sql_8, eBayListing::$database_connect);
 	$row_8 = mysql_fetch_assoc($result_8);
@@ -1200,7 +1209,7 @@ class eBayListing{
 		$row_10 = mysql_fetch_assoc($result_10);
 		//$num_rows = mysql_num_rows($result_10);
 		if(empty($row_10['scheduleTemplateName'])){
-		    echo "[{success: false, msg: 'template ".$_POST['ids']." no set schedule template.'}]";;
+		    echo "[{success: false, msg: 'template ".$_POST['ids']." no set schedule template.'}]";
 		    return 1;
 		}
 		
@@ -1225,7 +1234,7 @@ class eBayListing{
 	    $row_10 = mysql_fetch_assoc($result_10);
 	    //$num_rows = mysql_num_rows($result_10);
 	    if(empty($row_10['scheduleTemplateName'])){
-		echo "[{success: false, msg: 'template ".$_POST['ids']." no set schedule template.'}]";;
+		echo "[{success: false, msg: 'template ".$_POST['ids']." no set schedule template.'}]";
 		return 1;
 	    }
 	    
@@ -1860,38 +1869,42 @@ class eBayListing{
     }
     
     public function copyTemplate(){
+	$temp = "";
 	if(strpos($_POST['ids'], ',')){
 	    $array = explode(',', $_POST['ids']);
+	    
 	    foreach($array as $a){
 		$sql_1 = "insert into template (AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 		Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
-		PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,ReturnPolicyRefundOption,ReturnPolicyReturnsWithinOption,ReturnPolicyShippingCostPaidByOption,
+		PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,
 		ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 		StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-		GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InternationalShippingServiceOptionType,UseStandardFooter) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 		Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
-		PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,ReturnPolicyRefundOption,ReturnPolicyReturnsWithinOption,ReturnPolicyShippingCostPaidByOption,
+		PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,
 		ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 		StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-		GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InternationalShippingServiceOptionType,UseStandardFooter from template where Id = '".$a."'";
+		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName from template where Id = '".$a."'";
 		
 		//echo $sql_1."\n";
 		
 		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 		$template_id = mysql_insert_id(eBayListing::$database_connect);
-		
+		$temp .= $template_id.", ";
 		//var_dump($item_id);
 		//exit;
 		$sql_2 = "insert into template_picture_url (templateId,url)  select '".$template_id."',url from template_picture_url where templateId = '".$a."'";
 		$result_2 = mysql_query($sql_2, eBayListing::$database_connect);
 		
+		/*
 		$sql_3 = "insert into template_shipping_service_options (templateId,FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority) select '".$template_id."',FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority from template_shipping_service_options where templateId = '".$a."'";
 		$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
 		
 		$sql_4 = "insert into template_international_shipping_service_option (templateId,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority,ShipToLocation) select '".$template_id."',ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority,ShipToLocation from template_international_shipping_service_option where templateId = '".$a."'";
 		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+		*/
 		
 		$sql_5 = "select * from template_attribute_set where templateId = '".$a."'";
 		$result_5 = mysql_query($sql_5, eBayListing::$database_connect);
@@ -1913,28 +1926,31 @@ class eBayListing{
 		//echo $sql_8."\n";
 		$result_8 = mysql_query($sql_8, eBayListing::$database_connect);
 	    
-		if($result_1 && $result_2 && $result_3 && $result_4 && $result_5){
+		if($result_1 && $result_2 && $result_5){
 		    
 		}else{
 		    echo 0;
 		    return 0;
 		}
 	    }
-	    echo 1;
+	    if(strlen($temp) > 3){
+		echo "[{success: true, msg: 'Copy template success, template id is ".substr($temp, 0, -2).".'}]";
+	    }
+	    //echo 1;
 	}else{
-	    $sql_1 = "insert into template (AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
-	    Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
-	    PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,ReturnPolicyRefundOption,ReturnPolicyReturnsWithinOption,ReturnPolicyShippingCostPaidByOption,
-	    ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
-	    StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
-	    Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-	    GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InternationalShippingServiceOptionType,UseStandardFooter) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
-	    Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
-	    PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,ReturnPolicyRefundOption,ReturnPolicyReturnsWithinOption,ReturnPolicyShippingCostPaidByOption,
-	    ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
-	    StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
-	    Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-	    GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InternationalShippingServiceOptionType,UseStandardFooter from template where Id = '".$_POST['ids']."'";
+	    	$sql_1 = "insert into template (AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+		Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
+		PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,
+		ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
+		StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
+		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
+		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+		Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
+		PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,
+		ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
+		StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
+		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
+		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName from template where Id = '".$_POST['ids']."'";
 	    
 	    //echo $sql_1."\n";
 	    
@@ -1946,11 +1962,13 @@ class eBayListing{
 	    $sql_2 = "insert into template_picture_url (templateId,url)  select '".$template_id."',url from template_picture_url where templateId = '".$_POST['ids']."'";
 	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
 	    
+	    /*
 	    $sql_3 = "insert into template_shipping_service_options (templateId,FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority) select '".$template_id."',FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority from template_shipping_service_options where templateId = '".$_POST['ids']."'";
 	    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
 	    
 	    $sql_4 = "insert into template_international_shipping_service_option (templateId,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority,ShipToLocation) select '".$template_id."',ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority,ShipToLocation from template_international_shipping_service_option where templateId = '".$_POST['ids']."'";
 	    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+	    */
 	    
 	    $sql_5 = "select * from template_attribute_set where templateId = '".$_POST['ids']."'";
 	    $result_5 = mysql_query($sql_5, eBayListing::$database_connect);
@@ -1972,13 +1990,16 @@ class eBayListing{
 	    //echo $sql_8;
 	    $result_8 = mysql_query($sql_8, eBayListing::$database_connect);
 	    
-	    if($result_1 && $result_2 && $result_3 && $result_4 && $result_5 && $result_8){
-		echo 1;
+	    if($result_1 && $result_2 && $result_5 && $result_8){
+		//echo 1;
 	    }else{
 		echo 0;
 	    }
+	    
+	    if(strlen($template_id) > 3){
+		echo "[{success: true, msg: 'Copy template success, template id is ".$template_id.".'}]";
+	    }
 	}
-	return 1;
     }
     
     public function getTemplate(){
@@ -4200,7 +4221,7 @@ class eBayListing{
 	    }else{
 		$row['Price'] = $row['BuyItNowPrice'];
 	    }
-	    $sql_1 = "select ShippingServiceCost from international_shipping_service_option where ItemID = '".$row['Id']."'";
+	    $sql_1 = "select ShippingServiceCost from international_shipping_service_option where ItemID = '".$row['Id']."' order by ShippingServicePriority";
 	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	    $row_1 = mysql_fetch_assoc($result_1);
 	    $row['ShippingFee'] = $row_1['ShippingServiceCost'];
@@ -4262,7 +4283,7 @@ class eBayListing{
 	    }else{
 		$row['Price'] = $row['BuyItNowPrice'];
 	    }
-	    $sql_1 = "select ShippingServiceCost from international_shipping_service_option where ItemID = '".$row['Id']."'";
+	    $sql_1 = "select ShippingServiceCost from international_shipping_service_option where ItemID = '".$row['Id']."' order by ShippingServicePriority";
 	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	    $row_1 = mysql_fetch_assoc($result_1);
 	    $row['ShippingFee'] = $row_1['ShippingServiceCost'];

@@ -4,8 +4,8 @@ Ext.onReady(function(){
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      
-     var path = "/eBayBO/eBayListing/";
-     //var path = "/eBayListing/";
+     //var path = "/eBayBO/eBayListing/";
+     var path = "/eBayListing/";
      
      /*
      var cp = new Ext.state.CookieProvider({
@@ -433,14 +433,13 @@ Ext.onReady(function(){
                               }, 
                               success: function(response){
                                   var result=eval(response.responseText);
-                                  switch(result){
-                                     case 1:  // Success : simply reload
-                                       template_store.reload();
-                                       template_category_tree.root.reload();
-                                       break;
-                                     default:
-                                       Ext.MessageBox.alert('Warning','Data error, please check template data.');
-                                       break;
+                                  //console.log(result);
+                                  if(result[0].success){
+                                        template_store.reload();
+                                        template_category_tree.root.reload();
+                                        alert(result[0].msg);
+                                  }else{
+                                        Ext.MessageBox.alert('Warning','Data error, please check template data.');
                                   }
                               },
                               failure: function(response){
