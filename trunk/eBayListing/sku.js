@@ -1738,7 +1738,7 @@ Ext.onReady(function(){
                                     }
                                 }  
                             }]
-                  },{
+                  }/*,{
                     xtype:"panel",
                     title:"Payment Method",
                     layout:"form",
@@ -1763,7 +1763,7 @@ Ext.onReady(function(){
                             name:"PayPalEmailAddress",
                             width: 250
                           }]
-                      }/*,{
+                      },{
                         xtype:"checkbox",
                         labelSeparator: '',
                         labelStyle: 'height:0px;padding:0px',
@@ -1795,8 +1795,8 @@ Ext.onReady(function(){
                         boxLabel:"Merchant credit card: American Express",
                         name:"checkbox",
                         inputValue:"cbvalue"
-                      }*/]
-                    }]
+                      }]
+                    }*/]
                 }]
             }],
             buttons: [{
