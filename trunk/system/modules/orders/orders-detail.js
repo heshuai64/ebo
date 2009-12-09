@@ -4,7 +4,7 @@ Ext.onReady(function(){
                 totalProperty: 'totalCount',
                 idProperty: 'id',
                 autoLoad:true,
-                fields: ['id','itemId', 'itemTitle', 'skuId', 'quantity', 'barCode', 'unitPriceCurrency', 'unitPriceValue'],
+                fields: ['id','itemId', 'itemTitle', 'skuId', 'quantity', 'skuStock', 'unitPriceCurrency', 'unitPriceValue'],
                 url:'connect.php?moduleId=qo-orders&action=getOrderDetail&id='+ordersId
             });
             
@@ -30,14 +30,14 @@ Ext.onReady(function(){
                     align: 'center',
                     sortable: true
                 },{
-                    header: "Bar Code",
-                    dataIndex: 'barCode',
-                    width: 100,
+                    header: "Quantity",
+                    dataIndex: 'quantity',
+                    width: 60,
                     align: 'center',
                     sortable: true
                 },{
-                    header: "Quantity",
-                    dataIndex: 'quantity',
+                    header: "Stock",
+                    dataIndex: 'skuStock',
                     width: 60,
                     align: 'center',
                     sortable: true
@@ -240,6 +240,11 @@ Ext.onReady(function(){
                                     Ext.MessageBox.alert('Uh oh...','You can\'t really delete something you haven\'t selected huh?');
                                 }
                             }
+                        },{
+                                    text: 'Complaint Sku',
+                                    handler: function(){
+                                                
+                                    }
                         }
                     ]
             });

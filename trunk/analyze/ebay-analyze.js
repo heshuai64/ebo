@@ -72,7 +72,7 @@ Ext.onReady(function(){
 	    
             var countryCombo = new Ext.form.ComboBox({
                 mode: 'local',
-                store: ['US','GB','AU','FR'],
+                store: ['US','GB','AU','FR','GE','HK'],
                 triggerAction: 'all',
                 editable: false,
                 selectOnFocus:true,
@@ -84,7 +84,7 @@ Ext.onReady(function(){
             
 	    var locatedCombo = new Ext.form.ComboBox({
                 mode: 'local',
-                store: ['US','GB','AU','FR','HK'],
+                store: ['US','GB','AU','FR','GE','HK'],
                 triggerAction: 'all',
                 editable: false,
                 selectOnFocus:true,
