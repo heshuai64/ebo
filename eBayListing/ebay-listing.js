@@ -4,8 +4,8 @@ Ext.onReady(function(){
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      
-     //var path = "/eBayBO/eBayListing/";
-     var path = "/eBayListing/";
+     var path = "/eBayBO/eBayListing/";
+     //var path = "/eBayListing/";
      
      /*
      var cp = new Ext.state.CookieProvider({
@@ -64,6 +64,7 @@ Ext.onReady(function(){
 
      var inventory_search_form = new Ext.FormPanel({
           title: 'Search',
+          buttonAlign: 'left',
           items:[{
               layout:"column",
               text:"test",
@@ -210,6 +211,7 @@ Ext.onReady(function(){
      var template_search_form = new Ext.FormPanel({
           width: 1024,
           title: 'Search',
+          buttonAlign: 'left',
           items:[{
                layout:"column",
                items:[{
@@ -1853,7 +1855,99 @@ Ext.onReady(function(){
                          xtype:"button",
                          text: getCookie("account_name"),
                          style:"float:left;margin-left:5px",
-                         icon:'images/user.png'
+                         icon:'images/user.png',
+                         handler: function(){
+                              var  userWindow = new Ext.Window({
+                                   title: 'Account Info' ,
+                                   closable:true,
+                                   width: 300,
+                                   height: 180,
+                                   plain:true,
+                                   layout: 'form',
+                                   items: [{
+                                             id:'mPassword',
+                                             fieldLabel:'Admin Password',
+                                             xtype:'textfield',
+                                             listeners: {
+                                                  blur: function(t){
+                                                       //console.log(t.getValue());
+                                                       Ext.Ajax.request({  
+                                                            waitMsg: 'Please Wait',
+                                                            url: 'service.php?action=getPayPalEmailAddress', 
+                                                            params: {
+                                                                 mPassword: Ext.getCmp('mPassword').getValue()
+                                                            }, 
+                                                            success: function(response){
+                                                                 //console.log(response);
+                                                                 var result = eval(response.responseText);
+                                                                 //console.log(result);
+                                                                 if(result[0].success){
+                                                                      Ext.getCmp("PayPalEmailAddress").setValue(result[0].msg);
+                                                                 }else{
+                                                                      Ext.MessageBox.alert('Warning', result[0].msg);
+                                                                 }
+                                                            },
+                                                            failure: function(response){
+                                                                var result=response.responseText;
+                                                                Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                            }
+                                                       });
+                                                  }
+                                             }
+                                        },{
+                                             id:'oPassword',
+                                             fieldLabel:'Old Password',
+                                             xtype:'textfield'
+                                        },{
+                                             id:'nPassword',
+                                             fieldLabel:'New Password',
+                                             xtype:'textfield'
+                                        },{
+                                             id:'PayPalEmailAddress',
+                                             fieldLabel:'PayPal Email',
+                                             xtype:'textfield'
+                                        }
+                                   ],
+                                   buttons: [{
+                                                  text: 'Ok',
+                                                  handler: function(){
+                                                       Ext.Ajax.request({  
+                                                            waitMsg: 'Please Wait',
+                                                            url: 'service.php?action=updateAccountInfo', 
+                                                            params: {
+                                                                 name: getCookie("account_name"),
+                                                                 oPassword: Ext.getCmp('oPassword').getValue(),
+                                                                 nPassword: Ext.getCmp('nPassword').getValue(),
+                                                                 mPassword: Ext.getCmp('mPassword').getValue(),
+                                                                 PayPalEmailAddress: Ext.getCmp('PayPalEmailAddress').getValue()
+                                                            }, 
+                                                            success: function(response){
+                                                                 //console.log(response);
+                                                                 var result = eval(response.responseText);
+                                                                 //console.log(result);
+                                                                 if(result[0].success){
+                                                                      userWindow.close();
+                                                                      Ext.MessageBox.alert('Success', result[0].msg);
+                                                                 }else{
+                                                                      Ext.MessageBox.alert('Warning', result[0].msg);
+                                                                 }
+                                                            },
+                                                            failure: function(response){
+                                                                var result=response.responseText;
+                                                                Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                            }
+                                                       });
+                                                  }
+                                             },{
+                                                  text: 'Close',
+                                                  handler: function(){
+                                                       userWindow.close();
+                                                  }
+                                             }]
+                                             
+                              })
+                              userWindow.show();
+                         }
                     }/*,{
                          xtype:"button",
                          text:"Ebay Account Manage",
@@ -1951,6 +2045,7 @@ Ext.onReady(function(){
                               var wait_search =new Ext.FormPanel({
                                    width: 1040,
                                    title: 'Search',
+                                   buttonAlign: 'left',
                                    items:[{
                                         layout:"column",
                                         items:[{
@@ -2316,6 +2411,7 @@ Ext.onReady(function(){
                                    var schedule_search =new Ext.FormPanel({
                                         width: 1040,
                                         title: 'Search',
+                                        buttonAlign: 'left',
                                         items:[{
                                              layout:"column",
                                              items:[{
