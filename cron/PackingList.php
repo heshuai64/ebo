@@ -79,6 +79,10 @@ class PackingList{
     }
     
     private function getShipment(){
+        //echo $this->startTime;
+        //echo "\n";
+        //echo $this->endTime;
+        //exit;
         $sql = "select s.id,s.envelope,o.shippingMethod,o.buyerId,s.shipToName,s.shipToAddressLine1,s.shipToAddressLine2,s.shipToCity,s.shipToStateOrProvince,s.shipToPostalCode,s.shipToCountry,s.shipToPhoneNo 
         from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N'";
         $result = mysql_query($sql, PackingList::$database_connect);
@@ -206,7 +210,7 @@ class PackingList{
         */
         $this->getShipment();
         ob_start();
-        require("template.php");
+        require("/export/eBayBO/cron/template.php");
         $content = ob_get_contents();
         ob_end_clean();
         $this->generateFile(date("Ymd"), $content);
@@ -234,6 +238,9 @@ $packing_list = new PackingList();
 if(!empty($_GET)){
     $packing_list->setStartTime($_GET['start']);
     $packing_list->setEndTime($_GET['end']);
+}elseif(!empty($argv[1]) && !empty($argv[2])){
+    $packing_list->setStartTime($argv[1]);
+    $packing_list->setEndTime($argv[2]);
 }
 $packing_list->getPackingList();
 

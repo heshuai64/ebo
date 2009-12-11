@@ -37,6 +37,14 @@ class eBayBOExcel{
 		
 	}
 	
+	public function setStartTime($startTime){
+		$this->startTime = $startTime;
+	}
+	    
+	public function setEndTime($endTime){
+		$this->endTime = $endTime;
+	}
+    
 	private function getService($request){
         
 		//$request =  'http://search.yahooapis.com/ImageSearchService/V1/imageSearch?appid=YahooDemo&query='.urlencode('Al Gore').'&results=1';
@@ -331,6 +339,13 @@ class eBayBOExcel{
 
 $action = (empty($_GET['action'])?$argv[1]:$_GET['action']);
 $excel = new eBayBOExcel();
+if(!empty($_GET)){
+    $excel->setStartTime($_GET['start']);
+    $excel->setEndTime($_GET['end']);
+}elseif(!empty($argv[2]) && !empty($argv[3])){
+    $excel->setStartTime($argv[2]);
+    $excel->setEndTime($argv[3]);
+}
 $excel->$action();
 
 ?>

@@ -85,6 +85,10 @@ class Shipment{
     }
     
     public function createShipment(){
+        //echo $this->startTime;
+        //echo "\n";
+        //echo $this->endTime;
+        //exit;
         $this->getCompleteOrder();
         //print_r($this->complete_orders);
         foreach($this->complete_orders as $orders){
@@ -130,6 +134,9 @@ $shipment = new Shipment();
 if(!empty($_GET['start']) && !empty($_GET['end'])){
     $shipment->setStartTime($_GET['start']);
     $shipment->setEndTime($_GET['end']);
+}elseif(!empty($argv[1]) && !empty($argv[2])){
+    $shipment->setStartTime($argv[1]);
+    $shipment->setEndTime($argv[2]);
 }
 $shipment->createShipment();
 //http://heshuai64.3322.org/eBayBO/cron/Shipment.php?start=2009-04-22%2000:00:00&end=2009-04-23%2000:00:00
