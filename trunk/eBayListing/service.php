@@ -3636,6 +3636,7 @@ class eBayListing{
 	while($row_3 = mysql_fetch_assoc($result_3)){
 	    $row['ShippingService_'.$i] = $row_3['ShippingService'];
 	    $row['ShippingServiceCost_'.$i] = $row_3['ShippingServiceCost'];
+	    $row['ShippingServiceAdditionalCost_'.$i] = $row_3['ShippingServiceAdditionalCost'];
 	    $row['ShippingServiceFree_'.$i] = $row_3['FreeShipping'];
 	    $i++;
 	}
@@ -3646,6 +3647,7 @@ class eBayListing{
 	while($row_4 = mysql_fetch_assoc($result_4)){
 	    $row['InternationalShippingService_'.$i] = $row_4['ShippingService'];
 	    $row['InternationalShippingServiceCost_'.$i] = $row_4['ShippingServiceCost'];
+	    $row['InternationalShippingServiceAdditionalCost_'.$i] = $row_4['ShippingServiceAdditionalCost'];
 	    $array = explode(",", $row_4['ShipToLocation']);
 	    if(count($array) > 1){
 		$row['InternationalShippingToLocations_'.$i] = "Custom Locations";
@@ -3684,8 +3686,8 @@ class eBayListing{
 	
 	$i = 1;
 	while(!empty($_POST['ShippingService_'.$i])){
-	    $sql_1 = "insert into s_template (template_id,FreeShipping,ShippingService,ShippingServiceCost,ShippingServicePriority) values
-	    ('".$id."','".@$_POST['ShippingServiceFree_'.$i]."','".$_POST['ShippingService_'.$i]."','".$_POST['ShippingServiceCost_'.$i]."','".$i."')";
+	    $sql_1 = "insert into s_template (template_id,FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority) values
+	    ('".$id."','".@$_POST['ShippingServiceFree_'.$i]."','".$_POST['ShippingService_'.$i]."','".$_POST['ShippingServiceCost_'.$i]."','".$_POST['ShippingServiceAdditionalCost_'.$i]."','".$i."')";
 	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	    $i++;
 	}
@@ -3739,8 +3741,8 @@ class eBayListing{
 	    }else{
 		$ShipToLocation = 'Worldwide';
 	    }
-	    $sql_2 = "insert into i_s_template (template_id,ShippingService,ShippingServiceCost,ShippingServicePriority,ShipToLocation) values
-	    ('".$id."','".$_POST['InternationalShippingService_'.$i]."','".$_POST['InternationalShippingServiceCost_'.$i]."','".$i."','".$ShipToLocation."')";
+	    $sql_2 = "insert into i_s_template (template_id,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority,ShipToLocation) values
+	    ('".$id."','".$_POST['InternationalShippingService_'.$i]."','".$_POST['InternationalShippingServiceCost_'.$i]."','".$_POST['InternationalShippingServiceAdditionalCost_'.$i]."','".$i."','".$ShipToLocation."')";
 	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
 	    $i++;
 	}

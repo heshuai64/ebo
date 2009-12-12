@@ -1718,7 +1718,7 @@ Ext.onReady(function(){
                                 icon:"images/lorry_add.png",
                                 style:"margin-top: 15px;",
                                 handler: function(){
-                                    window.open(path + "shippingTemplate.php?name=heshuai-temp","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=600, height=400");
+                                    window.open(path + "shippingTemplate.php?name=heshuai-temp","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=800, height=500");
                                 }
                                     
                             },{
@@ -1729,7 +1729,7 @@ Ext.onReady(function(){
                                 handler: function(){
                                     if(!Ext.isEmpty(Ext.getCmp("SiteID").getValue())){
                                         if(!Ext.isEmpty(shippingTemplateCombo.getValue())){
-                                            window.open(path + "shippingTemplate.php?name="+shippingTemplateCombo.getValue()+"&site="+Ext.getCmp("SiteID").getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=600, height=400");
+                                            window.open(path + "shippingTemplate.php?name="+shippingTemplateCombo.getValue()+"&site="+Ext.getCmp("SiteID").getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=800, height=500");
                                         }else{
                                             Ext.Msg.alert('Warn', 'Please first select a shipping template.');
                                         }
