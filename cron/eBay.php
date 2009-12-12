@@ -1,5 +1,5 @@
 <?php
-require_once 'eBaySOAP.php';
+require_once '/export/eBayBO/cron/eBaySOAP.php';
 
 class eBayPlatformNotificationListener extends eBayPlatformNotifications {
 	protected $NotificationSignature;
@@ -129,7 +129,7 @@ class eBay{
     private function configEbay($dev='', $app='', $cert='', $token='', $proxy_host='', $proxy_port=''){
     	
 	// Load developer-specific configuration data from ini file
-	$config = parse_ini_file('ebay.ini', true);
+	$config = parse_ini_file('/export/eBayBO/cron/ebay.ini', true);
 	$site = $config['settings']['site'];
 	//$compatibilityLevel = $config['settings']['compatibilityLevel'];
 	

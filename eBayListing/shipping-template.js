@@ -72,19 +72,19 @@ Ext.onReady(function(){
         reader:new Ext.data.JsonReader({
             }, ['Location','PostalCode','DispatchTimeMax','ShippingServiceOptionsType','InsuranceOption','InsuranceFee',
                 'InternationalShippingServiceOptionType','InternationalInsurance','InternationalInsuranceFee',
-                'ShippingService_1','ShippingServiceCost_1','ShippingServiceFree_1',
-                'ShippingService_2','ShippingServiceCost_2','ShippingServiceFree_2',
-                'ShippingService_3','ShippingServiceCost_3','ShippingServiceFree_3',
-                'InternationalShippingService_1','InternationalShippingServiceCost_1',
-                'InternationalShippingService_2','InternationalShippingServiceCost_2',
-                'InternationalShippingService_3','InternationalShippingServiceCost_3',
+                'ShippingService_1','ShippingServiceCost_1','ShippingServiceAdditionalCost_1','ShippingServiceFree_1',
+                'ShippingService_2','ShippingServiceCost_2','ShippingServiceAdditionalCost_2','ShippingServiceFree_2',
+                'ShippingService_3','ShippingServiceCost_3','ShippingServiceAdditionalCost_3','ShippingServiceFree_3',
+                'InternationalShippingService_1','InternationalShippingServiceCost_1','InternationalShippingServiceAdditionalCost_1',
+                'InternationalShippingService_2','InternationalShippingServiceCost_2','InternationalShippingServiceAdditionalCost_2',
+                'InternationalShippingService_3','InternationalShippingServiceCost_3','InternationalShippingServiceAdditionalCost_3',
                 'InternationalShippingToLocations_1','InternationalShippingToLocations_2','InternationalShippingToLocations_3',
                 'Americas_1','US_1','Europe_1','Asia_1','CA_1','GB_1','AU_1','MX_1','DE_1','JP_1',
                 'Americas_2','US_2','Europe_2','Asia_2','CA_2','GB_2','AU_2','MX_2','DE_2','JP_2',
                 'Americas_3','US_3','Europe_3','Asia_3','CA_3','GB_3','AU_3','MX_3','DE_3','JP_3']
         ),
         labelAlign:"top",
-        width: 580,
+        width: 780,
         tbar:[{
             text:"Return Policy",
             icon:"images/page_edit.png",
@@ -264,7 +264,7 @@ Ext.onReady(function(){
                         items:[{
                             layout:"table",
                             layoutConfig:{
-                              columns:3
+                              columns:4
                             },
                             defaults:{
                               bodyStyle:"padding:0px;",
@@ -302,6 +302,16 @@ Ext.onReady(function(){
                                     fieldLabel:"Cost",
                                     id:"ShippingServiceCost_1",
                                     name:"ShippingServiceCost_1",
+                                    width:60
+                                  }]
+                              },{
+                                layout:"form",
+                                border:false,
+                                items:[{
+                                    xtype:"numberfield",
+                                    fieldLabel:"E A I",
+                                    id:"ShippingServiceAdditionalCost_1",
+                                    name:"ShippingServiceAdditionalCost_1",
                                     width:60
                                   }]
                               },{
@@ -364,6 +374,19 @@ Ext.onReady(function(){
                               },{
                                 layout:"form",
                                 border:false,
+                                items:[{
+                                    xtype:"numberfield",
+                                    labelWidth: 0,
+                                    labelSeparator: '',
+                                    labelStyle:'height:0px;padding:0px;',
+                                    fieldLabel:"",
+                                    id:"ShippingServiceAdditionalCost_2",
+                                    name:"ShippingServiceAdditionalCost_2",
+                                    width:60
+                                  }]
+                              },{
+                                layout:"form",
+                                border:false,
                                 bodyStyle:'padding-left:10px;',
                                 items:[{
                                     xtype:"checkbox",
@@ -416,6 +439,19 @@ Ext.onReady(function(){
                                     fieldLabel:"",
                                     id:"ShippingServiceCost_3",
                                     name:"ShippingServiceCost_3",
+                                    width:60
+                                  }]
+                              },{
+                                layout:"form",
+                                border:false,
+                                items:[{
+                                    xtype:"numberfield",
+                                    labelWidth: 0,
+                                    labelSeparator: '',
+                                    labelStyle:'height:0px;padding:0px;',
+                                    fieldLabel:"",
+                                    id:"ShippingServiceAdditionalCost_3",
+                                    name:"ShippingServiceAdditionalCost_3",
                                     width:60
                                   }]
                               },{
@@ -550,7 +586,7 @@ Ext.onReady(function(){
                     items:[{
                         layout:"table",
                         layoutConfig:{
-                          columns:2
+                          columns:3
                         },
                         defaults:{
                             bodyStyle:"padding:0px;",
@@ -592,10 +628,19 @@ Ext.onReady(function(){
                                 width:60
                               }]
                           },{
+                            layout:"form",
+                            border:false,
+                            items:[{
+                                xtype:"numberfield",
+                                fieldLabel:"E A I",
+                                name:"InternationalShippingServiceAdditionalCost_1",
+                                width:60
+                              }]
+                          },{
                             id:"InternationalShippingTo_1",
                             hidden:true,
                             layout:"form",
-                            colspan: 2,
+                            colspan: 3,
                             items:[{
                                 xtype:"fieldset",
                                 title: 'To',
@@ -838,10 +883,22 @@ Ext.onReady(function(){
                                 width:60
                               }]
                           },{
+                            layout:"form",
+                            border:false,
+                            items:[{
+                                xtype:"numberfield",
+                                labelWidth: 0,
+                                labelSeparator: '',
+                                labelStyle:'height:0px;padding:0px;',
+                                fieldLabel:"",
+                                name:"InternationalShippingServiceAdditionalCost_2",
+                                width:60
+                              }]
+                          },{
                             id:"InternationalShippingTo_2",
                             hidden:true,
                             layout:"form",
-                            colspan: 2,
+                            colspan: 3,
                             items:[{
                                 xtype:"fieldset",
                                 title: 'To',
@@ -1084,10 +1141,22 @@ Ext.onReady(function(){
                                 width:60
                               }]
                           },{
+                            layout:"form",
+                            border:false,
+                            items:[{
+                                xtype:"numberfield",
+                                labelWidth: 0,
+                                labelSeparator: '',
+                                labelStyle:'height:0px;padding:0px;',
+                                fieldLabel:"",
+                                name:"InternationalShippingServiceAdditionalCost_3",
+                                width:60
+                              }]
+                          },{
                             id:"InternationalShippingTo_3",
                             hidden:true,
                             layout:"form",
-                            colspan: 2,
+                            colspan: 3,
                             items:[{
                                 xtype:"fieldset",
                                 title: 'To',
