@@ -46,7 +46,55 @@ class Service{
             Yours sincerely,<p>
             %s";
             
+    //XMAS ------------------------------------------------------------------------------------------------------
+    const XMAS_REGISTERED_TEMPLATE_1  = "Dear %s,<p>
+            Thank you for your time to read my letter, this email just to inform you that we sent your item to our dispatch center. It is estimated to arrive in 7 to 15 working days in normal conditions to most of US, UK, AU destinations and 3 to 5 weeks to arrive the Europe countries and other remote regions, it depends your custom inspections and the freight efficiency. If not arrive at that time period, please do not hesitate to contact us.<p>
+            Here is the tracking number of your parcel (%s), and you can logon http://www.singpost.com/ra/ra_article_status.asp to view the updated shipment after 2 days cause the post office need time to handle it and update the information.<p>
+            Hopefully the item could be arrived as quickly as possible and appreciate for your positive feedback with all 5 stars DSRs after receving it, we will leave it for you also.<p>
+            Thanks again for your great purchase and understanding. We sincerely hope our item and customer service can give you the BEST BUYING EXPERIENCE on eBay.<p>
+            Yours Sincerely,<p>
+            %s";
             
+    const XMAS_BLUK_TEMPLATE_1  = "Dear %s,<p>
+            Thank you for your time to read my letter, this email just to inform you that we sent your item to our dispatch center. It is estimated to arrive in 7 to 15 working days in normal conditions to most of US, UK, AU destinations and 3 to 5 weeks to arrive the Europe countries and other remote regions, it depends your custom inspections and the freight efficiency.<p>
+            If not arrive at that time period, please do not hesitate to contact us.<p>
+            Hopefully the item could be arrived as quickly as possible and appreciate for your positive feedback with all 5 stars DSRs after receving it, we will leave it for you also.<p>
+            Thanks again for your great purchase. We sincerely hope our item and customer service can give you the BEST BUYING EXPERIENCE on eBay.<p>
+            Yours Sincerely,<p>
+            %s";
+    
+    const XMAS_REGISTERED_TEMPLATE_2  = "<b>Note for “xmas” period shipment, it may delay to arrive 10 days later than normal shipping time, due to the freight peak period and the postmen do not work at holiday. Please kindly pay a bit patience to wait for a few more days as it will arrives soon after this holiday. Please do not leave any bad feedback to us since the shipping speed is out of our control especailly at the “xmas” period.</b><p>
+            Dear %s,<p>
+            Just keep in my mind, 12 days have passed since your item was shipped. Have you received it?<p>
+            The tracking number is (%s), and you can track it on http://www.singpost.com/ra/ra_article_status.asp and your local post office website.<p>
+            If received it already and with good condition, we sincerely hope that you will like it and satisfied with our customer services, your valued positive comment with all 5-stars Detailed Seller Ratings are much appreciated, which are of vital importance to the growth of our small company.<p>
+            If have not received yet please kindly wait another 10 days for delivery as it may delayed on the transport way due to the xmas peak period.<p>
+            If received with anything you feel unsatisfied, please feel free to tell us. We will offer a satisfied resolution for you and will improve our service to better.<p> 
+            Besides, PLEASE DO NOT leaves us 1, 2, 3 or 4-star Detailed Seller Ratings because they are equal to negative feedback. Like what we said before, if you are not satisfied in any regard, please email me.<p>
+            Thanks once more for your purchase.<p>
+            Yours Sincerely,<p>
+            %s";
+            
+    const XMAS_BLUK_TEMPLATE_2  = "<b>Note for “xmas” period shipment, it may delay to arrive 10 days later than normal shipping time, due to the freight peak period and the postmen do not work at holiday. Please kindly pay a bit patience to wait for a few more days as it will arrives soon after this holiday. Please do not leave any bad feedback to us since the shipping speed is out of our control especailly at the “xmas” period.</b><p>
+            Dear %s,<p>
+            Just keep in my mind, 12 days have passed since your item was shipped. Have you received it? If received it already and with good condition, we sincerely hope that you will like it and satisfied with our customer services, your valued positive comment with all 5-stars Detailed Seller Ratings are much appreciated, which are of vital importance to the growth of our small company.<p>
+            If have not received yet please kindly wait another 10 days for delivery as it may delayed on the transport way due to the xmas peak period.<p>
+            If received with anything you feel unsatisfied, please feel free to tell us. We will offer a satisfied resolution for you and will improve our service to better.<p>
+            Besides, PLEASE DO NOT leaves us 1, 2, 3 or 4-star Detailed Seller Ratings because they are equal to negative feedback. Like what we said before, if you are not satisfied in any regard, please email me.<p>
+            Thanks once more for your purchase.<p> 
+            Yours Sincerely,<p>
+            %s";
+    
+    const XMAS_TEMPLATE_3  = "<b>Note for “xmas” period shipment, many parcels delayed on the transport way. Hopefully to get your understanding that the shipping speed is out of our control, especailly at the xmas peak period.</b><p>
+            Dear %s,<p>
+            Merry Christmas! 23 days have passed since your item was shipped. I’d like to know that have you received it?<p> 
+            If yes and like it, hopefully to receive your valued positive feedback and with all 5 stars DSRs.<p>
+            During the specail period, I really concern about all of our items be sent could arrive as quickly as wish, but, if not arrive yet, would you please kindly wait another 4 days? If still no news after 4 days then we will offer a quite satisfied resolution for you. Sorry to keep you waiting as a lot of parcels put on post office await to delivery, so it has a slightly delayed. Your bit patience and understanding with this matter would be greatly appreciated.<p>
+            Thanks a lot once more for your everything.<p>
+            Yours Sincerely,<p>
+            %s";
+    
+    
     public function __construct(){
         Service::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
 
@@ -78,17 +126,182 @@ class Service{
                      'emailPassword'=>$row['emailPassword']);
         */
         
-        $array = array('ymca200808'=> array('id'=>'ymca200808', 'email'=> 'ymca2u@gmail.com', 'emailPassword'=> 'yingying3510'),
-                       'libra.studio'=> array('id'=>'libra.studio', 'email'=> 'libra.studio.cn@gmail.com', 'emailPassword'=> 'ldpandll99'),
-                       'bestnbestonline'=> array('id'=>'bestnbestonline', 'email'=> 'bestnbestonline@gmail.com', 'emailPassword'=> 'sun2769kk'),
-                       'nereus.store'=> array('id'=>'nereus.store', 'email'=> 'nereus.art@gmail.com', 'emailPassword'=> 'coloryourlife'));
+        $array = array('ymca200808'=> array('id'=>'ymca200808', 'email'=> 'paintings.suppliersz@gmail.com', 'emailPassword'=> 'wanyx288'),
+                       'libra.studio'=> array('id'=>'libra.studio', 'email'=> 'libra.studio.cn@gmail.com', 'emailPassword'=> '77thksgod'),
+                       'bestnbestonline'=> array('id'=>'bestnbestonline', 'email'=> 'bestnbestonline@gmail.com', 'emailPassword'=> 'haivsang'),
+                       'nereus.store'=> array('id'=>'nereus.store', 'email'=> 'nereus.art@gmail.com', 'emailPassword'=> 'mercedesbenz'),
+                       'aphroditestore'=> array('id'=>'aphroditestore', 'email'=> 'aphroditestore@gmail.com', 'emailPassword'=> 'muittvita'),
+                       'mission-hill'=> array('id'=>'mission-hill', 'email'=> 'oldtreegallerypp@gmail.com', 'emailPassword'=> 'hilltech99'),
+                       'geniusartgallery'=> array('id'=>'geniusartgallery', 'email'=> 'geniusartgallery2008@gmail.com', 'emailPassword'=> '76samapp'));
         
         return $array[$sellerId];
     }
     
+    private function sendEmail($seller, $toContent){
+        $mail  = new PHPMailer();
+        $mail->IsSMTP();
+        $mail->SMTPAuth   = true;                  // enable SMTP authentication
+        $mail->SMTPSecure = "ssl";                 // sets the prefix to the servier
+        $mail->Host       = "smtp.gmail.com";      // sets GMAIL as the SMTP server
+        $mail->Port       = 465;                   // set the SMTP port for the GMAIL server
+        
+        $mail->SMTPDebug = true;
+        
+        $mail->Username   = $seller['email'];  // GMAIL username
+        $mail->Password   = $seller['emailPassword'];         // GMAIL password
+        
+        $mail->AddReplyTo($seller['email'], $seller['id']);
+        
+        $mail->From       = $seller['email'];
+        $mail->FromName   = $seller['id'];
+        
+        $mail->Subject    = "Shipping status of your order!";
+        
+        $mail->Body       = $toContent;                      //HTML Body
+        //$mail->AltBody    = $toContent; // optional, comment out and test
+        $mail->WordWrap   = 50; // set word wrap
+        
+        $mail->MsgHTML($toContent);
+        
+        //$mail->AddAddress($_POST['shipToEmail'], $_POST['shipToName']);
+        //$mail->AddAddress("karentina_86@sina.com", "meidgen de");
+        $mail->AddAddress("heshuai64@gmail.com", "heshuai");
+        
+        $mail->IsHTML(true); // send as HTML
+        
+        if(!$mail->Send()) {
+            //$this->log("email/sendXmasShpmentEmail", "<font color='red'>Send Email Failure: " . $mail->ErrorInfo."</font><br>");
+            echo "Mailer Error: " . $mail->ErrorInfo."!";
+            echo "\n";
+            return 0;
+        } else {
+            //$this->log("email/sendXmasShpmentEmail", "Send Email Success<br>");
+            echo "send email success!";
+            echo "\n";
+            return 1;
+        }
+
+    }
+    
+    public function sendXamsShipmentEmail(){
+        global $argv;
+        include("/export/eBayBO/class/class.phpmailer.php");
+        $day12 = date("Y-m-d", time() - (12 * 24 * 60 * 60));
+        $day22 = date("Y-m-d", time() - (22 * 24 * 60 * 60));
+
+        switch($argv[2]){
+            case 1:
+                $sql = "select id,ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where emailStatus = 0 and status = 'S'";
+                $result = mysql_query($sql);
+                while($row = mysql_fetch_assoc($result)){
+                    
+                    //get seller Id
+                    $sql_2 = "select sellerId from qo_orders where id = '".$row['ordersId']."'";
+                    $result_2 = mysql_query($sql_2);
+                    $row_2 = mysql_fetch_assoc($result_2);
+                    $sellerId = $row_2['sellerId'];
+                    $seller = $this->getSellerEmailAccountAndPassword($sellerId);
+                    
+                    switch($row['shipmentMethod']){
+                        case "R":
+                            $toContent = sprintf(self::XMAS_REGISTERED_TEMPLATE_1, $row['shipToName'], $row['postalReferenceNo'], $sellerId);
+                            break;
+                        
+                        case "B":
+                        
+                        case "S":
+                            
+                        case "U":
+                            $toContent = sprintf(self::XMAS_BLUK_TEMPLATE_1, $row['shipToName'], $sellerId);
+                            break;
+                    }
+                    
+                    $seller = array('id'=>'heshuai64', 'email'=> 'heshuai64@gmail.com', 'emailPassword'=> 'pp2367383');
+                    
+                    $send_result = $this->sendEmail($seller, $toContent);
+                    if($send_result){
+                        $sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
+                        //$result_3 = mysql_query($sql_3);
+                        $this->log("email/sendXmasShpmentEmail", $row['id']." Send Email Success<br>");
+                    }else{
+                        $this->log("email/sendXmasShpmentEmail", "<font color='red'>".$row['id']." Send Email Failure: " . $mail->ErrorInfo."</font><br>");
+                    }
+                    $this->log("email/sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
+                    exit;
+                }
+            break;
+        
+            case 12:
+                $sql = "select id,ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where shippedOn like '".$day12."%' and emailStatus = 1 and status = 'S'";
+                $result = mysql_query($sql);
+                while($row = mysql_fetch_assoc($result)){
+                    
+                    //get seller Id
+                    $sql_2 = "select sellerId from qo_orders where id = '".$row['ordersId']."'";
+                    $result_2 = mysql_query($sql_2);
+                    $row_2 = mysql_fetch_assoc($result_2);
+                    $sellerId = $row_2['sellerId'];
+                    $seller = $this->getSellerEmailAccountAndPassword($sellerId);
+                    
+                    switch($row['shipmentMethod']){
+                        case "R":
+                            $toContent = sprintf(self::XMAS_REGISTERED_TEMPLATE_2, $row['shipToName'], $row['postalReferenceNo'], $sellerId);
+                            break;
+                        
+                        case "B":
+                        
+                        case "S":
+                            
+                        case "U":
+                            $toContent = sprintf(self::XMAS_BLUK_TEMPLATE_2, $row['shipToName'], $sellerId);
+                            break;
+                        
+                    }
+                    
+                    $send_result = $this->sendEmail($seller, $toContent);
+                    if($send_result){
+                        $sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
+                        //$result_3 = mysql_query($sql_3);
+                        $this->log("email/sendXmasShpmentEmail", $row['id']." Send Email Success<br>");
+                    }else{
+                        $this->log("email/sendXmasShpmentEmail", "<font color='red'>".$row['id']." Send Email Failure: " . $mail->ErrorInfo."</font><br>");
+                    }      
+                    $this->log("email/sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
+                    exit;
+                }
+            break;
+        
+            case 22:
+                $sql = "select id,ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where shippedOn like '".$day22."%' and emailStatus = 12 and status = 'S'";
+                $result = mysql_query($sql);
+                while($row = mysql_fetch_assoc($result)){
+                    
+                    //get seller Id
+                    $sql_2 = "select sellerId from qo_orders where id = '".$row['ordersId']."'";
+                    $result_2 = mysql_query($sql_2);
+                    $row_2 = mysql_fetch_assoc($result_2);
+                    $sellerId = $row_2['sellerId'];
+                    $seller = $this->getSellerEmailAccountAndPassword($sellerId);
+                    $toContent = sprintf(self::XMAS_TEMPLATE_3, $row['shipToName'], $sellerId);
+                    
+                    $send_result = $this->sendEmail($seller, $toContent);
+                    if($send_result){
+                        $sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
+                        //$result_3 = mysql_query($sql_3);
+                        $this->log("email/sendXmasShpmentEmail", $row['id']." Send Email Success<br>");
+                    }else{
+                        $this->log("email/sendXmasShpmentEmail", "<font color='red'>".$row['id']." Send Email Failure: " . $mail->ErrorInfo."</font><br>");
+                    }
+                    $this->log("email/sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
+                    exit;
+                }
+            break;
+        }
+    }
+    
     public function sendShipShpmentEmail(){
         //file_put_contents("/tmp/1.log", print_r($_POST, true), FILE_APPEND);
-        include("class/class.phpmailer.php");
+        include("/export/eBayBO/class/class.phpmailer.php");
         
         $sql = "select id,ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where emailStatus = 0 and status = 'S'";
         $result = mysql_query($sql);
