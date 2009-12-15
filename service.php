@@ -47,51 +47,51 @@ class Service{
             %s";
             
     //XMAS ------------------------------------------------------------------------------------------------------
-    const XMAS_REGISTERED_TEMPLATE_1  = "Dear %s,<p>
-            Thank you for your time to read my letter, this email just to inform you that we sent your item to our dispatch center. It is estimated to arrive in 7 to 15 working days in normal conditions to most of US, UK, AU destinations and 3 to 5 weeks to arrive the Europe countries and other remote regions, it depends your custom inspections and the freight efficiency. If not arrive at that time period, please do not hesitate to contact us.<p>
-            Here is the tracking number of your parcel (%s), and you can logon http://www.singpost.com/ra/ra_article_status.asp to view the updated shipment after 2 days cause the post office need time to handle it and update the information.<p>
-            Hopefully the item could be arrived as quickly as possible and appreciate for your positive feedback with all 5 stars DSRs after receving it, we will leave it for you also.<p>
-            Thanks again for your great purchase and understanding. We sincerely hope our item and customer service can give you the BEST BUYING EXPERIENCE on eBay.<p>
-            Yours Sincerely,<p>
+    const XMAS_REGISTERED_TEMPLATE_1  = "<p>Dear %s,</p>
+            <p>Thank you for your time to read my letter, this email just to inform you that we sent your item to our dispatch center. It is estimated to arrive in 7 to 15 working days in normal conditions to most of US, UK, AU destinations and 3 to 5 weeks to arrive the Europe countries and other remote regions, it depends your custom inspections and the freight efficiency. If not arrive at that time period, please do not hesitate to contact us.</p>
+            <p>Here is the tracking number of your parcel (%s), and you can logon http://www.singpost.com/ra/ra_article_status.asp to view the updated shipment after 2 days cause the post office need time to handle it and update the information.</p>
+            <p>Hopefully the item could be arrived as quickly as possible and appreciate for your positive feedback with all 5 stars DSRs after receving it, we will leave it for you also.</p>
+            <p>Thanks again for your great purchase and understanding. We sincerely hope our item and customer service can give you the BEST BUYING EXPERIENCE on eBay.</p>
+            Yours Sincerely,<br>
             %s";
             
-    const XMAS_BLUK_TEMPLATE_1  = "Dear %s,<p>
-            Thank you for your time to read my letter, this email just to inform you that we sent your item to our dispatch center. It is estimated to arrive in 7 to 15 working days in normal conditions to most of US, UK, AU destinations and 3 to 5 weeks to arrive the Europe countries and other remote regions, it depends your custom inspections and the freight efficiency.<p>
-            If not arrive at that time period, please do not hesitate to contact us.<p>
-            Hopefully the item could be arrived as quickly as possible and appreciate for your positive feedback with all 5 stars DSRs after receving it, we will leave it for you also.<p>
-            Thanks again for your great purchase. We sincerely hope our item and customer service can give you the BEST BUYING EXPERIENCE on eBay.<p>
-            Yours Sincerely,<p>
+    const XMAS_BLUK_TEMPLATE_1  = "<p>Dear %s,</p>
+            <p>Thank you for your time to read my letter, this email just to inform you that we sent your item to our dispatch center. It is estimated to arrive in 7 to 15 working days in normal conditions to most of US, UK, AU destinations and 3 to 5 weeks to arrive the Europe countries and other remote regions, it depends your custom inspections and the freight efficiency.</p>
+            <p>If not arrive at that time period, please do not hesitate to contact us.</p>
+            <p>Hopefully the item could be arrived as quickly as possible and appreciate for your positive feedback with all 5 stars DSRs after receving it, we will leave it for you also.</p>
+            <p>Thanks again for your great purchase. We sincerely hope our item and customer service can give you the BEST BUYING EXPERIENCE on eBay.</p>
+            Yours Sincerely,<br>
             %s";
     
-    const XMAS_REGISTERED_TEMPLATE_2  = "<b>Note for “xmas” period shipment, it may delay to arrive 10 days later than normal shipping time, due to the freight peak period and the postmen do not work at holiday. Please kindly pay a bit patience to wait for a few more days as it will arrives soon after this holiday. Please do not leave any bad feedback to us since the shipping speed is out of our control especailly at the “xmas” period.</b><p>
-            Dear %s,<p>
-            Just keep in my mind, 12 days have passed since your item was shipped. Have you received it?<p>
-            The tracking number is (%s), and you can track it on http://www.singpost.com/ra/ra_article_status.asp and your local post office website.<p>
-            If received it already and with good condition, we sincerely hope that you will like it and satisfied with our customer services, your valued positive comment with all 5-stars Detailed Seller Ratings are much appreciated, which are of vital importance to the growth of our small company.<p>
-            If have not received yet please kindly wait another 10 days for delivery as it may delayed on the transport way due to the xmas peak period.<p>
-            If received with anything you feel unsatisfied, please feel free to tell us. We will offer a satisfied resolution for you and will improve our service to better.<p> 
-            Besides, PLEASE DO NOT leaves us 1, 2, 3 or 4-star Detailed Seller Ratings because they are equal to negative feedback. Like what we said before, if you are not satisfied in any regard, please email me.<p>
-            Thanks once more for your purchase.<p>
-            Yours Sincerely,<p>
+    const XMAS_REGISTERED_TEMPLATE_2  = "<p><b>Note for “xmas” period shipment, it may delay to arrive 10 days later than normal shipping time, due to the freight peak period and the postmen do not work at holiday. Please kindly pay a bit patience to wait for a few more days as it will arrives soon after this holiday. Please do not leave any bad feedback to us since the shipping speed is out of our control especailly at the “xmas” period.</b></p>
+            <p>Dear %s,</p>
+            <p>Just keep in my mind, 12 days have passed since your item was shipped. Have you received it?</p>
+            <p>The tracking number is (%s), and you can track it on http://www.singpost.com/ra/ra_article_status.asp and your local post office website.</p>
+            <p>If received it already and with good condition, we sincerely hope that you will like it and satisfied with our customer services, your valued positive comment with all 5-stars Detailed Seller Ratings are much appreciated, which are of vital importance to the growth of our small company.</p>
+            <p>If have not received yet please kindly wait another 10 days for delivery as it may delayed on the transport way due to the xmas peak period.</p>
+            <p>If received with anything you feel unsatisfied, please feel free to tell us. We will offer a satisfied resolution for you and will improve our service to better.</p> 
+            <p>Besides, PLEASE DO NOT leaves us 1, 2, 3 or 4-star Detailed Seller Ratings because they are equal to negative feedback. Like what we said before, if you are not satisfied in any regard, please email me.</p>
+            <p>Thanks once more for your purchase.</p>
+            Yours Sincerely,<br>
             %s";
             
-    const XMAS_BLUK_TEMPLATE_2  = "<b>Note for “xmas” period shipment, it may delay to arrive 10 days later than normal shipping time, due to the freight peak period and the postmen do not work at holiday. Please kindly pay a bit patience to wait for a few more days as it will arrives soon after this holiday. Please do not leave any bad feedback to us since the shipping speed is out of our control especailly at the “xmas” period.</b><p>
-            Dear %s,<p>
-            Just keep in my mind, 12 days have passed since your item was shipped. Have you received it? If received it already and with good condition, we sincerely hope that you will like it and satisfied with our customer services, your valued positive comment with all 5-stars Detailed Seller Ratings are much appreciated, which are of vital importance to the growth of our small company.<p>
-            If have not received yet please kindly wait another 10 days for delivery as it may delayed on the transport way due to the xmas peak period.<p>
-            If received with anything you feel unsatisfied, please feel free to tell us. We will offer a satisfied resolution for you and will improve our service to better.<p>
-            Besides, PLEASE DO NOT leaves us 1, 2, 3 or 4-star Detailed Seller Ratings because they are equal to negative feedback. Like what we said before, if you are not satisfied in any regard, please email me.<p>
-            Thanks once more for your purchase.<p> 
-            Yours Sincerely,<p>
+    const XMAS_BLUK_TEMPLATE_2  = "<p><b>Note for “xmas” period shipment, it may delay to arrive 10 days later than normal shipping time, due to the freight peak period and the postmen do not work at holiday. Please kindly pay a bit patience to wait for a few more days as it will arrives soon after this holiday. Please do not leave any bad feedback to us since the shipping speed is out of our control especailly at the “xmas” period.</b></p>
+            <p>Dear %s,</p>
+            <p>Just keep in my mind, 12 days have passed since your item was shipped. Have you received it? If received it already and with good condition, we sincerely hope that you will like it and satisfied with our customer services, your valued positive comment with all 5-stars Detailed Seller Ratings are much appreciated, which are of vital importance to the growth of our small company.</p>
+            <p>If have not received yet please kindly wait another 10 days for delivery as it may delayed on the transport way due to the xmas peak period.</p>
+            <p>If received with anything you feel unsatisfied, please feel free to tell us. We will offer a satisfied resolution for you and will improve our service to better.</p>
+            <p>Besides, PLEASE DO NOT leaves us 1, 2, 3 or 4-star Detailed Seller Ratings because they are equal to negative feedback. Like what we said before, if you are not satisfied in any regard, please email me.</p>
+            <p>Thanks once more for your purchase.</p> 
+            Yours Sincerely,<br>
             %s";
     
-    const XMAS_TEMPLATE_3  = "<b>Note for “xmas” period shipment, many parcels delayed on the transport way. Hopefully to get your understanding that the shipping speed is out of our control, especailly at the xmas peak period.</b><p>
-            Dear %s,<p>
-            Merry Christmas! 23 days have passed since your item was shipped. I’d like to know that have you received it?<p> 
-            If yes and like it, hopefully to receive your valued positive feedback and with all 5 stars DSRs.<p>
-            During the specail period, I really concern about all of our items be sent could arrive as quickly as wish, but, if not arrive yet, would you please kindly wait another 4 days? If still no news after 4 days then we will offer a quite satisfied resolution for you. Sorry to keep you waiting as a lot of parcels put on post office await to delivery, so it has a slightly delayed. Your bit patience and understanding with this matter would be greatly appreciated.<p>
-            Thanks a lot once more for your everything.<p>
-            Yours Sincerely,<p>
+    const XMAS_TEMPLATE_3  = "<p><b>Note for “xmas” period shipment, many parcels delayed on the transport way. Hopefully to get your understanding that the shipping speed is out of our control, especailly at the xmas peak period.</b></p>
+            <p>Dear %s,</p>
+            <p>Merry Christmas! 22 days have passed since your item was shipped. I’d like to know that have you received it?</p> 
+            <p>If yes and like it, hopefully to receive your valued positive feedback and with all 5 stars DSRs.</p>
+            <p>During the specail period, I really concern about all of our items be sent could arrive as quickly as wish, but, if not arrive yet, would you please kindly wait another 4 days? If still no news after 4 days then we will offer a quite satisfied resolution for you. Sorry to keep you waiting as a lot of parcels put on post office await to delivery, so it has a slightly delayed. Your bit patience and understanding with this matter would be greatly appreciated.</p>
+            <p>Thanks a lot once more for your everything.</p>
+            Yours Sincerely,<br>
             %s";
     
     
@@ -137,7 +137,7 @@ class Service{
         return $array[$sellerId];
     }
     
-    private function sendEmail($seller, $buyer, $toContent){
+    private function sendEmail($seller, $buyer, $subjet, $toContent){
         $mail  = new PHPMailer();
         $mail->IsSMTP();
         $mail->SMTPAuth   = true;                  // enable SMTP authentication
@@ -145,7 +145,7 @@ class Service{
         $mail->Host       = "smtp.gmail.com";      // sets GMAIL as the SMTP server
         $mail->Port       = 465;                   // set the SMTP port for the GMAIL server
         
-        $mail->SMTPDebug = true;
+        //$mail->SMTPDebug = true;
         
         $mail->Username   = $seller['email'];  // GMAIL username
         $mail->Password   = $seller['emailPassword'];         // GMAIL password
@@ -155,7 +155,7 @@ class Service{
         $mail->From       = $seller['email'];
         $mail->FromName   = $seller['id'];
         
-        $mail->Subject    = "Shipping status of your order!";
+        $mail->Subject    = $subjet;
         
         $mail->Body       = $toContent;                      //HTML Body
         //$mail->AltBody    = $toContent; // optional, comment out and test
@@ -163,8 +163,7 @@ class Service{
         
         $mail->MsgHTML($toContent);
         
-        //$mail->AddAddress($_POST['shipToEmail'], $_POST['shipToName']);
-        //$mail->AddAddress($buyer['email'], $buyer['name']);
+        //$mail->AddAddress("meidgen@hotmail.com", "meidgen");
         $mail->AddAddress("heshuai64@gmail.com", "heshuai");
         
         $mail->IsHTML(true); // send as HTML
@@ -186,12 +185,13 @@ class Service{
     public function sendXamsShipmentEmail(){
         global $argv;
         include("/export/eBayBO/class/class.phpmailer.php");
-        $day12 = date("Y-m-d", time() - (12 * 24 * 60 * 60));
-        $day22 = date("Y-m-d", time() - (22 * 24 * 60 * 60));
+        $day = date("Y-m-d");
+        $day12 = date("Y-m-d", time() - (13 * 24 * 60 * 60));
+        $day22 = date("Y-m-d", time() - (23 * 24 * 60 * 60));
 
         switch($argv[2]){
             case 1:
-                $sql = "select id,ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where emailStatus = 0 and status = 'S'";
+                $sql = "select id,ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where shippedOn like '".$day."%' and emailStatus = 0 and status = 'S'";
                 $result = mysql_query($sql);
                 while($row = mysql_fetch_assoc($result)){
                     
@@ -219,21 +219,22 @@ class Service{
                     
                     //$seller = array('id'=>'heshuai64', 'email'=> 'heshuai64@gmail.com', 'emailPassword'=> 'pp2367383');
                     $buyer = array('name'=> $row['shipToName'], 'email'=> $row['shipToEmail']);
-                    $send_result = $this->sendEmail($seller, $buyer, $toContent);
+                    $subjet = "Your order has been sent to dispatch center";
+                    $send_result = $this->sendEmail($seller, $buyer, $subjet, $toContent);
                     if($send_result){
-                        $sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
+                        //$sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
                         //$result_3 = mysql_query($sql_3);
                         $this->log("email/sendXmasShpmentEmail", $row['id']." Send Email Success<br>");
                     }else{
                         $this->log("email/sendXmasShpmentEmail", "<font color='red'>".$row['id']." Send Email Failure: " . $mail->ErrorInfo."</font><br>");
                     }
                     $this->log("email/sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
-                    exit;
+                    //exit;
                 }
             break;
         
             case 12:
-                $sql = "select id,ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where shippedOn like '".$day12."%' and emailStatus = 1 and status = 'S'";
+                $sql = "select id,ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where shippedOn like '".$day12."%' and emailStatus = 0 and status = 'S'";
                 $result = mysql_query($sql);
                 while($row = mysql_fetch_assoc($result)){
                     
@@ -260,21 +261,22 @@ class Service{
                     }
                     
                     $buyer = array('name'=> $row['shipToName'], 'email'=> $row['shipToEmail']);
-                    $send_result = $this->sendEmail($seller, $buyer, $toContent);
+                    $subjet = "12 days had been gone, any news of your order?";
+                    $send_result = $this->sendEmail($seller, $buyer, $subjet, $toContent);
                     if($send_result){
-                        $sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
+                        //$sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
                         //$result_3 = mysql_query($sql_3);
                         $this->log("email/sendXmasShpmentEmail", $row['id']." Send Email Success<br>");
                     }else{
                         $this->log("email/sendXmasShpmentEmail", "<font color='red'>".$row['id']." Send Email Failure: " . $mail->ErrorInfo."</font><br>");
                     }      
                     $this->log("email/sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
-                    exit;
+                    //exit;
                 }
             break;
         
             case 22:
-                $sql = "select id,ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where shippedOn like '".$day22."%' and emailStatus = 12 and status = 'S'";
+                $sql = "select id,ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where shippedOn like '".$day22."%' and emailStatus = 0 and status = 'S'";
                 $result = mysql_query($sql);
                 while($row = mysql_fetch_assoc($result)){
                     
@@ -287,16 +289,17 @@ class Service{
                     $toContent = sprintf(self::XMAS_TEMPLATE_3, $row['shipToName'], $sellerId);
                     
                     $buyer = array('name'=> $row['shipToName'], 'email'=> $row['shipToEmail']);
-                    $send_result = $this->sendEmail($seller, $buyer, $toContent);
+                    $subjet = "22 days had been gone, have you received your order? How's everything with it?";
+                    $send_result = $this->sendEmail($seller, $buyer, $subjet, $toContent);
                     if($send_result){
-                        $sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
+                        //$sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
                         //$result_3 = mysql_query($sql_3);
                         $this->log("email/sendXmasShpmentEmail", $row['id']." Send Email Success<br>");
                     }else{
                         $this->log("email/sendXmasShpmentEmail", "<font color='red'>".$row['id']." Send Email Failure: " . $mail->ErrorInfo."</font><br>");
                     }
                     $this->log("email/sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
-                    exit;
+                    //exit;
                 }
             break;
         }
