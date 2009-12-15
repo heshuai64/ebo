@@ -126,7 +126,7 @@ class Service{
                      'emailPassword'=>$row['emailPassword']);
         */
         
-        $array = array('ymca200808'=> array('id'=>'ymca200808', 'email'=> 'paintings.suppliersz@gmail.com', 'emailPassword'=> 'wanyx288'),
+        $array = array('ymca200808'=> array('id'=>'ymca200808', 'email'=> 'ymca2u@gmail.com', 'emailPassword'=> '33touagr'),
                        'libra.studio'=> array('id'=>'libra.studio', 'email'=> 'libra.studio.cn@gmail.com', 'emailPassword'=> '77thksgod'),
                        'bestnbestonline'=> array('id'=>'bestnbestonline', 'email'=> 'bestnbestonline@gmail.com', 'emailPassword'=> 'haivsang'),
                        'nereus.store'=> array('id'=>'nereus.store', 'email'=> 'nereus.art@gmail.com', 'emailPassword'=> 'mercedesbenz'),
@@ -137,7 +137,7 @@ class Service{
         return $array[$sellerId];
     }
     
-    private function sendEmail($seller, $toContent){
+    private function sendEmail($seller, $buyer, $toContent){
         $mail  = new PHPMailer();
         $mail->IsSMTP();
         $mail->SMTPAuth   = true;                  // enable SMTP authentication
@@ -164,7 +164,7 @@ class Service{
         $mail->MsgHTML($toContent);
         
         //$mail->AddAddress($_POST['shipToEmail'], $_POST['shipToName']);
-        //$mail->AddAddress("karentina_86@sina.com", "meidgen de");
+        //$mail->AddAddress($buyer['email'], $buyer['name']);
         $mail->AddAddress("heshuai64@gmail.com", "heshuai");
         
         $mail->IsHTML(true); // send as HTML
@@ -216,9 +216,10 @@ class Service{
                             break;
                     }
                     
-                    $seller = array('id'=>'heshuai64', 'email'=> 'heshuai64@gmail.com', 'emailPassword'=> 'pp2367383');
                     
-                    $send_result = $this->sendEmail($seller, $toContent);
+                    //$seller = array('id'=>'heshuai64', 'email'=> 'heshuai64@gmail.com', 'emailPassword'=> 'pp2367383');
+                    $buyer = array('name'=> $row['shipToName'], 'email'=> $row['shipToEmail']);
+                    $send_result = $this->sendEmail($seller, $buyer, $toContent);
                     if($send_result){
                         $sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
                         //$result_3 = mysql_query($sql_3);
@@ -258,7 +259,8 @@ class Service{
                         
                     }
                     
-                    $send_result = $this->sendEmail($seller, $toContent);
+                    $buyer = array('name'=> $row['shipToName'], 'email'=> $row['shipToEmail']);
+                    $send_result = $this->sendEmail($seller, $buyer, $toContent);
                     if($send_result){
                         $sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
                         //$result_3 = mysql_query($sql_3);
@@ -284,7 +286,8 @@ class Service{
                     $seller = $this->getSellerEmailAccountAndPassword($sellerId);
                     $toContent = sprintf(self::XMAS_TEMPLATE_3, $row['shipToName'], $sellerId);
                     
-                    $send_result = $this->sendEmail($seller, $toContent);
+                    $buyer = array('name'=> $row['shipToName'], 'email'=> $row['shipToEmail']);
+                    $send_result = $this->sendEmail($seller, $buyer, $toContent);
                     if($send_result){
                         $sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
                         //$result_3 = mysql_query($sql_3);
