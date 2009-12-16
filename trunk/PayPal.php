@@ -890,7 +890,19 @@
                                 array(
                                         "Username"=> "aphroditestore_api1.gmail.com",
 					"Password"=>"5FPAT9TZD2NBW4H7",
-					"Signature"=>"ACZLQT51.W3KBggie8Z1cE3P-wY5Aw7.GiUniQ0wDxc9G4fkTsKRc25u")
+					"Signature"=>"ACZLQT51.W3KBggie8Z1cE3P-wY5Aw7.GiUniQ0wDxc9G4fkTsKRc25u"),
+				array(
+                                        "Username"=> "genius.art.gallery_api1.gmail.com",
+					"Password"=>"W7GWJ7UMREGJNAGH",
+					"Signature"=>"AFcWxV21C7fd0v3bYYYRCpSSRl31ADjM473ABUGANDJgwg3zBtn8v1Hn"),
+				array(
+					"Username"=> "topartonline_api1.gmail.com",
+					"Password"=>"GD2CQWEWE4UJTNQ5",
+					"Signature"=>"Azdw3eGr-YJzTa64KKCbC-VkV1kTAIwK6.OrZPCc9s-2pR86bYoSIYaU"),
+				array(
+					"Username"=> "exxrellpp_api1.gmail.com",
+					"Password"=>"CVF74N48G2S88TQD",
+					"Signature"=>"AsLaR1oNaSygWGse376fhYSOLUMRAFCLOlJ7BjxM8VJF-UV20syTTedG")
                                 );
 	    
 	    foreach($api_acount as $acount){

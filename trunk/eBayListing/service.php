@@ -1,6 +1,6 @@
 <?php
 
-require_once 'eBaySOAP.php';
+require_once '/export/eBayListing/eBaySOAP.php';
 
 function debugLog($file_name, $data){
     //file_put_contents("C:\\xampp\\htdocs\\eBayBO\\eBayListing\\log\\".$file_name, $data ."\n", FILE_APPEND);
@@ -98,7 +98,7 @@ class eBayListing{
     public function configEbay($site_id = 0){
 	$this->site_id = $site_id;
 	
-	if(!empty($_COOKIE['account_id'])){
+	if(!empty($_COOKIE['account_id']) && empty($this->account_id)){
 	    $this->account_id = $_COOKIE['account_id'];
 	}
 	
@@ -7591,10 +7591,12 @@ class eBayListing{
     }
     
     public function getToken(){
-	$session = $this->configEbay(0);
+	//echo "test";
+	$this->setAccount(1);
+	$this->configEbay();
         try {
 		$this->session->token = NULL;
-		//print_r($session);
+		//print_r($this->session);
 		//exit;
                 $client = new eBaySOAP($this->session);
                 
