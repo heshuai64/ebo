@@ -4,8 +4,8 @@ Ext.onReady(function(){
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      
-     var path = "/eBayBO/eBayListing/";
-     //var path = "/eBayListing/";
+     //var path = "/eBayBO/eBayListing/";
+     var path = "/eBayListing/";
      
      /*
      var cp = new Ext.state.CookieProvider({
@@ -3006,7 +3006,7 @@ Ext.onReady(function(){
                                         
                                         ebayManageWin.show();
                                    }
-                              },{
+                              }/*,{
                                    text: 'eBay Proxy Manage',
                                    iconCls: 'proxy',
                                    handler: function(){
@@ -3244,7 +3244,7 @@ Ext.onReady(function(){
                                         }
                                         store.on('load', loadComplete);
                                    }
-                              },{
+                              }*/,{
                                    text: 'Switch Account',
                                    icon: 'images/group_link.png',
                                    handler: function(){
@@ -3424,7 +3424,7 @@ Ext.onReady(function(){
                                              totalProperty: 'totalCount',
                                              idProperty: 'id',
                                              //autoLoad:true,
-                                             fields: ['id', 'level', 'content', 'time'],
+                                             fields: ['id', 'account', 'level', 'content', 'time'],
                                              url: 'service.php?action=getUploadLog&type=upload'
                                         })
                                         //console.log("test1");
@@ -3434,10 +3434,74 @@ Ext.onReady(function(){
                                              autoHeight: true,
                                              selModel: new Ext.grid.RowSelectionModel({}),
                                              columns:[
+                                                  {header: "Account", width: 80, align: 'center', sortable: true, dataIndex: 'account'},
                                                   {header: "Level", width: 80, align: 'center', sortable: true, dataIndex: 'level'},
-                                                  {header: "Content", width: 800, align: 'center', sortable: true, dataIndex: 'content'},
+                                                  {header: "Content", width: 700, align: 'center', sortable: true, dataIndex: 'content'},
                                                   {header: "Time", width: 110, align: 'center', sortable: true, dataIndex: 'time'}
                                              ],
+                                             tbar: [{
+                                                  text: 'Search',
+                                                  icon: './images/magnifier.png',
+                                                  handler: function(){
+                                                       var  searchWindow = new Ext.Window({
+                                                                 title: 'Upload Item Search' ,
+                                                                 closable:true,
+                                                                 width: 300,
+                                                                 height: 180,
+                                                                 plain:true,
+                                                                 layout: 'form',
+                                                                 items: [{
+                                                                           id:'id',
+                                                                           fieldLabel:'ItemId',
+                                                                           xtype:'textfield'
+                                                                      },{
+                                                                           id:'startDate',
+                                                                           fieldLabel:'Start Date',
+                                                                           xtype:'datefield',
+                                                                           format:'Y-m-d',
+                                                                           selectOnFocus:true
+                                                                      },{
+                                                                           id:'endDate',
+                                                                           fieldLabel:'End Date',
+                                                                           xtype:'datefield',
+                                                                           format:'Y-m-d',
+                                                                           selectOnFocus:true
+                                                                      },{
+                                                                           id:'level',
+                                                                           fieldLabel:'Level',
+                                                                           xtype:"combo",
+                                                                           store:['', 'error', 'normal'],
+                                                                           triggerAction: 'all',
+                                                                           editable: false,
+                                                                           selectOnFocus:true,
+                                                                           listWidth:100,
+                                                                           width:100
+                                                                      }
+                                                                 ],
+                                                                 buttons: [{
+                                                                                text: 'Submit',
+                                                                                handler: function(){
+                                                                                     upload_store.baseParams = {
+                                                                                          id: Ext.getCmp("id").getValue(),
+                                                                                          startDate: Ext.getCmp("startDate").getValue().format("Y-m-d"),
+                                                                                          endDate: Ext.getCmp("endDate").getValue().format("Y-m-d"),
+                                                                                          level: Ext.getCmp("level").getValue()
+                                                                                     };
+                                                                                     upload_store.load({params:{start:0, limit:20}});
+                                                                                     searchWindow.close();
+                                                                                }
+                                                                           },{
+                                                                                text: 'Close',
+                                                                                handler: function(){
+                                                                                     searchWindow.close();
+                                                                                }
+                                                                           }]
+                                                                           
+                                                            })
+                                                            
+                                                            searchWindow.show();
+                                                  }
+                                             }],
                                              bbar: new Ext.PagingToolbar({
                                                  pageSize: 20,
                                                  store: upload_store,
