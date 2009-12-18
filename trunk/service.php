@@ -47,7 +47,9 @@ class Service{
             %s";
             
     //XMAS ------------------------------------------------------------------------------------------------------
-    const XMAS_REGISTERED_TEMPLATE_1  = "<p>Dear %s,</p>
+    const XMAS_REGISTERED_TEMPLATE_1  = "
+            <p>%s</p>
+            <p>Dear %s,</p>
             <p>Thank you for your time to read my letter, this email just to inform you that we sent your item to our dispatch center. It is estimated to arrive in 7 to 15 working days in normal conditions to most of US, UK, AU destinations and 3 to 5 weeks to arrive the Europe countries and other remote regions, it depends your custom inspections and the freight efficiency. If not arrive at that time period, please do not hesitate to contact us.</p>
             <p>Here is the tracking number of your parcel (%s), and you can logon http://www.singpost.com/ra/ra_article_status.asp to view the updated shipment after 2 days cause the post office need time to handle it and update the information.</p>
             <p>Hopefully the item could be arrived as quickly as possible and appreciate for your positive feedback with all 5 stars DSRs after receving it, we will leave it for you also.</p>
@@ -55,7 +57,9 @@ class Service{
             Yours Sincerely,<br>
             %s";
             
-    const XMAS_BLUK_TEMPLATE_1  = "<p>Dear %s,</p>
+    const XMAS_BLUK_TEMPLATE_1  = "
+            <p>%s</p>
+            <p>Dear %s,</p>
             <p>Thank you for your time to read my letter, this email just to inform you that we sent your item to our dispatch center. It is estimated to arrive in 7 to 15 working days in normal conditions to most of US, UK, AU destinations and 3 to 5 weeks to arrive the Europe countries and other remote regions, it depends your custom inspections and the freight efficiency.</p>
             <p>If not arrive at that time period, please do not hesitate to contact us.</p>
             <p>Hopefully the item could be arrived as quickly as possible and appreciate for your positive feedback with all 5 stars DSRs after receving it, we will leave it for you also.</p>
@@ -64,6 +68,7 @@ class Service{
             %s";
     
     const XMAS_REGISTERED_TEMPLATE_2  = "<p><b>Note for “xmas” period shipment, it may delay to arrive 10 days later than normal shipping time, due to the freight peak period and the postmen do not work at holiday. Please kindly pay a bit patience to wait for a few more days as it will arrives soon after this holiday. Please do not leave any bad feedback to us since the shipping speed is out of our control especailly at the “xmas” period.</b></p>
+            <p>%s</p>
             <p>Dear %s,</p>
             <p>Just keep in my mind, 12 days have passed since your item was shipped. Have you received it?</p>
             <p>The tracking number is (%s), and you can track it on http://www.singpost.com/ra/ra_article_status.asp and your local post office website.</p>
@@ -76,6 +81,7 @@ class Service{
             %s";
             
     const XMAS_BLUK_TEMPLATE_2  = "<p><b>Note for “xmas” period shipment, it may delay to arrive 10 days later than normal shipping time, due to the freight peak period and the postmen do not work at holiday. Please kindly pay a bit patience to wait for a few more days as it will arrives soon after this holiday. Please do not leave any bad feedback to us since the shipping speed is out of our control especailly at the “xmas” period.</b></p>
+            <p>%s</p>
             <p>Dear %s,</p>
             <p>Just keep in my mind, 12 days have passed since your item was shipped. Have you received it? If received it already and with good condition, we sincerely hope that you will like it and satisfied with our customer services, your valued positive comment with all 5-stars Detailed Seller Ratings are much appreciated, which are of vital importance to the growth of our small company.</p>
             <p>If have not received yet please kindly wait another 10 days for delivery as it may delayed on the transport way due to the xmas peak period.</p>
@@ -86,6 +92,7 @@ class Service{
             %s";
     
     const XMAS_TEMPLATE_3  = "<p><b>Note for “xmas” period shipment, many parcels delayed on the transport way. Hopefully to get your understanding that the shipping speed is out of our control, especailly at the xmas peak period.</b></p>
+            <p>%s</p>
             <p>Dear %s,</p>
             <p>Merry Christmas! 22 days have passed since your item was shipped. I’d like to know that have you received it?</p> 
             <p>If yes and like it, hopefully to receive your valued positive feedback and with all 5 stars DSRs.</p>
@@ -132,9 +139,22 @@ class Service{
                        'nereus.store'=> array('id'=>'nereus.store', 'email'=> 'nereus.art@gmail.com', 'emailPassword'=> 'mercedesbenz'),
                        'aphroditestore'=> array('id'=>'aphroditestore', 'email'=> 'aphroditestore@gmail.com', 'emailPassword'=> 'muittvita'),
                        'mission-hill'=> array('id'=>'mission-hill', 'email'=> 'oldtreegallerypp@gmail.com', 'emailPassword'=> 'hilltech99'),
-                       'geniusartgallery'=> array('id'=>'geniusartgallery', 'email'=> 'geniusartgallery2008@gmail.com', 'emailPassword'=> '76samapp'));
+                       'geniusartgallery'=> array('id'=>'geniusartgallery', 'email'=> 'geniusartgallery2008@gmail.com', 'emailPassword'=> '76samapp'),
+                       'top.art.online'=> array('id'=>'top.art.online','email'=> 'topartonline.store@gmail.com', 'emailPassword'=>'ing88store'),
+                       'exrell'=> array('id'=>'exrell','email'=> 'exxrell@gmail.com', 'emailPassword'=>'exxhui99')
+                );
         
         return $array[$sellerId];
+    }
+    
+    private function getShipmentItems($shipmentsId){
+        $sql_1 = "select itemId,itemTitle from qo_shipments_detail where shipmentsId = '".$shipmentsId."'";
+        $result_1 = mysql_query($sql_1);
+        $itemId = "";
+        while($row_1 = mysql_fetch_assoc($result_1)){
+            $itemId .= $row_1['itemId'].", ".$row_1['itemTitle']."<br>";
+        }
+        return $itemId;
     }
     
     private function sendEmail($seller, $buyer, $subjet, $toContent){
@@ -163,6 +183,7 @@ class Service{
         
         $mail->MsgHTML($toContent);
         
+        //$mail->AddAddress($buyer['email'], $buyer['name']);
         //$mail->AddAddress("meidgen@hotmail.com", "meidgen");
         $mail->AddAddress("heshuai64@gmail.com", "heshuai");
         
@@ -201,10 +222,11 @@ class Service{
                     $row_2 = mysql_fetch_assoc($result_2);
                     $sellerId = $row_2['sellerId'];
                     $seller = $this->getSellerEmailAccountAndPassword($sellerId);
+                    $item = $this->getShipmentItems($row['id']);
                     
                     switch($row['shipmentMethod']){
                         case "R":
-                            $toContent = sprintf(self::XMAS_REGISTERED_TEMPLATE_1, $row['shipToName'], $row['postalReferenceNo'], $sellerId);
+                            $toContent = sprintf(self::XMAS_REGISTERED_TEMPLATE_1, $item, $row['shipToName'], $row['postalReferenceNo'], $sellerId);
                             break;
                         
                         case "B":
@@ -212,7 +234,7 @@ class Service{
                         case "S":
                             
                         case "U":
-                            $toContent = sprintf(self::XMAS_BLUK_TEMPLATE_1, $row['shipToName'], $sellerId);
+                            $toContent = sprintf(self::XMAS_BLUK_TEMPLATE_1, $item, $row['shipToName'], $sellerId);
                             break;
                     }
                     
@@ -224,11 +246,11 @@ class Service{
                     if($send_result){
                         //$sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
                         //$result_3 = mysql_query($sql_3);
-                        $this->log("email/sendXmasShpmentEmail", $row['id']." Send Email Success<br>");
+                        $this->log("email/1_sendXmasShpmentEmail", $row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
                     }else{
-                        $this->log("email/sendXmasShpmentEmail", "<font color='red'>".$row['id']." Send Email Failure: " . $mail->ErrorInfo."</font><br>");
+                        $this->log("email/1_sendXmasShpmentEmail", "<font color='red'>".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
                     }
-                    $this->log("email/sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
+                    $this->log("email/1_sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
                     //exit;
                 }
             break;
@@ -244,10 +266,11 @@ class Service{
                     $row_2 = mysql_fetch_assoc($result_2);
                     $sellerId = $row_2['sellerId'];
                     $seller = $this->getSellerEmailAccountAndPassword($sellerId);
+                    $item = $this->getShipmentItems($row['id']);
                     
                     switch($row['shipmentMethod']){
                         case "R":
-                            $toContent = sprintf(self::XMAS_REGISTERED_TEMPLATE_2, $row['shipToName'], $row['postalReferenceNo'], $sellerId);
+                            $toContent = sprintf(self::XMAS_REGISTERED_TEMPLATE_2, $item, $row['shipToName'], $row['postalReferenceNo'], $sellerId);
                             break;
                         
                         case "B":
@@ -255,7 +278,7 @@ class Service{
                         case "S":
                             
                         case "U":
-                            $toContent = sprintf(self::XMAS_BLUK_TEMPLATE_2, $row['shipToName'], $sellerId);
+                            $toContent = sprintf(self::XMAS_BLUK_TEMPLATE_2, $item, $row['shipToName'], $sellerId);
                             break;
                         
                     }
@@ -266,11 +289,11 @@ class Service{
                     if($send_result){
                         //$sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
                         //$result_3 = mysql_query($sql_3);
-                        $this->log("email/sendXmasShpmentEmail", $row['id']." Send Email Success<br>");
+                        $this->log("email/12_sendXmasShpmentEmail", $row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
                     }else{
-                        $this->log("email/sendXmasShpmentEmail", "<font color='red'>".$row['id']." Send Email Failure: " . $mail->ErrorInfo."</font><br>");
+                        $this->log("email/12_sendXmasShpmentEmail", "<font color='red'>".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
                     }      
-                    $this->log("email/sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
+                    $this->log("email/12_sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
                     //exit;
                 }
             break;
@@ -286,7 +309,9 @@ class Service{
                     $row_2 = mysql_fetch_assoc($result_2);
                     $sellerId = $row_2['sellerId'];
                     $seller = $this->getSellerEmailAccountAndPassword($sellerId);
-                    $toContent = sprintf(self::XMAS_TEMPLATE_3, $row['shipToName'], $sellerId);
+                    $item = $this->getShipmentItems($row['id']);
+                    
+                    $toContent = sprintf(self::XMAS_TEMPLATE_3, $item, $row['shipToName'], $sellerId);
                     
                     $buyer = array('name'=> $row['shipToName'], 'email'=> $row['shipToEmail']);
                     $subjet = "22 days had been gone, have you received your order? How's everything with it?";
@@ -294,11 +319,11 @@ class Service{
                     if($send_result){
                         //$sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
                         //$result_3 = mysql_query($sql_3);
-                        $this->log("email/sendXmasShpmentEmail", $row['id']." Send Email Success<br>");
+                        $this->log("email/22_sendXmasShpmentEmail", $row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
                     }else{
-                        $this->log("email/sendXmasShpmentEmail", "<font color='red'>".$row['id']." Send Email Failure: " . $mail->ErrorInfo."</font><br>");
+                        $this->log("email/22_sendXmasShpmentEmail", "<font color='red'>".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
                     }
-                    $this->log("email/sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
+                    $this->log("email/22_sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
                     //exit;
                 }
             break;

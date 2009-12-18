@@ -1,6 +1,6 @@
 <?php
 
-require_once '/export/eBayListing/eBaySOAP.php';
+require_once 'eBaySOAP.php';
 
 function debugLog($file_name, $data){
     //file_put_contents("C:\\xampp\\htdocs\\eBayBO\\eBayListing\\log\\".$file_name, $data ."\n", FILE_APPEND);
@@ -7627,6 +7627,13 @@ class eBayListing{
     }
     
     public function getUploadLog(){
+	$seller = array();
+	$sql = "select id,name from account";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	while($row = mysql_fetch_assoc($result)){
+	    $seller[$row['id']] = $row['name'];
+	}
+	
 	$array = array();
 	$type = $_GET['type'];
 	
@@ -7635,6 +7642,23 @@ class eBayListing{
 	}else{
 	    $sql = "select count(*) as num from log where account_id = '".$this->account_id."' and type = '".$type."'";
 	}
+	
+	if(!empty($_POST['id'])){
+	    $sql .= " and content like '%".$_POST['id']."%'";
+	}
+	
+	if(!empty($_POST['startDate'])){
+	    $sql .= " and time > '".$_POST['startDate']."'";
+	}
+	
+	if(!empty($_POST['endDate'])){
+	    $sql .= " and time < '".$_POST['endDate']."'";
+	}
+	
+	if(!empty($_POST['level'])){
+	    $sql .= " and level = '".$_POST['level']."'";
+	}
+	
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
 	$totalCount = $row['num'];
@@ -7645,10 +7669,29 @@ class eBayListing{
 	}
 	
 	if($_COOKIE['role'] == "admin"){	
-	    $sql = "select * from log where type = '".$type."' limit ".$_POST['start'].",".$_POST['limit'];
+	    $sql = "select * from log where type = '".$type."'";
 	}else{
-	    $sql = "select * from log where account_id = '".$this->account_id."' and type = '".$type."' limit ".$_POST['start'].",".$_POST['limit'];   
+	    $sql = "select * from log where account_id = '".$this->account_id."' and type = '".$type."'";
 	}
+	
+	if(!empty($_POST['id'])){
+	    $sql .= " and content like '%".$_POST['id']."%'";
+	}
+	
+	if(!empty($_POST['startDate'])){
+	    $sql .= " and time > '".$_POST['startDate']."'";
+	}
+	
+	if(!empty($_POST['endDate'])){
+	    $sql .= " and time < '".$_POST['endDate']."'";
+	}
+	
+	if(!empty($_POST['level'])){
+	    $sql .= " and level = '".$_POST['level']."'";
+	}
+	
+	$sql .= "limit ".$_POST['start'].",".$_POST['limit'];
+	
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while($row = mysql_fetch_assoc($result)){
 	    if(strlen($row['content']) > 130){
@@ -7661,6 +7704,7 @@ class eBayListing{
 		}
 		$row['content'] = $temp;
 	    }
+	    $row['account'] = $seller[$row['account_id']];
 	    $array[] = $row;
 	}
 	echo json_encode(array('totalCount'=>$totalCount, 'records'=>$array));
