@@ -7829,6 +7829,51 @@ class eBayListing{
 	
     }
     
+    public function updateSkuDescription(){
+	$msg = "";
+	switch(true){
+	    case !empty($_POST['english']):
+		$sql = "update template set Description = '".htmlentities($_POST['english'], ENT_QUOTES)."' where (Site = 'US' or Site = 'UK' or Site = 'Australia') and SKU = '".$_POST['sku']."'";
+		$result = mysql_query($sql, eBayListing::$database_connect);
+		
+		$sql_1 = "update items set Description = '".htmlentities($_POST['english'], ENT_QUOTES)."' where (Site = 'US' or Site = 'UK' or Site = 'Australia') and SKU = '".$_POST['sku']."' and (Status = 0 or Status = 1)";
+		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+		
+		if($result && $result_1){
+		    $msg .= "Update English language description success. ";
+		}
+	    
+	    case !empty($_POST['french']):
+		$sql = "update template set Description = '".htmlentities($_POST['french'], ENT_QUOTES)."' where Site = 'France' and SKU = '".$_POST['sku']."'";
+		$result = mysql_query($sql, eBayListing::$database_connect);
+		
+		$sql_1 = "update items set Description = '".htmlentities($_POST['french'], ENT_QUOTES)."' where Site = 'France' and SKU = '".$_POST['sku']."' and (Status = 0 or Status = 1)";
+		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+		
+		if($result && $result_1){
+		    $msg .= "Update French language description success. ";
+		}
+	
+	    case !empty($_POST['germany']):
+		$sql = "update template set Description = '".htmlentities($_POST['germany'], ENT_QUOTES)."' where Site = 'Germany' and SKU = '".$_POST['sku']."'";
+		$result = mysql_query($sql, eBayListing::$database_connect);
+		
+		$sql_1 = "update items set Description = '".htmlentities($_POST['germany'], ENT_QUOTES)."' where Site = 'Germany' and SKU = '".$_POST['sku']."' and (Status = 0 or Status = 1)";
+		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+		
+		if($result && $result_1){
+		    $msg .= "Update German language description success. ";
+		}
+	    break;
+	}
+	
+	if(strlen($msg) > 3){
+	    echo '{"sucess":true,"msg":"'.$msg.'"}';
+	}else{
+	    echo '{"sucess":false,"msg":"Update upload system failure, description is empty!"}';
+	}
+    }
+    
     public function __destruct(){
         mysql_close(eBayListing::$database_connect);
     }

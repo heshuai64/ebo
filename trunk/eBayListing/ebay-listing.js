@@ -4,8 +4,8 @@ Ext.onReady(function(){
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      
-     //var path = "/eBayBO/eBayListing/";
-     var path = "/eBayListing/";
+     var path = "/eBayBO/eBayListing/";
+     //var path = "/eBayListing/";
      
      /*
      var cp = new Ext.state.CookieProvider({

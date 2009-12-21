@@ -183,9 +183,9 @@ class Service{
         
         $mail->MsgHTML($toContent);
         
-        //$mail->AddAddress($buyer['email'], $buyer['name']);
+        $mail->AddAddress($buyer['email'], $buyer['name']);
         //$mail->AddAddress("meidgen@hotmail.com", "meidgen");
-        $mail->AddAddress("heshuai64@gmail.com", "heshuai");
+        //$mail->AddAddress("heshuai64@gmail.com", "heshuai");
         
         $mail->IsHTML(true); // send as HTML
         
@@ -207,6 +207,7 @@ class Service{
         global $argv;
         include("/export/eBayBO/class/class.phpmailer.php");
         $day = date("Y-m-d");
+        //$day = date("Y-m-d", time() - (1 * 24 * 60 * 60));
         $day12 = date("Y-m-d", time() - (13 * 24 * 60 * 60));
         $day22 = date("Y-m-d", time() - (23 * 24 * 60 * 60));
 
@@ -257,6 +258,7 @@ class Service{
         
             case 12:
                 $sql = "select id,ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where shippedOn like '".$day12."%' and emailStatus = 0 and status = 'S'";
+                //echo $sql;
                 $result = mysql_query($sql);
                 while($row = mysql_fetch_assoc($result)){
                     
