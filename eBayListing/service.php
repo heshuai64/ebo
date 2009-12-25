@@ -20,6 +20,7 @@ $nest = 0;
 $categoryPathArray = array();
 $storeNest = 0;
 $storeCategoryPathArray = array();
+$templateCategoryDeep = "";
 
 /*
      英,美,法,澳,
@@ -836,7 +837,7 @@ class eBayListing{
 	}else{
 	    $parent_id = $_POST['node'];
 	}
-	$sql = "select * from template_category where account_id = '".$this->account_id."' and parent_id = '".$parent_id."'";
+	$sql = "select * from template_category where account_id = '".$this->account_id."' and parent_id = '".$parent_id."' order by name";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while($row = mysql_fetch_assoc($result)){
 	    
@@ -1500,14 +1501,35 @@ class eBayListing{
 	}
     }
     
+    private function getTemplateCategoryDeep($id){
+	global $templateCategoryDeep;
+	
+	$sql = "select parent_id from template_category where id = '".$id."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	
+	if($row['parent_id'] == 0){
+	    //$templateCategoryDeep .= "-";
+	    return $templateCategoryDeep;
+	}elseif(!empty($row['parent_id'])){
+	    $templateCategoryDeep .= "+";
+	    return $this->getTemplateCategoryDeep($row['parent_id']);
+	}else{
+	    return "";
+	}
+    }
+    
     public function getTemplateCategory(){
-        $sql = "select id,name from template_category where account_id = '".$this->account_id."'";
+	global $templateCategoryDeep;
+        $sql = "select id,name from template_category where account_id = '".$this->account_id."' order by name";
         $result = mysql_query($sql, eBayListing::$database_connect);
         $array = array();
         $i = 0;
 	while($row = mysql_fetch_assoc($result)){
             $array[$i]['id'] = $row['id'];
-	    $array[$i]['name'] = $row['name'];
+	    $templateCategoryDeep = "";
+	    $t = $this->getTemplateCategoryDeep($row['id']);
+	    $array[$i]['name'] = $t . $row['name'];
 	    $i++;
         }
         

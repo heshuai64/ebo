@@ -1274,29 +1274,33 @@ Ext.onReady(function(){
                     width: 50,
                     text: 'Add',
                     handler: function(){
-                         Ext.Ajax.request({  
-                              waitMsg: 'Please Wait',
-                              url: 'service.php?action=addTemplateCateogry', 
-                              params: { 
-                                   templateCateogryParentId: template_category_tree.getSelectionModel().getSelectedNode().id ,
-                                   templateCategoryName: Ext.getCmp("template_category_name").getValue()
-                              }, 
-                              success: function(response){
-                                  var result=eval(response.responseText);
-                                  switch(result){
-                                     case 1:  // Success : simply reload
-                                       template_category_tree.root.reload();
-                                       break;
-                                     default:
-                                       Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
-                                       break;
-                                  }
-                              },
-                              failure: function(response){
-                                  var result=response.responseText;
-                                  Ext.MessageBox.alert('error','could not connect to the database. retry later');      
-                              }
-                         });
+                         if(Ext.isEmpty(template_category_tree.getSelectionModel().getSelectedNode())){
+                              Ext.MessageBox.alert('Warning','Please select a template category as parent category.');
+                         }else{
+                              Ext.Ajax.request({  
+                                   waitMsg: 'Please Wait',
+                                   url: 'service.php?action=addTemplateCateogry', 
+                                   params: { 
+                                        templateCateogryParentId: template_category_tree.getSelectionModel().getSelectedNode().id ,
+                                        templateCategoryName: Ext.getCmp("template_category_name").getValue()
+                                   }, 
+                                   success: function(response){
+                                       var result=eval(response.responseText);
+                                       switch(result){
+                                          case 1:  // Success : simply reload
+                                            template_category_tree.root.reload();
+                                            break;
+                                          default:
+                                            Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
+                                            break;
+                                       }
+                                   },
+                                   failure: function(response){
+                                       var result=response.responseText;
+                                       Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                   }
+                              });
+                         }
                     }
           },{
                width: 50,
@@ -1980,7 +1984,7 @@ Ext.onReady(function(){
                     split:true,
                     width: 180,
                     minSize: 160,
-                    maxSize: 200,
+                    maxSize: 300,
                     collapsible: true,
                     margins:'0 0 0 5',
                     layout:'accordion',
