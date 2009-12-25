@@ -188,7 +188,7 @@ Ext.onReady(function(){
         fieldLabel:"Currency",
         mode: 'local',
         store: ['USD', 'GBP', 'AUD', 'EUR'],
-        triggerAction: 'all',
+        //triggerAction: 'all',
         editable: false,
         selectOnFocus:true,
         //listWidth: 156,
