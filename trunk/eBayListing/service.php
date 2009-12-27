@@ -883,6 +883,12 @@ class eBayListing{
 	echo $result;
     }
     
+    public function moveTemplateCateogry(){
+	$sql_1 = "update template_category set parent_id = '".$_POST['newParent']."' where id = '".$_POST['id']."'";
+	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	echo $result_1;
+    }
+    
     public function getAllTemplate(){
 	$array = array();
 	
@@ -7712,10 +7718,11 @@ class eBayListing{
 	    $sql .= " and level = '".$_POST['level']."'";
 	}
 	
-	$sql .= "limit ".$_POST['start'].",".$_POST['limit'];
+	$sql .= " order by id desc limit ".$_POST['start'].",".$_POST['limit'];
 	
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while($row = mysql_fetch_assoc($result)){
+	    /*
 	    if(strlen($row['content']) > 130){
 		$temp = "";
 		for($i=0; $i< strlen($row['content']); $i++){
@@ -7726,6 +7733,8 @@ class eBayListing{
 		}
 		$row['content'] = $temp;
 	    }
+	    */
+	    $row['content'] = chunk_split($row['content'], 130, "<br>");
 	    $row['account'] = $seller[$row['account_id']];
 	    $array[] = $row;
 	}

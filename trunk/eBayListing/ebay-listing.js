@@ -1235,6 +1235,7 @@ Ext.onReady(function(){
           useArrows:true,
           autoScroll:true,
           animate:true,
+          enableDD: true,
           //height: 500,
           // auto create TreeLoader
           dataUrl: 'service.php?action=getTemplateTree',
@@ -1253,8 +1254,34 @@ Ext.onReady(function(){
                          parent_id: n.id
                     };
                     template_store.load({params:{start:0, limit:20}});
+               },
+               movenode: function(tree, node, oldParent, newParent, index){
+                    //console.log([node, newParent]);
+                    //console.log([node.id, newParent.id]);
+                    Ext.Ajax.request({  
+                          waitMsg: 'Please Wait',
+                          url: 'service.php?action=moveTemplateCateogry', 
+                          params: { 
+                              id: node.id,
+                              newParent: newParent.id
+                          }, 
+                          success: function(response){
+                              var result=eval(response.responseText);
+                              switch(result){
+                                 case 1:  // Success : simply reload
+                                   //template_category_tree.root.reload();
+                                   break;
+                                 default:
+                                   Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
+                                   break;
+                              }
+                          },
+                          failure: function(response){
+                              var result=response.responseText;
+                              Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                          }
+                    });    
                }
-               
           }
      })
      
