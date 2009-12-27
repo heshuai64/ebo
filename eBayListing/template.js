@@ -599,6 +599,7 @@ Ext.onReady(function(){
                         xtype:"textfield",
                         fieldLabel:"Title",
                         name:"Title",
+                        maxLength: 55,
                         allowBlank:false
                       },{
                         id:"SubTitle",
