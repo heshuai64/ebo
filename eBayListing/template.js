@@ -1454,16 +1454,16 @@ Ext.onReady(function(){
                                 border:false,
                                 items: schedule_template
                             },{
-                                columnWidth:0.25,
+                                columnWidth:0.15,
                                 layout:"form",
                                 defaults:{
-                                    width: 120,
-                                    listWidth: 120
+                                    width: 80,
+                                    listWidth: 80
                                 },
                                 border:false,
                                 items:[{
                                         xtype:"button",
-                                        text:"Add Schedule Template",
+                                        text:"Add",
                                         icon:"images/date_add.png",
                                         style:"margin-top: 15px;",
                                         handler: function(){
@@ -1471,21 +1471,62 @@ Ext.onReady(function(){
                                         }
                                     }]
                             },{
-                                columnWidth:0.25,
+                                columnWidth:0.15,
                                 layout:"form",
                                 defaults:{
-                                    width: 120,
-                                    listWidth: 120
+                                    width: 80,
+                                    listWidth: 80
                                 },
                                 border:false,
                                 items:[{
                                         xtype:"button",
-                                        text:"Edit Select Schedule Template",
+                                        text:"Edit Select",
                                         icon:"images/date_edit.png",
                                         style:"margin-top: 15px;",
                                         handler: function(){
                                             if(!Ext.isEmpty(schedule_template.getValue())){
                                                 window.open(path + "scheduleTemplate.php?name="+schedule_template.getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=700, height=300");
+                                            }else{
+                                                Ext.Msg.alert('Warn', 'Please first select schedule template.');
+                                            }
+                                        }
+                                    }]
+                            },{
+                                columnWidth:0.15,
+                                layout:"form",
+                                defaults:{
+                                    width: 80,
+                                    listWidth: 80
+                                },
+                                border:false,
+                                items:[{
+                                        xtype:"button",
+                                        text:"Delete Select",
+                                        icon:"images/date_edit.png",
+                                        style:"margin-top: 15px;",
+                                        handler: function(){
+                                            if(!Ext.isEmpty(schedule_template.getValue())){
+                                                Ext.Ajax.request({  
+                                                    waitMsg: 'Please Wait',
+                                                    url: 'service.php?action=deleteScheduleTemplate', 
+                                                    params: { 
+                                                        name: schedule_template.getValue()
+                                                    }, 
+                                                    success: function(response){
+                                                        var result = eval(response.responseText);
+                                                        //console.log(result);
+                                                        if(result[0].success == true){
+                                                            scheduleTemplateStore.reload();
+                                                            alert(result[0].msg);
+                                                        }else{
+                                                            Ext.MessageBox.alert('Warning', result[0].msg);
+                                                        }
+                                                    },
+                                                    failure: function(response){
+                                                        var result=response.responseText;
+                                                        Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                    }
+                                                });
                                             }else{
                                                 Ext.Msg.alert('Warn', 'Please first select schedule template.');
                                             }
@@ -1714,6 +1755,43 @@ Ext.onReady(function(){
                                     if(!Ext.isEmpty(Ext.getCmp("SiteID").getValue())){
                                         if(!Ext.isEmpty(shippingTemplateCombo.getValue())){
                                             window.open(path + "shippingTemplate.php?name="+shippingTemplateCombo.getValue()+"&site="+Ext.getCmp("SiteID").getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=800, height=500");
+                                        }else{
+                                            Ext.Msg.alert('Warn', 'Please first select a shipping template.');
+                                        }
+                                    }else{
+                                        Ext.Msg.alert('Warn', 'Please first select Site.');
+                                    }
+                                }  
+                            },{
+                                xtype:"button",
+                                text:"Delete Select Shipping Template",
+                                icon:"images/lorry_delete.png",
+                                style:"margin-top: 15px;",
+                                handler: function(){
+                                    if(!Ext.isEmpty(Ext.getCmp("SiteID").getValue())){
+                                        if(!Ext.isEmpty(shippingTemplateCombo.getValue())){
+                                            Ext.Ajax.request({  
+                                                waitMsg: 'Please Wait',
+                                                url: 'service.php?action=deleteShippingTemplate', 
+                                                params: { 
+                                                    name: shippingTemplateCombo.getValue(),
+                                                    site: Ext.getCmp("SiteID").getValue()
+                                                }, 
+                                                success: function(response){
+                                                    var result = eval(response.responseText);
+                                                    //console.log(result);
+                                                    if(result[0].success == true){
+                                                        shippingTemplateStore.reload();
+                                                        alert(result[0].msg);
+                                                    }else{
+                                                        Ext.MessageBox.alert('Warning', result[0].msg);
+                                                    }
+                                                },
+                                                failure: function(response){
+                                                    var result=response.responseText;
+                                                    Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                }
+                                            });
                                         }else{
                                             Ext.Msg.alert('Warn', 'Please first select a shipping template.');
                                         }
