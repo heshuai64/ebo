@@ -3496,6 +3496,23 @@ class eBayListing{
 	mysql_free_result($result);
     }
     
+    public function deleteScheduleTemplate(){
+	$sql_0 = "select Id from template where scheduleTemplateName = '".$_POST['name']."' and accountId = '".$this->account_id."'";
+	$result_0 = mysql_query($sql_0, eBayListing::$database_connect);
+	while($row_0 = mysql_fetch_assoc($result_0)){
+	    $template_id .= $row_0['Id'].", ";
+	}
+	$template_id = substr($template_id, 0, -2);
+	    
+	$sql_1 = "delete from schedule_template where name = '".$_POST['name']."' and account_id = '".$this->account_id."'";
+	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	if($result_1){
+	    echo "[{success: true, msg: 'delete schedule template success, but ".$template_id." those templates use this schedule template.'}]";
+	}else{
+	    echo "[{success: false, msg: 'delete failure!'}]";
+	}
+    }
+    
     public function loadScheduleTemplate(){
 	session_start();
 	
@@ -3777,6 +3794,43 @@ class eBayListing{
 	echo '{success: true, msg: "Save Shipping Template Success!"}';
     }
     
+    public function deleteShippingTemplate(){
+	$sql = "select id from shipping_template where name = '".$_POST['name']."' and Site = '".$_POST['site']."' and account_id = '".$this->account_id."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	$id = $row['id'];
+	
+	if(!empty($id)){
+	    $template_id = "";
+	    
+	    $sql_0 = "select Id from template where Site = '".$_POST['site']."' and shippingTemplateName = '".$_POST['name']."' and accountId = '".$this->account_id."'";
+	    $result_0 = mysql_query($sql_0, eBayListing::$database_connect);
+	    while($row_0 = mysql_fetch_assoc($result_0)){
+		$template_id .= $row_0['Id'].", ";
+	    }
+	    $template_id = substr($template_id, 0, -2);
+	    
+	    $sql_1 = "delete from shipping_template where id = '".$id."'";
+	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	    //echo $sql_1."\n";
+	    
+	    $sql_2 = "delete from s_template where template_id = '".$id."'";
+	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
+	    //echo $sql_2."\n";
+	    
+	    $sql_3 = "delete from i_s_template where template_id = '".$id."'";
+	    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+	    //echo $sql_3."\n";
+	    
+	    if($result_1 && $result_2 && $result_3){
+		echo "[{success: true, msg: 'delete shipping template success, but ".$template_id." those templates use this shipping template.'}]";
+	    }else{
+		echo "[{success: false, msg: 'delete failure!'}]";
+	    }
+	}else{
+	    echo "[{success: false, msg: 'delete failure!'}]";
+	}
+    }
     //------------------------------------------------------------------------------------
     public function getAllInventorySkus(){
 	$result = $this->get(self::INVENTORY_SERVICE."?action=getAllSkus");
