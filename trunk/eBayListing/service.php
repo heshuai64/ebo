@@ -3363,21 +3363,118 @@ class eBayListing{
 	}
     }
     
-    public function templateExport(){
-	$data = "SKU,Title,Price\n";
-	$sql = "select SKU,Title,ListingType,BuyItNowPrice,StartPrice from template where accountId = '".$this->account_id."'";
+    private function getAllSubTemplateCategory($parent_id){
+	$allTemplateSubCategoryId = array();
+	$allTemplateSubCategoryId[] = $parent_id;
+	
+	$sql = "select id from template_category where parent_id = '".$parent_id."'";
+	//echo $sql."<br>";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while($row = mysql_fetch_assoc($result)){
-	    if($row['ListingType'] == "FixedPriceItem" || $row['ListingType'] == "StoresFixedPrice"){
-		$_POST['StartPrice'] = $_POST['BuyItNowPrice'];
+	    if(!empty($row['id'])){
+		$allTemplateSubCategoryId[] = $row['id'];
+		
+		$sql_1 = "select id from template_category where parent_id = '".$row['id']."'";
+		//echo $sql_1."<br>";
+		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+		while($row_1 = mysql_fetch_assoc($result_1)){
+		    if(!empty($row_1['id'])){
+			$allTemplateSubCategoryId[] = $row_1['id'];
+			
+			$sql_2 = "select id from template_category where parent_id = '".$row_1['id']."'";
+			//echo $sql_2."<br>";
+			$result_2 = mysql_query($sql_2, eBayListing::$database_connect);
+			while($row_2 = mysql_fetch_assoc($result_1)){
+			    $allTemplateSubCategoryId[] = $row_2['id'];
+			}
+		    }
+		}
 	    }
-	    $data .= '"'.$row['SKU'].'","'.$row['Title'].'","'.$row['StartPrice'].'"'."\n";
 	}
+	
+	return $allTemplateSubCategoryId;
+    }
+    
+    public function templateExport(){
+	require_once '/export/eBayListing/Classes/PHPExcel.php';
+	require_once '/export/eBayListing/Classes/PHPExcel/IOFactory.php';
+
+	$objExcel = new PHPExcel();
+	
+	$objExcel->setActiveSheetIndex(0);
+	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, 'SKU');
+	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, 'Title');
+	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, 'Description');
+	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, 'Price');
+		
+	$where = "";
+	if(!empty($_GET['SKU'])){
+	    $where .= " and SKU like '%".$_GET['SKU']."%'";
+	}
+	
+	if(!empty($_GET['Title'])){
+	    $where .= " and Title like '%".$_GET['Title']."%'";
+	}
+	
+	if(!empty($_GET['ListingType'])){
+	    $where .= " and ListingType ='".$_GET['ListingType']."'";
+	}
+	
+	if(!empty($_GET['ListingDuration'])){
+	    $where .= " and ListingDuration ='".$_GET['ListingDuration']."'";
+	}
+	
+	if(!empty($_GET['TemplateCategory'])){
+	    $category_id = $this->getAllSubTemplateCategory($_GET['TemplateCategory']);
+	    //print_r($category_id);
+	    //exit;
+	    
+	    $template_id = "";
+	    $sql = "select template_id from template_to_template_cateogry where template_category_id in (".implode(",", $category_id).")";
+	    //echo $sql."<br>";
+	    $result = mysql_query($sql, eBayListing::$database_connect);
+	    while($row = mysql_fetch_assoc($result)){
+		$template_id .= $row['template_id'].",";
+	    }
+	    $where .= "and Id in (".substr($template_id, 0, -1).")";
+	}
+	
+	$sql = "select SKU,Title,Description,ListingType,BuyItNowPrice,StartPrice from template where accountId = '".$this->account_id."'" . $where;
+	//echo $sql."<br>";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$i = 2;
+	while($row = mysql_fetch_assoc($result)){
+	    $j = 0;
+	    if($row['ListingType'] != "FixedPriceItem" && $row['ListingType'] != "StoresFixedPrice"){
+		$row['StartPrice'] = $row['BuyItNowPrice'];
+	    }
+	    $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['SKU']);
+	    $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['Title']);
+	    $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, html_entity_decode($row['Description'], ENT_QUOTES));
+	    $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['StartPrice']);
+	    //$data .= '"'.$row['SKU'].'","'.$row['Title'].'","'.$row['StartPrice'].'"'."\n";
+	    $i++;
+	}
+	
+	$outputFileName = "output.xls";
+	header("Content-Type: application/force-download");     
+	header("Content-Type: application/octet-stream");     
+	header("Content-Type: application/download");     
+	header('Content-Disposition:inline;filename="'.$outputFileName.'"');     
+	header("Content-Transfer-Encoding: binary");     
+	header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");     
+	header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");     
+	header("Cache-Control: must-revalidate, post-check=0, pre-check=0");     
+	header("Pragma: no-cache");     
+    
+	$writer = PHPExcel_IOFactory::createWriter($objExcel, 'Excel2007');
+	$writer->save('php://output');	//echo $data;
+	/*
 	header("Content-type: application/x-msdownload");
         header("Content-Disposition: attachment; filename=template.csv");
         header("Pragma: no-cache");
         header("Expires: 0");
-        echo $data;
+        echo $data;*/
     }
     
     public function getCategoryById(){
@@ -6959,7 +7056,7 @@ class eBayListing{
 	CurrentPrice,QuantitySold,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ListingStatus,ShippingType,Site,SKU,StartPrice,StoreCategory2ID,StoreCategory2Name,
 	StoreCategoryID,StoreCategoryName,Title,UserID,accountId,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,GalleryURL,Status) values ('".mysql_escape_string($item->ItemID)."','".mysql_escape_string($item->AutoPay)."',
 	'".mysql_escape_string($item->BuyItNowPrice)."','".mysql_escape_string($item->Country)."','".mysql_escape_string($item->Currency)."',
-	'".mysql_escape_string($item->Description)."','".mysql_escape_string($item->DispatchTimeMax)."','".mysql_escape_string($item->ListingDetails->StartTime)."',
+	'".htmlentities($item->Description, ENT_QUOTES)."','".mysql_escape_string($item->DispatchTimeMax)."','".mysql_escape_string($item->ListingDetails->StartTime)."',
 	'".mysql_escape_string($item->ListingDetails->EndTime)."','".mysql_escape_string($item->ListingDuration)."','".mysql_escape_string($item->ListingType)."',
 	'".mysql_escape_string($item->Location)."','".mysql_escape_string($item->PaymentMethods)."','".mysql_escape_string($item->PayPalEmailAddress)."',
 	'".mysql_escape_string($item->PostalCode)."','".mysql_escape_string($item->PrimaryCategory->CategoryID)."','".$PrimaryCategoryCategoryName."','".mysql_escape_string($item->Quantity)."',
@@ -6968,9 +7065,10 @@ class eBayListing{
 	'".mysql_escape_string($item->SecondaryCategory->CategoryID)."','".mysql_escape_string($SecondaryCategoryCategoryName)."',
 	'".mysql_escape_string($item->SellingStatus->ListingStatus)."','".mysql_escape_string($item->ShippingDetails->ShippingType)."','".mysql_escape_string($item->Site)."',
 	'".mysql_escape_string($item->SKU)."','".mysql_escape_string($item->StartPrice)."','".mysql_escape_string($StoreCategory2ID)."','".$StoreCategory2Name."',
-	'".mysql_escape_string($StoreCategoryID)."','".$StoreCategoryName."','".mysql_escape_string($item->Title)."','".mysql_escape_string($userId)."',".$accountId.",".$GalleryTypeFeatured.",".$GalleryTypeGallery.",".$GalleryTypePlus.",'".$item->PictureDetails->GalleryURL."','".$Status."')";
-	//echo $sql;
-	//echo "\n";
+	'".mysql_escape_string($StoreCategoryID)."','".$StoreCategoryName."','".htmlentities($item->Title, ENT_QUOTES)."','".mysql_escape_string($userId)."',".$accountId.",".$GalleryTypeFeatured.",".$GalleryTypeGallery.",".$GalleryTypePlus.",'".$item->PictureDetails->GalleryURL."','".$Status."')";
+	
+	echo $sql;
+	echo "<br>\n";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	
 	return mysql_insert_id(eBayListing::$database_connect);
@@ -7046,7 +7144,7 @@ class eBayListing{
 	ShippingType='".mysql_escape_string($item->ShippingDetails->ShippingType)."',
 	Site='".mysql_escape_string($item->Site)."',SKU='".mysql_escape_string($item->SKU)."',
 	StartPrice='".mysql_escape_string($item->StartPrice)."',StoreCategory2ID='".mysql_escape_string($item->Storefront->StoreCategory2ID)."',StoreCategory2Name='".mysql_escape_string($StoreCategory2Name)."',
-	StoreCategoryID='".mysql_escape_string($item->Storefront->StoreCategoryID)."',StoreCategoryName='".mysql_escape_string($StoreCategoryName)."',Title='".mysql_escape_string($item->Title)."',
+	StoreCategoryID='".mysql_escape_string($item->Storefront->StoreCategoryID)."',StoreCategoryName='".mysql_escape_string($StoreCategoryName)."',Title='".htmlentities($item->Title, ENT_QUOTES)."',
 	UserID='".mysql_escape_string($userId)."',Status='".$Status."',
 	GalleryTypeFeatured=".$GalleryTypeFeatured.",GalleryTypeGallery=".$GalleryTypeGallery.",GalleryTypePlus=".$GalleryTypePlus.",GalleryURL='".$item->PictureDetails->GalleryURL."' where ItemID = '".$item->ItemID."'";
 	//echo $sql;
@@ -7054,8 +7152,9 @@ class eBayListing{
 	//debugLog("eBay-update-item-track.log", $sql);
 	//$sql = "update items set CurrentPrice='".$item->SellingStatus->CurrentPrice."',QuantitySold='".$item->SellingStatus->QuantitySold."',ListingStatus='".$item->SellingStatus->ListingStatus.",Status='".$Status."'' 
 	//where ItemID = '".$item->ItemID."'";
-	//echo $sql;
-	//echo "<br>\n";
+	
+	echo $sql;
+	echo "<br>\n";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	
 	$sql = "select Id from items where ItemID = '".$item->ItemID."'";
@@ -7163,7 +7262,7 @@ class eBayListing{
     //http://127.0.0.1:6666/eBayBO/eBaylisting/service.php?action=getSellerList&EndTimeFrom=2009-05-29&EndTimeTo=2009-05-30
     public function getSellerList(){
 	global $argv;
-	if(!empty($argv[2])){
+	if(!empty($argv[2]) && !empty($argv[3]) && !empty($argv[4]) && !empty($argv[5])){
 	    $sql = "select id from account where name = '".$argv[2]."'";
 	    $result = mysql_query($sql, eBayListing::$database_connect);
 	    $row = mysql_fetch_assoc($result);
@@ -7171,26 +7270,38 @@ class eBayListing{
 	    $this->setAccount($row['id']);
 	    $this->configEbay();
 	    
-	    if($argv[3] == "Start"){
-		if(!empty($argv[4]) && !empty($argv[5])){
-		    $StartTimeFrom  = $argv[4];
-		    $StartTimeTo    = $argv[5];
+	    $type = $argv[3];
+	    if($type == "Start"){
+		$StartTimeFrom  = $argv[4];
+		$StartTimeTo    = $argv[5];
+	    }elseif($type == "End"){
+		$EndTimeFrom = $argv[4];
+		$EndTimeTo   = $argv[5];
+	    }
+	    
+	}elseif(!empty($argv[2])){
+	    $type = $argv[2];
+	    if($type == "Start"){
+		if(!empty($argv[3]) && !empty($argv[4])){
+		    $StartTimeFrom  = $argv[3];
+		    $StartTimeTo    = $argv[4];
 		}else{
-		    $StartTimeFrom  = date("Y-m-d H:i:s", time() - (12 * 60 * 60));
+		    $StartTimeFrom  = date("Y-m-d H:i:s", time() - (12 * 60 * 60) - 30);
 		    $StartTimeTo    = date("Y-m-d H:i:s", time() - (8 * 60 * 60));
 		}
-	    }elseif($argv[3] == "End"){
-		if(!empty($argv[4]) && !empty($argv[5])){
-		    $EndTimeFrom = $argv[4];
-		    $EndTimeTo   = $argv[5];
+	    }elseif($type == "End"){
+		if(!empty($argv[3]) && !empty($argv[4])){
+		    $EndTimeFrom = $argv[3];
+		    $EndTimeTo   = $argv[4];
 		}else{
-		    $EndTimeFrom = date("Y-m-d H:i:s", time() - (12 * 60 * 60));
+		    $EndTimeFrom = date("Y-m-d H:i:s", time() - (12 * 60 * 60) - 30);
 		    $EndTimeTo   = date("Y-m-d H:i:s", time() - (8 * 60 * 60));
 		}
 	    }
 	}
-	$type = $argv[3];
-	//print_r($argv);
+	
+	//print_r(array("Start"=> array("From"=>$StartTimeFrom, "To"=>$StartTimeTo), "End"=> array("From"=>$EndTimeFrom, "To"=>$EndTimeTo)));
+	//print_r($this->session);
 	//exit;
 	
 	try {
@@ -7198,22 +7309,7 @@ class eBayListing{
 
 	    $Version = '607';
 	    $DetailLevel = "ReturnAll";
-	    /*
-	    $Pagination = array("EntriesPerPage"=> 200,
-				"PageNumber"=> 1);
-	    */ 
-	    //$EndTimeFrom = $_GET['EndTimeFrom'];
-	    //$EndTimeTo = $_GET['EndTimeTo'];
 	    
-	    //$StartTimeFrom = $_GET['StartTimeFrom'];
-	    //$StartTimeTo = $_GET['StartTimeTo'];
-	    
-	    //$params = array('Version' => $Version, 'DetailLevel' => $DetailLevel, 'Pagination' => $Pagination, /*'StartTimeFrom' => $StartTimeFrom, 'StartTimeTo' => $StartTimeTo*/'EndTimeFrom' => $EndTimeFrom, 'EndTimeTo' => $EndTimeTo);
-	    //$results = $client->GetSellerList($params);
-	    
-	    //----------   debug --------------------------------
-	    //print "Request: \n".$client->__getLastRequest() ."\n";
-	    //print "Response: \n".$client->__getLastResponse()."\n";    
 	    $TotalNumberOfPages = 1;
 	    //print_r($argv);
 	    for($i = 1; $i <= $TotalNumberOfPages; $i++){
@@ -7275,6 +7371,7 @@ class eBayListing{
 			}else{
 			    $id = $this->eBayUpdateItem($item, $results->Seller->UserID);
 			    
+			    /*
 			    //ShippingServiceOptions
 			    if(is_array($item->ShippingDetails->ShippingServiceOptions)){
 				foreach($item->ShippingDetails->ShippingServiceOptions as $shippingServiceOptions){
@@ -7297,9 +7394,8 @@ class eBayListing{
 				}
 			    }
 			    $this->updatePictureUrl($id, $item->PictureDetails->PictureURL);
+			    */
 			}
-			
-			
 		    }
 		}else{
 		    //one item
@@ -7336,6 +7432,7 @@ class eBayListing{
 		    }else{
 			$id = $this->eBayUpdateItem($results->ItemArray->Item, $results->Seller->UserID);
 			
+			/*
 			//ShippingServiceOptions
 			if(is_array($results->ItemArray->Item->ShippingDetails->ShippingServiceOptions)){
 			    foreach($results->ItemArray->Item->ShippingDetails->ShippingServiceOptions as $shippingServiceOptions){
@@ -7359,8 +7456,8 @@ class eBayListing{
 			}
 			
 			$this->updatePictureUrl($id, $results->ItemArray->Item->PictureDetails->PictureURL);
+			*/
 		    }
-		    
 		}
 	    }
 	    

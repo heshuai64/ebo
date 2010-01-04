@@ -4,8 +4,8 @@ Ext.onReady(function(){
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      
-     var path = "/eBayBO/eBayListing/";
-     //var path = "/eBayListing/";
+     //var path = "/eBayBO/eBayListing/";
+     var path = "/eBayListing/";
      
      /*
      var cp = new Ext.state.CookieProvider({
@@ -735,7 +735,72 @@ Ext.onReady(function(){
                icon: './images/plugin_go.png',
                tooltip:'Export to CSV',
                handler: function(){
-                    window.open("service.php?action=templateExport","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=100, height=100");  
+                    var  exportWindow = new Ext.Window({
+                         title: 'Please select the export conditions' ,
+                         closable:true,
+                         width: 300,
+                         height: 220,
+                         plain:true,
+                         layout: 'form',
+                         items: [{
+                                   id:'SKU',
+                                   fieldLabel:'SKU',
+                                   xtype:'textfield'
+                              },{
+                                   id:'Title',
+                                   fieldLabel:'Title',
+                                   xtype:'textfield'
+                              },{
+                                   id:'ListingType',
+                                   fieldLabel:'Listing Type',
+                                   xtype:"combo",
+                                   store:['', 'Chinese', 'Dutch', 'StoresFixedPrice', 'FixedPriceItem'],
+                                   triggerAction: 'all',
+                                   editable: false,
+                                   selectOnFocus:true,
+                                   listWidth:100,
+                                   width:100
+                              },{
+                                   id:'ListingDuration',
+                                   fieldLabel:'Listing Duration',
+                                   xtype: 'combo',
+                                   store:['', 'Days_3', 'Days_5', 'Days_7', 'Days_10', 'Days_30'],
+                                   triggerAction: 'all',
+                                   editable: false,
+                                   selectOnFocus:true,
+                                   listWidth:100,
+                                   width:100
+                              },{
+                                   id:'TemplateCategory',
+                                   fieldLabel:'Category',
+                                   xtype:"combo",
+                                   mode: 'local',
+                                   store: templateCategoryStore,
+                                   valueField:'id',
+                                   displayField:'name',
+                                   triggerAction: 'all',
+                                   editable: false,
+                                   selectOnFocus:true
+                              }
+                         ],
+                         buttons: [{
+                                        text: 'Submit',
+                                        handler: function(){
+                                             window.open("service.php?action=templateExport&"+Ext.urlEncode({'SKU': Ext.getCmp('SKU').getValue(), 'Title': Ext.getCmp('Title').getValue(),
+                                                          'ListingType': Ext.getCmp('ListingType').getValue(), 'ListingDuration': Ext.getCmp('ListingDuration').getValue(),
+                                                          'TemplateCategory': Ext.getCmp('TemplateCategory').getValue()}),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=100, height=100");  
+                                             exportWindow.close();
+                                        }
+                                   },{
+                                        text: 'Close',
+                                        handler: function(){
+                                             exportWindow.close();
+                                        }
+                                   }]
+                                   
+                    })
+                    
+                    exportWindow.show();
                }
           },'-',{
                text:'Add To Upload',
@@ -3529,8 +3594,7 @@ Ext.onReady(function(){
                                                                            }]
                                                                            
                                                             })
-                                                            
-                                                            searchWindow.show();
+                                                       searchWindow.show();
                                                   }
                                              }],
                                              bbar: new Ext.PagingToolbar({
