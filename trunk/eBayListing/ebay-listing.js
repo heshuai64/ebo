@@ -4,8 +4,8 @@ Ext.onReady(function(){
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      
-     //var path = "/eBayBO/eBayListing/";
-     var path = "/eBayListing/";
+     var path = "/eBayBO/eBayListing/";
+     //var path = "/eBayListing/";
      
      /*
      var cp = new Ext.state.CookieProvider({
@@ -412,7 +412,7 @@ Ext.onReady(function(){
                          window.open(path + "preview.php?h=s&id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                          return 1;
                     }
-               },'-',{
+               },'-',{id: 'template_copy_num', xtype: 'numberfield', width: 30},{
                     text:'Copy',
                     icon: './images/plugin_link.png',
                     tooltip:'copy template',
@@ -431,7 +431,8 @@ Ext.onReady(function(){
                               waitMsg: 'Please Wait',
                               url: 'service.php?action=copyTemplate', 
                               params: { 
-                                   ids: ids
+                                   ids: ids,
+                                   copy_num: Ext.getCmp("template_copy_num").getValue()
                               }, 
                               success: function(response){
                                   var result=eval(response.responseText);

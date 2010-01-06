@@ -1927,7 +1927,12 @@ class eBayListing{
 	    }
 	    //echo 1;
 	}else{
-	    	$sql_1 = "insert into template (AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+	    if(empty($_POST['copy_num'])){
+		$_POST['copy_num'] = 1;
+	    }
+	    
+	    for($i = 0; $i < $_POST['copy_num']; $i++){
+		$sql_1 = "insert into template (AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 		Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
 		PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,
 		ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
@@ -1940,53 +1945,54 @@ class eBayListing{
 		StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName from template where Id = '".$_POST['ids']."'";
-	    
-	    //echo $sql_1."\n";
-	    
-	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-	    $template_id = mysql_insert_id(eBayListing::$database_connect);
-	    
-	    //var_dump($item_id);
-	    //exit;
-	    $sql_2 = "insert into template_picture_url (templateId,url)  select '".$template_id."',url from template_picture_url where templateId = '".$_POST['ids']."'";
-	    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
-	    
-	    /*
-	    $sql_3 = "insert into template_shipping_service_options (templateId,FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority) select '".$template_id."',FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority from template_shipping_service_options where templateId = '".$_POST['ids']."'";
-	    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
-	    
-	    $sql_4 = "insert into template_international_shipping_service_option (templateId,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority,ShipToLocation) select '".$template_id."',ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority,ShipToLocation from template_international_shipping_service_option where templateId = '".$_POST['ids']."'";
-	    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-	    */
-	    
-	    $sql_5 = "select * from template_attribute_set where templateId = '".$_POST['ids']."'";
-	    $result_5 = mysql_query($sql_5, eBayListing::$database_connect);
-	    while($row_5 = mysql_fetch_assoc($result_5)){
-		$template_attribute_set_id = $row_5['attribute_set_id'];
-		$sql_6 = "insert into template_attribute_set (templateId,attributeSetID) values ('".$template_id."','".$row_5['attributeSetID']."')";
-		//echo $sql_6."\n";
-		$result_6 = mysql_query($sql_6, eBayListing::$database_connect);
-		$attribute_set_id = mysql_insert_id(eBayListing::$database_connect);
 		
-		$sql_7 = "insert into template_attribute (attributeID,attribute_set_id,ValueID,ValueLiteral) 
-		select attributeID,'".$attribute_set_id."',ValueID,ValueLiteral from template_attribute 
-		where attribute_set_id = '".$template_attribute_set_id."'";
-		$result_7 = mysql_query($sql_7, eBayListing::$database_connect);
-	    }
-	    //var_dump(array($result_1, $result_2, $result_3, $result_4, $result_6, $result_7));
-	    
-	    $sql_8 = "insert into template_to_template_cateogry (template_id,template_category_id) select '".$template_id."',template_category_id from template_to_template_cateogry where template_id = '".$_POST['ids']."'";
-	    //echo $sql_8;
-	    $result_8 = mysql_query($sql_8, eBayListing::$database_connect);
-	    
-	    if($result_1 && $result_2 && $result_5 && $result_8){
-		//echo 1;
-	    }else{
-		echo 0;
+		//echo $sql_1."\n";
+		
+		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+		$template_id = mysql_insert_id(eBayListing::$database_connect);
+		$temp .= $template_id.", ";
+		//var_dump($item_id);
+		//exit;
+		$sql_2 = "insert into template_picture_url (templateId,url)  select '".$template_id."',url from template_picture_url where templateId = '".$_POST['ids']."'";
+		$result_2 = mysql_query($sql_2, eBayListing::$database_connect);
+		
+		/*
+		$sql_3 = "insert into template_shipping_service_options (templateId,FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority) select '".$template_id."',FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority from template_shipping_service_options where templateId = '".$_POST['ids']."'";
+		$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+		
+		$sql_4 = "insert into template_international_shipping_service_option (templateId,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority,ShipToLocation) select '".$template_id."',ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority,ShipToLocation from template_international_shipping_service_option where templateId = '".$_POST['ids']."'";
+		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+		*/
+		
+		$sql_5 = "select * from template_attribute_set where templateId = '".$_POST['ids']."'";
+		$result_5 = mysql_query($sql_5, eBayListing::$database_connect);
+		while($row_5 = mysql_fetch_assoc($result_5)){
+		    $template_attribute_set_id = $row_5['attribute_set_id'];
+		    $sql_6 = "insert into template_attribute_set (templateId,attributeSetID) values ('".$template_id."','".$row_5['attributeSetID']."')";
+		    //echo $sql_6."\n";
+		    $result_6 = mysql_query($sql_6, eBayListing::$database_connect);
+		    $attribute_set_id = mysql_insert_id(eBayListing::$database_connect);
+		    
+		    $sql_7 = "insert into template_attribute (attributeID,attribute_set_id,ValueID,ValueLiteral) 
+		    select attributeID,'".$attribute_set_id."',ValueID,ValueLiteral from template_attribute 
+		    where attribute_set_id = '".$template_attribute_set_id."'";
+		    $result_7 = mysql_query($sql_7, eBayListing::$database_connect);
+		}
+		//var_dump(array($result_1, $result_2, $result_3, $result_4, $result_6, $result_7));
+		
+		$sql_8 = "insert into template_to_template_cateogry (template_id,template_category_id) select '".$template_id."',template_category_id from template_to_template_cateogry where template_id = '".$_POST['ids']."'";
+		//echo $sql_8;
+		$result_8 = mysql_query($sql_8, eBayListing::$database_connect);
+		
+		if($result_1 && $result_2 && $result_5 && $result_8){
+		    //echo 1;
+		}else{
+		    echo 0;
+		}
 	    }
 	    
 	    if(strlen($template_id) > 3){
-		echo "[{success: true, msg: 'Copy template success, template id is ".$template_id.".'}]";
+		echo "[{success: true, msg: 'Copy template success, template id is ".substr($temp, 0, -2).".'}]";
 	    }
 	}
     }
