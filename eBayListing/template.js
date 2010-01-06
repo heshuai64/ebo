@@ -260,6 +260,12 @@ Ext.onReady(function(){
                         Ext.getCmp("Quantity").setDisabled(1);
                     break;
                 
+                    case "Dutch":
+                        Ext.getCmp("Quantity").setDisabled(0);
+                        Ext.getCmp("StartPrice").setDisabled(0);
+                        Ext.getCmp("ReservePrice").setDisabled(1);
+                    break;
+                
                     case "FixedPriceItem":
                         Ext.getCmp("Quantity").setDisabled(0);
                         Ext.getCmp("StartPrice").setDisabled(1);

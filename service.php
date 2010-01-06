@@ -47,12 +47,7 @@ class Service{
             %s";
             
     //XMAS ------------------------------------------------------------------------------------------------------
-    const XMAS_REGISTERED_TEMPLATE_1  = "<p><b>Note for North Amercia,Australia and European buyers (order from Dec.5th to Dec.31 th 2009).<br>
-            Firstly, Due to the heavy snow weather affect in North Amercia and Europen countries that many flights are delayed or canceled which brought about a large of parcels are stopver in your local airports, and your post office unable to properly sorting and delivery the parcels.Secondly, For Australia buyers, due to the twice strikes in AU P.O. on Dec.16th to Dec.25th period that there are huge impact on shipping efficiency.<br>
-            Thridly, due to the xmas and new year holidays reason that all of the post office are out of duty.<br>
-            So, your item (order from Dec.5th to Dec.31 th 2009) may delay 12 days or longer time to arrive than normal shipping time.<br>
-            Hopefully to get your understanding and patience to wait.<br>
-            Merry Christmas and Happy New Year!</b></p>
+    const XMAS_REGISTERED_TEMPLATE_1  = "
             <p>%s</p>
             <p>Dear %s,</p>
             <p>Thank you for your purchasing, this email just to inform you that we sent your item to our dispatch center. It is estimated to arrive in 7 to 15 working days in normal conditions to most of US, UK, AU destinations and 3 to 5 weeks to arrive the Europe countries and other remote regions, it depends your custom inspections and the freight efficiency. If not arrive at that time period, please do not hesitate to contact us.</p> 
@@ -62,12 +57,7 @@ class Service{
             Yours Sincerely,<br>
             %s";
             
-    const XMAS_BLUK_TEMPLATE_1  = "<p><b>Note for North Amercia,Australia and European buyers (order from Dec.5th to Dec.31 th 2009).<br>
-            Firstly, Due to the heavy snow weather affect in North Amercia and Europen countries that many flights are delayed or canceled which brought about a large of parcels are stopver in your local airports, and your post office unable to properly sorting and delivery the parcels.Secondly, For Australia buyers, due to the twice strikes in AU P.O. on Dec.16th to Dec.25th period that there are huge impact on shipping efficiency.<br>
-            Thridly, due to the xmas and new year holidays reason that all of the post office are out of duty.<br>
-            So, your item (order from Dec.5th to Dec.31 th 2009) may delay 12 days or longer time to arrive than normal shipping time.<br>
-            Hopefully to get your understanding and patience to wait.<br> 
-            Merry Christmas and Happy New Year!</b></p>
+    const XMAS_BLUK_TEMPLATE_1  = "
             <p>%s</p>
             <p>Dear %s,</p>
             <p>Thank you for your purchasing from us, this email just to inform you that we sent your item to our dispatch center. It is estimated to arrive in 7 to 15 working days in normal conditions to most of US, UK, AU destinations and 3 to 5 weeks to arrive the Europe countries and other remote regions, it depends your custom inspections and the freight efficiency.</p>
@@ -77,12 +67,7 @@ class Service{
             Yours Sincerely,<br>
             %s";
     
-    const XMAS_REGISTERED_TEMPLATE_2  = "<p><b>Note for North Amercia,Australia and European buyers (order from Dec.5th to Dec.31 th 2009).<br>
-            Firstly, Due to the heavy snow weather affect in North Amercia and Europen countries that many flights are delayed or canceled which brought about a large of parcels are stopver in your local airports, and your post office unable to properly sorting and delivery the parcels.Secondly, For Australia buyers, due to the twice strikes in AU P.O. on Dec.16th to Dec.25th period that there are huge impact on shipping efficiency.<br>
-            Thridly, due to the xmas and new year holidays reason that all of the post office are out of duty.<br>
-            So, your item (order from Dec.5th to Dec.31 th 2009) may delay 12 days or longer time to arrive than normal shipping time.<br>
-            Hopefully to get your understanding and patience to wait.<br>
-            Merry Christmas and Happy New Year!</b></p>
+    const XMAS_REGISTERED_TEMPLATE_2  = "
             <p>%s</p>
             <p>Dear %s,</p>
             <p>Just keep in my mind, 12 days have passed since your item was shipped. Have you received it?</p>
@@ -95,12 +80,7 @@ class Service{
             Yours Sincerely,<br>
             %s";
             
-    const XMAS_BLUK_TEMPLATE_2  = "<p><b>Note for North Amercia,Australia and European buyers (order from Dec.5th to Dec.31 th 2009).<br>
-            Firstly, Due to the heavy snow weather affect in North Amercia and Europen countries that many flights are delayed or canceled which brought about a large of parcels are stopver in your local airports, and your post office unable to properly sorting and delivery the parcels.Secondly, For Australia buyers, due to the twice strikes in AU P.O. on Dec.16th to Dec.25th period that there are huge impact on shipping efficiency.<br>
-            Thridly, due to the xmas and new year holidays reason that all of the post office are out of duty.<br>
-            So, your item (order from Dec.5th to Dec.31 th 2009) may delay 12 days or longer time to arrive than normal shipping time.<br>
-            Hopefully to get your understanding and patience to wait.<br>
-            Merry Christmas and Happy New Year!</b></p>
+    const XMAS_BLUK_TEMPLATE_2  = "
             <p>%s</p>
             <p>Dear %s,</p>
             <p>Just keep in my mind, 12 days have passed since your item was shipped. Have you received it? If received it already and with good condition, we sincerely hope that you will like it and satisfied with our customer services, your valued positive comment with all 5-stars Detailed Seller Ratings are much appreciated, which are of vital importance to the growth of our small company.</p> 
@@ -111,12 +91,7 @@ class Service{
             Yours Sincerely,<br>
             %s";
     
-    const XMAS_TEMPLATE_3  = "<p><b>Note for North Amercia,Australia and European buyers (order from Dec.5th to Dec.31 th 2009).<br>
-            Firstly, Due to the heavy snow weather affect in North Amercia and Europen countries that many flights are delayed or canceled which brought about a large of parcels are stopver in your local airports, and your post office unable to properly sorting and delivery the parcels.Secondly, For Australia buyers, due to the twice strikes in AU P.O. on Dec.16th to Dec.25th period that there are huge impact on shipping efficiency.<br>
-            Thridly, due to the xmas and new year holidays reason that all of the post office are out of duty.<br>
-            So, your item (order from Dec.5th to Dec.31 th 2009) may delay 12 days or longer time to arrive than normal shipping time.<br>
-            Hopefully to get your understanding and patience to wait.<br>
-            Merry Christmas and Happy New Year!</b></p>
+    const XMAS_TEMPLATE_3  = "
             <p>%s</p>
             <p>Dear %s,</p>
             <p>Merry Christmas! 22 days have passed since your item was shipped. I’d like to know that have you received it?</p>
