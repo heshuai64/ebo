@@ -133,7 +133,7 @@ Ext.onReady(function(){
                               category_id: inventory_search_form.getForm().findField("category_id").getValue(),
                               manufacturer_id: inventory_search_form.getForm().findField("manufacturer_id").getValue()
                          };
-                         inventory_store.load({params:{start:0, limit:20}});
+                         inventory_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
                     }
           }]
      })
@@ -202,7 +202,7 @@ Ext.onReady(function(){
                     inventory_store.baseParams = {
                          category_id: n.id
                     };
-                    inventory_store.load({params:{start:0, limit:20}});
+                    inventory_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
                }
                
           }
@@ -241,7 +241,7 @@ Ext.onReady(function(){
                               SKU: template_search_form.getForm().findField("SKU").getValue(),
                               Title: template_search_form.getForm().findField("Title").getValue()
                          };
-                         template_store.load({params:{start:0, limit:20}});
+                         template_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
                     }
           }]
      })
@@ -281,37 +281,6 @@ Ext.onReady(function(){
                }
           }
      });
-     
-     var item_grid_editor = new Ext.ux.grid.RowEditor({
-          saveText: 'Update',
-          listeners: {
-               afteredit : function(a, b, c, d){
-                    Ext.Ajax.request({  
-                         waitMsg: 'Please Wait',
-                         url: 'service.php?action=updateFields', 
-                         params: { 
-                              id: c.data.Id,
-                              table: 'items',
-                              Title: b.Title,
-                              Quantity: b.Quantity,
-                              Price: b.Price
-                         }, 
-                         success: function(response){
-                             var result = eval(response.responseText);
-                             if(result[0].success){
-                                   Ext.MessageBox.alert('Success', result[0].msg);
-                              }else{
-                                   Ext.MessageBox.alert('Failure', result[0].msg);
-                              }
-                         },
-                         failure: function(response){
-                             var result=response.responseText;
-                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
-                         }
-                    });
-               }
-          }
-     })
      
      var template_store = new Ext.data.JsonStore({
           root: 'records',
@@ -494,7 +463,7 @@ Ext.onReady(function(){
                          if (a == 'yes'){
                               Ext.Ajax.request({  
                                    waitMsg: 'Please Wait',
-                                   url: 'service.php?action=templateDelete', 
+                                   url: 'service.php?action=deleteTemplate', 
                                    params: { 
                                           ids: ids
                                    }, 
@@ -564,7 +533,7 @@ Ext.onReady(function(){
                                              var fp = Ext.getCmp("csv-form");
                                              if(fp.getForm().isValid()){
                                                   fp.getForm().submit({
-                                                       url: 'service.php?action=templateImportCsv&type=spcsv',
+                                                       url: 'service.php?action=importTemplateToCSV&type=spcsv',
                                                        waitMsg: 'Uploading your csv...',
                                                        success: function(fp, o){
                                                             template_store.reload();
@@ -592,7 +561,7 @@ Ext.onReady(function(){
                                              var fp = Ext.getCmp("csv-form");
                                              if(fp.getForm().isValid()){
                                                   fp.getForm().submit({
-                                                       url: 'service.php?action=templateImportCsv&type=sqcsv',
+                                                       url: 'service.php?action=importTemplateFromCSV&type=sqcsv',
                                                        waitMsg: 'Uploading your csv...',
                                                        success: function(fp, o){
                                                             template_store.reload();
@@ -620,7 +589,7 @@ Ext.onReady(function(){
                                              var fp = Ext.getCmp("csv-form");
                                              if(fp.getForm().isValid()){
                                                   fp.getForm().submit({
-                                                       url: 'service.php?action=templateImportCsv&type=stpcsv',
+                                                       url: 'service.php?action=importTemplateToCSV&type=stpcsv',
                                                        waitMsg: 'Uploading your csv...',
                                                        success: function(fp, o){
                                                             template_store.reload();
@@ -652,7 +621,7 @@ Ext.onReady(function(){
                                              var fp = Ext.getCmp("csv-form");
                                              if(fp.getForm().isValid()){
                                                   fp.getForm().submit({
-                                                       url: 'service.php?action=templateImportCsv&type=stcsv',
+                                                       url: 'service.php?action=importTemplateToCSV&type=stcsv',
                                                        waitMsg: 'Uploading your csv...',
                                                        success: function(fp, o){
                                                             importCsvWindow.close();
@@ -682,7 +651,7 @@ Ext.onReady(function(){
                                         var fp = Ext.getCmp("csv-form");
                                         if(fp.getForm().isValid()){
                                              fp.getForm().submit({
-                                                  url: 'service.php?action=templateImportCsv&type=spcsv',
+                                                  url: 'service.php?action=importTemplateToCSV&type=spcsv',
                                                   waitMsg: 'Uploading your csv...',
                                                   success: function(fp, o){
                                                        template_store.reload();
@@ -709,7 +678,7 @@ Ext.onReady(function(){
                                         var fp = Ext.getCmp("csv-form");
                                         if(fp.getForm().isValid()){
                                              fp.getForm().submit({
-                                                  url: 'service.php?action=templateImportCsv&type=sqcsv',
+                                                  url: 'service.php?action=importTemplateToCSV&type=sqcsv',
                                                   waitMsg: 'Uploading your csv...',
                                                   success: function(fp, o){
                                                        template_store.reload();
@@ -787,7 +756,7 @@ Ext.onReady(function(){
                          buttons: [{
                                         text: 'Submit',
                                         handler: function(){
-                                             window.open("service.php?action=templateExport&"+Ext.urlEncode({'SKU': Ext.getCmp('SKU').getValue(), 'Title': Ext.getCmp('Title').getValue(),
+                                             window.open("service.php?action=exportTemplateToExcel&"+Ext.urlEncode({'SKU': Ext.getCmp('SKU').getValue(), 'Title': Ext.getCmp('Title').getValue(),
                                                           'ListingType': Ext.getCmp('ListingType').getValue(), 'ListingDuration': Ext.getCmp('ListingDuration').getValue(),
                                                           'TemplateCategory': Ext.getCmp('TemplateCategory').getValue()}),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=100, height=100");  
                                              exportWindow.close();
@@ -821,7 +790,7 @@ Ext.onReady(function(){
                     
                     Ext.Ajax.request({  
                          waitMsg: 'Please Wait',
-                         url: 'service.php?action=templateAddToUpload', 
+                         url: 'service.php?action=addTemplateToUpload', 
                          params: { 
                               ids: ids
                          }, 
@@ -860,7 +829,7 @@ Ext.onReady(function(){
                     
                     Ext.Ajax.request({  
                          waitMsg: 'Please Wait',
-                         url: 'service.php?action=templateImmediatelyUpload', 
+                         url: 'service.php?action=immediatelyUploadTemplate', 
                          params: { 
                               ids: ids
                          }, 
@@ -900,7 +869,7 @@ Ext.onReady(function(){
                     
                     Ext.Ajax.request({  
                          waitMsg: 'Please Wait',
-                         url: 'service.php?action=templateScheduleUpload', 
+                         url: 'service.php?action=scheduleUploadTemplate', 
                          params: { 
                                 ids: ids
                          }, 
@@ -977,7 +946,7 @@ Ext.onReady(function(){
                                              handler: function(){
                                                   Ext.Ajax.request({  
                                                        waitMsg: 'Please Wait',
-                                                       url: 'service.php?action=templateIntervalUpload', 
+                                                       url: 'service.php?action=intervalUploadTemplate', 
                                                        params: {
                                                             ids: ids,
                                                             date: Ext.getCmp('interval-date').getValue(),
@@ -1016,7 +985,7 @@ Ext.onReady(function(){
                     }
           }],
           bbar: [new Ext.PagingToolbar({
-              pageSize: 20,
+              pageSize: parseInt(getCookie("pagination")),
               store: template_store,
               displayInfo: true
           }),'-',{
@@ -1177,7 +1146,7 @@ Ext.onReady(function(){
                                         var fp = Ext.getCmp("aie-form");
                                         //if(fp.getForm().isValid()){
                                              fp.getForm().submit({
-                                                  url: 'service.php?action=templateImportSpoonFeeder',
+                                                  url: 'service.php?action=importTemplateFromSpoonFeeder',
                                                   waitMsg: 'Import SpoonFeeder Template...',
                                                   success: function(f, a){
                                                        importAieWindow.close();
@@ -1262,7 +1231,7 @@ Ext.onReady(function(){
                                         var fp = Ext.getCmp("tb-form");
                                         if(fp.getForm().isValid()){
                                              fp.getForm().submit({
-                                                  url: 'service.php?action=templateImportTurboLister',
+                                                  url: 'service.php?action=importTemplateFromTurboLister',
                                                   waitMsg: 'Import Turbo Lister Template...',
                                                   success: function(f, a){
                                                        //console.log(a);
@@ -1319,7 +1288,7 @@ Ext.onReady(function(){
                     template_store.baseParams = {
                          parent_id: n.id
                     };
-                    template_store.load({params:{start:0, limit:20}});
+                    template_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
                },
                movenode: function(tree, node, oldParent, newParent, index){
                     //console.log([node, newParent]);
@@ -1468,10 +1437,41 @@ Ext.onReady(function(){
           url: 'service.php?action=getActiveItem'
      })
      
+     var activity_grid_editor = new Ext.ux.grid.RowEditor({
+          saveText: 'Update',
+          listeners: {
+               afteredit : function(a, b, c, d){
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=updateFields', 
+                         params: { 
+                              id: c.data.Id,
+                              table: 'items',
+                              Title: b.Title,
+                              Quantity: b.Quantity,
+                              Price: b.Price
+                         }, 
+                         success: function(response){
+                             var result = eval(response.responseText);
+                             if(result[0].success){
+                                   Ext.MessageBox.alert('Success', result[0].msg);
+                              }else{
+                                   Ext.MessageBox.alert('Failure', result[0].msg);
+                              }
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
+               }
+          }
+     })
+     
      var activity_grid = new Ext.grid.GridPanel({
           //title: 'Waiting To Upload SKU List',
           store: activity_store,
-          plugins: [item_grid_editor],
+          plugins: [activity_grid_editor],
           //autoHeight: true,
           width: 1024,
           //autoScroll: true,
@@ -1594,7 +1594,7 @@ Ext.onReady(function(){
                                                        Title: Ext.getCmp("Title").getValue(),
                                                        ListingDuration: Ext.getCmp("ListingDuration").getValue()
                                                   };
-                                                  activity_store.load({params:{start:0, limit:20}});
+                                                  activity_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
                                                   searchWindow.close();
                                              }
                                         },{
@@ -1610,7 +1610,7 @@ Ext.onReady(function(){
                }
           }],
           bbar: new Ext.PagingToolbar({
-              pageSize: 20,
+              pageSize: parseInt(getCookie("pagination")),
               store: activity_store,
               displayInfo: true
           })
@@ -1776,7 +1776,7 @@ Ext.onReady(function(){
                                         }
                                    }],
                                    bbar: new Ext.PagingToolbar({
-                                       pageSize: 20,
+                                       pageSize: parseInt(getCookie("pagination")),
                                        store: sold_item_store,
                                        displayInfo: true
                                    })
@@ -1879,7 +1879,7 @@ Ext.onReady(function(){
                                         }
                                    }],
                                    bbar: new Ext.PagingToolbar({
-                                       pageSize: 20,
+                                       pageSize: parseInt(getCookie("pagination")),
                                        store: unsold_item_store,
                                        displayInfo: true
                                    })
@@ -1958,7 +1958,7 @@ Ext.onReady(function(){
                                    title: 'Account Info' ,
                                    closable:true,
                                    width: 300,
-                                   height: 180,
+                                   height: 220,
                                    plain:true,
                                    layout: 'form',
                                    items: [{
@@ -1970,7 +1970,7 @@ Ext.onReady(function(){
                                                        //console.log(t.getValue());
                                                        Ext.Ajax.request({  
                                                             waitMsg: 'Please Wait',
-                                                            url: 'service.php?action=getPayPalEmailAddress', 
+                                                            url: 'service.php?action=getPayPalEmailAndPagination', 
                                                             params: {
                                                                  mPassword: Ext.getCmp('mPassword').getValue()
                                                             }, 
@@ -1979,7 +1979,8 @@ Ext.onReady(function(){
                                                                  var result = eval(response.responseText);
                                                                  //console.log(result);
                                                                  if(result[0].success){
-                                                                      Ext.getCmp("PayPalEmailAddress").setValue(result[0].msg);
+                                                                      Ext.getCmp("PayPalEmailAddress").setValue(result[0].paypalEmail);
+                                                                      Ext.getCmp("pagination").setValue(result[0].pagination);
                                                                  }else{
                                                                       Ext.MessageBox.alert('Warning', result[0].msg);
                                                                  }
@@ -2000,8 +2001,13 @@ Ext.onReady(function(){
                                              fieldLabel:'New Password',
                                              xtype:'textfield'
                                         },{
+                                             id:'pagination',
+                                             fieldLabel:'Pagination Size',
+                                             xtype:'numberfield'
+                                        },{
                                              id:'PayPalEmailAddress',
                                              fieldLabel:'PayPal Email',
+                                             readOnly:true,
                                              xtype:'textfield'
                                         }
                                    ],
@@ -2016,6 +2022,7 @@ Ext.onReady(function(){
                                                                  oPassword: Ext.getCmp('oPassword').getValue(),
                                                                  nPassword: Ext.getCmp('nPassword').getValue(),
                                                                  mPassword: Ext.getCmp('mPassword').getValue(),
+                                                                 pagination: Ext.getCmp('pagination').getValue(),
                                                                  PayPalEmailAddress: Ext.getCmp('PayPalEmailAddress').getValue()
                                                             }, 
                                                             success: function(response){
@@ -2115,7 +2122,7 @@ Ext.onReady(function(){
                                         template_store.baseParams = {
                                              parent_id: 0
                                         };
-                                        template_store.load({params:{start:0, limit:20}});
+                                        template_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
                                         
                                         tabPanel.add({
                                              id:'template-tab',
@@ -2172,7 +2179,7 @@ Ext.onReady(function(){
                                                        SKU: wait_search.getForm().findField("SKU").getValue(),
                                                        Title: wait_search.getForm().findField("Title").getValue()
                                                   };
-                                                  wait_store.load({params:{start:0, limit:20}});
+                                                  wait_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
                                              }
                                    }]
                               })
@@ -2196,10 +2203,41 @@ Ext.onReady(function(){
                                    }
                               })
             
+                              var wait_grid_editor = new Ext.ux.grid.RowEditor({
+                                   saveText: 'Update',
+                                   listeners: {
+                                        afteredit : function(a, b, c, d){
+                                             Ext.Ajax.request({  
+                                                  waitMsg: 'Please Wait',
+                                                  url: 'service.php?action=updateFields', 
+                                                  params: { 
+                                                       id: c.data.Id,
+                                                       table: 'items',
+                                                       Title: b.Title,
+                                                       Quantity: b.Quantity,
+                                                       Price: b.Price
+                                                  }, 
+                                                  success: function(response){
+                                                      var result = eval(response.responseText);
+                                                      if(result[0].success){
+                                                            Ext.MessageBox.alert('Success', result[0].msg);
+                                                       }else{
+                                                            Ext.MessageBox.alert('Failure', result[0].msg);
+                                                       }
+                                                  },
+                                                  failure: function(response){
+                                                      var result=response.responseText;
+                                                      Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                  }
+                                             });
+                                        }
+                                   }
+                              })
+            
                               var wait_grid = new Ext.grid.EditorGridPanel({
                                    title: 'Waiting To Upload List',
                                    store: wait_store,
-                                   plugins: [item_grid_editor],
+                                   plugins: [wait_grid_editor],
                                    autoHeight: true,
                                    width: 1040,
                                    selModel: new Ext.grid.RowSelectionModel({}),
@@ -2435,7 +2473,7 @@ Ext.onReady(function(){
                                              ids = ids.slice(0,-1);
                                              Ext.Ajax.request({  
                                                   waitMsg: 'Please Wait',
-                                                  url: 'service.php?action=addToSchedule', 
+                                                  url: 'service.php?action=addItemToSchedule', 
                                                   params: { 
                                                        ids: ids
                                                   }, 
@@ -2459,7 +2497,7 @@ Ext.onReady(function(){
                                         }
                                    }],
                                    bbar: new Ext.PagingToolbar({
-                                       pageSize: 20,
+                                       pageSize: parseInt(getCookie("pagination")),
                                        store: wait_store,
                                        displayInfo: true
                                    })
@@ -2538,7 +2576,7 @@ Ext.onReady(function(){
                                                             SKU:   schedule_search.getForm().findField("SKU").getValue(),
                                                             Title: schedule_search.getForm().findField("Title").getValue()
                                                        };
-                                                       schedule_store.load({params:{start:0, limit:20}});
+                                                       schedule_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
                                                   }
                                         }]
                                    })
@@ -2562,10 +2600,41 @@ Ext.onReady(function(){
                                         }
                                    })
                  
+                                   var schedule_grid_editor = new Ext.ux.grid.RowEditor({
+                                        saveText: 'Update',
+                                        listeners: {
+                                             afteredit : function(a, b, c, d){
+                                                  Ext.Ajax.request({  
+                                                       waitMsg: 'Please Wait',
+                                                       url: 'service.php?action=updateFields', 
+                                                       params: { 
+                                                            id: c.data.Id,
+                                                            table: 'items',
+                                                            Title: b.Title,
+                                                            Quantity: b.Quantity,
+                                                            Price: b.Price
+                                                       }, 
+                                                       success: function(response){
+                                                           var result = eval(response.responseText);
+                                                           if(result[0].success){
+                                                                 Ext.MessageBox.alert('Success', result[0].msg);
+                                                            }else{
+                                                                 Ext.MessageBox.alert('Failure', result[0].msg);
+                                                            }
+                                                       },
+                                                       failure: function(response){
+                                                           var result=response.responseText;
+                                                           Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                       }
+                                                  });
+                                             }
+                                        }
+                                   })
+                                   
                                    var schedule_grid = new Ext.grid.EditorGridPanel({
                                         title: 'Schedule List',
                                         store: schedule_store,
-                                        plugins: [item_grid_editor],
+                                        plugins: [schedule_grid_editor],
                                         autoHeight: true,
                                         width: 1040,
                                         selModel: new Ext.grid.RowSelectionModel({}),
@@ -2786,7 +2855,7 @@ Ext.onReady(function(){
                                              }
                                         }],
                                         bbar: new Ext.PagingToolbar({
-                                            pageSize: 20,
+                                            pageSize: parseInt(getCookie("pagination")),
                                             store: schedule_store,
                                             displayInfo: true
                                         })
@@ -3442,7 +3511,7 @@ Ext.onReady(function(){
                                                   {header: "Time", width: 110, align: 'center', sortable: true, dataIndex: 'time'}
                                              ],
                                              bbar: new Ext.PagingToolbar({
-                                                 pageSize: 20,
+                                                 pageSize: parseInt(getCookie("pagination")),
                                                  store: template_store,
                                                  displayInfo: true
                                              })
@@ -3489,7 +3558,7 @@ Ext.onReady(function(){
                                                   {header: "Time", width: 110, align: 'center', sortable: true, dataIndex: 'time'}
                                              ],
                                              bbar: new Ext.PagingToolbar({
-                                                 pageSize: 20,
+                                                 pageSize: parseInt(getCookie("pagination")),
                                                  store: item_store,
                                                  displayInfo: true
                                              })
@@ -3584,7 +3653,7 @@ Ext.onReady(function(){
                                                                                           endDate: Ext.getCmp("endDate").getValue().format("Y-m-d"),
                                                                                           level: Ext.getCmp("level").getValue()
                                                                                      };
-                                                                                     upload_store.load({params:{start:0, limit:20}});
+                                                                                     upload_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
                                                                                      searchWindow.close();
                                                                                 }
                                                                            },{
@@ -3599,7 +3668,7 @@ Ext.onReady(function(){
                                                   }
                                              }],
                                              bbar: new Ext.PagingToolbar({
-                                                 pageSize: 20,
+                                                 pageSize: parseInt(getCookie("pagination")),
                                                  store: upload_store,
                                                  displayInfo: true
                                              })
@@ -3646,7 +3715,7 @@ Ext.onReady(function(){
                                                   {header: "Time", width: 110, align: 'center', sortable: true, dataIndex: 'time'}
                                              ],
                                              bbar: new Ext.PagingToolbar({
-                                                 pageSize: 20,
+                                                 pageSize: parseInt(getCookie("pagination")),
                                                  store: revise_store,
                                                  displayInfo: true
                                              })
