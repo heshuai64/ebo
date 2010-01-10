@@ -94,7 +94,7 @@ class Service{
     const XMAS_TEMPLATE_3  = "
             <p>%s</p>
             <p>Dear %s,</p>
-            <p>Merry Christmas! 22 days have passed since your item was shipped. I’d like to know that have you received it?</p>
+            <p>22 days have passed since your item was shipped. I’d like to know that have you received it?</p>
             <p>If yes and like it, hopefully to receive your valued positive feedback and with all 5 stars DSRs.</p>
             <p>During the specail period, I really concern about all of our items be sent could arrive as quickly as wish, but, if not arrive yet, would you please kindly wait another 4 working days? If still no news after 4 working days then we will offer a quite satisfied resolution for you. Sorry to keep you waiting as a lot of parcels put on post office await to delivery, so it has a slightly delayed. Your bit patience and understanding with this matter would be greatly appreciated.</p>
             <p>Thanks a lot once more for your everything.</p>
@@ -247,9 +247,9 @@ class Service{
                     if($send_result){
                         //$sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
                         //$result_3 = mysql_query($sql_3);
-                        $this->log("email/1_sendXmasShpmentEmail", $row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
+                        $this->log("email/1_sendXmasShpmentEmail", $sellerId. ": ".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
                     }else{
-                        $this->log("email/1_sendXmasShpmentEmail", "<font color='red'>".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
+                        $this->log("email/1_sendXmasShpmentEmail", "<font color='red'>".$sellerId. ": " .$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
                     }
                     $this->log("email/1_sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
                     //exit;
@@ -291,9 +291,9 @@ class Service{
                     if($send_result){
                         //$sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
                         //$result_3 = mysql_query($sql_3);
-                        $this->log("email/12_sendXmasShpmentEmail", $row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
+                        $this->log("email/12_sendXmasShpmentEmail", $sellerId. ": ".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
                     }else{
-                        $this->log("email/12_sendXmasShpmentEmail", "<font color='red'>".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
+                        $this->log("email/12_sendXmasShpmentEmail", "<font color='red'>".$sellerId. ": ".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
                     }      
                     $this->log("email/12_sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
                     //exit;
@@ -321,9 +321,9 @@ class Service{
                     if($send_result){
                         //$sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
                         //$result_3 = mysql_query($sql_3);
-                        $this->log("email/22_sendXmasShpmentEmail", $row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
+                        $this->log("email/22_sendXmasShpmentEmail", $sellerId. ": ".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
                     }else{
-                        $this->log("email/22_sendXmasShpmentEmail", "<font color='red'>".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
+                        $this->log("email/22_sendXmasShpmentEmail", "<font color='red'>".$sellerId. ": ".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
                     }
                     $this->log("email/22_sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
                     //exit;
