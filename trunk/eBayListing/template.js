@@ -257,7 +257,7 @@ Ext.onReady(function(){
                         Ext.getCmp("StartPrice").setDisabled(0);
                         Ext.getCmp("ReservePrice").setDisabled(0);
                         Ext.getCmp("Quantity").setValue(1);
-                        Ext.getCmp("Quantity").setDisabled(1);
+                        //Ext.getCmp("Quantity").setDisabled(1);
                     break;
                 
                     case "Dutch":
@@ -1597,11 +1597,18 @@ Ext.onReady(function(){
                                     id:"BuyItNowPrice",
                                     name:"BuyItNowPrice"
                                   },{
-                                    id:"Quantity",
                                     xtype:"numberfield",
                                     fieldLabel:"Quantity",
                                     name:"Quantity",
-                                    allowBlank:false
+                                    id:"Quantity",
+                                    allowBlank:false,
+                                    validator: function(t){
+                                        if(listTypeCombo.getValue() == "Chinese" && t != 1){
+                                            return false;
+                                        }else{
+                                            return true;
+                                        }
+                                    }
                                   }]
                               },{
                                 columnWidth:0.5,
