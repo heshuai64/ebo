@@ -1528,9 +1528,9 @@ Ext.onReady(function(){
                     return 1;
                }
           },'-',{
-               text: 'Export CSV',
-               icon: './images/server_go.png',
-               tooltip:'export csv file',
+               text: 'Export Excel',
+               icon: './images/table_go.png',
+               tooltip:'export excel file',
                handler: function(){
                     /*
                     var selections = template_grid.selModel.getSelections();
@@ -1542,6 +1542,73 @@ Ext.onReady(function(){
                     */
                     //console.log(ids);
                     window.open("service.php?action=activeItemExport","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=100, height=100");
+               }
+          },'-',{
+               text: "Import Excel Update",     
+               icon: './images/table_lightning.png',
+               tooltip:'Import Excel update active listings title,description,price',
+               handler: function(){
+                    var  importExcelWindow = new Ext.Window({
+                         title: 'Import Excel File' ,
+                         closable:true,
+                         width: 360,
+                         height: 180,
+                         plain:true,
+                         layout: 'fit',
+                         items: [{
+                              xtype:'form',
+                              id:'excel-form',
+                              fileUpload: true,
+                              frame: true,
+                              autoHeight: true,
+                              bodyStyle: 'padding: 10px 10px 0 10px;',
+                              labelWidth: 80,
+                              defaults: {
+                                  anchor: '95%'
+                                  //allowBlank: false
+                              },
+                              items:[{
+                                   title:"Add TO Upload",
+                                   xtype:"fieldset",
+                                   items:[{
+                                        xtype: 'fileuploadfield',
+                                        id: 'stcsv',
+                                        emptyText: 'Select an excel file',
+                                        fieldLabel: 'File',
+                                        //hideLabel:true,
+                                        name: 'alexcel',
+                                        buttonText: '',
+                                        buttonCfg: {
+                                            iconCls: 'upload-icon'
+                                        }
+                                   },{
+                                        xtype: 'button',
+                                        text: 'Upload',
+                                        handler: function(){
+                                             var fp = Ext.getCmp("excel-form");
+                                             if(fp.getForm().isValid()){
+                                                  fp.getForm().submit({
+                                                       url: 'service.php?action=activeItemImport',
+                                                       waitMsg: 'Uploading Your Excel...',
+                                                       success: function(fp, o){
+                                                            importExcelWindow.close();
+                                                            Ext.MessageBox.alert('Success','update active listings success!');
+                                                       }
+                                                  });
+                                             }
+                                        }
+                                   }]
+                              }]
+                         }],                                           
+                         buttons: [{
+                                        text: 'Close',
+                                        handler: function(){
+                                             importExcelWindow.close();
+                                        }
+                                   }]
+                                   
+                    })
+                    importExcelWindow.show();   
                }
           },'-',{
                text: 'Search',
@@ -1708,9 +1775,9 @@ Ext.onReady(function(){
                                         {header: "End Time", width: 120, align: 'center', sortable: true, dataIndex: 'EndTime'}
                                    ],
                                    tbar:[{
-                                        text: "Relist",
-                                        icon: './images/arrow_redo.png',
-                                        tooltip:'Relist item to eBay',
+                                        text: "Edit and Relist",
+                                        icon: './images/page_edit.png',
+                                        tooltip:'Edit Item',
                                         handler: function(){
                                              var selections = sold_item_grid.selModel.getSelections();
                                              if(sold_item_grid.selModel.getCount() == 0){
@@ -1724,11 +1791,61 @@ Ext.onReady(function(){
                                              ids = ids.slice(0,-1);
                                              //console.log(ids);
                                              //return 0;
+                                             
+                                             if(sold_item_grid.selModel.getCount() > 1){
+                                                  //window.open(path + "mitem.php?id="+ids+"&Status=4","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                             }else{
+                                                  window.open(path + "item.php?id="+ids+"&Status=4","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                             }
+                                             return 1;
+                                        }
+                                   },'-',{
+                                        text: "Relist",
+                                        icon: './images/arrow_redo.png',
+                                        tooltip:'Relist Item To eBay',
+                                        handler: function(){
+                                             var selections = sold_item_grid.selModel.getSelections();
+                                             if(sold_item_grid.selModel.getCount() == 0){
+                                                  Ext.MessageBox.alert('Warning','Please select the item you want to relist.');
+                                                  return 0;
+                                             }
+                                             var ids = "";
+                                             for(var i = 0; i< sold_item_grid.selModel.getCount(); i++){
+                                                  ids += selections[i].data.Id + ","
+                                             }
+                                             ids = ids.slice(0,-1);
+                                             //console.log(ids);
+                                             //return 0;
+                                             /*
                                              if(sold_item_grid.selModel.getCount() > 1){
                                                   window.open(path + "mitem.php?id="+ids+"&Status=4","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                              }else{
                                                   window.open(path + "item.php?id="+ids+"&Status=4","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
-                                             }     
+                                             }
+                                             */
+                                             Ext.Ajax.request({  
+                                                  waitMsg: 'Please Wait',
+                                                  url: 'service.php?action=copyItem&type=relist', 
+                                                  params: { 
+                                                       ids: ids
+                                                  }, 
+                                                  success: function(response){
+                                                      var result=eval(response.responseText);
+                                                      switch(result){
+                                                         case 1:  // Success : simply reload
+                                                           sold_item_store.reload();
+                                                           break;
+                                                         default:
+                                                           Ext.MessageBox.alert('Warning','Relist failure, please notice admin.');
+                                                           break;
+                                                      }
+                                                  },
+                                                  failure: function(response){
+                                                      var result=response.responseText;
+                                                      Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                  }
+                                             });
+                                             
                                              return 1;
                                         }
                                    },'-',{

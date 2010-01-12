@@ -221,7 +221,7 @@ Ext.onReady(function(){
                         Ext.getCmp("StartPrice").setDisabled(0);
                         Ext.getCmp("ReservePrice").setDisabled(0);
                         Ext.getCmp("Quantity").setValue(1);
-                        Ext.getCmp("Quantity").setDisabled(1);
+                        //Ext.getCmp("Quantity").setDisabled(1);
                     break;
                 
                     case "FixedPriceItem":
@@ -1309,11 +1309,18 @@ Ext.onReady(function(){
                                     id:"BuyItNowPrice",
                                     name:"BuyItNowPrice"
                                   },{
-                                    id:"Quantity",
                                     xtype:"numberfield",
                                     fieldLabel:"Quantity",
                                     emptyText: "Multi Value",
-                                    name:"Quantity"
+                                    id:"Quantity",
+                                    name:"Quantity",
+                                    validator: function(t){
+                                        if(listTypeCombo.getValue() == "Chinese" && t != 1){
+                                            return false;
+                                        }else{
+                                            return true;
+                                        }
+                                    }
                                   }]
                               },{
                                 columnWidth:0.5,
