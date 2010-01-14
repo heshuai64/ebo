@@ -385,7 +385,7 @@ class Template{
 	$result_9 = mysql_query($sql_9, eBayListing::$database_connect);
 	$row_9 = mysql_fetch_assoc($result_9);
 	
-	$sql_1 = "insert into items (AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+	$sql_1 = "insert into items (TemplateID,AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 	Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
 	PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,
 	ReturnPolicyDescription,ReturnPolicyRefundOption,ReturnPolicyReturnsAcceptedOption,ReturnPolicyReturnsWithinOption,ReturnPolicyShippingCostPaidByOption,
@@ -393,7 +393,7 @@ class Template{
 	StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 	Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 	GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,
-	InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,Status,UseStandardFooter) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+	InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,Status,UseStandardFooter) select '".$template_id."',AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 	Description,'".$row_8['DispatchTimeMax']."',ListingDuration,ListingType,'".$row_8['Location']."','PayPal','".$row_9['PayPalEmailAddress']."',
 	'".$row_8['PostalCode']."',PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,
 	'".$row_8['ReturnPolicyDescription']."','".$row_8['ReturnPolicyRefundOption']."','".$row_8['ReturnPolicyReturnsAcceptedOption']."','".$row_8['ReturnPolicyReturnsWithinOption']."','".$row_8['ReturnPolicyShippingCostPaidByOption']."',
