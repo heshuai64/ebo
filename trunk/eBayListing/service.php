@@ -1357,6 +1357,10 @@ class eBayListing{
 		    }
 		}
 		
+		if(!empty($_POST['Quantity'])){
+		    $update .= "Quantity='".$_POST['Quantity']."',";
+		}
+		
 		if(!empty($_POST['ListingDuration'])){
 		    $update .= "ListingDuration='".$_POST['ListingDuration']."',";
 		}
@@ -3761,11 +3765,11 @@ if(!empty($argv[2])){
 //$service->setAccount(1);
 $service = new eBayListing();
 $acton = (!empty($_GET['action'])?$_GET['action']:$argv[1]);
-if(strpos($acton, 'Template')){
+if(isset($_GET['action']) && strpos($acton, 'Template')){
     require_once 'module/template.php';
     $template = new Template($service->getAccount());
     $template->$acton();
-}elseif(strpos($acton, 'Item')){
+}elseif(isset($_GET['action']) && strpos($acton, 'Item')){
     require_once 'module/item.php';
     $item = new Item($service->getAccount());
     $item->$acton();

@@ -260,6 +260,7 @@ Ext.onReady(function(){
                               table: 'template',
                               Title: b.Title,
                               Price: b.Price,
+                              Quantity: b.Quantity,
                               ListingDuration : b.ListingDuration,
                               Category: b.Category
                          }, 
@@ -328,7 +329,12 @@ Ext.onReady(function(){
                },
                //{header: "Shipping Fee", width: 80, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
                {header: "Shipping TP", width: 80, align: 'center', sortable: true, dataIndex: 'shippingTemplateName'},
-               {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
+               {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity',
+                    editor: {
+                         xtype: 'numberfield',
+                         allowBlank: false
+                    }
+               },
                {header: "Duration", width: 100, align: 'center', sortable: true, dataIndex: 'ListingDuration',
                     editor: {
                          xtype: 'combo',

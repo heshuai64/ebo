@@ -40,6 +40,7 @@ class Item{
     
     //------------------------------------------------------------------------------------------------------------
     public function activeItemExport(){
+        /*
 	$data = "SKU,Item Title,Insertion Fee,Item ID,Start Time,End Time,Duration,Qty,Slod Qty,Price,Listing Type\n";
 	$sql = "select ItemID,SKU,Title,ListingType,InsertionFee,ListingFee,Quantity,QuantitySold,ListingDuration,StartTime,EndTime,StartPrice,BuyItNowPrice from items where Status = 2 and accountId = '".$this->account_id."'";
 	//echo $sql_1."\n";
@@ -52,6 +53,75 @@ class Item{
         header("Pragma: no-cache");
         header("Expires: 0");
         echo $data;
+        */
+        set_time_limit(600);
+	require_once './Classes/PHPExcel.php';
+	require_once './Classes/PHPExcel/IOFactory.php';
+        
+        $objExcel = new PHPExcel();
+        $objExcel->setActiveSheetIndex(0);
+        $objExcel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, 'Item ID');
+	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, 'SKU');
+	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, 'Item Title');
+        $objExcel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, 'Item Description');
+	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(4, 1, 'Insertion Fee');
+	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(5, 1, 'Start Time');
+        $objExcel->getActiveSheet()->setCellValueByColumnAndRow(6, 1, 'End Time');
+        $objExcel->getActiveSheet()->setCellValueByColumnAndRow(7, 1, 'Duration');
+        $objExcel->getActiveSheet()->setCellValueByColumnAndRow(8, 1, 'Qty');
+        $objExcel->getActiveSheet()->setCellValueByColumnAndRow(9, 1, 'Slod Qty');
+        $objExcel->getActiveSheet()->setCellValueByColumnAndRow(10, 1, 'Price');
+        $objExcel->getActiveSheet()->setCellValueByColumnAndRow(11, 1, 'Listing Type');
+        
+        $sql = "select ItemID,SKU,Title,Description,ListingType,InsertionFee,ListingFee,Quantity,QuantitySold,ListingDuration,StartTime,EndTime,StartPrice,BuyItNowPrice from items where Status = 2 and accountId = '".$this->account_id."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+        $i = 2;
+	while($row = mysql_fetch_assoc($result)){
+	    $j = 0;
+            $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['ItemID']);
+            $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['SKU']);
+	    $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['Title']);
+	    $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, html_entity_decode($row['Description'], ENT_QUOTES));
+	    $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['InsertionFee']);
+	    $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['StartTime']);
+            $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['EndTime']);
+            $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['ListingDuration']);
+            $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['Quantity']);
+            $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['QuantitySold']);
+            $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['StartPrice']);
+            $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['ListingType']);
+	    $i++;
+	}
+        $outputFileName = "output.xls";
+	header("Content-Type: application/force-download");     
+	header("Content-Type: application/octet-stream");     
+	header("Content-Type: application/download");     
+	header('Content-Disposition:inline;filename="'.$outputFileName.'"');     
+	header("Content-Transfer-Encoding: binary");     
+	header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");     
+	header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");     
+	header("Cache-Control: must-revalidate, post-check=0, pre-check=0");     
+	header("Pragma: no-cache");     
+    
+	$writer = PHPExcel_IOFactory::createWriter($objExcel, 'Excel2007');
+	$writer->save('php://output');	//echo $data;
+    }
+    
+    public function activeItemImport(){
+        set_time_limit(600);
+	require_once './Classes/PHPExcel.php';
+	require_once './Classes/PHPExcel/IOFactory.php';
+        
+        $objPHPExcel = PHPExcel_IOFactory::load($_FILES['alexcel']['tmp_name']);
+        //$objPHPExcel = $objReader->load($_FILES['alexcel']['tmp_name']);
+	$objWorksheet = $objPHPExcel->getActiveSheet();
+        foreach ($objWorksheet->getRowIterator() as $row) {
+            $cellIterator = $row->getCellIterator();
+            $cellIterator->setIterateOnlyExistingCells(false);
+            foreach ($cellIterator as $cell) {
+                echo $cell->getValue();
+            }
+        }
     }
     
     public function soldItemExport(){
@@ -413,12 +483,17 @@ class Item{
 	mysql_free_result($result_1);
     }
     
-    public function copyItem(){
+    public function copyItem($id='', $status=''){
 	if($_GET['type'] == "wait"){
 	    $Status = 0;
 	}elseif($_GET['type'] == "schedule"){
 	    $Status = 1;
-	}
+	}elseif($_GET['type'] == "relist"){
+            $Status = 6;
+        }elseif(!empty($id) && !empty($status)){
+            $Status = $status;
+            $_POST['ids'] = $id;
+        }
 	
 	if(strpos($_POST['ids'], ',')){
 	    $array = explode(',', $_POST['ids']);
@@ -474,7 +549,7 @@ class Item{
 		//var_dump(array($result_1, $result_2, $result_3, $result_4, $result_5, $result_6, $result_7));
 	    }
 	    if($result_1 && $result_2 && $result_3 && $result_4){
-		echo 1;
+                echo 1;
 	    }else{
 		echo 0;
 	    }
@@ -528,7 +603,11 @@ class Item{
 	    }
 	
 	    if($result_1 && $result_2 && $result_3 && $result_4){
-		echo 1;
+                if(empty($id) && empty($status)){
+                    echo 1;
+                }else{
+                    return $item_id;
+                }
 	    }else{
 		echo 0;
 	    }
@@ -706,8 +785,15 @@ class Item{
 	    $_POST['Description'] .= $row['footer'];
 	}
 	*/
+        $id = $_GET['item_id'];
+        
 	if(!empty($_GET['status'])){
-	    $status .= ",Status = '".$_GET['status']."'";
+            if($_GET['status'] == 4){
+                $id = $this->copyItem($id, $_GET['status']);
+                //$id = $this->copyItem($id, 6);
+            }else{
+                $status .= ",Status = '".$_GET['status']."'";
+            }
 	}
 	
 	session_start();
@@ -720,7 +806,6 @@ class Item{
 	    $_POST['Quantity'] = 1;   
 	}
 	
-	$id = $_GET['item_id'];
 	//StartTime,EndTime
 	//$PaymentMethods = ($_POST['PayPalPayment'] == 1)?'PayPal':'';
 	if(!empty($_SESSION['ReturnPolicyReturns'][$id]['ReturnPolicyReturnsAcceptedOption'])){
