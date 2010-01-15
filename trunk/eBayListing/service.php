@@ -1365,6 +1365,8 @@ class eBayListing{
 		    $update .= "ListingDuration='".$_POST['ListingDuration']."',";
 		}
 		
+		$update .= "status = 0,";
+		
 		if(!empty($_POST['Category'])){
 		    $sql_5 = "select count(*) as num from template_to_template_cateogry where template_id = '".$_POST['id']."'";
 		    $result_5 = mysql_query($sql_5, eBayListing::$database_connect);

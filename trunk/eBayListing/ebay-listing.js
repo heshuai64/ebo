@@ -35,6 +35,15 @@ Ext.onReady(function(){
           return "<img src='./images/"+v.toLowerCase()+".gif'>";
      }
      
+     function renderTemplateStatus(v, p, r){
+          switch(v){
+               case "1":
+                    return "<img src='./images/lock.png'>";
+               break;
+          }
+          return "";
+     }
+     
      var listingTemplateDurationStore =  new Ext.data.JsonStore({
         //root: 'records',
         //totalProperty: 'totalCount',
@@ -288,7 +297,7 @@ Ext.onReady(function(){
           totalProperty: 'totalCount',
           idProperty: 'id',
           //autoLoad:true,
-          fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'shippingTemplateName', 'Quantity', 'ListingDuration', 'ListingType', 'Category'],
+          fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'shippingTemplateName', 'Quantity', 'ListingDuration', 'ListingType', 'Category', 'status'],
           sortInfo: {
                field: 'Id',
                direction: 'ASC'
@@ -311,10 +320,10 @@ Ext.onReady(function(){
           selModel: new Ext.grid.RowSelectionModel({}),
           plugins: [template_grid_editor],
           columns:[
-               {header: "Id", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
+               {header: "ID", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
                {header: "Site", width: 30, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
-               {header: "Title", width: 380, align: 'center', sortable: true, dataIndex: 'Title',
+               {header: "Title", width: 360, align: 'center', sortable: true, dataIndex: 'Title',
                     editor: {
                          xtype: 'textfield',
                          allowBlank: false
@@ -335,7 +344,7 @@ Ext.onReady(function(){
                          allowBlank: false
                     }
                },
-               {header: "Duration", width: 100, align: 'center', sortable: true, dataIndex: 'ListingDuration',
+               {header: "Duration", width: 80, align: 'center', sortable: true, dataIndex: 'ListingDuration',
                     editor: {
                          xtype: 'combo',
                          allowBlank: false,
@@ -367,7 +376,8 @@ Ext.onReady(function(){
                          editable: false,
                          selectOnFocus:true
                     }
-               }
+               },
+               {header: "Status", width: 40, align: 'center', dataIndex: 'status', renderer: renderTemplateStatus}
           ],
           tbar:[{
                     text: 'Preview',
@@ -1433,7 +1443,7 @@ Ext.onReady(function(){
           totalProperty: 'totalCount',
           idProperty: 'id',
           //autoLoad:true,
-          fields: ['Id', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price', 'EndTime'],
+          fields: ['Id', 'TemplateID', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price', 'EndTime'],
           sortInfo: {
                field: 'Id',
                direction: 'ASC'
@@ -1485,7 +1495,8 @@ Ext.onReady(function(){
           height: 460,
           selModel: new Ext.grid.RowSelectionModel({}),
           columns:[
-               {header: "Id", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
+               {header: "ID", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
+               {header: "TID", width: 60, align: 'center', sortable: true, dataIndex: 'TemplateID'},
                {header: "Site", width: 30, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                {header: "SKU", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
                {header: "Item ID", width: 80, align: 'center', sortable: true, dataIndex: 'ItemID'},
@@ -1495,15 +1506,15 @@ Ext.onReady(function(){
                          allowBlank: false
                     }
                },
-               {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
-               {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity', 
+               {header: "Format", width: 80, align: 'center', sortable: true, dataIndex: 'ListingType'},
+               {header: "Qty", width: 40, align: 'center', sortable: true, dataIndex: 'Quantity', 
                     editor: {
                          xtype: 'numberfield',
                          allowBlank: false
                     }
                },
                {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
-               {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price', 
+               {header: "Price", width: 50, align: 'center', sortable: true, dataIndex: 'Price', 
                     editor: {
                          xtype: 'numberfield',
                          allowBlank: false
@@ -1750,7 +1761,7 @@ Ext.onReady(function(){
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
-                                   fields: ['Id', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'QuantitySold', 'ListingDuration', 'Price', 'EndTime'],
+                                   fields: ['Id', 'TemplateID', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'QuantitySold', 'ListingDuration', 'Price', 'EndTime'],
                                    sortInfo: {
                                         field: 'Id',
                                         direction: 'ASC'
@@ -1768,7 +1779,8 @@ Ext.onReady(function(){
                                    //height: 500,
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
-                                        {header: "Id", width: 50, align: 'center', sortable: true, dataIndex: 'Id'},
+                                        {header: "ID", width: 50, align: 'center', sortable: true, dataIndex: 'Id'},
+                                        {header: "TID", width: 50, align: 'center', sortable: true, dataIndex: 'TemplateID'},
                                         {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                                         {header: "SKU", width: 100, align: 'center', sortable: true, dataIndex: 'SKU'},
                                         {header: "Item ID", width: 120, align: 'center', sortable: true, dataIndex: 'ItemID'},
@@ -1928,7 +1940,7 @@ Ext.onReady(function(){
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
-                                   fields: ['Id', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price', 'EndTime'],
+                                   fields: ['Id', 'TemplateID', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price', 'EndTime'],
                                    sortInfo: {
                                         field: 'Id',
                                         direction: 'ASC'
@@ -1946,7 +1958,8 @@ Ext.onReady(function(){
                                    //height: 500,
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
-                                        {header: "Id", width: 50, align: 'center', sortable: true, dataIndex: 'Id'},
+                                        {header: "ID", width: 50, align: 'center', sortable: true, dataIndex: 'Id'},
+                                        {header: "TID", width: 50, align: 'center', sortable: true, dataIndex: 'TemplateID'},
                                         {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                                         {header: "SKU", width: 100, align: 'center', sortable: true, dataIndex: 'SKU'},
                                         {header: "Item ID", width: 120, align: 'center', sortable: true, dataIndex: 'ItemID'},
@@ -2312,7 +2325,7 @@ Ext.onReady(function(){
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
-                                   fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'ShippingFee', 'Quantity', 'ListingDuration', 'ListingType', 'ScheduleTime', 'ScheduleLocalTime'],
+                                   fields: ['Id', 'TemplateID', 'Site', 'SKU', 'Title', 'Price', 'ShippingFee', 'Quantity', 'ListingDuration', 'ListingType', 'ScheduleTime', 'ScheduleLocalTime'],
                                    sortInfo: {
                                         field: 'Id',
                                         direction: 'ASC'
@@ -2365,7 +2378,8 @@ Ext.onReady(function(){
                                    width: 1040,
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
-                                        {header: "Id", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
+                                        {header: "ID", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
+                                        {header: "TID", width: 60, align: 'center', sortable: true, dataIndex: 'TemplateID'},
                                         {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                                         {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
                                         {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title',
@@ -2374,15 +2388,15 @@ Ext.onReady(function(){
                                                   allowBlank: false
                                              }
                                         },
-                                        {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
+                                        {header: "ListingType", width: 70, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                         {header: "Price", width: 50, align: 'center', sortable: true, dataIndex: 'Price'},
-                                        {header: "Shipping Fee", width: 80, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
+                                        {header: "Shipping Fee", width: 70, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
                                         {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
-                                        {header: "Duration", width: 70, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
-                                        {header: "BeiJing Upload Time", width: 110, align: 'center', sortable: true, dataIndex: 'ScheduleTime'},
-                                        {header: "Local Upload Time", width: 110, align: 'center', sortable: true, dataIndex: 'ScheduleLocalTime'}
+                                        {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
+                                        {header: "BeiJing Upload Time", width: 108, align: 'center', sortable: true, dataIndex: 'ScheduleTime'},
+                                        {header: "Local Upload Time", width: 108, align: 'center', sortable: true, dataIndex: 'ScheduleLocalTime'}
                                    ],
-                                   tbar: [{
+                                   tbar: [/*{
                                              text:'Copy',
                                              icon: './images/page_copy.png',
                                              tooltip:'Copy before uploading',
@@ -2421,7 +2435,7 @@ Ext.onReady(function(){
                                                   });
                                                   return 1;
                                              }
-                                        },'-',{
+                                        },'-',*/{
                                              text:'Edit',
                                              icon: './images/page_edit.png',
                                              tooltip:'Editing before uploading',
@@ -2709,7 +2723,7 @@ Ext.onReady(function(){
                                         totalProperty: 'totalCount',
                                         idProperty: 'id',
                                         //autoLoad:true,
-                                        fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'ShippingFee', 'Quantity', 'ListingDuration', 'ListingType', 'ScheduleTime', 'ScheduleLocalTime'],
+                                        fields: ['Id', 'TemplateID', 'Site', 'SKU', 'Title', 'Price', 'ShippingFee', 'Quantity', 'ListingDuration', 'ListingType', 'ScheduleTime', 'ScheduleLocalTime'],
                                         sortInfo: {
                                              field: 'Id',
                                              direction: 'ASC'
@@ -2762,7 +2776,8 @@ Ext.onReady(function(){
                                         width: 1040,
                                         selModel: new Ext.grid.RowSelectionModel({}),
                                         columns:[
-                                             {header: "Id", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
+                                             {header: "ID", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
+                                             {header: "TID", width: 60, align: 'center', sortable: true, dataIndex: 'TemplateID'},
                                              {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                                              {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
                                              {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title', 
@@ -2771,15 +2786,15 @@ Ext.onReady(function(){
                                                   allowBlank: false
                                                   }
                                              },
-                                             {header: "ListingType", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
+                                             {header: "ListingType", width: 70, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                              {header: "Price", width: 50, align: 'center', sortable: true, dataIndex: 'Price'},
                                              {header: "Shipping Fee", width: 80, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
                                              {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
-                                             {header: "Duration", width: 70, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
-                                             {header: "BeiJing Upload Time", width: 110, align: 'center', sortable: true, dataIndex: 'ScheduleTime'},
-                                             {header: "Local Upload Time", width: 110, align: 'center', sortable: true, dataIndex: 'ScheduleLocalTime'}
+                                             {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
+                                             {header: "BeiJing Upload Time", width: 108, align: 'center', sortable: true, dataIndex: 'ScheduleTime'},
+                                             {header: "Local Upload Time", width: 108, align: 'center', sortable: true, dataIndex: 'ScheduleLocalTime'}
                                         ],
-                                        tbar: [{
+                                        tbar: [/*{
                                                   text:'Copy',
                                                   icon: './images/page_copy.png',
                                                   tooltip:'Copy before uploading',
@@ -2818,7 +2833,7 @@ Ext.onReady(function(){
                                                        });
                                                        return 1;
                                                   }
-                                             },'-',{
+                                             },'-',*/{
                                                   text:'Edit',
                                                   icon: './images/page_edit.png',
                                                   tooltip:'Editing before uploading',
