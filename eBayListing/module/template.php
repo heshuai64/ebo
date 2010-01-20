@@ -180,6 +180,10 @@ class Template{
                 $_POST['limit'] = 20;
             }
 	    
+            if(!empty($_POST['TID'])){
+                $where .= " and Id = '".$_POST['TID']."'";
+            }
+            
             if(!empty($_POST['SKU'])){
                 $where .= " and t.SKU like '%".mysql_real_escape_string($_POST['SKU'])."%'";
             }
@@ -187,7 +191,11 @@ class Template{
             if(!empty($_POST['Title'])){
                 $where .= " and t.Title like '%".mysql_real_escape_string($_POST['Title'])."%'";
             }
-                
+            
+            if(!empty($_POST['ListingDuration'])){
+                $where .= " and ListingDuration = '".$_POST['ListingDuration']."'";
+            }
+            
             $sql = "select count(*) as count from template as t left join template_to_template_cateogry as tttc on t.Id = tttc.template_id  ".$where;
             //echo $sql;
 	    //exit;
@@ -380,6 +388,11 @@ class Template{
 	    exit;
 	}
 	
+        if($row_0['status'] == 1){
+            echo "[{success: false, msg: 'template ".$template_id." is locked.'}]";
+	    exit;
+        }
+        
 	$sql_8 = "select * from shipping_template where name = '".$row_0['shippingTemplateName']."' and account_id = '".$this->account_id."'";
 	$result_8 = mysql_query($sql_8, eBayListing::$database_connect);
 	$row_8 = mysql_fetch_assoc($result_8);

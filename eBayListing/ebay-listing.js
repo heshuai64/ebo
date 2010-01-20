@@ -4,8 +4,8 @@ Ext.onReady(function(){
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      
-     var path = "/eBayBO/eBayListing/";
-     //var path = "/eBayListing/";
+     //var path = "/eBayBO/eBayListing/";
+     var path = "/eBayListing/";
      
      /*
      var cp = new Ext.state.CookieProvider({
@@ -315,15 +315,16 @@ Ext.onReady(function(){
      var template_grid = new Ext.grid.GridPanel({
           title: 'Template List',
           store: template_store,
-          autoHeight: true,
+          //autoHeight: true,
           width: 1024,
+          height: 460,
           selModel: new Ext.grid.RowSelectionModel({}),
           plugins: [template_grid_editor],
           columns:[
                {header: "ID", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
                {header: "Site", width: 30, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
-               {header: "Title", width: 360, align: 'center', sortable: true, dataIndex: 'Title',
+               {header: "Title", width: 350, align: 'center', sortable: true, dataIndex: 'Title',
                     editor: {
                          xtype: 'textfield',
                          allowBlank: false
@@ -344,7 +345,7 @@ Ext.onReady(function(){
                          allowBlank: false
                     }
                },
-               {header: "Duration", width: 80, align: 'center', sortable: true, dataIndex: 'ListingDuration',
+               {header: "Duration", width: 70, align: 'center', sortable: true, dataIndex: 'ListingDuration',
                     editor: {
                          xtype: 'combo',
                          allowBlank: false,
@@ -380,8 +381,73 @@ Ext.onReady(function(){
                {header: "Status", width: 40, align: 'center', dataIndex: 'status', renderer: renderTemplateStatus}
           ],
           tbar:[{
+               text: 'Search',
+               icon: './images/magnifier.png',
+               handler: function(){
+                    var  searchWindow = new Ext.Window({
+                              title: 'Search Templage' ,
+                              closable:true,
+                              width: 300,
+                              height: 180,
+                              plain:true,
+                              layout: 'form',
+                              items: [/*{
+                                        id:'interval-date',
+                                        fieldLabel:'Date',
+                                        xtype:'datefield',
+                                        format:'Y-m-d',
+                                        minValue: new Date(),
+                                        selectOnFocus:true
+                                   },*/{
+                                        id:'TID',
+                                        fieldLabel:'TID',
+                                        xtype:'numberfield'
+                                   },{
+                                        id:'SKU',
+                                        fieldLabel:'SKU',
+                                        xtype:'textfield'
+                                   },{
+                                        id:'Title',
+                                        fieldLabel:'Item Title',
+                                        xtype:'textfield'
+                                   },{
+                                        id:'ListingDuration',
+                                        fieldLabel:'Duration',
+                                        xtype:"combo",
+                                        store:['', 'Days_3', 'Days_5', 'Days_7', 'Days_10', 'Days_30', 'Days_60', 'Days_90'],
+                                        triggerAction: 'all',
+                                        editable: false,
+                                        selectOnFocus:true,
+                                        listWidth:100,
+                                        width:100
+                                   }
+                              ],
+                              buttons: [{
+                                             text: 'Submit',
+                                             handler: function(){
+                                                  template_store.baseParams = {
+                                                       TID: Ext.getCmp("TID").getValue(),
+                                                       SKU: Ext.getCmp("SKU").getValue(),
+                                                       Title: Ext.getCmp("Title").getValue(),
+                                                       ListingDuration: Ext.getCmp("ListingDuration").getValue()
+                                                  };
+                                                  template_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
+                                                  searchWindow.close();
+                                             }
+                                        },{
+                                             text: 'Close',
+                                             handler: function(){
+                                                  searchWindow.close();
+                                             }
+                                        }]
+                                        
+                         })
+                         
+                         searchWindow.show();
+               }
+          },'-',{
                     text: 'Preview',
-                    icon: './images/magnifier.png',
+                    icon: './images/camera.png',
                     tooltip:'Preview Description',
                     handler: function(){
                          var selections = template_grid.selModel.getSelections();
@@ -1524,6 +1590,71 @@ Ext.onReady(function(){
           ],
           //clicksToEdit: 1,
           tbar:[{
+               text: 'Search',
+               icon: './images/magnifier.png',
+               handler: function(){
+                    var  searchWindow = new Ext.Window({
+                              title: 'Active Listing Search' ,
+                              closable:true,
+                              width: 300,
+                              height: 180,
+                              plain:true,
+                              layout: 'form',
+                              items: [/*{
+                                        id:'interval-date',
+                                        fieldLabel:'Date',
+                                        xtype:'datefield',
+                                        format:'Y-m-d',
+                                        minValue: new Date(),
+                                        selectOnFocus:true
+                                   },*/{
+                                        id:'SKU',
+                                        fieldLabel:'SKU',
+                                        xtype:'textfield'
+                                   },{
+                                        id:'ItemID',
+                                        fieldLabel:'Item ID',
+                                        xtype:'textfield'
+                                   },{
+                                        id:'Title',
+                                        fieldLabel:'Item Title',
+                                        xtype:'textfield'
+                                   },{
+                                        id:'ListingDuration',
+                                        fieldLabel:'Duration',
+                                        xtype:"combo",
+                                        store:['', 'Days_3', 'Days_5', 'Days_7', 'Days_10', 'Days_30', 'Days_60', 'Days_90'],
+                                        triggerAction: 'all',
+                                        editable: false,
+                                        selectOnFocus:true,
+                                        listWidth:100,
+                                        width:100
+                                   }
+                              ],
+                              buttons: [{
+                                             text: 'Submit',
+                                             handler: function(){
+                                                  activity_store.baseParams = {
+                                                       SKU: Ext.getCmp("SKU").getValue(),
+                                                       ItemID: Ext.getCmp("ItemID").getValue(),
+                                                       Title: Ext.getCmp("Title").getValue(),
+                                                       ListingDuration: Ext.getCmp("ListingDuration").getValue()
+                                                  };
+                                                  activity_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
+                                                  searchWindow.close();
+                                             }
+                                        },{
+                                             text: 'Close',
+                                             handler: function(){
+                                                  searchWindow.close();
+                                             }
+                                        }]
+                                        
+                         })
+                         
+                         searchWindow.show();
+               }
+          },'-',{
                text: "Revise",
                icon: "./images/building_edit.png",
                handler: function(){
@@ -1627,71 +1758,6 @@ Ext.onReady(function(){
                     })
                     importExcelWindow.show();   
                }
-          },'-',{
-               text: 'Search',
-               icon: './images/magnifier.png',
-               handler: function(){
-                    var  searchWindow = new Ext.Window({
-                              title: 'Active Listing Search' ,
-                              closable:true,
-                              width: 300,
-                              height: 180,
-                              plain:true,
-                              layout: 'form',
-                              items: [/*{
-                                        id:'interval-date',
-                                        fieldLabel:'Date',
-                                        xtype:'datefield',
-                                        format:'Y-m-d',
-                                        minValue: new Date(),
-                                        selectOnFocus:true
-                                   },*/{
-                                        id:'SKU',
-                                        fieldLabel:'SKU',
-                                        xtype:'textfield'
-                                   },{
-                                        id:'ItemID',
-                                        fieldLabel:'Item ID',
-                                        xtype:'textfield'
-                                   },{
-                                        id:'Title',
-                                        fieldLabel:'Item Title',
-                                        xtype:'textfield'
-                                   },{
-                                        id:'ListingDuration',
-                                        fieldLabel:'Duration',
-                                        xtype:"combo",
-                                        store:['', 'Days_3', 'Days_5', 'Days_7', 'Days_10', 'Days_30', 'Days_60', 'Days_90'],
-                                        triggerAction: 'all',
-                                        editable: false,
-                                        selectOnFocus:true,
-                                        listWidth:100,
-                                        width:100
-                                   }
-                              ],
-                              buttons: [{
-                                             text: 'Submit',
-                                             handler: function(){
-                                                  activity_store.baseParams = {
-                                                       SKU: Ext.getCmp("SKU").getValue(),
-                                                       ItemID: Ext.getCmp("ItemID").getValue(),
-                                                       Title: Ext.getCmp("Title").getValue(),
-                                                       ListingDuration: Ext.getCmp("ListingDuration").getValue()
-                                                  };
-                                                  activity_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
-                                                  searchWindow.close();
-                                             }
-                                        },{
-                                             text: 'Close',
-                                             handler: function(){
-                                                  searchWindow.close();
-                                             }
-                                        }]
-                                        
-                         })
-                         
-                         searchWindow.show();
-               }
           }],
           bbar: new Ext.PagingToolbar({
               pageSize: parseInt(getCookie("pagination")),
@@ -1784,7 +1850,7 @@ Ext.onReady(function(){
                                         {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                                         {header: "SKU", width: 100, align: 'center', sortable: true, dataIndex: 'SKU'},
                                         {header: "Item ID", width: 120, align: 'center', sortable: true, dataIndex: 'ItemID'},
-                                        {header: "Item Title", width: 150, align: 'center', sortable: true, dataIndex: 'Title'},
+                                        {header: "Item Title", width: 200, align: 'center', sortable: true, dataIndex: 'Title'},
                                         {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                         {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
                                         {header: "SQty", width: 50, align: 'center', sortable: true, dataIndex: 'QuantitySold'},
@@ -1963,7 +2029,7 @@ Ext.onReady(function(){
                                         {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                                         {header: "SKU", width: 100, align: 'center', sortable: true, dataIndex: 'SKU'},
                                         {header: "Item ID", width: 120, align: 'center', sortable: true, dataIndex: 'ItemID'},
-                                        {header: "Item Title", width: 150, align: 'center', sortable: true, dataIndex: 'Title'},
+                                        {header: "Item Title", width: 200, align: 'center', sortable: true, dataIndex: 'Title'},
                                         {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                         {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
                                         {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
@@ -2265,7 +2331,7 @@ Ext.onReady(function(){
                                              iconCls: 'template',
                                              title: "Template",
                                              autoScroll: true,
-                                             items: [template_search_form, template_grid],
+                                             items: template_grid,
                                              //closable: true,
                                              autoScroll:true
                                         })
@@ -2374,15 +2440,16 @@ Ext.onReady(function(){
                                    title: 'Waiting To Upload List',
                                    store: wait_store,
                                    plugins: [wait_grid_editor],
-                                   autoHeight: true,
-                                   width: 1040,
+                                   //autoHeight: true,
+                                   width: 1024,
+                                   height: 460,
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
                                         {header: "ID", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
                                         {header: "TID", width: 60, align: 'center', sortable: true, dataIndex: 'TemplateID'},
-                                        {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
+                                        {header: "Site", width: 30, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                                         {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
-                                        {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title',
+                                        {header: "Title", width: 290, align: 'center', sortable: true, dataIndex: 'Title',
                                              editor: {
                                                   xtype: 'textfield',
                                                   allowBlank: false
@@ -2436,6 +2503,71 @@ Ext.onReady(function(){
                                                   return 1;
                                              }
                                         },'-',*/{
+                                                  text: 'Search',
+                                                  icon: './images/magnifier.png',
+                                                  handler: function(){
+                                                       var  searchWindow = new Ext.Window({
+                                                                 title: 'Search Waiting Item' ,
+                                                                 closable:true,
+                                                                 width: 300,
+                                                                 height: 180,
+                                                                 plain:true,
+                                                                 layout: 'form',
+                                                                 items: [/*{
+                                                                           id:'interval-date',
+                                                                           fieldLabel:'Date',
+                                                                           xtype:'datefield',
+                                                                           format:'Y-m-d',
+                                                                           minValue: new Date(),
+                                                                           selectOnFocus:true
+                                                                      },*/{
+                                                                           id:'TID',
+                                                                           fieldLabel:'TID',
+                                                                           xtype:'numberfield'
+                                                                      },{
+                                                                           id:'SKU',
+                                                                           fieldLabel:'SKU',
+                                                                           xtype:'textfield'
+                                                                      },{
+                                                                           id:'Title',
+                                                                           fieldLabel:'Item Title',
+                                                                           xtype:'textfield'
+                                                                      },{
+                                                                           id:'ListingDuration',
+                                                                           fieldLabel:'Duration',
+                                                                           xtype:"combo",
+                                                                           store:['', 'Days_3', 'Days_5', 'Days_7', 'Days_10', 'Days_30', 'Days_60', 'Days_90'],
+                                                                           triggerAction: 'all',
+                                                                           editable: false,
+                                                                           selectOnFocus:true,
+                                                                           listWidth:100,
+                                                                           width:100
+                                                                      }
+                                                                 ],
+                                                                 buttons: [{
+                                                                                text: 'Submit',
+                                                                                handler: function(){
+                                                                                     wait_store.baseParams = {
+                                                                                          TID: Ext.getCmp("TID").getValue(),
+                                                                                          SKU: Ext.getCmp("SKU").getValue(),
+                                                                                          Title: Ext.getCmp("Title").getValue(),
+                                                                                          ListingDuration: Ext.getCmp("ListingDuration").getValue()
+                                                                                     };
+                                                                                     wait_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
+                                                                                     searchWindow.close();
+                                                                                }
+                                                                           },{
+                                                                                text: 'Close',
+                                                                                handler: function(){
+                                                                                     searchWindow.close();
+                                                                                }
+                                                                           }]
+                                                                           
+                                                            })
+                                                            
+                                                            searchWindow.show();
+                                                  }
+                                             },'-',{
                                              text:'Edit',
                                              icon: './images/page_edit.png',
                                              tooltip:'Editing before uploading',
@@ -2651,7 +2783,7 @@ Ext.onReady(function(){
                                         id:'waiting-to-upload-tab',
                                         iconCls: 'waiting-to-upload',
                                         title: "Waiting To Upload",
-                                        items: [wait_search, wait_grid],
+                                        items: wait_grid,
                                         closable: true,
                                         autoScroll:true
                                    })
@@ -2772,15 +2904,16 @@ Ext.onReady(function(){
                                         title: 'Schedule List',
                                         store: schedule_store,
                                         plugins: [schedule_grid_editor],
-                                        autoHeight: true,
-                                        width: 1040,
+                                        //autoHeight: true,
+                                        width: 1024,
+                                        height: 460,
                                         selModel: new Ext.grid.RowSelectionModel({}),
                                         columns:[
                                              {header: "ID", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
                                              {header: "TID", width: 60, align: 'center', sortable: true, dataIndex: 'TemplateID'},
-                                             {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
-                                             {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
-                                             {header: "Title", width: 300, align: 'center', sortable: true, dataIndex: 'Title', 
+                                             {header: "Site", width: 30, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
+                                             {header: "Sku", width: 70, align: 'center', sortable: true, dataIndex: 'SKU'},
+                                             {header: "Title", width: 280, align: 'center', sortable: true, dataIndex: 'Title', 
                                                   editor: {
                                                   xtype: 'textfield',
                                                   allowBlank: false
@@ -2788,7 +2921,7 @@ Ext.onReady(function(){
                                              },
                                              {header: "ListingType", width: 70, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                              {header: "Price", width: 50, align: 'center', sortable: true, dataIndex: 'Price'},
-                                             {header: "Shipping Fee", width: 80, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
+                                             {header: "Shipping Fee", width: 70, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
                                              {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
                                              {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
                                              {header: "BeiJing Upload Time", width: 108, align: 'center', sortable: true, dataIndex: 'ScheduleTime'},
@@ -2834,6 +2967,71 @@ Ext.onReady(function(){
                                                        return 1;
                                                   }
                                              },'-',*/{
+                                                  text: 'Search',
+                                                  icon: './images/magnifier.png',
+                                                  handler: function(){
+                                                       var  searchWindow = new Ext.Window({
+                                                                 title: 'Search Schedule Item' ,
+                                                                 closable:true,
+                                                                 width: 300,
+                                                                 height: 180,
+                                                                 plain:true,
+                                                                 layout: 'form',
+                                                                 items: [/*{
+                                                                           id:'interval-date',
+                                                                           fieldLabel:'Date',
+                                                                           xtype:'datefield',
+                                                                           format:'Y-m-d',
+                                                                           minValue: new Date(),
+                                                                           selectOnFocus:true
+                                                                      },*/{
+                                                                           id:'TID',
+                                                                           fieldLabel:'TID',
+                                                                           xtype:'numberfield'
+                                                                      },{
+                                                                           id:'SKU',
+                                                                           fieldLabel:'SKU',
+                                                                           xtype:'textfield'
+                                                                      },{
+                                                                           id:'Title',
+                                                                           fieldLabel:'Item Title',
+                                                                           xtype:'textfield'
+                                                                      },{
+                                                                           id:'ListingDuration',
+                                                                           fieldLabel:'Duration',
+                                                                           xtype:"combo",
+                                                                           store:['', 'Days_3', 'Days_5', 'Days_7', 'Days_10', 'Days_30', 'Days_60', 'Days_90'],
+                                                                           triggerAction: 'all',
+                                                                           editable: false,
+                                                                           selectOnFocus:true,
+                                                                           listWidth:100,
+                                                                           width:100
+                                                                      }
+                                                                 ],
+                                                                 buttons: [{
+                                                                                text: 'Submit',
+                                                                                handler: function(){
+                                                                                     schedule_store.baseParams = {
+                                                                                          TID: Ext.getCmp("TID").getValue(),
+                                                                                          SKU: Ext.getCmp("SKU").getValue(),
+                                                                                          Title: Ext.getCmp("Title").getValue(),
+                                                                                          ListingDuration: Ext.getCmp("ListingDuration").getValue()
+                                                                                     };
+                                                                                     schedule_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
+                                                                                     searchWindow.close();
+                                                                                }
+                                                                           },{
+                                                                                text: 'Close',
+                                                                                handler: function(){
+                                                                                     searchWindow.close();
+                                                                                }
+                                                                           }]
+                                                                           
+                                                            })
+                                                            
+                                                            searchWindow.show();
+                                                  }
+                                             },'-',{
                                                   text:'Edit',
                                                   icon: './images/page_edit.png',
                                                   tooltip:'Editing before uploading',
@@ -3010,7 +3208,7 @@ Ext.onReady(function(){
                                              id:'schedule-tab',
                                              iconCls: 'schedule',
                                              title: "Schedule",
-                                             items: [schedule_search, schedule_grid],
+                                             items: schedule_grid,
                                              closable: true,
                                              autoScroll:true
                                         })

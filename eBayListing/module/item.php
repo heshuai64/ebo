@@ -181,12 +181,20 @@ class Item{
                 $_POST['limit'] = 20;
             }
 	    
+            if(!empty($_POST['TID'])){
+                $where .= " and TemplateID = '".$_POST['TID']."'";
+            }
+            
             if(!empty($_POST['SKU'])){
                 $where .= " and SKU like '%".mysql_real_escape_string($_POST['SKU'])."%'";
             }
             
             if(!empty($_POST['Title'])){
                 $where .= " and Title like '%".html_entity_decode($_POST['Title'], ENT_QUOTES)."%'";
+            }
+                
+            if(!empty($_POST['ListingDuration'])){
+                $where .= " and ListingDuration = '".$_POST['ListingDuration']."'";
             }
                 
             $sql = "select count(*) as count from items ".$where;
@@ -243,6 +251,10 @@ class Item{
                 $_POST['limit'] = 20;
             }
 	    
+            if(!empty($_POST['TID'])){
+                $where .= " and TemplateID = '".$_POST['TID']."'";
+            }
+            
             if(!empty($_POST['SKU'])){
                 $where .= " and SKU like '%".mysql_real_escape_string($_POST['SKU'])."%'";
             }
@@ -251,6 +263,10 @@ class Item{
                 $where .= " and Title like '%".html_entity_decode($_POST['Title'], ENT_QUOTES)."%'";
             }
                 
+            if(!empty($_POST['ListingDuration'])){
+                $where .= " and ListingDuration = '".$_POST['ListingDuration']."'";
+            }
+            
             $sql = "select count(*) as count from items ".$where;
             $result = mysql_query($sql, eBayListing::$database_connect);
             $row = mysql_fetch_assoc($result);
