@@ -347,7 +347,9 @@ Ext.onReady(function(){
                 'StoreCategory2ID','StoreCategory2Name','StoreCategoryID','StoreCategoryName','SubTitle','Title','UserID','BoldTitle','Border','Featured','Highlight','HomePageFeatured','GalleryTypeFeatured','GalleryTypeGallery','GalleryTypePlus','GalleryURL',
                 'picture_1','picture_2','picture_3','picture_4','picture_5','picture_6','picture_7','picture_8',
                 'picture_9','picture_10','template_category_id','PhotoDisplay',
-                'accountId','UseStandardFooter','ScheduleStartDate','ScheduleEndDate','scheduleTemplateName','shippingTemplateName'
+                'accountId','UseStandardFooter','ScheduleStartDate','ScheduleEndDate','scheduleTemplateName','shippingTemplateName',
+                'ShippingServiceCost1','ShippingServiceAdditionalCost1','ShippingServiceCost2','ShippingServiceAdditionalCost2','ShippingServiceCost3','ShippingServiceAdditionalCost3',
+                'InternationalShippingServiceCost1','InternationalShippingServiceAdditionalCost1','InternationalShippingServiceCost2','InternationalShippingServiceAdditionalCost2','InternationalShippingServiceCost3','InternationalShippingServiceAdditionalCost3'
         ]),
         items:[{
                 layout:"column",
@@ -1812,6 +1814,118 @@ Ext.onReady(function(){
                                         Ext.Msg.alert('Warn', 'Please first select Site.');
                                     }
                                 }  
+                            },{
+                                layout:"column",
+                                title:"Domestic Shipping",
+                                items:[{
+                                    columnWidth:0.5,
+                                    layout:"form",
+                                    labelAlign:"top",
+                                    border:false,
+                                    items:[{
+                                        xtype:"numberfield",
+                                        fieldLabel:"Cost",
+                                        name:"ShippingServiceCost1"
+                                      }]
+                                  },{
+                                    columnWidth:0.5,
+                                    layout:"form",
+                                    labelAlign:"top",
+                                    border:false,
+                                    items:[{
+                                        xtype:"numberfield",
+                                        fieldLabel:"E A I",
+                                        name:"ShippingServiceAdditionalCost1"
+                                      }]
+                                  },{
+                                    columnWidth:0.5,
+                                    border:false,
+                                    items:[{
+                                        xtype:"numberfield",
+                                        fieldLabel:"Number",
+                                        name:"ShippingServiceCost2"
+                                      }]
+                                  },{
+                                    columnWidth:0.5,
+                                    border:false,
+                                    items:[{
+                                        xtype:"numberfield",
+                                        fieldLabel:"Number",
+                                        name:"ShippingServiceAdditionalCost2"
+                                      }]
+                                  },{
+                                    columnWidth:0.5,
+                                    border:false,
+                                    items:[{
+                                        xtype:"numberfield",
+                                        fieldLabel:"Number",
+                                        name:"ShippingServiceCost3"
+                                      }]
+                                  },{
+                                    columnWidth:0.5,
+                                    border:false,
+                                    items:[{
+                                        xtype:"numberfield",
+                                        fieldLabel:"Number",
+                                        name:"ShippingServiceAdditionalCost3"
+                                      }]
+                                  }]
+                            },{
+                                layout:"column",
+                                title:"International Shipping",
+                                items:[{
+                                    columnWidth:0.5,
+                                    layout:"form",
+                                    labelAlign:"top",
+                                    border:false,
+                                    items:[{
+                                        xtype:"numberfield",
+                                        fieldLabel:"Cost",
+                                        name:"InternationalShippingServiceCost1"
+                                      }]
+                                  },{
+                                    columnWidth:0.5,
+                                    layout:"form",
+                                    labelAlign:"top",
+                                    border:false,
+                                    items:[{
+                                        xtype:"numberfield",
+                                        fieldLabel:"E A I",
+                                        name:"InternationalShippingServiceAdditionalCost1"
+                                      }]
+                                  },{
+                                    columnWidth:0.5,
+                                    border:false,
+                                    items:[{
+                                        xtype:"numberfield",
+                                        fieldLabel:"Number",
+                                        name:"InternationalShippingServiceCost2"
+                                      }]
+                                  },{
+                                    columnWidth:0.5,
+                                    border:false,
+                                    items:[{
+                                        xtype:"numberfield",
+                                        fieldLabel:"Number",
+                                        name:"InternationalShippingServiceAdditionalCost2"
+                                      }]
+                                  },{
+                                    columnWidth:0.5,
+                                    border:false,
+                                    items:[{
+                                        xtype:"numberfield",
+                                        fieldLabel:"Number",
+                                        name:"InternationalShippingServiceCost3"
+                                      }]
+                                  },{
+                                    columnWidth:0.5,
+                                    border:false,
+                                    items:[{
+                                        xtype:"numberfield",
+                                        fieldLabel:"Number",
+                                        name:"InternationalShippingServiceAdditionalCost3"
+                                      }]
+                                  }]
                             }]
                   }/*,{
                     xtype:"panel",

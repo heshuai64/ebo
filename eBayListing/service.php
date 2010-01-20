@@ -10,8 +10,8 @@ function debugLog($file_name, $data){
 function ErrorLogFunction($errno, $errstr, $errfile, $errline){
     //echo "<b>Custom error:</b> [$errno] $errstr<br />";
     //echo " Error on line $errline in $errfile<br />";
-    debugLog('errorLog\\'.date("Ymd").'.log', date("Y-m-d H:i:s"). '  '.$errno. ' : '.$errstr.' on line '.$errline.' in '.$errfile . "\n");
-    //debugLog('errorLog/'.date("Ymd").'.log', date("Y-m-d H:i:s"). '  '.$errno. ' : '.$errstr.' on line '.$errline.' in '.$errfile . "\n");
+    //debugLog('errorLog\\'.date("Ymd").'.log', date("Y-m-d H:i:s"). '  '.$errno. ' : '.$errstr.' on line '.$errline.' in '.$errfile . "\n");
+    debugLog('errorLog/'.date("Ymd").'.log', date("Y-m-d H:i:s"). '  '.$errno. ' : '.$errstr.' on line '.$errline.' in '.$errfile . "\n");
 }
 
 set_error_handler("ErrorLogFunction");
@@ -2984,7 +2984,7 @@ class eBayListing{
 		    $StartTimeTo    = $argv[4];
 		}else{
 		    $StartTimeFrom  = date("Y-m-d H:i:s", time() - (12 * 60 * 60) - 30);
-		    $StartTimeTo    = date("Y-m-d H:i:s", time() - (8 * 60 * 60));
+		    $StartTimeTo    = date("Y-m-d H:i:s", time() - (8 * 60 * 50) + 30);
 		}
 	    }elseif($type == "End"){
 		if(!empty($argv[3]) && !empty($argv[4])){
@@ -2992,7 +2992,7 @@ class eBayListing{
 		    $EndTimeTo   = $argv[4];
 		}else{
 		    $EndTimeFrom = date("Y-m-d H:i:s", time() - (12 * 60 * 60) - 30);
-		    $EndTimeTo   = date("Y-m-d H:i:s", time() - (8 * 60 * 60));
+		    $EndTimeTo   = date("Y-m-d H:i:s", time() - (8 * 60 * 50) + 30);
 		}
 	    }
 	}

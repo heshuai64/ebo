@@ -277,7 +277,7 @@ Ext.onReady(function(){
                              var result = eval(response.responseText);
                              if(result[0].success){
                                    Ext.MessageBox.alert('Success', result[0].msg);
-                                   //template_store.reload();
+                                   template_store.reload();
                               }else{
                                    Ext.MessageBox.alert('Failure', result[0].msg);
                                    //template_store.reload();
@@ -549,7 +549,7 @@ Ext.onReady(function(){
                                              var fp = Ext.getCmp("csv-form");
                                              if(fp.getForm().isValid()){
                                                   fp.getForm().submit({
-                                                       url: 'service.php?action=importTemplateToCSV&type=spcsv',
+                                                       url: 'service.php?action=importTemplateFromCSV&type=spcsv',
                                                        waitMsg: 'Uploading your csv...',
                                                        success: function(fp, o){
                                                             template_store.reload();
@@ -605,7 +605,7 @@ Ext.onReady(function(){
                                              var fp = Ext.getCmp("csv-form");
                                              if(fp.getForm().isValid()){
                                                   fp.getForm().submit({
-                                                       url: 'service.php?action=importTemplateToCSV&type=stpcsv',
+                                                       url: 'service.php?action=importTemplateFromCSV&type=stpcsv',
                                                        waitMsg: 'Uploading your csv...',
                                                        success: function(fp, o){
                                                             template_store.reload();
@@ -637,7 +637,7 @@ Ext.onReady(function(){
                                              var fp = Ext.getCmp("csv-form");
                                              if(fp.getForm().isValid()){
                                                   fp.getForm().submit({
-                                                       url: 'service.php?action=importTemplateToCSV&type=stcsv',
+                                                       url: 'service.php?action=importTemplateFromCSV&type=stcsv',
                                                        waitMsg: 'Uploading your csv...',
                                                        success: function(fp, o){
                                                             importCsvWindow.close();
@@ -1500,7 +1500,7 @@ Ext.onReady(function(){
                {header: "Site", width: 30, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                {header: "SKU", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
                {header: "Item ID", width: 80, align: 'center', sortable: true, dataIndex: 'ItemID'},
-               {header: "Item Title", width: 350, align: 'center', sortable: true, dataIndex: 'Title', 
+               {header: "Item Title", width: 340, align: 'center', sortable: true, dataIndex: 'Title', 
                     editor: {
                          xtype: 'textfield',
                          allowBlank: false
@@ -1773,10 +1773,10 @@ Ext.onReady(function(){
                               var sold_item_grid = new Ext.grid.GridPanel({
                                    //title: 'Waiting To Upload SKU List',
                                    store: sold_item_store,
-                                   autoHeight: true,
+                                   //autoHeight: true,
                                    //autoScroll: true,
-                                   //width: 600,
-                                   //height: 500,
+                                   width: 1024,
+                                   height: 460,
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
                                         {header: "ID", width: 50, align: 'center', sortable: true, dataIndex: 'Id'},
@@ -1952,10 +1952,10 @@ Ext.onReady(function(){
                               var unsold_item_grid = new Ext.grid.GridPanel({
                                    //title: 'Waiting To Upload SKU List',
                                    store: unsold_item_store,
-                                   autoHeight: true,
+                                   //autoHeight: true,
                                    //autoScroll: true,
-                                   //width: 600,
-                                   //height: 500,
+                                   width: 1024,
+                                   height: 460,
                                    selModel: new Ext.grid.RowSelectionModel({}),
                                    columns:[
                                         {header: "ID", width: 50, align: 'center', sortable: true, dataIndex: 'Id'},
