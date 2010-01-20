@@ -417,6 +417,7 @@ class Item{
 	    }else{
 		$row_1['Price'] = $row_1['BuyItNowPrice'];
 	    }
+            $row_1['EndTime'] = date("Y-m-d H:i:s", strtotime($row_1['EndTime']) + (8 * 60 * 60));
 	    $data[] = $row_1;
 	}
 	
@@ -446,6 +447,7 @@ class Item{
 	    }else{
 		$row_1['Price'] = $row_1['BuyItNowPrice'];
 	    }
+            $row_1['EndTime'] = date("Y-m-d H:i:s", strtotime($row_1['EndTime']) + (8 * 60 * 60));
 	    $data[] = $row_1;
 	}
 	
@@ -475,6 +477,7 @@ class Item{
 	    }else{
 		$row_1['Price'] = $row_1['BuyItNowPrice'];
 	    }
+            $row_1['EndTime'] = date("Y-m-d H:i:s", strtotime($row_1['EndTime']) + (8 * 60 * 60));
 	    $data[] = $row_1;
 	}
 	
