@@ -588,6 +588,10 @@
                     }
                 break;
                         
+		case "Pending":
+		    $this->updateOrderStatus($ordersId, "E");
+		break;
+	    
                 case "Refunded":
                     /*
                     $pay = $this->getOrderPay($ordersId);
@@ -825,7 +829,9 @@
                 
 		$this->matchOrder($api_date, $item_number_string, $transactionId);
             }else{
-                $this->log('paypal_api', '<font color="red">TRANSACTIONID: '. $api_date['TRANSACTIONID']. ' Exist.</font><br>', "html");
+		$this->log('paypal_api', '<font color="red">TRANSACTIONID: '. $api_date['TRANSACTIONID']. ' Exist.</font><br>', "html");
+		$ordersId = $this->getOrderId($api_data['BUYERID'], $item_number_string);
+		$this->updateOrderAndShipment($ordersId, $api_date);
             }
 	    
 	    $this->log('paypal_api', "<br><br>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++<br><br>", "html");
