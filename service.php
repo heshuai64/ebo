@@ -47,57 +47,66 @@ class Service{
             %s";
             
     //XMAS ------------------------------------------------------------------------------------------------------
-    const XMAS_REGISTERED_TEMPLATE_1  = "
+    const XMAS_REGISTERED_TEMPLATE_1  = "<p><b>
+            Note: Currently, most parts of Europe are experiencing adverse weather conditions - heavy snowfall. As such, delays on our courier delivery are inevitable despite effort to mitigate the effects. Hopefully to get your understanding.
+            </b></p>
             <p>%s</p>
             <p>Dear %s,</p>
-            <p>Thank you for your purchasing, this email just to inform you that we sent your item to our dispatch center. It is estimated to arrive in 7 to 15 working days in normal conditions to most of US, UK, AU destinations and 3 to 5 weeks to arrive the Europe countries and other remote regions, it depends your custom inspections and the freight efficiency. If not arrive at that time period, please do not hesitate to contact us.</p> 
-            <p>Here is the tracking number of your parcel (%s), and you can logon http://www.singpost.com/ra/ra_article_status.asp to view the updated shipment after 2 days cause the post office need time to handle it and update the information.</p>
+            <p>Thank you for your purchasing, this email just to inform you that we sent your item to our dispatch center. It is estimated to arrive in 7 to 15 WORKING days in normal conditions to most of US, UK, AU destinations and 3 to 5 weeks to arrive the Europe countries and other remote regions, it depends your custom inspections and the freight efficiency. If not arrive at that time period, please do not hesitate to contact us.</p>
+            <p>Here is the tracking number of your parcel (%s), you can logon http://www.singpost.com/ra/ra_article_status.asp to view the updated shipment after 2 WORKING days cause the post office need time to handle it and update the information.</p>
             <p>Hopefully the item could be arrived as quickly as possible and appreciate for your positive feedback with all 5 stars DSRs after receving it, we will leave it for you also.</p>
-            <p>Thanks again for your great purchase and understanding. We sincerely hope our item and customer service can give you the BEST BUYING EXPERIENCE on eBay.</p>
+            <p>We sincerely hope our item and customer service can give you the BEST BUYING EXPERIENCE on eBay.</p>
             Yours Sincerely,<br>
             %s";
             
-    const XMAS_BLUK_TEMPLATE_1  = "
+    const XMAS_BLUK_TEMPLATE_1  = "<p><b>
+            Note: Currently, most parts of Europe are experiencing adverse weather conditions - heavy snowfall. As such, delays on our courier delivery are inevitable despite effort to mitigate the effects. Hopefully to get your understanding.
+            </b></p>
             <p>%s</p>
             <p>Dear %s,</p>
-            <p>Thank you for your purchasing from us, this email just to inform you that we sent your item to our dispatch center. It is estimated to arrive in 7 to 15 working days in normal conditions to most of US, UK, AU destinations and 3 to 5 weeks to arrive the Europe countries and other remote regions, it depends your custom inspections and the freight efficiency.</p>
-            <p>If not arrive at that time period, please do not hesitate to contact us.</p>
+            <p>Thank you for your purchasing from us, this email just to inform you that we sent your item to our dispatch center. It is estimated to arrive in 7 to 15 WORKING days in normal conditions to most of US, UK, AU destinations and 3 to 5 weeks to arrive the Europe countries and other remote regions, it depends your custom inspections and the freight efficiency. If not arrive at that time period, please do not hesitate to contact us.</p>
             <p>Hopefully the item could be arrived as quickly as possible and appreciate for your positive feedback with all 5 stars DSRs after receving it, we will leave it for you also.</p>
-            <p>Thanks again for your great purchase. We sincerely hope our item and customer service can give you the BEST BUYING EXPERIENCE on eBay.</p>
+            <p>We sincerely hope our item and customer service can give you the BEST BUYING EXPERIENCE on eBay.</p>
             Yours Sincerely,<br>
             %s";
     
-    const XMAS_REGISTERED_TEMPLATE_2  = "
+    const XMAS_REGISTERED_TEMPLATE_2  = "<p><b>
+            Note: Currently, most parts of Europe are experiencing adverse weather conditions - heavy snowfall. As such, delays on our courier delivery are inevitable despite effort to mitigate the effects. Hopefully to get your understanding.
+            </b></p>
             <p>%s</p>
             <p>Dear %s,</p>
             <p>Just keep in my mind, 12 days have passed since your item was shipped. Have you received it?</p>
-            <p>The tracking number is  (%s), and you can track it on http://www.singpost.com/ra/ra_article_status.asp and your local post office website.</p>
-            <p>If received it already and with good condition, we sincerely hope that you will like it and satisfied with our customer services, your valued positive comment with all 5-stars Detailed Seller Ratings are much appreciated, which are of vital importance to the growth of our small company.</p> 
-            <p>If have not received yet please kindly wait a few more days for delivery as it may delayed on the transport way due to the xmas peak period.</p>
+            <p>The tracking number is (%s), you can track it on http://www.singpost.com/ra/ra_article_status.asp and your local post office website.</p>
+            <p>If already arrived and with good condition, we sincerely hope that you will like it and satisfied with our customer services, your valued positive comment with all 5-stars Detailed Seller Ratings are much appreciated, which are of vital importance to the growth of our small company.</p> 
             <p>If received with anything you feel unsatisfied, please feel free to tell us. We will offer a satisfied resolution for you and will improve our service to better.</p>
+            <p>If have not received yet please kindly wait another 10 days for delivery as the item is definitely on the transport way.</p>
             <p>Besides, PLEASE DO NOT leaves us 1, 2, 3 or 4-star Detailed Seller Ratings because they are equal to negative feedback. Like what we said before, if you are not satisfied in any regard, please email me.</p>
             <p>Thanks once more for your purchase.</p>
             Yours Sincerely,<br>
             %s";
             
-    const XMAS_BLUK_TEMPLATE_2  = "
+    const XMAS_BLUK_TEMPLATE_2  = "<p><b>
+            Note: Currently, most parts of Europe are experiencing adverse weather conditions - heavy snowfall. As such, delays on our courier delivery are inevitable despite effort to mitigate the effects. Hopefully to get your understanding.
+            </b></p>
             <p>%s</p>
             <p>Dear %s,</p>
-            <p>Just keep in my mind, 12 days have passed since your item was shipped. Have you received it? If received it already and with good condition, we sincerely hope that you will like it and satisfied with our customer services, your valued positive comment with all 5-stars Detailed Seller Ratings are much appreciated, which are of vital importance to the growth of our small company.</p> 
-            <p>If have not received yet please kindly wait a few more for delivery as it may delayed on the transport way due to the xmas peak period.</p>
+            <p>Just keep in my mind, 12 days have passed since your item was shipped. Have you received it?</p>
+            <p>If already arrived and with good condition, we sincerely hope that you will like it and satisfied with our customer services, your valued positive comment with all 5-stars Detailed Seller Ratings are much appreciated, which are of vital importance to the growth of our small company.</p>
             <p>If received with anything you feel unsatisfied, please feel free to tell us. We will offer a satisfied resolution for you and will improve our service to better.</p>
+            <p>If have not received yet please kindly wait another 10 days for delivery as the item is definitely on the transport way.</p>
             <p>Besides, PLEASE DO NOT leaves us 1, 2, 3 or 4-star Detailed Seller Ratings because they are equal to negative feedback. Like what we said before, if you are not satisfied in any regard, please email me.</p>
-            <p>Thanks once more for your purchase.</p> 
+            <p>Thanks once more for your purchase.</p>
             Yours Sincerely,<br>
             %s";
     
-    const XMAS_TEMPLATE_3  = "
+    const XMAS_TEMPLATE_3  = "<p><b>
+            Note: Currently, most parts of Europe are experiencing adverse weather conditions - heavy snowfall. As such, delays on our courier delivery are inevitable despite effort to mitigate the effects. Hopefully to get your understanding.
+            </b></p>
             <p>%s</p>
             <p>Dear %s,</p>
             <p>22 days have passed since your item was shipped. I’d like to know that have you received it?</p>
-            <p>If yes and like it, hopefully to receive your valued positive feedback and with all 5 stars DSRs.</p>
-            <p>During the specail period, I really concern about all of our items be sent could arrive as quickly as wish, but, if not arrive yet, would you please kindly wait another 4 working days? If still no news after 4 working days then we will offer a quite satisfied resolution for you. Sorry to keep you waiting as a lot of parcels put on post office await to delivery, so it has a slightly delayed. Your bit patience and understanding with this matter would be greatly appreciated.</p>
-            <p>Thanks a lot once more for your everything.</p>
+            <p>If yes and like it, hopefully to receive your valued positive feedback and with all 5 stars DSRs, our system will leave it for you also. Thanks in advance!</p>
+            <p>If still no news then please do not hesitate to countact our customer service representative, we will response you within one working day.</p>
             Yours Sincerely,<br>
             %s";
     
@@ -235,12 +244,12 @@ class Service{
                         case "S":
                             
                         case "U":
+                            
+                        default:
                             $toContent = sprintf(self::XMAS_BLUK_TEMPLATE_1, $item, $row['shipToName'], $sellerId);
                             break;
                     }
                     
-                    
-                    //$seller = array('id'=>'heshuai64', 'email'=> 'heshuai64@gmail.com', 'emailPassword'=> 'pp2367383');
                     $buyer = array('name'=> $row['shipToName'], 'email'=> $row['shipToEmail']);
                     $subjet = "Your order has been sent out";
                     $send_result = $this->sendEmail($seller, $buyer, $subjet, $toContent);
@@ -280,6 +289,8 @@ class Service{
                         case "S":
                             
                         case "U":
+                            
+                        default:
                             $toContent = sprintf(self::XMAS_BLUK_TEMPLATE_2, $item, $row['shipToName'], $sellerId);
                             break;
                         
@@ -316,7 +327,7 @@ class Service{
                     $toContent = sprintf(self::XMAS_TEMPLATE_3, $item, $row['shipToName'], $sellerId);
                     
                     $buyer = array('name'=> $row['shipToName'], 'email'=> $row['shipToEmail']);
-                    $subjet = "22 days had been gone, have you received your order? How's everything with it?";
+                    $subjet = "Have you received the item you bought from us on ebay? How is everything?";
                     $send_result = $this->sendEmail($seller, $buyer, $subjet, $toContent);
                     if($send_result){
                         //$sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
