@@ -1409,12 +1409,12 @@ class Template{
 	UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."',accountId='".$this->account_id."',UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."',
 	".((!empty($_POST['ScheduleStartDate']))?"ScheduleStartDate='".$_POST['ScheduleStartDate']."',":"").((!empty($_POST['ScheduleEndDate']))?"ScheduleEndDate='".$_POST['ScheduleEndDate']."',":"").
         "scheduleTemplateName='".$_POST['scheduleTemplateName']."',shippingTemplateName='".$_POST['shippingTemplateName']."',
-        ShippingServiceCost1='".$_POST['ShippingServiceCost1']."',ShippingServiceAdditionalCost1='".$_POST['ShippingServiceCost1']."',
-        ShippingServiceCost2='".$_POST['ShippingServiceCost2']."',ShippingServiceAdditionalCost2='".$_POST['ShippingServiceCost2']."',
-        ShippingServiceCost3='".$_POST['ShippingServiceCost3']."',ShippingServiceAdditionalCost3='".$_POST['ShippingServiceCost3']."',
-        InternationalShippingServiceCost1='".$_POST['InternationalShippingServiceCost1']."',InternationalShippingServiceAdditionalCost1='".$_POST['InternationalShippingServiceAdditionalCost1']."',
-        InternationalShippingServiceCost2='".$_POST['InternationalShippingServiceCost2']."',InternationalShippingServiceAdditionalCost2='".$_POST['InternationalShippingServiceAdditionalCost2']."',
-        InternationalShippingServiceCost3='".$_POST['InternationalShippingServiceCost3']."',InternationalShippingServiceAdditionalCost3='".$_POST['InternationalShippingServiceAdditionalCost3']."',
+        ShippingServiceCost1=".(($_POST['ShippingServiceCost1'] == "")?'NULL':$_POST['ShippingServiceCost1']).",ShippingServiceAdditionalCost1=".(($_POST['ShippingServiceAdditionalCost1']=="")?'NULL':$_POST['ShippingServiceAdditionalCost1']).",
+        ShippingServiceCost2=".(($_POST['ShippingServiceCost2'] == "")?'NULL':$_POST['ShippingServiceCost2']).",ShippingServiceAdditionalCost2=".(($_POST['ShippingServiceAdditionalCost2']=="")?'NULL':$_POST['ShippingServiceAdditionalCost2']).",
+        ShippingServiceCost3=".(($_POST['ShippingServiceCost3'] == "")?'NULL':$_POST['ShippingServiceCost3']).",ShippingServiceAdditionalCost3=".(($_POST['ShippingServiceAdditionalCost3']=="")?'NULL':$_POST['ShippingServiceAdditionalCost3']).",
+        InternationalShippingServiceCost1=".(($_POST['InternationalShippingServiceCost1']=="")?'NULL':$_POST['InternationalShippingServiceCost1']).",InternationalShippingServiceAdditionalCost1=".(($_POST['InternationalShippingServiceAdditionalCost1']=="")?'NULL':$_POST['InternationalShippingServiceAdditionalCost1']).",
+        InternationalShippingServiceCost2=".(($_POST['InternationalShippingServiceCost2']=="")?'NULL':$_POST['InternationalShippingServiceCost2']).",InternationalShippingServiceAdditionalCost2=".(($_POST['InternationalShippingServiceAdditionalCost2']=="")?'NULL':$_POST['InternationalShippingServiceAdditionalCost2']).",
+        InternationalShippingServiceCost3=".(($_POST['InternationalShippingServiceCost3']=="")?'NULL':$_POST['InternationalShippingServiceCost3']).",InternationalShippingServiceAdditionalCost3=".(($_POST['InternationalShippingServiceAdditionalCost3']=="")?'NULL':$_POST['InternationalShippingServiceAdditionalCost3']).",
         status=0 where Id = '".$id."'";
 	
 	$result = mysql_query($sql, eBayListing::$database_connect);
