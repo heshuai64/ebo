@@ -861,16 +861,16 @@ class Template{
 	    $_POST['Quantity'] = 1;   
 	}
 	
-	$sql = "insert into template (BuyItNowPrice,Country,Currency,Description,DispatchTimeMax,
-	ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,PostalCode,
+	$sql = "insert into template (BuyItNowPrice,Country,Currency,Description,
+	ListingDuration,ListingType,PaymentMethods,PayPalEmailAddress,
 	PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,Quantity,ReservePrice,
 	Site,SKU,StartPrice,StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,
 	BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypePlus,GalleryURL,accountId,UseStandardFooter,
 	scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName) values (
 	'".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
-	'".htmlentities($_POST['Description'], ENT_QUOTES)."','".$_POST['DispatchTimeMax']."',
-	'".$_POST['ListingDuration']."','".$_POST['ListingType']."','".$_POST['Location']."','PayPal',
-	'".$_POST['PayPalEmailAddress']."','".$_POST['PostalCode']."',
+	'".htmlentities($_POST['Description'], ENT_QUOTES)."',
+	'".$_POST['ListingDuration']."','".$_POST['ListingType']."','PayPal',
+	'".$_POST['PayPalEmailAddress']."',
 	'".$_POST['PrimaryCategoryCategoryID']."','".$_POST['PrimaryCategoryCategoryName']."','".$_POST['SecondaryCategoryCategoryID']."','".$_POST['SecondaryCategoryCategoryName']."',
 	'".@$_POST['Quantity']."','".@$_POST['ReservePrice']."',
 	'".$_POST['Site']."','".$_POST['SKU']."','".$_POST['StartPrice']."','".$_POST['StoreCategory2ID']."','".$_POST['StoreCategory2Name']."',
@@ -1121,8 +1121,7 @@ class Template{
 	    $this->log("template", $_POST['SKU'] . " add to template.");
 	}else{
 	    echo '{success: false,
-		    msg: "Can\'t add, please notice admin."}
-		}';
+		    msg: "Can\'t add, please notice admin."}';
 	    $this->log("template", $_POST['SKU'] . " add to template failure.", "error");
 	}
     }
@@ -1405,7 +1404,7 @@ class Template{
 	StoreCategoryID='".$_POST['StoreCategoryID']."',StoreCategoryName='".$_POST['StoreCategoryName']."',SubTitle='".$_POST['SubTitle']."',
 	Title='".htmlentities($_POST['Title'], ENT_QUOTES)."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
 	Border='".(empty($_POST['Border'])?0:1)."',Featured='".(empty($_POST['Featured'])?0:1)."',Highlight='".(empty($_POST['Highlight'])?0:1)."',
-	HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',
+	HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',GalleryURL='".$_POST['GalleryURL']."',
 	UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."',accountId='".$this->account_id."',UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."',
 	".((!empty($_POST['ScheduleStartDate']))?"ScheduleStartDate='".$_POST['ScheduleStartDate']."',":"").((!empty($_POST['ScheduleEndDate']))?"ScheduleEndDate='".$_POST['ScheduleEndDate']."',":"").
         "scheduleTemplateName='".$_POST['scheduleTemplateName']."',shippingTemplateName='".$_POST['shippingTemplateName']."',

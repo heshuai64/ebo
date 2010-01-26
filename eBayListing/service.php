@@ -3386,7 +3386,7 @@ class eBayListing{
 	    $result = mysql_query($sql);
 	    $row = mysql_fetch_assoc($result);
 	    if($row['num'] > 0){
-		$sql = "update account set password='".$_POST['nPassword']."',pagination='".$_POST['pagination']."' where id = '".$this->account_id."' and password = '".$_POST['nPassword']."'";
+		$sql = "update account set password='".$_POST['nPassword']."',pagination='".$_POST['pagination']."' where id = '".$this->account_id."'";
 		$result = mysql_query($sql);
 		echo '[{success: true, msg: "update success!"}]';
 	    }else{
