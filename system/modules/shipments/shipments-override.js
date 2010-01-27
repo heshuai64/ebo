@@ -360,19 +360,19 @@ Ext.override(QoDesk.Shipments, {
                             win.close();
                         }
 		    },{
-			text: 'Verify Shipment',
+			text: 'Verify',
 			handler: function(){
 			    win.close();
 			    window.open("/eBayBO/verifyShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");   
 			}
 		    },{
-			text: 'Pack Shipment',
+			text: 'Pack',
 			handler: function(){
 			    win.close();
 			    window.open("/eBayBO/packShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=500, height=400");  
 			}
 		    },{
-			text: 'Ship Shipment',
+			text: 'Ship',
 			handler: function(){
 			    win.close();
 			    window.open("/eBayBO/shipShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=500, height=400");  
@@ -381,6 +381,12 @@ Ext.override(QoDesk.Shipments, {
 			text: 'Registered List',
 			handler: function(){
 			    window.open("/eBayBO/list.php?type=shipmentRegistered&shippedOnFrom="+Ext.getCmp("search-shipment-form").getForm().findField('shippedOnFrom').getValue()+"&shippedOnTo="+Ext.getCmp("search-shipment-form").getForm().findField('shippedOnTo').getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=900, height=700");  
+			    win.close();
+			}
+		    },{
+			text: 'Outstanding',
+			handler: function(){
+			    window.open("/eBayBO/outstandingShipmen.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=900, height=700");  
 			    win.close();
 			}
 		    },{

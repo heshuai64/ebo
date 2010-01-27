@@ -261,7 +261,7 @@ class eBayBOExcel{
 		}
 		$writer = PHPExcel_IOFactory::createWriter($this->php_excel, 'Excel5');
 		$writer->save('/export/eBayBO/excel/resent-list('.$start.' -- '.$end.').xls');
-		echo "From ".$start." to ". $end." resend shipment generate Success!<br><a href='http://heshuai64.3322.org/eBayBO/excel/resent-list(".$start." -- ".$end.").xls'>please click download</a>";
+		echo "From ".$start." to ". $end." resend shipment generate Success!<br><a href='http://heshuai64.3322.org:8080/eBayBO/excel/resent-list(".$start." -- ".$end.").xls'>please click download</a>";
 	}
 	
 	public function registerShipment(){
@@ -322,8 +322,8 @@ class eBayBOExcel{
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(13, $i, 'Computer Parts');
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(14, $i, 1);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(15, $i, 'USD');
-			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(16, $i, 20);
-			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(20, $i, 20);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(16, $i, 30);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(20, $i, 30);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(21, $i, 'N');
 			//$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(25, $i, "http://heshuai64.3322.org/eBayBO/cron/image.php?code=code39&o=1&t=30&r=1&text=".$row['id']."&f1=Arial.ttf&f2=8&a1=&a2=&a3=");
 			$i++;
