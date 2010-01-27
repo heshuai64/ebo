@@ -1580,6 +1580,7 @@ Ext.onReady(function(){
                         items:[{
                             layout:"column",
                             border:false,
+                            width:300,
                             items:[{
                                 columnWidth:0.5,
                                 layout:"form",
@@ -1612,7 +1613,7 @@ Ext.onReady(function(){
                                         }
                                     }
                                   }]
-                              },{
+                            },{
                                 columnWidth:0.5,
                                 border:false,
                                 layout:"form",
@@ -1642,7 +1643,7 @@ Ext.onReady(function(){
                                     hiddenName:'ListingDuration',
                                     allowBlank:false
                                   }]
-                              }]
+                            }]
                         }],
                         cls: 'my-fieldset',
                         style: 'margin: 10px;',
