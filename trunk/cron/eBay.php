@@ -483,7 +483,7 @@ class eBay{
 		//shippingFeeValue='".$shippingFeeValue."',insuranceCurrency='".$insuranceCurrency."',insuranceValue='".$insuranceValue."',
 		//grandTotalCurrency='".$grandTotalCurrency."',grandTotalValue='".$grandTotalValue."',
 		
-		$sql = "update qo_orders set shippingMethod='".$shippingMethod."',
+		$sql = "update qo_orders set 
 		paymentMethod='".$paymentMethod."',sellerId='".$sellerId."',buyerId='".$buyerId."',ebayName='".mysql_real_escape_string($ebayName)."',
 		ebayEmail='".$ebayEmail."',ebayAddress1='".mysql_real_escape_string($ebayAddress1)."',ebayAddress2='".mysql_real_escape_string($ebayAddress2)."',
 		ebayCity='".mysql_real_escape_string($ebayCity)."',ebayStateOrProvince='".mysql_real_escape_string($ebayStateOrProvince)."',

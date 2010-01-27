@@ -445,6 +445,34 @@ class QoShipments {
 		}
 	}
 	
+        public function outstandingShipment(){
+            $count_sql = "select count(*) as num from qo_shipments where (status = 'N' or status = 'H' or status = 'W')";
+            $data_sql = "select s.id,o.id as ordersId,s.shipToName,s.shipToEmail,o.sellerId,s.createdOn,s.shipmentMethod,s.status 
+            from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where (s.status = 'N' or s.status = 'H' or s.status = 'W') group by s.id order by s.id desc limit ".$_POST['start'].",".$_POST['limit'];
+                
+            $count_result = mysql_query($count_sql);
+	    $count_row = mysql_fetch_assoc($count_result);
+	    $totalCount = $count_row['num'];
+	    
+	    $data_result = mysql_query($data_sql);
+            $array = array();
+            while($data_row = mysql_fetch_assoc($data_result)){
+                $sql_1 = "select i.galleryURL,sd.skuId,sd.skuTitle,sd.quantity from qo_shipments_detail as sd left join qo_items as i on sd.itemId = i.id where shipmentsId = '".$data_row['id']."'";
+                $result_1 = mysql_query($sql_1);
+                while($row_1 = mysql_fetch_assoc($result_1)){
+                    $request = $this->inventory_service_address."?action=getSkuInfo&data=".urlencode($row_1['skuId']);
+                    $json_result = json_decode($this->getService($request));
+                    if($json_result->skuStock < $row_1['quantity']){
+                        $json_result->skuStock = "<font color='red'>".$json_result->skuStock."</font>";
+                    }
+                    $data_row['desc'] .= "<img src='".$row_1['galleryURL']."' width=100 height=100/> SKU: ".$row_1['skuId'] . ", Title: ".$row_1['skuTitle'] . " X " .$row_1['quantity']."(".$json_result->skuStock.")<br>";
+                }
+                $array[] = $data_row;
+            }
+            //var_dump($order_array);
+            echo json_encode(array('totalCount'=>$totalCount, 'records'=>$array));
+            mysql_free_result($result);
+        }
 
 }
 
