@@ -1459,6 +1459,7 @@ Ext.onReady(function(){
                         items:[{
                             layout:"column",
                             border:false,
+                            width:300,
                             items:[{
                                 columnWidth:0.5,
                                 layout:"form",
