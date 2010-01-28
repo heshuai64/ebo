@@ -446,10 +446,27 @@ class QoShipments {
 	}
 	
         public function outstandingShipment(){
-            $count_sql = "select count(*) as num from qo_shipments where (status = 'N' or status = 'H' or status = 'W')";
-            $data_sql = "select s.id,o.id as ordersId,s.shipToName,s.shipToEmail,o.sellerId,s.createdOn,s.shipmentMethod,s.status 
-            from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where (s.status = 'N' or s.status = 'H' or s.status = 'W') group by s.id order by s.id desc limit ".$_POST['start'].",".$_POST['limit'];
-                
+            if(!empty($_GET['subAction'])){
+                switch($_GET['subAction']){
+                    case "updateRemark":
+                        $sql = "update qo_shipments set remarks = '".mysql_real_escape_string($_POST['remarks'])."' where id = '".$_POST['shipmentId']."'";
+                        mysql_query($sql);
+                    break;
+                }
+                echo "[{success: 'true', msg: 'update remark success!'}]";
+                return 1;
+            }
+            if(!empty($_POST['sellerId'])){
+                $count_sql = "select count(*) as num from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where o.sellerId = '".$_POST['sellerId']."' and (status = 'N' or status = 'H' or status = 'W')";
+                $data_sql = "select s.id,o.id as ordersId,s.shipToName,s.shipToEmail,o.sellerId,s.createdOn,s.shipmentMethod,s.status,s.remarks   
+                from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where o.sellerId = '".$_POST['sellerId']."' and (s.status = 'N' or s.status = 'H' or s.status = 'W') order by s.id desc limit ".$_POST['start'].",".$_POST['limit'];
+            }else{
+                $count_sql = "select count(*) as num from qo_shipments where (status = 'N' or status = 'H' or status = 'W')";
+                $data_sql = "select s.id,o.id as ordersId,s.shipToName,s.shipToEmail,o.sellerId,s.createdOn,s.shipmentMethod,s.status,s.remarks  
+                from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where (s.status = 'N' or s.status = 'H' or s.status = 'W') order by s.id desc limit ".$_POST['start'].",".$_POST['limit'];
+            }
+            
+               
             $count_result = mysql_query($count_sql);
 	    $count_row = mysql_fetch_assoc($count_result);
 	    $totalCount = $count_row['num'];
@@ -457,17 +474,35 @@ class QoShipments {
 	    $data_result = mysql_query($data_sql);
             $array = array();
             while($data_row = mysql_fetch_assoc($data_result)){
+                $out_stock = false;
+                $in_stock = false;
+                
                 $sql_1 = "select i.galleryURL,sd.skuId,sd.skuTitle,sd.quantity from qo_shipments_detail as sd left join qo_items as i on sd.itemId = i.id where shipmentsId = '".$data_row['id']."'";
                 $result_1 = mysql_query($sql_1);
                 while($row_1 = mysql_fetch_assoc($result_1)){
                     $request = $this->inventory_service_address."?action=getSkuInfo&data=".urlencode($row_1['skuId']);
                     $json_result = json_decode($this->getService($request));
-                    if($json_result->skuStock < $row_1['quantity']){
-                        $json_result->skuStock = "<font color='red'>".$json_result->skuStock."</font>";
+                    //$json_result->skuStock = 100;
+                    if($row_1['quantity'] < $json_result->skuStock){
+                        $in_stock = true;
+                        $out_stock = false;
+                    }else if($row_1['quantity'] > $json_result->skuStock){
+                        $in_stock = false;
+                        $out_stock = true;
                     }
-                    $data_row['desc'] .= "<img src='".$row_1['galleryURL']."' width=100 height=100/> SKU: ".$row_1['skuId'] . ", Title: ".$row_1['skuTitle'] . " X " .$row_1['quantity']."(".$json_result->skuStock.")<br>";
+                    
+                    if($json_result->skuStock < $row_1['quantity']){
+                        $json_result->skuStock = "<font color='blue'>".$json_result->skuStock."</font>";
+                    }
+                    $data_row['desc'] .= "<div style='height:100px;'><img src='".$row_1['galleryURL']."' width=100 height=100 style='float:left;'/> <font color='red'>SKU:</font> ".$row_1['skuId'] . "<br> <font color='red'>Title:</font> ".$row_1['skuTitle'] . " X " .$row_1['quantity']."<br><font color='red'>Stock:</font> ".$json_result->skuStock."<br><font color='red'>Remark:</font> ".$data_row['remarks']."</div>";
                 }
-                $array[] = $data_row;
+                
+                if(empty($_POST['stock']) || ($_POST['stock'] == 'Y' && $in_stock == true) || ($_POST['stock'] == 'N' && $out_stock == true)){
+                    $array[] = $data_row;
+                }else{
+                    $totalCount--;
+                }
+                
             }
             //var_dump($order_array);
             echo json_encode(array('totalCount'=>$totalCount, 'records'=>$array));
