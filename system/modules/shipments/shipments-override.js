@@ -386,7 +386,7 @@ Ext.override(QoDesk.Shipments, {
 		    },{
 			text: 'Outstanding',
 			handler: function(){
-			    window.open("/eBayBO/outstandingShipmen.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=900, height=700");  
+			    window.open("/eBayBO/outstandingShipmen.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=700");  
 			    win.close();
 			}
 		    },{
