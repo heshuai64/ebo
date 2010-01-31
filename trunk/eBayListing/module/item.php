@@ -125,13 +125,13 @@ class Item{
     }
     
     public function soldItemExport(){
-	$data = "SKU,Item Title,Insertion Fee,Item ID,Start Time,End Time,Duration,Qty,Slod Qty,Price,Listing Type\n";
-	$sql = "select ItemID,SKU,Title,ListingType,sum(InsertionFee) as InsertionFee,sum(ListingFee) as ListingFee,sum(Quantity) as Quantity,sum(QuantitySold) as QuantitySold,ListingDuration,StartTime,EndTime,sum(StartPrice) as StartPrice,sum(BuyItNowPrice) as BuyItNowPrice from items where Status = 6 and StartTime > '".$_GET['StartTime']."' and EndTime < '".$_GET['EndTime']."' and accountId = '".$this->account_id."' group by Title";
+	$data = "Template ID,SKU,Item Title,Insertion Fee,Item ID,Start Time,End Time,Duration,Qty,Slod Qty,Price,Listing Type\n";
+	$sql = "select ItemID,TemplateID,SKU,Title,ListingType,InsertionFee,ListingFee,Quantity,QuantitySold,ListingDuration,StartTime,EndTime,StartPrice,BuyItNowPrice from items where Status = 6 and StartTime > '".$_GET['StartTime']."' and EndTime < '".$_GET['EndTime']."' and accountId = '".$this->account_id."'";
 	//echo $sql."\n";
 	//exit;
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while($row = mysql_fetch_assoc($result)){
-	    $data .= '"'.$row['SKU'].'","'.mysql_escape_string(str_replace("\\", "", $row['Title'])).'","'.$row['InsertionFee'].'","'.$row['ItemID'].'","'.$row['StartTime'].'","'.$row['EndTime'].'","'.$row['ListingDuration'].'","'.$row['Quantity'].'","'.$row['QuantitySold'].'","'.$row['StartPrice'].'","'.$row['ListingType'].'"'."\n";
+	    $data .= '"'.$row['TemplateID'].'","'.$row['SKU'].'","'.mysql_escape_string(str_replace("\\", "", $row['Title'])).'","'.$row['InsertionFee'].'","'.$row['ItemID'].'","'.$row['StartTime'].'","'.$row['EndTime'].'","'.$row['ListingDuration'].'","'.$row['Quantity'].'","'.$row['QuantitySold'].'","'.$row['StartPrice'].'","'.$row['ListingType'].'"'."\n";
 	}
 	header("Content-type: application/x-msdownload");
         header("Content-Disposition: attachment; filename=soldItem(".$_GET['StartTime']."--".$_GET['EndTime'].").csv");
@@ -141,13 +141,13 @@ class Item{
     }
     
     public function unSoldItemExport(){
-	$data = "SKU,Item Title,Insertion Fee,Item ID,Start Time,End Time,Duration,Qty,Price,Listing Type\n";
-	$sql = "select ItemID,SKU,Title,ListingType,sum(InsertionFee) as InsertionFee,sum(ListingFee) as ListingFee,sum(Quantity) as Quantity,ListingDuration,StartTime,EndTime,sum(StartPrice) as StartPrice,sum(BuyItNowPrice) as BuyItNowPrice from items where Status = 5 and StartTime > '".$_GET['StartTime']."' and EndTime < '".$_GET['EndTime']."' and accountId = '".$this->account_id."' group by Title";
+	$data = "Template ID,SKU,Item Title,Insertion Fee,Item ID,Start Time,End Time,Duration,Qty,Price,Listing Type\n";
+	$sql = "select ItemID,TemplateID,SKU,Title,ListingType,InsertionFee,ListingFee,Quantity,QuantitySold,ListingDuration,StartTime,EndTime,StartPrice,BuyItNowPrice from items where Status = 5 and StartTime > '".$_GET['StartTime']."' and EndTime < '".$_GET['EndTime']."' and accountId = '".$this->account_id."'";
 	//echo $sql."\n";
 	//exit;
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while($row = mysql_fetch_assoc($result)){
-	    $data .= '"'.$row['SKU'].'","'.mysql_escape_string(str_replace("\\", "", $row['Title'])).'","'.$row['InsertionFee'].'","'.$row['ItemID'].'","'.$row['StartTime'].'","'.$row['EndTime'].'","'.$row['ListingDuration'].'","'.$row['Quantity'].'","'.$row['StartPrice'].'","'.$row['ListingType'].'"'."\n";
+	    $data .= '"'.$row['TemplateID'].'","'.$row['SKU'].'","'.mysql_escape_string(str_replace("\\", "", $row['Title'])).'","'.$row['InsertionFee'].'","'.$row['ItemID'].'","'.$row['StartTime'].'","'.$row['EndTime'].'","'.$row['ListingDuration'].'","'.$row['Quantity'].'","'.$row['StartPrice'].'","'.$row['ListingType'].'"'."\n";
 	}
 	header("Content-type: application/x-msdownload");
         header("Content-Disposition: attachment; filename=unSoldItem(".$_GET['StartTime']."--".$_GET['EndTime'].").csv");
