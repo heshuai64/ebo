@@ -456,17 +456,20 @@ class QoShipments {
                 echo "[{success: 'true', msg: 'update remark success!'}]";
                 return 1;
             }
+            
+            $today = date("Y-m-d");
+            
             if(!empty($_POST['sellerId'])){
-                $count_sql = "select count(*) as num from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where o.sellerId = '".$_POST['sellerId']."' and (status = 'N' or status = 'H' or status = 'W')";
+                $count_sql = "select count(*) as num from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where o.sellerId = '".$_POST['sellerId']."' and (s.status = 'N' or s.status = 'H' or s.status = 'W') and s.createdOn < '".$today."'";
                 $data_sql = "select s.id,o.id as ordersId,s.shipToName,s.shipToEmail,o.sellerId,s.createdOn,s.shipmentMethod,s.status,s.remarks   
-                from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where o.sellerId = '".$_POST['sellerId']."' and (s.status = 'N' or s.status = 'H' or s.status = 'W') order by s.id desc limit ".$_POST['start'].",".$_POST['limit'];
+                from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where o.sellerId = '".$_POST['sellerId']."' and (s.status = 'N' or s.status = 'H' or s.status = 'W') and s.createdOn < '".$today."' order by s.createdOn desc limit ".$_POST['start'].",".$_POST['limit'];
             }else{
-                $count_sql = "select count(*) as num from qo_shipments where (status = 'N' or status = 'H' or status = 'W')";
+                $count_sql = "select count(*) as num from qo_shipments where (status = 'N' or status = 'H' or status = 'W') and createdOn < '".$today."'";
                 $data_sql = "select s.id,o.id as ordersId,s.shipToName,s.shipToEmail,o.sellerId,s.createdOn,s.shipmentMethod,s.status,s.remarks  
-                from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where (s.status = 'N' or s.status = 'H' or s.status = 'W') order by s.id desc limit ".$_POST['start'].",".$_POST['limit'];
+                from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where (s.status = 'N' or s.status = 'H' or s.status = 'W') and s.createdOn < '".$today."' order by s.createdOn desc limit ".$_POST['start'].",".$_POST['limit'];
             }
             
-               
+            //echo $count_sql;
             $count_result = mysql_query($count_sql);
 	    $count_row = mysql_fetch_assoc($count_result);
 	    $totalCount = $count_row['num'];
@@ -474,30 +477,35 @@ class QoShipments {
 	    $data_result = mysql_query($data_sql);
             $array = array();
             while($data_row = mysql_fetch_assoc($data_result)){
-                $out_stock = false;
-                $in_stock = false;
+                $flag = false;
                 
                 $sql_1 = "select i.galleryURL,sd.skuId,sd.skuTitle,sd.quantity from qo_shipments_detail as sd left join qo_items as i on sd.itemId = i.id where shipmentsId = '".$data_row['id']."'";
                 $result_1 = mysql_query($sql_1);
+                $t = mysql_num_rows($result_1);
+                if($t == 0){
+                    $totalCount--;
+                    continue;
+                }
                 while($row_1 = mysql_fetch_assoc($result_1)){
                     $request = $this->inventory_service_address."?action=getSkuInfo&data=".urlencode($row_1['skuId']);
                     $json_result = json_decode($this->getService($request));
                     //$json_result->skuStock = 100;
-                    if($row_1['quantity'] < $json_result->skuStock){
-                        $in_stock = true;
-                        $out_stock = false;
-                    }else if($row_1['quantity'] > $json_result->skuStock){
-                        $in_stock = false;
-                        $out_stock = true;
+                    if(empty($_POST['stock'])){
+                        $flag = true;
+                    }else if($_POST['stock'] == 'Y' && $row_1['quantity'] < $json_result->skuStock){
+                        $flag = true;
+                    }else if(($_POST['stock'] == 'N' && empty($json_result->skuStock)) || ($_POST['stock'] == 'N' && $row_1['quantity'] > $json_result->skuStock)){
+                        $flag = true;
                     }
-                    
+                    /*
                     if($json_result->skuStock < $row_1['quantity']){
                         $json_result->skuStock = "<font color='blue'>".$json_result->skuStock."</font>";
                     }
+                    */
                     $data_row['desc'] .= "<div style='height:100px;'><img src='".$row_1['galleryURL']."' width=100 height=100 style='float:left;'/> <font color='red'>SKU:</font> ".$row_1['skuId'] . "<br> <font color='red'>Title:</font> ".$row_1['skuTitle'] . " X " .$row_1['quantity']."<br><font color='red'>Stock:</font> ".$json_result->skuStock."<br><font color='red'>Remark:</font> ".$data_row['remarks']."</div>";
                 }
                 
-                if(empty($_POST['stock']) || ($_POST['stock'] == 'Y' && $in_stock == true) || ($_POST['stock'] == 'N' && $out_stock == true)){
+                if($flag == true){
                     $array[] = $data_row;
                 }else{
                     $totalCount--;

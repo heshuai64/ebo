@@ -50,7 +50,7 @@ Ext.onReady(function(){
             mode: 'local',
             store: new Ext.data.SimpleStore({
                 fields: ['id', 'name'],
-                data: [['Y', 'In Stock'], ['N', 'Out Stock']]
+                data: [['Y', 'In Stock'], ['N', 'Out Stock'], ['', 'All']]
             }),
             valueField:'id',
             displayField:'name',
@@ -79,7 +79,7 @@ Ext.onReady(function(){
                                                             stock: toolbar.items.items[1].value
                                                         };
                 }
-                outstandingShipmentStore.load({params:{start:0, limit:20}});
+                outstandingShipmentStore.load({params:{start:0, limit:200}});
             }
         },'-',{
             text: 'Set Remark',
@@ -137,7 +137,7 @@ Ext.onReady(function(){
                                             }
                                         });
                                         
-                                        outstandingShipmentStore.load({params:{start:0, limit:20}});
+                                        outstandingShipmentStore.load({params:{start:0, limit:200}});
                                         remarkWindow.close();
                                    }
                               },{
@@ -211,11 +211,11 @@ Ext.onReady(function(){
             sortable: true
         }],
         bbar: new Ext.PagingToolbar({
-                pageSize: 20,
+                pageSize: 200,
                 store: outstandingShipmentStore,
                 displayInfo: true
         })
     });
     
-    outstandingShipmentStore.load({params:{start:0, limit:20}});
+    outstandingShipmentStore.load({params:{start:0, limit:200}});
 })

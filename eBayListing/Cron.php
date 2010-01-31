@@ -83,7 +83,7 @@ class Cron{
                 $array[$row_1['TemplateID']]['EndThirty'] = $row_1['EndThirty'];
             }
             
-            $sql_2 = "select sum(QuantitySold) as SoldThirty,TemplateID from items where EndTime > '".$thirty_days_ago."' and EndTime < '".$today."' and Status = 6 and accountId = '".$row['id']."' group by TemplateID";
+            $sql_2 = "select sum(QuantitySold) as SoldThirty,TemplateID from items where EndTime > '".$thirty_days_ago."' and EndTime < '".$today."' and accountId = '".$row['id']."' group by TemplateID";
             $result_2 = mysql_query($sql_2, Cron::$database_connect);
             while($row_2 = mysql_fetch_assoc($result_2)){
                 $array[$row_2['TemplateID']]['SoldThirty'] = $row_2['SoldThirty'];
@@ -131,13 +131,13 @@ class Cron{
                 $array[$row_5['TemplateID']]['ListingTwenty'] = $row_5['ListingTwenty'];
             }
             
-            $sql_6 = "select sum(QuantitySold) as Sold,TemplateID from items where EndTime > '".$yestoday."' and EndTime < '".$today."' and accountId = '".$row['id']."' group by TemplateID";
+            $sql_6 = "select sum(QuantitySold) as Sold,TemplateID from items where (EndTime > '".$yestoday."' and EndTime < '".$today."') or (StartTime > '".$yestoday."' and StartTime < '".$today."') and accountId = '".$row['id']."' group by TemplateID";
             $result_6 = mysql_query($sql_6, Cron::$database_connect);
             while($row_6 = mysql_fetch_assoc($result_6)){
                 $array[$row_6['TemplateID']]['Sold'] = $row_6['Sold'];
             }
             
-            $sql_7 = "select count(*) as Start,TemplateID from items where StartTime > '".$yestoday."' and StartTime < '".$today."' and Status = 2 and accountId = '".$row['id']."' group by TemplateID";
+            $sql_7 = "select count(*) as Start,TemplateID from items where StartTime > '".$yestoday."' and StartTime < '".$today."' and accountId = '".$row['id']."' group by TemplateID";
             $result_7 = mysql_query($sql_7, Cron::$database_connect);
             while($row_7 = mysql_fetch_assoc($result_7)){
                 $array[$row_7['TemplateID']]['Start'] = $row_7['Start'];
