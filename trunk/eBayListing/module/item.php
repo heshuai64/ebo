@@ -508,7 +508,7 @@ class Item{
 	}elseif($_GET['type'] == "schedule"){
 	    $Status = 1;
 	}elseif($_GET['type'] == "relist"){
-            $Status = 6;
+            $Status = 4;
         }elseif(!empty($id) && !empty($status)){
             $Status = $status;
             $_POST['ids'] = $id;
@@ -517,7 +517,7 @@ class Item{
 	if(strpos($_POST['ids'], ',')){
 	    $array = explode(',', $_POST['ids']);
 	    foreach($array as $a){
-		$sql_1 = "insert into items (AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+		$sql_1 = "insert into items (ItemID,TemplateID,AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 		Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
 		PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,ReturnPolicyRefundOption,ReturnPolicyReturnsWithinOption,ReturnPolicyShippingCostPaidByOption,
 		ReservePrice,CurrentPrice,ScheduleTime,ScheduleLocalTime,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
@@ -525,7 +525,7 @@ class Item{
 		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 		GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,
 		InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,UseStandardFooter,Status) 
-		select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+		select ItemID,TemplateID,AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 		Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
 		PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,ReturnPolicyRefundOption,ReturnPolicyReturnsWithinOption,ReturnPolicyShippingCostPaidByOption,
 		ReservePrice,CurrentPrice,ScheduleTime,ScheduleLocalTime,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
@@ -573,7 +573,7 @@ class Item{
 		echo 0;
 	    }
 	}else{
-	    $sql_1 = "insert into items (AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+	    $sql_1 = "insert into items (ItemID,TemplateID,AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 	    Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
 	    PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,ReturnPolicyRefundOption,ReturnPolicyReturnsWithinOption,ReturnPolicyShippingCostPaidByOption,
 	    ReservePrice,CurrentPrice,ScheduleTime,ScheduleLocalTime,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
@@ -581,7 +581,7 @@ class Item{
 	    Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 	    GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,
 	    InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,UseStandardFooter,Status) 
-	    select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+	    select ItemID,TemplateID,AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 	    Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
 	    PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,ReturnPolicyRefundOption,ReturnPolicyReturnsWithinOption,ReturnPolicyShippingCostPaidByOption,
 	    ReservePrice,CurrentPrice,ScheduleTime,ScheduleLocalTime,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,

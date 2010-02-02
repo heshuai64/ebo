@@ -4073,6 +4073,53 @@ Ext.onReady(function(){
                                         tabPanel.doLayout();
                                         tabPanel.activate('revise-log-tab');
                                    }
+                              },{
+                                   text: 'Relist Log',
+                                   icon: 'images/table_refresh.png',
+                                   handler: function(){
+                                        //console.log("test");
+                                        var relist_store = new Ext.data.JsonStore({
+                                             root: 'records',
+                                             totalProperty: 'totalCount',
+                                             idProperty: 'id',
+                                             //autoLoad:true,
+                                             fields: ['id', 'level', 'content', 'time'],
+                                             url: 'service.php?action=getUploadLog&type=relist'
+                                        })
+                                        //console.log("test1");
+                                        var relist_grid = new Ext.grid.GridPanel({
+                                             title: 'Relist Log',
+                                             store: relist_store,
+                                             autoHeight: true,
+                                             selModel: new Ext.grid.RowSelectionModel({}),
+                                             columns:[
+                                                  {header: "Level", width: 80, align: 'center', sortable: true, dataIndex: 'level'},
+                                                  {header: "Content", width: 800, align: 'center', sortable: true, dataIndex: 'content'},
+                                                  {header: "Time", width: 110, align: 'center', sortable: true, dataIndex: 'time'}
+                                             ],
+                                             bbar: new Ext.PagingToolbar({
+                                                 pageSize: parseInt(getCookie("pagination")),
+                                                 store: relist_store,
+                                                 displayInfo: true
+                                             })
+                                        })
+                                        //console.log(tabPanel);
+                                        if(tabPanel.isVisible('relist-log-tab'))
+                                             tabPanel.remove('relist-log-tab');
+                                             
+     
+                                        relist_store.load();
+                                        tabPanel.add({
+                                             id:'relist-log-tab',
+                                             iconCls: 'revise-log',
+                                             title: "Relist Log",
+                                             items: relist_grid,
+                                             closable: true,
+                                             autoScroll:true
+                                        })
+                                        tabPanel.doLayout();
+                                        tabPanel.activate('relist-log-tab');
+                                   }
                               }]                      
                          },
                          border:false,

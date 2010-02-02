@@ -3511,11 +3511,11 @@ class eBayListing{
 	$array = array();
 	$type = $_GET['type'];
 	
-	if($_COOKIE['role'] == "admin"){
-	    $sql = "select count(*) as num from log where type = '".$type."'";
-	}else{
+	//if($_COOKIE['role'] == "admin"){
+	    //$sql = "select count(*) as num from log where type = '".$type."'";
+	//}else{
 	    $sql = "select count(*) as num from log where account_id = '".$this->account_id."' and type = '".$type."'";
-	}
+	//}
 	
 	if(!empty($_POST['id'])){
 	    $sql .= " and content like '%".$_POST['id']."%'";
@@ -3542,11 +3542,11 @@ class eBayListing{
 	    $_POST['limit'] = 20;
 	}
 	
-	if($_COOKIE['role'] == "admin"){	
-	    $sql = "select * from log where type = '".$type."'";
-	}else{
+	//if($_COOKIE['role'] == "admin"){	
+	    //$sql = "select * from log where type = '".$type."'";
+	//}else{
 	    $sql = "select * from log where account_id = '".$this->account_id."' and type = '".$type."'";
-	}
+	//}
 	
 	if(!empty($_POST['id'])){
 	    $sql .= " and content like '%".$_POST['id']."%'";
