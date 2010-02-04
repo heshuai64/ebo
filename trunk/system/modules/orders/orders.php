@@ -280,6 +280,29 @@ class QoOrders {
 		mysql_free_result($result);
 	}
 	
+        public function getOrderDetailInfo(){
+		$sql = "select * from qo_orders_detail where id='".$_GET['id']."'";
+		$result = mysql_query($sql);
+		$row = mysql_fetch_assoc($result);
+		echo '['.json_encode($row).']';
+		mysql_free_result($result);
+	}
+        
+        public function updateOrderDetailInfo(){
+		$sql = "update qo_orders_detail set skuId='".$_POST['skuId']."',skuTitle='".$_POST['skuTitle']."',
+		itemId='".$_POST['itemId']."',itemTitle='".$_POST['itemTitle']."',quantity='".$_POST['quantity']."',
+		unitPriceCurrency='".$_POST['unitPriceCurrency']."',unitPriceValue='".$_POST['unitPriceValue']."' 
+		where id = '".$_POST['id']."'";
+		$result = mysql_query($sql);
+		//echo $sql;
+		if($result){
+			echo 	1;
+			
+		}else{
+			echo 0;
+		}
+	}
+        
 	public function addOrderDetail(){
 		$sql = "insert qo_orders_detail (ordersId,skuId,skuTitle,itemId,itemTitle,quantity,unitPriceCurrency,unitPriceValue) values
 		('".$_POST['ordersId']."','".$_POST['skuId']."','".$_POST['skuTitle']."','".$_POST['itemId']."','".$_POST['itemTitle']."',

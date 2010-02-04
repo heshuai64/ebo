@@ -122,7 +122,7 @@ Ext.onReady(function(){
                                                     },{
                                                     xtype: 'textfield',
                                                     name: 'skuTitle',
-                                                    allowBlank: false,
+                                                    //allowBlank: false,
                                                     fieldLabel: 'sku Title'
                                                     },{
                                                     xtype: 'textfield',
@@ -132,7 +132,7 @@ Ext.onReady(function(){
                                                 },{
                                                     xtype: 'textfield',
                                                     name: 'barCode',
-                                                    allowBlank: false,
+                                                    //allowBlank: false,
                                                     fieldLabel: 'Bar Code'
                                             }]
                                            }]
@@ -193,6 +193,147 @@ Ext.onReady(function(){
                             addOrderDetailWindow.show();
                         }
                         },{
+                                    text: 'Revise Detail',
+                                    handler: function(){
+                                                var selections = orderDetailGrid.selModel.getSelections();
+                                                //console.log(selections[0].data.id);
+                                                var revise_order_detail_form = new Ext.FormPanel({
+                                                            reader:new Ext.data.JsonReader({
+                                                            }, ['id','itemId','itemTitle','skuId','skuTitle','unitPriceValue','unitPriceCurrency','quantity'
+                                                            ]),
+                                                            labelAlign: 'top',
+                                                            bodyStyle:'padding:5px',     
+                                                            items: [{
+                                                                        xtype:'hidden',
+                                                                        name:'id'
+                                                            },{
+                                                                    layout: 'column',
+                                                                    border: false,
+                                                                    items:[{
+                                                                        columnWidth:0.5,
+                                                                        layout: 'form',
+                                                                        border:false,
+                                                                        items: [{ xtype: 'textfield',
+                                                                                name: 'itemId',
+                                                                                allowBlank: false,
+                                                                                fieldLabel: 'Item Id'
+                                                                                },{
+                                                                                    xtype: 'textfield',
+                                                                                    name: 'skuId',
+                                                                                    allowBlank: false,
+                                                                                    fieldLabel: 'Sku'
+                                                                                },{
+                                                                                    xtype:'combo',
+                                                                                    store: new Ext.data.SimpleStore({
+                                                                                        fields: ["unitPriceCurrencyValue", "unitPriceCurrencyName"],
+                                                                                        data: lang.orders.currency
+                                                                                    }),
+                                                                                    listWidth: 60,
+                                                                                    width: 60,			  
+                                                                                    mode: 'local',
+                                                                                    displayField: 'unitPriceCurrencyName',
+                                                                                    valueField: 'unitPriceCurrencyValue',
+                                                                                    triggerAction: 'all',
+                                                                                    editable: false,
+                                                                                    fieldLabel: 'Currency',
+                                                                                    name: 'unitPriceCurrency',
+                                                                                    hiddenName:'unitPriceCurrency'
+                                                                                },{
+                                                                                xtype: 'numberfield',
+                                                                                name: 'quantity',
+                                                                                allowBlank: false,
+                                                                                fieldLabel: 'Quantity',
+                                                                                width: 80
+                                                                        }]
+                                                                       },{
+                                                                        columnWidth:0.5,
+                                                                        layout: 'form',
+                                                                        border:false,
+                                                                        items: [{ xtype: 'textfield',
+                                                                                name: 'itemTitle',
+                                                                                allowBlank: false,
+                                                                                fieldLabel: 'Item Title'
+                                                                                },{
+                                                                                xtype: 'textfield',
+                                                                                name: 'skuTitle',
+                                                                                //allowBlank: false,
+                                                                                fieldLabel: 'sku Title'
+                                                                                },{
+                                                                                xtype: 'textfield',
+                                                                                name: 'unitPriceValue',
+                                                                                allowBlank: false,
+                                                                                fieldLabel: 'Unit Price'
+                                                                            },{
+                                                                                xtype: 'textfield',
+                                                                                name: 'barCode',
+                                                                                //allowBlank: false,
+                                                                                fieldLabel: 'Bar Code'
+                                                                        }]
+                                                                       }]
+                                                                }]
+                                                            })
+                                                
+                                                            revise_order_detail_form.getForm().load({url:'connect.php?moduleId=qo-orders&action=getOrderDetailInfo', 
+                                                                        method:'GET', 
+                                                                        params: {id: selections[0].data.id}, 
+                                                                        waitMsg:'Please wait...'
+                                                            }
+                                                );
+                                                 
+                                                var reviseOrderDetailWindow = new Ext.Window({
+                                                            title: 'Revise '+ordersId+' Detail' ,
+                                                            closable:true,
+                                                            width: 400,
+                                                            height: 300,
+                                                            plain:true,
+                                                            layout: 'fit',
+                                                            items: revise_order_detail_form,
+                                                            
+                                                            buttons: [{
+                                                                text: 'Save and Close',
+                                                                handler: function(){
+                                                                    Ext.Ajax.request({
+                                                                        waitMsg: 'Please wait...',
+                                                                        url: 'connect.php?moduleId=qo-orders&action=updateOrderDetailInfo',
+                                                                        params: {
+                                                                                id: selections[0].data.id,
+                                                                                itemId: revise_order_detail_form.form.findField('itemId').getValue(),
+                                                                                itemTitle: revise_order_detail_form.form.findField('itemTitle').getValue(),
+                                                                                skuId: revise_order_detail_form.form.findField('skuId').getValue(),
+                                                                                skuTitle: revise_order_detail_form.form.findField('skuTitle').getValue(),
+                                                                                quantity: revise_order_detail_form.form.findField('quantity').getValue(),
+                                                                                barCode: revise_order_detail_form.form.findField('barCode').getValue(),
+                                                                                unitPriceCurrency: revise_order_detail_form.form.findField('unitPriceCurrency').getValue(),
+                                                                                unitPriceValue: revise_order_detail_form.form.findField('unitPriceValue').getValue()
+                                                                        },
+                                                                        success: function(response){
+                                                                            var result = eval(response.responseText);
+                                                                            switch (result) {
+                                                                                case 1:
+                                                                                    orderDetailGridStore.reload();
+                                                                                    reviseOrderDetailWindow.close();
+                                                                                    break;
+                                                                                default:
+                                                                                    Ext.MessageBox.alert('Uh uh...', 'We couldn\'t save him...');
+                                                                                    break;
+                                                                            }
+                                                                        },
+                                                                        failure: function(response){
+                                                                            var result = response.responseText;
+                                                                            Ext.MessageBox.alert('error', 'could not connect to the database. retry later');
+                                                                        }
+                                                                    });		
+                                                                }
+                                                            },{
+                                                                text: 'Cancel',
+                                                                handler: function(){
+                                                                      reviseOrderDetailWindow.close();
+                                                                }
+                                                            }]
+                                                });
+                                                reviseOrderDetailWindow.show();
+                                    }
+                        }/*,{
                             text: 'Delete Detail',
                             handler: function(){
                                 var deleteOrderDetail = function(btn){
@@ -245,7 +386,7 @@ Ext.onReady(function(){
                                     handler: function(){
                                                 
                                     }
-                        }
+                        }*/
                     ]
             });
                       
@@ -794,47 +935,49 @@ Ext.onReady(function(){
                                 icon: Ext.MessageBox.QUESTION
                             });
                         }
-                        },{text:'Delete Shipment',
-                            handler: function(){
-                                    var deleteOrderShipment = function(btn){
-                                        if(btn=='yes'){
-                                            var selections = orderShipmentGrid.selModel.getSelections();
-                                            var ids = "";
-                                            for(i = 0; i< orderShipmentGrid.selModel.getCount(); i++){
-                                                ids += selections[i].data.id + ","
-                                            }
-                                            ids = ids.slice(0,-1);
-                                            Ext.Ajax.request({  
-                                                waitMsg: 'Please Wait',
-                                                url: 'connect.php?moduleId=qo-orders&action=deleteOrderShipment', 
-                                                params: { 
-                                                  ids: ids
-                                                }, 
-                                                success: function(response){
-                                                    var result=eval(response.responseText);
-                                                    switch(result){
-                                                    case 1:  // Success : simply reload
-                                                      orderShipmentStore.reload();
-                                                      break;
-                                                    default:
-                                                      Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
-                                                      break;
-                                                    }
-                                                },
-                                                failure: function(response){
-                                                    var result=response.responseText;
-                                                    Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                        }/*,{
+                                    text:'Delete Shipment',
+                                    handler: function(){
+                                                var deleteOrderShipment = function(btn){
+                                                    if(btn=='yes'){
+                                                        var selections = orderShipmentGrid.selModel.getSelections();
+                                                        var ids = "";
+                                                        for(i = 0; i< orderShipmentGrid.selModel.getCount(); i++){
+                                                            ids += selections[i].data.id + ","
+                                                        }
+                                                        ids = ids.slice(0,-1);
+                                                        Ext.Ajax.request({  
+                                                            waitMsg: 'Please Wait',
+                                                            url: 'connect.php?moduleId=qo-orders&action=deleteOrderShipment', 
+                                                            params: { 
+                                                              ids: ids
+                                                            }, 
+                                                            success: function(response){
+                                                                var result=eval(response.responseText);
+                                                                switch(result){
+                                                                case 1:  // Success : simply reload
+                                                                  orderShipmentStore.reload();
+                                                                  break;
+                                                                default:
+                                                                  Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
+                                                                  break;
+                                                                }
+                                                            },
+                                                            failure: function(response){
+                                                                var result=response.responseText;
+                                                                Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                            }
+                                                        });
+                                                    }  
                                                 }
-                                            });
-                                        }  
+                                    
+                                                if(orderShipmentGrid.selModel.getCount() >= 1){
+                                                    Ext.MessageBox.confirm('Confirmation','Delete those Shipments?', deleteOrderShipment);
+                                                } else {
+                                                    Ext.MessageBox.alert('Attention','You can\'t delete shipments because you haven\'t selected !');
+                                                }
                                     }
-                        
-                                if(orderShipmentGrid.selModel.getCount() >= 1){
-                                    Ext.MessageBox.confirm('Confirmation','Delete those Shipments?', deleteOrderShipment);
-                                } else {
-                                    Ext.MessageBox.alert('Attention','You can\'t delete shipments because you haven\'t selected !');
-                                }
-                            }}]	
+                        }*/]	
             });
             
             
@@ -845,7 +988,7 @@ Ext.onReady(function(){
 	    });
             
             //var beforeLoad = function(F, a){
-                Ext.Ajax.request({  
+            Ext.Ajax.request({  
                     waitMsg: 'Please Wait',
                     url: 'connect.php?moduleId=qo-orders&action=getConfigure',
                     success: function(response){
