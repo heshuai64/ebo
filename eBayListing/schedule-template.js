@@ -37,7 +37,7 @@ Ext.onReady(function(){
         reader:new Ext.data.JsonReader({
             }, ['Schedule']
         ),
-        items:[schedule,(template_id == "heshuai-temp")?{
+        items:[schedule,(template_id == "heshuai")?{
             xtype: 'textfield',
             fieldLabel:"Schedule Template Name",
             labelStyle: "width: 160px; left: 180px;",

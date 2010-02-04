@@ -1475,7 +1475,7 @@ Ext.onReady(function(){
                                         icon:"images/date_add.png",
                                         style:"margin-top: 15px;",
                                         handler: function(){
-                                            window.open(path + "scheduleTemplate.php?name=heshuai-temp","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=700, height=300");
+                                            window.open(path + "scheduleTemplate.php?name=heshuai","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=700, height=350");
                                         }
                                     }]
                             },{

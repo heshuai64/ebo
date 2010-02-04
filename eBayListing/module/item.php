@@ -55,6 +55,8 @@ class Item{
         echo $data;
         */
         set_time_limit(600);
+        ini_set('memory_limit', '128M');
+        
 	require_once './Classes/PHPExcel.php';
 	require_once './Classes/PHPExcel/IOFactory.php';
         
