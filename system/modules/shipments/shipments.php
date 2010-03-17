@@ -185,6 +185,28 @@ class QoShipments {
 		mysql_free_result($result);
 	}
 	
+        public function getShipmentDetailInfo(){
+            $sql = "select * from qo_shipments_detail where id='".$_GET['id']."'";
+            $result = mysql_query($sql);
+            $row = mysql_fetch_assoc($result);
+            echo '['.json_encode($row).']';
+            mysql_free_result($result);
+        }
+        
+        public function updateShipmentDetailInfo(){
+		$sql = "update qo_shipments_detail set skuId='".$_POST['skuId']."',skuTitle='".$_POST['skuTitle']."',
+		itemId='".$_POST['itemId']."',itemTitle='".$_POST['itemTitle']."',quantity='".$_POST['quantity']."' 
+		where id = '".$_POST['id']."'";
+		$result = mysql_query($sql);
+		//echo $sql;
+		if($result){
+			echo 	1;
+			
+		}else{
+			echo 0;
+		}
+	}
+        
 	public function getShipmentDetail(){
 		$sql = "select sd.id,sd.shipmentsId,sd.skuId,sd.skuTitle,sd.itemId,sd.itemTitle,sd.quantity,sd.barCode,qi.galleryURL 
 		from qo_shipments_detail as sd left join qo_items as qi on sd.itemId = qi.id where shipmentsId ='".$_GET['id']."'";

@@ -175,7 +175,7 @@ class eBay{
                  
                 //$ModTimeFrom = "2009-03-25 00:00:00";
                 //$ModTimeTo   = "2009-03-25 02:00:00";
-                $EntriesPerPage = 100;
+                $EntriesPerPage = 200;
                 $Version = '607';
                 $DetailLevel = "ReturnAll";
                 $IncludeContainingOrder = true;
@@ -716,7 +716,7 @@ class eBay{
         try {
                 $client = new eBaySOAP($session);
                 $GranularityLevel = "Fine";
-		$EntriesPerPage = 100;
+		$EntriesPerPage = 200;
 		$Pagination = array('EntriesPerPage'=> $EntriesPerPage, 'PageNumber'=> 1);
 		$Sort = 1;
 		$Version = "607";

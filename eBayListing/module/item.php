@@ -425,7 +425,7 @@ class Item{
 	$row = mysql_fetch_assoc($result);
 	$totalCount = $row['count'];
 	
-	$sql_1 = "select Id,TemplateID,SKU,ItemID,Title,Site,ListingType,Quantity,ListingDuration,EndTime,StartPrice,BuyItNowPrice from items where accountId = '".$this->account_id."' ".$where." and Status = 2 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
+	$sql_1 = "select Id,TemplateID,SKU,ItemID,Title,Site,ListingType,Quantity,ListingDuration,EndTime,StartPrice,BuyItNowPrice,ViewItemURL from items where accountId = '".$this->account_id."' ".$where." and Status = 2 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
 	//echo $sql_1."\n";
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$data = array();

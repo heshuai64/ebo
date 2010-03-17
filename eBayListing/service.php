@@ -2828,7 +2828,7 @@ class eBayListing{
 	BuyItNowPrice='".mysql_escape_string($item->BuyItNowPrice)."',Country='".mysql_escape_string($item->Country)."',
 	Currency='".mysql_escape_string($item->Currency)."',
 	DispatchTimeMax='".mysql_escape_string($item->DispatchTimeMax)."',StartTime='".mysql_escape_string($item->ListingDetails->StartTime)."',
-	EndTime='".mysql_escape_string($item->ListingDetails->EndTime)."',ListingDuration='".mysql_escape_string($item->ListingDuration)."',
+	EndTime='".mysql_escape_string($item->ListingDetails->EndTime)."',ViewItemURL='".mysql_escape_string($item->ListingDetails->ViewItemURL)."',ListingDuration='".mysql_escape_string($item->ListingDuration)."',
 	ListingType='".mysql_escape_string($item->ListingType)."',Location='".mysql_escape_string($item->Location)."',
 	PaymentMethods='".mysql_escape_string($item->PaymentMethods)."',PayPalEmailAddress='".mysql_escape_string($item->PayPalEmailAddress)."',
 	PostalCode='".mysql_escape_string($item->PostalCode)."',PrimaryCategoryCategoryID='".mysql_escape_string($item->PrimaryCategory->CategoryID)."',

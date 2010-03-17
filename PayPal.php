@@ -306,10 +306,10 @@
            
                 case "Reversed":
                     $this->updateEbayOrderStatus($ordersId, "V");
-                    //$shipment_status = $this->getShipmentStatus($ordersId);
-                    //if($shipment_status == "N" ){
-                    //    $this->updateShipmentStatus($ordersId, 'H');
-                    //}
+                    $shipment_status = $this->getShipmentStatus($ordersId);
+                    if($shipment_status == "N" ){
+                        $this->updateShipmentStatus($ordersId, 'H');
+                    }
                 break;
                         
                 case "Canceled_Reversal":
@@ -618,10 +618,10 @@
            
                 case "Reversed":
                     $this->updateOrderStatus($ordersId, "V");
-                    //$shipment_status = $this->getShipmentStatus($ordersId);
-                    //if($shipment_status == "N" ){
-                    //    $this->updateShipmentStatus($ordersId, 'H');
-                    //}
+                    $shipment_status = $this->getShipmentStatus($ordersId);
+                    if($shipment_status == "N" ){
+                        $this->updateShipmentStatus($ordersId, 'H');
+                    }
                 break;
                         
                 case "Canceled_Reversal":

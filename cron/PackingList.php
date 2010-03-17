@@ -84,7 +84,7 @@ class PackingList{
         //echo $this->endTime;
         //exit;
         $sql = "select s.id,s.envelope,o.shippingMethod,o.buyerId,s.shipToName,s.shipToAddressLine1,s.shipToAddressLine2,s.shipToCity,s.shipToStateOrProvince,s.shipToPostalCode,s.shipToCountry,s.shipToPhoneNo 
-        from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N'";
+        from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where s.shipmentMethod <> 'R' and s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N'";
         $result = mysql_query($sql, PackingList::$database_connect);
         
         $i = 0;
