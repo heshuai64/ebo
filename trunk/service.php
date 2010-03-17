@@ -143,14 +143,14 @@ class Service{
         */
         
         $array = array('ymca200808'=> array('id'=>'ymca200808', 'email'=> 'ymca2u@gmail.com', 'emailPassword'=> '33touagr'),
-                       'libra.studio'=> array('id'=>'libra.studio', 'email'=> 'libra.studio.cn@gmail.com', 'emailPassword'=> '77thksgod'),
-                       'bestnbestonline'=> array('id'=>'bestnbestonline', 'email'=> 'bestnbestonline@gmail.com', 'emailPassword'=> 'haivsang'),
+                       'libra.studio'=> array('id'=>'libra.studio', 'email'=> 'libra.studio.cn@gmail.com', 'emailPassword'=> 'weeknesw99'),
+                       'bestnbestonline'=> array('id'=>'bestnbestonline', 'email'=> 'bestnbestonline@gmail.com', 'emailPassword'=> 'brststbb99'),
                        'nereus.store'=> array('id'=>'nereus.store', 'email'=> 'nereus.art@gmail.com', 'emailPassword'=> 'mercedesbenz'),
-                       'aphroditestore'=> array('id'=>'aphroditestore', 'email'=> 'aphroditestore@gmail.com', 'emailPassword'=> 'muittvita'),
-                       'mission-hill'=> array('id'=>'mission-hill', 'email'=> 'oldtreegallerypp@gmail.com', 'emailPassword'=> 'hilltech99'),
-                       'geniusartgallery'=> array('id'=>'geniusartgallery', 'email'=> 'geniusartgallery2008@gmail.com', 'emailPassword'=> '76samapp'),
+                       'aphroditestore'=> array('id'=>'aphroditestore', 'email'=> 'aphroditestore@gmail.com', 'emailPassword'=> 'evaluecn88'),
+                       'mission-hill'=> array('id'=>'mission-hill', 'email'=> 'oldtreegallerypp@gmail.com', 'emailPassword'=> 'yearshare88'),
+                       'geniusartgallery'=> array('id'=>'geniusartgallery', 'email'=> 'geniusartgallery2008@gmail.com', 'emailPassword'=> 'febdarary'),
                        'top.art.online'=> array('id'=>'top.art.online','email'=> 'topartonline.store@gmail.com', 'emailPassword'=>'ing88store'),
-                       'exrell'=> array('id'=>'exrell','email'=> 'exxrell@gmail.com', 'emailPassword'=>'exxhui99')
+                       'exrell'=> array('id'=>'exrell','email'=> 'exxrell@gmail.com', 'emailPassword'=>'vostrrell')
                 );
         
         return $array[$sellerId];

@@ -18,7 +18,7 @@ Ext.override(QoDesk.Attention, {
 		end_date: end_date
 	    },
 	    autoLoad: true,
-	    fields: ['id', 'txnId', 'transactionTime', 'status', 'amountCurrency', 'amountValue','payerId'],
+	    fields: ['id', 'txnId', 'transactionTime', 'status', 'amountCurrency', 'amountValue', 'payeeId', 'payerId'],
 	    url:'connect.php?moduleId=qo-attention&action=getUnmapTransaction'
 	});
 	//alert(new Date(new Date()-24*60*60))
@@ -39,6 +39,12 @@ Ext.override(QoDesk.Attention, {
 		autoHeight: true,
                 store: unMapTransactionGridStore,
                 columns:[{
+		    header: lang.attention.grid_transactions_payee_id,
+                    dataIndex: 'payeeId',
+                    width: 110,
+                    align: 'center',
+                    sortable: true    
+		},{
                     header: lang.attention.grid_transactions_id,
                     dataIndex: 'id',
                     width: 110,
@@ -113,7 +119,7 @@ Ext.override(QoDesk.Attention, {
             win = desktop.createWindow({
                 id: 'attention-win',
                 title:lang.attention.window_title,
-                width:720,
+                width:830,
                 height:550,
                 iconCls: 'attention-icon',
                 shim:false,

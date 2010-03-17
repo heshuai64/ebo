@@ -261,7 +261,7 @@ class eBayBOExcel{
 		}
 		$writer = PHPExcel_IOFactory::createWriter($this->php_excel, 'Excel5');
 		$writer->save('/export/eBayBO/excel/resent-list('.$start.' -- '.$end.').xls');
-		echo "From ".$start." to ". $end." resend shipment generate Success!<br><a href='http://heshuai64.3322.org:8080/eBayBO/excel/resent-list(".$start." -- ".$end.").xls'>please click download</a>";
+		echo "From ".$start." to ". $end." resend shipment generate Success!<br><a href='http://heshuai64.3322.org:8888/eBayBO/excel/resent-list(".$start." -- ".$end.").xls'>please click download</a>";
 	}
 	
 	public function registerShipment(){

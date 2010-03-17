@@ -152,52 +152,123 @@ Ext.onReady(function(){
                         addShipmentDetailWindow.show();
                     }
                 },{
-                    text: 'Delete Detail',
+                    text: 'Revise Detail',
                     handler: function(){
-                        var deleteshipmentDetail = function(btn){
-                                if(btn=='yes'){
-                                    var selections = shipmentDetailGrid.selModel.getSelections();
-                                    //console.log(selections);
-                                    //var prez = [];
-                                    var ids = "";
-                                    for(i = 0; i< shipmentDetailGrid.selModel.getCount(); i++){
-                                        //prez.push(selections[i].data.id);
-                                        ids += selections[i].data.id + ","
-                                    }
-                                    ids = ids.slice(0,-1);
-                                    //console.log(prez);
-                                    //var encoded_array = Ext.encode(prez);
-                                    Ext.Ajax.request({  
-                                        waitMsg: 'Please Wait',
-                                        url: 'connect.php?moduleId=qo-shipments&action=deleteShipmentDetail', 
-                                        params: { 
-                                          //ids:  encoded_array
-                                          ids: ids
-                                        }, 
-                                        success: function(response){
-                                            var result=eval(response.responseText);
-                                            switch(result){
-                                            case 1:  // Success : simply reload
-                                              shipmentDetailStore.reload();
-                                              break;
-                                            default:
-                                              Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
-                                              break;
-                                            }
-                                        },
-                                        failure: function(response){
-                                            var result=response.responseText;
-                                            Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                        var selections = shipmentDetailGrid.selModel.getSelections();
+                        //console.log(selections[0].data.id);
+                        var revise_shipment_detail_form = new Ext.FormPanel({
+                                reader:new Ext.data.JsonReader({
+                                }, ['id','itemId','itemTitle','skuId','skuTitle','unitPriceValue','unitPriceCurrency','quantity'
+                                ]),
+                                labelAlign: 'top',
+                                bodyStyle:'padding:5px',     
+                                items: [{
+                                            xtype:'hidden',
+                                            name:'id'
+                                },{
+                                        layout: 'column',
+                                        border: false,
+                                        items:[{
+                                            columnWidth:0.5,
+                                            layout: 'form',
+                                            border:false,
+                                            items: [{ xtype: 'textfield',
+                                                    name: 'itemId',
+                                                    allowBlank: false,
+                                                    fieldLabel: 'Item Id'
+                                                    },{
+                                                        xtype: 'textfield',
+                                                        name: 'skuId',
+                                                        allowBlank: false,
+                                                        fieldLabel: 'Sku'
+                                                    },{
+                                                    xtype: 'numberfield',
+                                                    name: 'quantity',
+                                                    allowBlank: false,
+                                                    fieldLabel: 'Quantity',
+                                                    width: 80
+                                            }]
+                                        },{
+                                            columnWidth:0.5,
+                                            layout: 'form',
+                                            border:false,
+                                            items: [{ xtype: 'textfield',
+                                                    name: 'itemTitle',
+                                                    allowBlank: false,
+                                                    fieldLabel: 'Item Title'
+                                                    },{
+                                                    xtype: 'textfield',
+                                                    name: 'skuTitle',
+                                                    //allowBlank: false,
+                                                    fieldLabel: 'sku Title'
+                                                    },{
+                                                    xtype: 'textfield',
+                                                    name: 'barCode',
+                                                    //allowBlank: false,
+                                                    fieldLabel: 'Bar Code'
+                                            }]
+                                        }]
+                                }]
+                        })
+                    
+                        revise_shipment_detail_form.getForm().load({url:'connect.php?moduleId=qo-shipments&action=getShipmentDetailInfo', 
+                                            method:'GET', 
+                                            params: {id: selections[0].data.id}, 
+                                            waitMsg:'Please wait...'
+                                }
+                        );
+                         
+                        var reviseShipmentDetailWindow = new Ext.Window({
+                                    title: 'Revise '+shipmentsId+' Detail' ,
+                                    closable:true,
+                                    width: 400,
+                                    height: 300,
+                                    plain:true,
+                                    layout: 'fit',
+                                    items: revise_shipment_detail_form,
+                                    
+                                    buttons: [{
+                                        text: 'Save and Close',
+                                        handler: function(){
+                                            Ext.Ajax.request({
+                                                waitMsg: 'Please wait...',
+                                                url: 'connect.php?moduleId=qo-shipments&action=updateShipmentDetailInfo',
+                                                params: {
+                                                        id: selections[0].data.id,
+                                                        itemId: revise_shipment_detail_form.form.findField('itemId').getValue(),
+                                                        itemTitle: revise_shipment_detail_form.form.findField('itemTitle').getValue(),
+                                                        skuId: revise_shipment_detail_form.form.findField('skuId').getValue(),
+                                                        skuTitle: revise_shipment_detail_form.form.findField('skuTitle').getValue(),
+                                                        quantity: revise_shipment_detail_form.form.findField('quantity').getValue()
+                                                },
+                                                success: function(response){
+                                                    var result = eval(response.responseText);
+                                                    switch (result) {
+                                                        case 1:
+                                                            shipmentDetailStore.reload();
+                                                            reviseShipmentDetailWindow.close();
+                                                            break;
+                                                        default:
+                                                            Ext.MessageBox.alert('Uh uh...', 'We couldn\'t save him...');
+                                                            break;
+                                                    }
+                                                },
+                                                failure: function(response){
+                                                    var result = response.responseText;
+                                                    Ext.MessageBox.alert('error', 'could not connect to the database. retry later');
+                                                }
+                                            });		
                                         }
-                                    });
-                                }  
-                        }
+                                    },{
+                                        text: 'Cancel',
+                                        handler: function(){
+                                              reviseShipmentDetailWindow.close();
+                                        }
+                                    }]
+                        });
+                        reviseShipmentDetailWindow.show();
                         
-                        if(shipmentDetailGrid.selModel.getCount() >= 1){
-                            Ext.MessageBox.confirm('Confirmation','Delete those Details?', deleteshipmentDetail);
-                        } else {
-                            Ext.MessageBox.alert('Uh oh...','You can\'t really delete something you haven\'t selected huh?');
-                        }
+                        
                     }
                 }]
         });
@@ -483,7 +554,50 @@ Ext.onReady(function(){
                         xtype:"textfield",
                         fieldLabel:"Phone",
                         name:"shipToPhoneNo"
-                      }]
+                      },{
+                                xtype:"button",
+                                text: "Copy Address Info",
+                                handler: function(){
+                                   var addressInfo = shipmentDetailForm.getForm().findField("shipToName").getValue()+"\n"+
+                                   //orderDetailForm.getForm().findField("ebayEmail").getValue()+"\n"+
+                                   shipmentDetailForm.getForm().findField("shipToAddressLine1").getValue()+"\n"+
+                                   shipmentDetailForm.getForm().findField("shipToAddressLine2").getValue()+"\n"+
+                                   shipmentDetailForm.getForm().findField("shipToCity").getValue()+"\n"+
+                                   shipmentDetailForm.getForm().findField("shipToStateOrProvince").getValue()+"\n"+
+                                   shipmentDetailForm.getForm().findField("shipToPostalCode").getValue()+"\n"+
+                                   shipmentDetailForm.getForm().findField("shipToCountry").getValue()+"\n"+
+                                   shipmentDetailForm.getForm().findField("shipToPhoneNo").getValue();
+                                   var copyForm = new Ext.FormPanel({
+                                               labelWidth:0,
+                                               hideLabels:true,
+                                               labelSeparator:"",
+                                               items: [{xtype:"textarea",
+                                                        fieldLabel:"",
+                                                        width: 380,
+                                                        height: 280,
+                                                        value:addressInfo,
+                                                        name: 'addressInfo'}
+                                               ]
+                                           })
+                                           
+                                   var copyWindow = new Ext.Window({
+                                       title: 'eBay Address Info' ,
+                                       closable:true,
+                                       width: 400,
+                                       height: 300,
+                                       plain:true,
+                                       layout: 'fit',
+                                       items: copyForm,
+                                       buttons: [{
+                                           text: 'Close',
+                                           handler: function(){
+                                                 copyWindow.close();
+                                           }
+                                       }]
+                                   });
+                                   copyWindow.show();
+                                }
+                        }]
                   }]
               },{
                         xtype: 'combo',

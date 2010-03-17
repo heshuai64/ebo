@@ -103,9 +103,9 @@ class Reports{
     public function skuSellReport($seller_id, $start_date, $end_date){
         require ("class/class-excel-xml.inc.php");
         if(empty($seller_id)){
-            $sql = "select o.sellerId,od.skuId,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id=od.ordersId where o.status = 'P' and o.createdOn between '$start_date 9:30:00' and '$end_date 10:00:00' group by od.skuId";
+            $sql = "select o.sellerId,od.skuId,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id=od.ordersId where o.status = 'P' and o.createdOn between '$start_date 10:10:00' and '$end_date 10:10:00' group by od.skuId";
         }else{
-            $sql = "select o.sellerId,od.skuId,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id=od.ordersId where o.status = 'P' and o.createdOn between '$start_date 9:30:00' and '$end_date 10:00:00' and o.sellerId='$seller_id' group by od.skuId";
+            $sql = "select o.sellerId,od.skuId,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id=od.ordersId where o.status = 'P' and o.createdOn between '$start_date 10:10:00' and '$end_date 10:10:00' and o.sellerId='$seller_id' group by od.skuId";
         }
         //echo $sql;
         $result = mysql_query($sql, Reports::$database_connect);

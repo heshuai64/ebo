@@ -1509,7 +1509,7 @@ Ext.onReady(function(){
           totalProperty: 'totalCount',
           idProperty: 'id',
           //autoLoad:true,
-          fields: ['Id', 'TemplateID', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price', 'EndTime'],
+          fields: ['Id', 'TemplateID', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price', 'EndTime', 'ViewItemURL'],
           sortInfo: {
                field: 'Id',
                direction: 'ASC'
@@ -1757,6 +1757,33 @@ Ext.onReady(function(){
                                    
                     })
                     importExcelWindow.show();   
+               }
+          },'-',{
+               text: "View Online",     
+               icon: './images/table_link.png',
+               tooltip:'View Online Item',
+               handler: function(){
+                    var selections = activity_grid.selModel.getSelections();
+                    if(activity_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','View online item, please first select the item.');
+                         return 0;
+                    }
+                    window.open(selections[0].data.ViewItemURL,"_blank");
+                    return 1;
+               }
+          },'-',{
+               text: "Sell Similar",     
+               icon: './images/table_relationship.png',
+               tooltip:'Sell Similar Item',
+               handler: function(){
+                    
+               }
+          },'-',{
+               text: "End",     
+               icon: './images/table_delete.png',
+               tooltip:'End Item',
+               handler: function(){
+                    
                }
           }],
           bbar: new Ext.PagingToolbar({
