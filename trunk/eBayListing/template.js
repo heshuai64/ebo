@@ -1453,16 +1453,16 @@ Ext.onReady(function(){
                                         //allowBlank:false
                                     }]
                             },{
-                                columnWidth:0.2,
+                                columnWidth:0.26,
                                 layout:"form",
                                 defaults:{
-                                    width: 120,
-                                    listWidth: 120
+                                    width: 160,
+                                    listWidth: 200
                                 },
                                 border:false,
                                 items: schedule_template
                             },{
-                                columnWidth:0.15,
+                                columnWidth:0.13,
                                 layout:"form",
                                 defaults:{
                                     width: 80,
@@ -1479,7 +1479,7 @@ Ext.onReady(function(){
                                         }
                                     }]
                             },{
-                                columnWidth:0.15,
+                                columnWidth:0.13,
                                 layout:"form",
                                 defaults:{
                                     width: 80,
@@ -1500,7 +1500,7 @@ Ext.onReady(function(){
                                         }
                                     }]
                             },{
-                                columnWidth:0.15,
+                                columnWidth:0.13,
                                 layout:"form",
                                 defaults:{
                                     width: 80,
