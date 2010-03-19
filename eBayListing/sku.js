@@ -1402,7 +1402,7 @@ Ext.onReady(function(){
                                 layout:"form",
                                 defaults:{
                                     width: 120,
-                                    listWidth: 120
+                                    listWidth: 200
                                 },
                                 border:false,
                                 items:[{
