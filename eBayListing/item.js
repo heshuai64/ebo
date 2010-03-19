@@ -666,7 +666,28 @@ Ext.onReady(function(){
                         fieldLabel:"Title",
                         name:"Title",
                         maxLength: 55,
-                        allowBlank:false
+                        allowBlank:false,
+                        enableKeyEvents:true,
+                        listeners: {
+                            keydown: function(t, e){
+                                if(e.getKey() == 32 && TitleBlankMark == true ){
+                                    //console.log("mark");
+                                    e.stopEvent();
+                                }
+                                
+                                if(e.getKey() == 32){
+                                    TitleBlankMark = true;
+                                }else{
+                                    TitleBlankMark = false;
+                                }
+                            },
+                            blur : function(t){
+                                if(TitleBlankMark == true){
+                                    t.setValue(t.getValue().substring(0, t.getValue().length - 1));
+                                    TitleBlankMark = false;
+                                }
+                            }
+                        }
                       },{
                         id:"SubTitle",
                         xtype:"textfield",
