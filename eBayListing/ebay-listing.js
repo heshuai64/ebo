@@ -579,7 +579,7 @@ Ext.onReady(function(){
                          title: 'Import CSV File' ,
                          closable:true,
                          width: 360,
-                         height: 390,
+                         height: 420,
                          plain:true,
                          layout: 'fit',
                          items: [{
@@ -704,6 +704,33 @@ Ext.onReady(function(){
                                              if(fp.getForm().isValid()){
                                                   fp.getForm().submit({
                                                        url: 'service.php?action=importTemplateFromCSV&type=stcsv',
+                                                       waitMsg: 'Uploading your csv...',
+                                                       success: function(fp, o){
+                                                            importCsvWindow.close();
+                                                            Ext.MessageBox.alert('Success','add to waiting to upload success!');
+                                                       }
+                                                  });
+                                             }
+                                        }
+                                   },{
+                                        xtype: 'fileuploadfield',
+                                        id: 'tcsv',
+                                        emptyText: 'Select an csv file',
+                                        fieldLabel: 'Template ID',
+                                        //hideLabel:true,
+                                        name: 'tcsv',
+                                        buttonText: '',
+                                        buttonCfg: {
+                                            iconCls: 'upload-icon'
+                                        }
+                                   },{
+                                        xtype: 'button',
+                                        text: 'Upload',
+                                        handler: function(){
+                                             var fp = Ext.getCmp("csv-form");
+                                             if(fp.getForm().isValid()){
+                                                  fp.getForm().submit({
+                                                       url: 'service.php?action=importTemplateFromCSV&type=tcsv',
                                                        waitMsg: 'Uploading your csv...',
                                                        success: function(fp, o){
                                                             importCsvWindow.close();
@@ -1509,7 +1536,7 @@ Ext.onReady(function(){
           totalProperty: 'totalCount',
           idProperty: 'id',
           //autoLoad:true,
-          fields: ['Id', 'TemplateID', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price', 'EndTime', 'ViewItemURL'],
+          fields: ['Id', 'TemplateID', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'ListingDuration', 'Price', 'StartTime', 'EndTime', 'ViewItemURL'],
           sortInfo: {
                field: 'Id',
                direction: 'ASC'
@@ -1566,7 +1593,7 @@ Ext.onReady(function(){
                {header: "Site", width: 30, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                {header: "SKU", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
                {header: "Item ID", width: 80, align: 'center', sortable: true, dataIndex: 'ItemID'},
-               {header: "Item Title", width: 340, align: 'center', sortable: true, dataIndex: 'Title', 
+               {header: "Item Title", width: 235, align: 'center', sortable: true, dataIndex: 'Title', 
                     editor: {
                          xtype: 'textfield',
                          allowBlank: false
@@ -1586,6 +1613,7 @@ Ext.onReady(function(){
                          allowBlank: false
                     }
                },
+               {header: "Start Time", width: 120, align: 'center', sortable: true, dataIndex: 'StartTime'},
                {header: "End Time", width: 120, align: 'center', sortable: true, dataIndex: 'EndTime'}
           ],
           //clicksToEdit: 1,
@@ -1776,14 +1804,84 @@ Ext.onReady(function(){
                icon: './images/table_relationship.png',
                tooltip:'Sell Similar Item',
                handler: function(){
+                    var selections = activity_grid.selModel.getSelections();
+                    if(activity_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','Please select the item.');
+                         return 0;
+                    }
+                    var ids = "";
+                    for(var i = 0; i< activity_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
                     
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=copyItem&type=wait', 
+                         params: { 
+                              ids: ids
+                         }, 
+                         success: function(response){
+                             var result=eval(response.responseText);
+                             switch(result){
+                                case 1:  // Success : simply reload
+                                  //activity_store.reload();
+                                  Ext.MessageBox.alert('Success','Submit sell similar item success.');
+                                  break;
+                                default:
+                                  Ext.MessageBox.alert('Warning','Failure, please notice admin.');
+                                  break;
+                             }
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
+                    
+                    return 1;
                }
           },'-',{
                text: "End",     
                icon: './images/table_delete.png',
                tooltip:'End Item',
                handler: function(){
+                    var selections = activity_grid.selModel.getSelections();
+                    if(activity_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','Please select the item.');
+                         return 0;
+                    }
+                    var ids = "";
+                    for(var i = 0; i< activity_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
                     
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=stopListingItem', 
+                         params: { 
+                              ids: ids
+                         }, 
+                         success: function(response){
+                             var result=eval(response.responseText);
+                             switch(result){
+                                case 1:  // Success : simply reload
+                                   //Ext.MessageBox.alert('Success','End item success.');
+                                   activity_store.reload();
+                                  break;
+                                default:
+                                  Ext.MessageBox.alert('Warning','Failure, please notice admin.');
+                                  break;
+                             }
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
+                    
+                    return 1;
                }
           }],
           bbar: new Ext.PagingToolbar({
@@ -1818,7 +1916,7 @@ Ext.onReady(function(){
                     //console.log(n);
                     switch(n.id){
                          case 1:
-                              activity_store.load();
+                              activity_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
                               tabPanel.add({
                                    id:'activity-tab',
                                    iconCls: 'active-item-tab',
@@ -1854,7 +1952,7 @@ Ext.onReady(function(){
                                    totalProperty: 'totalCount',
                                    idProperty: 'id',
                                    //autoLoad:true,
-                                   fields: ['Id', 'TemplateID', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'QuantitySold', 'ListingDuration', 'Price', 'EndTime'],
+                                   fields: ['Id', 'TemplateID', 'SKU', 'ItemID', 'Title', 'Site', 'ListingType', 'Quantity', 'QuantitySold', 'ListingDuration', 'Price', 'EndTime', 'Relist'],
                                    sortInfo: {
                                         field: 'Id',
                                         direction: 'ASC'
@@ -1875,15 +1973,16 @@ Ext.onReady(function(){
                                         {header: "ID", width: 50, align: 'center', sortable: true, dataIndex: 'Id'},
                                         {header: "TID", width: 50, align: 'center', sortable: true, dataIndex: 'TemplateID'},
                                         {header: "Site", width: 40, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
-                                        {header: "SKU", width: 100, align: 'center', sortable: true, dataIndex: 'SKU'},
-                                        {header: "Item ID", width: 120, align: 'center', sortable: true, dataIndex: 'ItemID'},
-                                        {header: "Item Title", width: 200, align: 'center', sortable: true, dataIndex: 'Title'},
+                                        {header: "SKU", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
+                                        {header: "Item ID", width: 80, align: 'center', sortable: true, dataIndex: 'ItemID'},
+                                        {header: "Item Title", width: 250, align: 'center', sortable: true, dataIndex: 'Title'},
                                         {header: "Format", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
-                                        {header: "Qty", width: 50, align: 'center', sortable: true, dataIndex: 'Quantity'},
-                                        {header: "SQty", width: 50, align: 'center', sortable: true, dataIndex: 'QuantitySold'},
+                                        {header: "Qty", width: 40, align: 'center', sortable: true, dataIndex: 'Quantity'},
+                                        {header: "SQty", width: 40, align: 'center', sortable: true, dataIndex: 'QuantitySold'},
                                         {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
                                         {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'},
-                                        {header: "End Time", width: 120, align: 'center', sortable: true, dataIndex: 'EndTime'}
+                                        {header: "End Time", width: 120, align: 'center', sortable: true, dataIndex: 'EndTime'},
+                                        {header: "Relist", width: 40, align: 'center', sortable: true, dataIndex: 'Relist'}
                                    ],
                                    tbar:[{
                                         text: "Edit and Relist",
@@ -2013,7 +2112,7 @@ Ext.onReady(function(){
                               if(tabPanel.isVisible('sold-item-tab'))
                                    tabPanel.remove('sold-item-tab');
 
-                              sold_item_store.load();
+                              sold_item_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
                               tabPanel.add({
                                    id:'sold-item-tab',
                                    iconCls: 'sold-item-tab',
@@ -2117,7 +2216,7 @@ Ext.onReady(function(){
                               if(tabPanel.isVisible('unsold-item-tab'))
                                    tabPanel.remove('unsold-item-tab');
 
-                              unsold_item_store.load();
+                              unsold_item_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
                               tabPanel.add({
                                    id:'unsold-item-tab',
                                    iconCls: 'unsold-item-tab',
@@ -2530,6 +2629,18 @@ Ext.onReady(function(){
                                                   return 1;
                                              }
                                         },'-',*/{
+                                                  text: 'Select All',
+                                                  tooltip:'Selects all rows',
+                                                  handler: function(){
+                                                       wait_grid.selModel.selectAll();
+                                                  }
+                                             },'-',{
+                                                  text: 'Clear Select',
+                                                  tooltip:'Clears all selections',
+                                                  handler: function(){
+                                                       wait_grid.selModel.clearSelections();
+                                                  }
+                                             },'-',{
                                                   text: 'Search',
                                                   icon: './images/magnifier.png',
                                                   handler: function(){
@@ -2805,7 +2916,7 @@ Ext.onReady(function(){
                               //if(waitOpen == true){
                                    //tabPanel.activate('waiting-to-upload-tab');
                               //}else{
-                                   wait_store.load();
+                                   wait_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
                                    tabPanel.add({
                                         id:'waiting-to-upload-tab',
                                         iconCls: 'waiting-to-upload',
@@ -2994,6 +3105,18 @@ Ext.onReady(function(){
                                                        return 1;
                                                   }
                                              },'-',*/{
+                                                  text: 'Select All',
+                                                  tooltip:'Selects all rows',
+                                                  handler: function(){
+                                                       schedule_grid.selModel.selectAll();
+                                                  }
+                                             },'-',{
+                                                  text: 'Clear Select',
+                                                  tooltip:'Clears all selections',
+                                                  handler: function(){
+                                                       schedule_grid.selModel.clearSelections();
+                                                  }
+                                             },'-',{
                                                   text: 'Search',
                                                   icon: './images/magnifier.png',
                                                   handler: function(){
@@ -3230,7 +3353,7 @@ Ext.onReady(function(){
                                    //if(waitOpen == true){
                                         //tabPanel.activate('waiting-to-upload-tab');
                                    //}else{
-                                        schedule_store.load();
+                                        schedule_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
                                         tabPanel.add({
                                              id:'schedule-tab',
                                              iconCls: 'schedule',

@@ -176,6 +176,24 @@ Ext.onReady(function(){
         url:'service.php?action=getAllSites'
     })
     
+    var standardStyleTemplateStore = new Ext.data.JsonStore({
+        autoLoad :true,
+        fields: ['id', 'name'],
+        url:'service.php?action=getStandardStyleTemplate'
+    })
+    
+    var standardStyleTemplate = new Ext.form.ComboBox({
+        fieldLabel:"Standard Style Template",
+        mode: 'local',
+        store: standardStyleTemplateStore,
+        valueField:'id',
+        displayField:'name',
+        triggerAction: 'all',
+        selectOnFocus:true,
+        name: 'StandardStyleTemplateId',
+        hiddenName:'StandardStyleTemplateId'
+    })
+    
     var scheduleTemplateStore = new Ext.data.JsonStore({
         autoLoad :true,
         fields: ['id', 'name'],
@@ -349,7 +367,7 @@ Ext.onReady(function(){
                 'picture_9','picture_10','template_category_id','PhotoDisplay',
                 'accountId','UseStandardFooter','ScheduleStartDate','ScheduleEndDate','scheduleTemplateName','shippingTemplateName',
                 'ShippingServiceCost1','ShippingServiceAdditionalCost1','ShippingServiceCost2','ShippingServiceAdditionalCost2','ShippingServiceCost3','ShippingServiceAdditionalCost3',
-                'InternationalShippingServiceCost1','InternationalShippingServiceAdditionalCost1','InternationalShippingServiceCost2','InternationalShippingServiceAdditionalCost2','InternationalShippingServiceCost3','InternationalShippingServiceAdditionalCost3'
+                'InternationalShippingServiceCost1','InternationalShippingServiceAdditionalCost1','InternationalShippingServiceCost2','InternationalShippingServiceAdditionalCost2','InternationalShippingServiceCost3','InternationalShippingServiceAdditionalCost3','StandardStyleTemplateId'
         ]),
         items:[{
                 layout:"column",
@@ -507,20 +525,22 @@ Ext.onReady(function(){
                                                     break;
                                                 
                                                     case "combo":
-                                                        itemSpecificsForm.add({
-                                                            //id: temp.Attribute[i].id,
-                                                            xtype: temp.Attribute[i].xtype,
-                                                            fieldLabel: temp.Attribute[i].fieldLabel,
-                                                            name: temp.Attribute[i].name,
-                                                            hiddenName: temp.Attribute[i].hiddenName,
-                                                            mode: 'local',
-                                                            triggerAction: 'all',
-                                                            editable: false,
-                                                            selectOnFocus:true,
-                                                            valueField: 'id',
-                                                            displayField: 'name',
-                                                            store: Ext.decode(temp.Attribute[i].store)
-                                                        });
+                                                        if(temp.Attribute[i].fieldLabel != "Brand"){
+                                                            itemSpecificsForm.add({
+                                                                //id: temp.Attribute[i].id,
+                                                                xtype: temp.Attribute[i].xtype,
+                                                                fieldLabel: temp.Attribute[i].fieldLabel,
+                                                                name: temp.Attribute[i].name,
+                                                                hiddenName: temp.Attribute[i].hiddenName,
+                                                                mode: 'local',
+                                                                triggerAction: 'all',
+                                                                editable: false,
+                                                                selectOnFocus:true,
+                                                                valueField: 'id',
+                                                                displayField: 'name',
+                                                                store: Ext.decode(temp.Attribute[i].store)
+                                                            });
+                                                        }
                                                     break;
                                                 }
                                             }
@@ -1299,7 +1319,8 @@ Ext.onReady(function(){
                     },{
                         layout:"column",
                         border:false,
-                        items:[{
+                        title:"standard Style Template",
+                        items:[/*{
                             width: 180,
                             border:false,
                             items:[{
@@ -1310,7 +1331,7 @@ Ext.onReady(function(){
                                         Ext.Msg.alert('Warn', 'Please choice Site.');
                                     }else{
                                         Ext.Ajax.request({
-                                            url: inventory_service + '?action=getSkuDescription&site=' + Ext.getCmp("SiteID").getValue() + '&sku=' + Ext.getCmp('SKU').getValue(),
+                                            url: inventory_service + '?action=getSkuDescription&site=' + Ext.getCmp("SiteID").getValue() + '&sku=' + sku,
                                             success: function(a, b){
                                                 //console.log(a);
                                                 //document.getElementById("Description").value = a.responseText;
@@ -1320,14 +1341,28 @@ Ext.onReady(function(){
                                     }
                                 }
                             }]
+                        },*/standardStyleTemplate,{
+                            width: 110,
+                            border:false,
+                            items:[{
+                                xtype:"button",
+                                text:"Add Standard Style",
+                                handler: function(){
+                                    window.open(path + "style.php?id=0","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                }
+                            }]
                         },{
-                            width: 120,
+                            width: 110,
                             border:false,
                             items:[{
                                 xtype:"button",
                                 text:"Edit Standard Style",
                                 handler: function(){
-                                    window.open(path + "style.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                    if(!Ext.isEmpty(standardStyleTemplate.getValue())){
+                                        window.open(path + "style.php?id="+standardStyleTemplate.getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                    }else{
+                                        Ext.Msg.alert('Warn', 'Please first select standard style template.');
+                                    }
                                 }
                             }]
                         },{
@@ -1362,7 +1397,7 @@ Ext.onReady(function(){
                                             sku: Ext.getCmp("SKU").getValue()
                                         },
                                         success: function(a, b){
-                                            window.open(path + "preview.php?type=template&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+template_id+"&sku="+Ext.getCmp("SKU").getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                            window.open(path + "preview.php?type=template&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+template_id+"&sku="+Ext.getCmp("SKU").getValue()+"&standardStyleTemplateId="+standardStyleTemplate.getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                         }
                                     })
                                 }

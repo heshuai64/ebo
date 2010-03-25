@@ -801,7 +801,7 @@ class eBayListing{
     }
     
     public function getDescriptionById(){
-	$sql = "select Title,Description,UseStandardFooter,SKU,PrimaryCategoryCategoryName,StoreCategoryName from template where Id = '".$_POST['id']."'";
+	$sql = "select Title,Description,UseStandardFooter,SKU,PrimaryCategoryCategoryName,StoreCategoryName,StandardStyleTemplateId from template where Id = '".$_POST['id']."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
 	
@@ -814,12 +814,12 @@ class eBayListing{
             </div>';
 	
 	if($row['UseStandardFooter']){
-	    $sql_1 = "select footer from account_footer where accountId = '".$this->account_id."'";
+	    $sql_1 = "select content from standard_style_template where id = '".$row['StandardStyleTemplateId']."' and accountId = '".$this->account_id."'";
             $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
             $row_1 = mysql_fetch_assoc($result_1);
 	    //echo str_replace(array("%title%", "%description%"), array($row['Title'], html_entity_decode($row['Description'])), $row_1['footer']);	
 	    echo str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
-                             array($row['Title'], $row['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row['Description'], ENT_QUOTES)), $row_1['footer']);
+                             array($row['Title'], $row['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row['Description'], ENT_QUOTES)), html_entity_decode($row_1['content']));
 	}else{
 	    echo html_entity_decode($row['Description'], ENT_QUOTES);
 	}
@@ -1434,16 +1434,16 @@ class eBayListing{
 		$result_0 = mysql_query($sql_0);
 		$row_0 = mysql_fetch_assoc($result_0);
 		
-		$sql_01 = "select footer from account_footer where accountId = '".$row_1['accountId']."'";
+		$sql_01 = "select content from standard_style_template where id = '".$row_1['StandardStyleTemplateId']."' and accountId = '".$row_1['accountId']."'";
 		$result_01 = mysql_query($sql_01);
 		$row_01 = mysql_fetch_assoc($result_01);
 		
 		$row_1['Description'] = str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
-						    array($row_1['Title'], $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'], ENT_QUOTES)), $row_01['footer']);
+						    array($row_1['Title'], $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'], ENT_QUOTES)), html_entity_decode($row_01['content'], ENT_QUOTES));
 	    }else{
 		$row_1['Description'] = html_entity_decode($row_1['Description'], ENT_QUOTES);
 	    }
-	    
+	    $row_1['Description'] = utf8_encode($row_1['Description']);
 	    $row_1['Title'] = html_entity_decode($row_1['Title'], ENT_QUOTES);
 	    
 	    $sql_2 = "select * from shipping_service_options where ItemID = '".$row['Id']."'";
@@ -1946,16 +1946,16 @@ class eBayListing{
 		$result_0 = mysql_query($sql_0);
 		$row_0 = mysql_fetch_assoc($result_0);
 		
-		$sql_01 = "select footer from account_footer where accountId = '".$row_1['accountId']."'";
+		$sql_01 = "select content from standard_style_template where id = '".$row_1['StandardStyleTemplateId']."' and accountId = '".$row_1['accountId']."'";
 		$result_01 = mysql_query($sql_01);
 		$row_01 = mysql_fetch_assoc($result_01);
 		
 		$row_1['Description'] = str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
-						    array($row_1['Title'], $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'], ENT_QUOTES)), $row_01['footer']);
+						    array($row_1['Title'], $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'], ENT_QUOTES)), html_entity_decode($row_01['content'], ENT_QUOTES));
 	    }else{
 		$row_1['Description'] = html_entity_decode($row_1['Description'], ENT_QUOTES);
 	    }
-	    
+	    $row_1['Description'] = utf8_encode($row_1['Description']);
 	    $row_1['Title'] = html_entity_decode($row_1['Title'], ENT_QUOTES);
 	    
 	    $sql_2 = "select * from shipping_service_options where ItemID = '".$row['Id']."'";
@@ -2313,16 +2313,16 @@ class eBayListing{
 		$result_0 = mysql_query($sql_0);
 		$row_0 = mysql_fetch_assoc($result_0);
 		
-		$sql_01 = "select footer from account_footer where accountId = '".$row_1['accountId']."'";
+		$sql_01 = "select content from standard_style_template where id = '".$row_1['StandardStyleTemplateId']."' and accountId = '".$row_1['accountId']."'";
 		$result_01 = mysql_query($sql_01);
 		$row_01 = mysql_fetch_assoc($result_01);
 		
 		$row_1['Description'] = str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
-						    array($row_1['Title'], $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'], ENT_QUOTES)), $row_01['footer']);
+						    array($row_1['Title'], $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'], ENT_QUOTES)), html_entity_decode($row_01['content'], ENT_QUOTES));
 	    }else{
 		$row_1['Description'] = html_entity_decode($row_1['Description'], ENT_QUOTES);
 	    }
-	    
+	    $row_1['Description'] = utf8_encode($row_1['Description']);
 	    $row_1['Title'] = html_entity_decode($row_1['Title'], ENT_QUOTES);
 	    
 	    $sql_2 = "select * from shipping_service_options where ItemID = '".$row['Id']."'";
@@ -2665,6 +2665,44 @@ class eBayListing{
         }
     }
     
+    //-------------------------  End Item ----------------------------------------------------------------
+    public function endListingItem(){
+	$sql = "select Id,accountId from items where Status = 7";
+	$result = mysql_query($sql);
+	while($row = mysql_fetch_assoc($result)){
+	    $this->setAccount($row['accountId']);
+	    $sql_0 = "update items set Status = 13 where Id = '".$row['Id']."'";
+	    $result_0 = mysql_query($sql_0);
+	    //$row['item_id'] = 98;
+	    $sql_1 = "select * from items where Id = '".$row['Id']."'";
+	    $result_1 = mysql_query($sql_1);
+	    $row_1 = mysql_fetch_assoc($result_1);
+	    $this->endItem($row_1);
+	}
+    }
+    
+    private function endItem($item){
+	$sql = "select id from site where name = '".$item['Site']."'";
+	$result = mysql_query($sql);
+	$row = mysql_fetch_assoc($result);
+	$this->configEbay($row['id']);
+	try {
+	    $client = new eBaySOAP($this->session);
+	    $Version = '607';
+	
+	    $params = array('Version' => $Version,
+			    'ItemID' => $item['ItemID'],
+			    'EndingReason' => 'NotAvailable');
+		
+	    $results = $client->EndItem($params);
+	    
+	    $this->saveFetchData("endItem-Request-".date("YmdHis").".xml", $client->__getLastRequest());
+	    $this->saveFetchData("endItem-Response-".date("YmdHis").".xml", $client->__getLastResponse());
+	} catch (SOAPFault $f) {
+            print $f; // error handling
+        }
+    }
+    
     //-------------------------   Get Seller Listing ------------------------------------------------------
     /*
     	Status
@@ -2674,11 +2712,13 @@ class eBayListing{
 	3 : revise
 	4 : relist
 	5 : unsold
-	6:  sold
+	6 : sold
+	7 : end
 	
 	10: uploading
 	11: reviseing
 	12: relisting
+	13: ending
     */
     private function checkItem($itemId){
 	$sql = "select count(*) as count from items where ItemID = '".$itemId."'";

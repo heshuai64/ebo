@@ -124,6 +124,24 @@ Ext.onReady(function(){
         url:'service.php?action=getAllSites'
     })
     
+    var standardStyleTemplateStore = new Ext.data.JsonStore({
+        autoLoad :true,
+        fields: ['id', 'name'],
+        url:'service.php?action=getStandardStyleTemplate'
+    })
+    
+    var standardStyleTemplate = new Ext.form.ComboBox({
+        fieldLabel:"Standard Style Template",
+        mode: 'local',
+        store: standardStyleTemplateStore,
+        valueField:'id',
+        displayField:'name',
+        triggerAction: 'all',
+        selectOnFocus:true,
+        name: 'StandardStyleTemplateId',
+        hiddenName:'StandardStyleTemplateId'
+    })
+     
     var scheduleTemplateStore = new Ext.data.JsonStore({
         autoLoad :true,
         fields: ['id', 'name'],
@@ -367,6 +385,16 @@ Ext.onReady(function(){
                                     break;
                                 }
                                 Ext.getCmp("SiteID").setValue(r.data.name);
+                                
+                                
+                                Ext.Ajax.request({
+                                    url: inventory_service + '?action=getSkuDescription&site=' + Ext.getCmp("SiteID").getValue() + '&sku=' + sku,
+                                    success: function(a, b){
+                                        //console.log(a);
+                                        //document.getElementById("Description").value = a.responseText;
+                                        tinyMCE.get("Description").setContent(a.responseText);
+                                    }
+                                })
                             }
                         }
                     }]
@@ -472,20 +500,22 @@ Ext.onReady(function(){
                                                     break;
                                                 
                                                     case "combo":
-                                                        itemSpecificsForm.add({
-                                                            //id: temp.Attribute[i].id,
-                                                            xtype: temp.Attribute[i].xtype,
-                                                            fieldLabel: temp.Attribute[i].fieldLabel,
-                                                            name: temp.Attribute[i].name,
-                                                            hiddenName: temp.Attribute[i].hiddenName,
-                                                            mode: 'local',
-                                                            triggerAction: 'all',
-                                                            editable: false,
-                                                            selectOnFocus:true,
-                                                            valueField: 'id',
-                                                            displayField: 'name',
-                                                            store: Ext.decode(temp.Attribute[i].store)
-                                                        });
+                                                        if(temp.Attribute[i].fieldLabel != "Brand"){
+                                                            itemSpecificsForm.add({
+                                                                //id: temp.Attribute[i].id,
+                                                                xtype: temp.Attribute[i].xtype,
+                                                                fieldLabel: temp.Attribute[i].fieldLabel,
+                                                                name: temp.Attribute[i].name,
+                                                                hiddenName: temp.Attribute[i].hiddenName,
+                                                                mode: 'local',
+                                                                triggerAction: 'all',
+                                                                editable: false,
+                                                                selectOnFocus:true,
+                                                                valueField: 'id',
+                                                                displayField: 'name',
+                                                                store: Ext.decode(temp.Attribute[i].store)
+                                                            });
+                                                        }
                                                     break;
                                                 }
                                             }
@@ -1277,7 +1307,8 @@ Ext.onReady(function(){
                     },*/{
                         layout:"column",
                         border:false,
-                        items:[{
+                        title:"Standard Style Template",
+                        items:[/*{
                             width: 180,
                             border:false,
                             items:[{
@@ -1298,14 +1329,28 @@ Ext.onReady(function(){
                                     }
                                 }
                             }]
+                        },*/standardStyleTemplate,{
+                            width: 110,
+                            border:false,
+                            items:[{
+                                xtype:"button",
+                                text:"Add Standard Style",
+                                handler: function(){
+                                    window.open(path + "style.php?id=0","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                }
+                            }]
                         },{
-                            width: 120,
+                            width: 110,
                             border:false,
                             items:[{
                                 xtype:"button",
                                 text:"Edit Standard Style",
                                 handler: function(){
-                                    window.open(path + "style.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                    if(!Ext.isEmpty(standardStyleTemplate.getValue())){
+                                        window.open(path + "style.php?id="+standardStyleTemplate.getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                    }else{
+                                        Ext.Msg.alert('Warn', 'Please first select standard style template.');
+                                    }
                                 }
                             }]
                         },{
@@ -1340,7 +1385,7 @@ Ext.onReady(function(){
                                             sku: Ext.getCmp("SKU").getValue()
                                         },
                                         success: function(a, b){
-                                            window.open(path + "preview.php?type=sku&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+sku+"&sku="+Ext.getCmp("SKU").getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                            window.open(path + "preview.php?type=sku&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+sku+"&sku="+Ext.getCmp("SKU").getValue()+"&standardStyleTemplateId="+standardStyleTemplate.getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                         }
                                     })
                                 }
@@ -1349,7 +1394,7 @@ Ext.onReady(function(){
                     }]
                   },{
                     xtype:"panel",
-                    title:"Schedule",
+                    title:"Schedule Template",
                     layout:"form",
                     //labelAlign:"left",
                     //labelPad:0,
@@ -1393,20 +1438,20 @@ Ext.onReady(function(){
                                         //allowBlank:false
                                     }]
                             },{
-                                columnWidth:0.2,
+                                columnWidth:0.26,
                                 layout:"form",
                                 defaults:{
-                                    width: 120,
-                                    listWidth: 120
+                                    width: 160,
+                                    listWidth: 200
                                 },
                                 border:false,
                                 items: schedule_template
                             },{
-                                columnWidth:0.25,
+                                columnWidth:0.22,
                                 layout:"form",
                                 defaults:{
-                                    width: 120,
-                                    listWidth: 120
+                                    width: 100,
+                                    listWidth: 100
                                 },
                                 border:false,
                                 items:[{
@@ -1419,16 +1464,16 @@ Ext.onReady(function(){
                                         }
                                     }]
                             },{
-                                columnWidth:0.25,
+                                columnWidth:0.18,
                                 layout:"form",
                                 defaults:{
-                                    width: 120,
-                                    listWidth: 200
+                                    width: 100,
+                                    listWidth: 100
                                 },
                                 border:false,
                                 items:[{
                                         xtype:"button",
-                                        text:"Edit Select Schedule Template",
+                                        text:"Edit Select",
                                         icon:"images/date_edit.png",
                                         style:"margin-top: 15px;",
                                         handler: function(){
