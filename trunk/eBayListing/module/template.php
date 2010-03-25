@@ -8,7 +8,8 @@ class Template{
     /*
         0: normal
         1: lock
-        
+        2: under review
+        3: out of stock
     */
     private function getCategoryPathById($SiteID, $CategoryID){
     	global $categoryPathArray, $nest;
@@ -358,17 +359,27 @@ class Template{
 	    
 	    case "stcsv":
 	    	$handle = fopen($_FILES['stcsv']['tmp_name'], "r");
-			while (($data = fgetcsv($handle)) !== FALSE) {
-			    //print_r($data);
-			    $sql = "select Id from template where SKU = '".$data[0]."' and Title = '".html_entity_decode($data[1], ENT_QUOTES)."' and accountId = '".$this->account_id."'";
-			    //echo $sql;
-			    $result = mysql_query($sql, eBayListing::$database_connect);
-			    while($row = mysql_fetch_assoc($result)){
-				$this->changeTemplateToItem($row['Id']);
-			    }
-			}
-			fclose($handle);
+                while (($data = fgetcsv($handle)) !== FALSE) {
+                    //print_r($data);
+                    $sql = "select Id from template where SKU = '".$data[0]."' and Title = '".html_entity_decode($data[1], ENT_QUOTES)."' and accountId = '".$this->account_id."'";
+                    //echo $sql;
+                    $result = mysql_query($sql, eBayListing::$database_connect);
+                    while($row = mysql_fetch_assoc($result)){
+                        $this->changeTemplateToItem($row['Id']);
+                    }
+                }
+                fclose($handle);
 	    break;
+        
+            case "tcsv":
+                $handle = fopen($_FILES['tcsv']['tmp_name'], "r");
+                while (($data = fgetcsv($handle)) !== FALSE) {
+                    while($row = mysql_fetch_assoc($result)){
+                        $this->changeTemplateToItem($data[0]);
+                    }
+                }
+                fclose($handle);
+            break;
 	}
 	if($result){
 	    echo "{success:true}";
@@ -410,7 +421,7 @@ class Template{
 	StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 	Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 	GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,
-	InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,Status,UseStandardFooter) select '".$template_id."',AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+	InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,Status,StandardStyleTemplateId,UseStandardFooter) select '".$template_id."',AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 	Description,'".$row_8['DispatchTimeMax']."',ListingDuration,ListingType,'".$row_8['Location']."','PayPal','".$row_9['PayPalEmailAddress']."',
 	'".$row_8['PostalCode']."',PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,
 	'".$row_8['ReturnPolicyDescription']."','".$row_8['ReturnPolicyRefundOption']."','".$row_8['ReturnPolicyReturnsAcceptedOption']."','".$row_8['ReturnPolicyReturnsWithinOption']."','".$row_8['ReturnPolicyShippingCostPaidByOption']."',
@@ -418,7 +429,7 @@ class Template{
 	StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 	Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 	GalleryURL,PhotoDisplay,'".$row_8['ShippingServiceOptionsType']."','".$row_8['InsuranceOption']."','".$row_8['InsuranceFee']."',
-	'".$row_8['InternationalShippingServiceOptionType']."','".$row_8['InternationalInsurance']."','".$row_8['InternationalInsuranceFee']."','".$status."',UseStandardFooter from template where Id = '".$template_id."'";
+	'".$row_8['InternationalShippingServiceOptionType']."','".$row_8['InternationalInsurance']."','".$row_8['InternationalInsuranceFee']."','".$status."',StandardStyleTemplateId,UseStandardFooter from template where Id = '".$template_id."'";
 	
 	//echo $sql_1."\n";
 	//debugLog("tempalteChangeToItem.txt", $sql_1);
@@ -866,7 +877,7 @@ class Template{
 	PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,Quantity,ReservePrice,
 	Site,SKU,StartPrice,StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,
 	BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypePlus,GalleryURL,accountId,UseStandardFooter,
-	scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName) values (
+	scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,StandardStyleTemplateId) values (
 	'".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
 	'".htmlentities($_POST['Description'], ENT_QUOTES)."',
 	'".$_POST['ListingDuration']."','".$_POST['ListingType']."','PayPal',
@@ -879,7 +890,7 @@ class Template{
 	'".(empty($_POST['Border'])?0:1)."','".(empty($_POST['Featured'])?0:1)."','".(empty($_POST['Highlight'])?0:1)."',
 	'".(empty($_POST['HomePageFeatured'])?0:1)."','".(empty($_POST['GalleryTypeFeatured'])?0:1)."','".(empty($_POST['GalleryTypePlus'])?0:1)."','".$_POST['GalleryURL']."',
 	'".$this->account_id."','".(empty($_POST['UseStandardFooter'])?0:1)."',
-	'".$_POST['scheduleTemplateName']."',".(empty($_POST['ScheduleStartDate'])?'NULL':"'".$_POST['ScheduleStartDate']."'").",".(empty($_POST['ScheduleEndDate'])?'NULL':"'".$_POST['ScheduleEndDate']."'").",'".$_POST['shippingTemplateName']."')";
+	'".$_POST['scheduleTemplateName']."',".(empty($_POST['ScheduleStartDate'])?'NULL':"'".$_POST['ScheduleStartDate']."'").",".(empty($_POST['ScheduleEndDate'])?'NULL':"'".$_POST['ScheduleEndDate']."'").",'".$_POST['shippingTemplateName']."',".(empty($_POST['StandardStyleTemplateId'])?'NULL':"'".$_POST['StandardStyleTemplateId']."'").")";
 	    
 	
 	$result = mysql_query($sql, eBayListing::$database_connect);
@@ -1138,13 +1149,13 @@ class Template{
 		ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 		StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,status) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,StandardStyleTemplateId,status) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 		Description,ListingDuration,ListingType,PaymentMethods,PayPalEmailAddress,
 		PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,
 		ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 		StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,'1' from template where Id = '".$a."'";
+		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,StandardStyleTemplateId,'1' from template where Id = '".$a."'";
 		
 		//echo $sql_1."\n";
 		
@@ -1207,13 +1218,13 @@ class Template{
 		ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 		StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,status) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,StandardStyleTemplateId,status) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 		Description,ListingDuration,ListingType,PaymentMethods,PayPalEmailAddress,
 		PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,
 		ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 		StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,'1' from template where Id = '".$_POST['ids']."'";
+		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,StandardStyleTemplateId,'1' from template where Id = '".$_POST['ids']."'";
 		
 		//echo $sql_1."\n";
 		
@@ -1414,7 +1425,7 @@ class Template{
         InternationalShippingServiceCost1=".(($_POST['InternationalShippingServiceCost1']=="")?'NULL':$_POST['InternationalShippingServiceCost1']).",InternationalShippingServiceAdditionalCost1=".(($_POST['InternationalShippingServiceAdditionalCost1']=="")?'NULL':$_POST['InternationalShippingServiceAdditionalCost1']).",
         InternationalShippingServiceCost2=".(($_POST['InternationalShippingServiceCost2']=="")?'NULL':$_POST['InternationalShippingServiceCost2']).",InternationalShippingServiceAdditionalCost2=".(($_POST['InternationalShippingServiceAdditionalCost2']=="")?'NULL':$_POST['InternationalShippingServiceAdditionalCost2']).",
         InternationalShippingServiceCost3=".(($_POST['InternationalShippingServiceCost3']=="")?'NULL':$_POST['InternationalShippingServiceCost3']).",InternationalShippingServiceAdditionalCost3=".(($_POST['InternationalShippingServiceAdditionalCost3']=="")?'NULL':$_POST['InternationalShippingServiceAdditionalCost3']).",
-        status=0 where Id = '".$id."'";
+        StandardStyleTemplateId=".(empty($_POST['StandardStyleTemplateId'])?'NULL':"'".$_POST['StandardStyleTemplateId']."'").",status=0 where Id = '".$id."'";
 	
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	//echo $sql;
@@ -2763,6 +2774,31 @@ class Template{
         header("Pragma: no-cache");
         header("Expires: 0");
         echo $data;*/
+    }
+    
+    //--------  Standard Style Template ----------------------------------------------------
+    public function getStandardStyleTemplate(){
+	$sql = "select id,name from standard_style_template where accountId = '".$this->account_id."' group by name";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$array = array();
+	$i = 0;
+	while($row = mysql_fetch_assoc($result)){
+	    $array[$i]['id'] = $row['id'];
+	    $array[$i]['name'] = $row['name'];
+	    $i++;
+	}
+	echo json_encode($array);
+	mysql_free_result($result);
+    }
+    
+    public function saveStandardStyleTemplate(){
+	if($_POST['standard_style_template_id'] == 0){
+            $sql = "insert into standard_style_template (name,content,accountId) values ('".$_POST['standard_style_template_name']."','".htmlentities($_POST['content'], ENT_QUOTES)."','".$this->account_id."')";
+            $result = mysql_query($sql, eBayListing::$database_connect);
+        }else{
+            $sql = "update standard_style_template set content='".htmlentities($_POST['content'], ENT_QUOTES)."' where id='".$_POST['standard_style_template_id']."' and accountId='".$this->account_id."'";
+            $result = mysql_query($sql, eBayListing::$database_connect);
+        }
     }
     
     //--------  Schedule Template ----------------------------------------------------------

@@ -425,7 +425,7 @@ class Item{
 	$row = mysql_fetch_assoc($result);
 	$totalCount = $row['count'];
 	
-	$sql_1 = "select Id,TemplateID,SKU,ItemID,Title,Site,ListingType,Quantity,ListingDuration,EndTime,StartPrice,BuyItNowPrice,ViewItemURL from items where accountId = '".$this->account_id."' ".$where." and Status = 2 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
+	$sql_1 = "select Id,TemplateID,SKU,ItemID,Title,Site,ListingType,Quantity,ListingDuration,StartTime,EndTime,StartPrice,BuyItNowPrice,ViewItemURL from items where accountId = '".$this->account_id."' ".$where." and Status = 2 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
 	//echo $sql_1."\n";
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$data = array();
@@ -526,7 +526,7 @@ class Item{
 		StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 		GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,
-		InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,UseStandardFooter,Status) 
+		InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,StandardStyleTemplateId,UseStandardFooter,Status) 
 		select ItemID,TemplateID,AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 		Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
 		PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,ReturnPolicyRefundOption,ReturnPolicyReturnsWithinOption,ReturnPolicyShippingCostPaidByOption,
@@ -534,7 +534,7 @@ class Item{
 		StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 		GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,
-		InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,UseStandardFooter,".$Status." from items where Id = '".$a."'";
+		InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,StandardStyleTemplateId,UseStandardFooter,".$Status." from items where Id = '".$a."'";
 		
 		//echo $sql_1."\n";
 		
@@ -567,6 +567,10 @@ class Item{
 		    $result_7 = mysql_query($sql_7, eBayListing::$database_connect);
 		}
 		
+                if($Status == 4){
+                    $sql_8 = "update items set Relist = 'Y' where Id = '".$a."'";
+                    $result_8 = mysql_query($sql_8, eBayListing::$database_connect);
+                }
 		//var_dump(array($result_1, $result_2, $result_3, $result_4, $result_5, $result_6, $result_7));
 	    }
 	    if($result_1 && $result_2 && $result_3 && $result_4){
@@ -582,7 +586,7 @@ class Item{
 	    StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 	    Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 	    GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,
-	    InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,UseStandardFooter,Status) 
+	    InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,StandardStyleTemplateId,UseStandardFooter,Status) 
 	    select ItemID,TemplateID,AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 	    Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
 	    PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,ReturnPolicyDescription,ReturnPolicyReturnsAcceptedOption,ReturnPolicyRefundOption,ReturnPolicyReturnsWithinOption,ReturnPolicyShippingCostPaidByOption,
@@ -590,7 +594,7 @@ class Item{
 	    StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 	    Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 	    GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,
-	    InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,UseStandardFooter,".$Status." from items where Id = '".$_POST['ids']."'";
+	    InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,StandardStyleTemplateId,UseStandardFooter,".$Status." from items where Id = '".$_POST['ids']."'";
 	    
 	    //echo $sql_1."\n";
 	    
@@ -623,6 +627,11 @@ class Item{
 		$result_7 = mysql_query($sql_7, eBayListing::$database_connect);
 	    }
 	
+            if($Status == 4){
+                $sql_8 = "update items set Relist = 'Y' where Id = '".$_POST['ids']."'";
+                $result_8 = mysql_query($sql_8, eBayListing::$database_connect);
+            }
+                
 	    if($result_1 && $result_2 && $result_3 && $result_4){
                 if(empty($id) && empty($status)){
                     echo 1;
@@ -848,7 +857,7 @@ class Item{
 	    HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',GalleryURL='".$_POST['GalleryURL']."',
 	    ShippingServiceOptionsType='".$_POST['ShippingServiceOptionsType']."',InsuranceOption='".$_POST['InsuranceOption']."',InsuranceFee='".$_POST['InsuranceFee']."',
 	    InternationalShippingServiceOptionType='".$_POST['InternationalShippingServiceOptionType']."',InternationalInsurance='".$_POST['InternationalInsurance']."',InternationalInsuranceFee='".$_POST['InternationalInsuranceFee']."',
-	    UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."',accountId='".$this->account_id."'".$status." where Id = '".$id."'";
+	    StandardStyleTemplateId=".(empty($_POST['StandardStyleTemplateId'])?'NULL':"'".$_POST['StandardStyleTemplateId']."'").",UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."',accountId='".$this->account_id."'".$status." where Id = '".$id."'";
 	    $result = mysql_query($sql, eBayListing::$database_connect);
 	}else{
 	    $sql = "update items set 
@@ -866,7 +875,7 @@ class Item{
 	    HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',GalleryURL='".$_POST['GalleryURL']."',
 	    ShippingServiceOptionsType='".$_POST['ShippingServiceOptionsType']."',InsuranceOption='".$_POST['InsuranceOption']."',InsuranceFee='".$_POST['InsuranceFee']."',
 	    InternationalShippingServiceOptionType='".$_POST['InternationalShippingServiceOptionType']."',InternationalInsurance='".$_POST['InternationalInsurance']."',InternationalInsuranceFee='".$_POST['InternationalInsuranceFee']."',
-	    UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."',accountId='".$this->account_id."'".$status." where Id = '".$id."'";
+	    StandardStyleTemplateId=".(empty($_POST['StandardStyleTemplateId'])?'NULL':"'".$_POST['StandardStyleTemplateId']."'").",UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."',accountId='".$this->account_id."'".$status." where Id = '".$id."'";
 	    $result = mysql_query($sql, eBayListing::$database_connect);
 	}
 	//echo $sql;
@@ -1378,6 +1387,27 @@ class Item{
 		    errors: {message: "can\'t update, please notice admin."}
 		}';
 	    $this->log("item", "update multi item ".$_GET['item_id']." failure.", "error");
+	}
+    }
+    
+    public function stopListingItem(){
+        if(strpos($_POST['ids'], ',')){
+	    $ids = explode(',', $_POST['ids']);
+	    foreach($ids as $id){
+		$sql = "update items set Status = 7 where Id = ".$id;
+		$result = mysql_query($sql, eBayListing::$database_connect);
+	    }
+	}else{
+	    $id = $_POST['ids'];
+	    $sql = "update items set Status = 7 where Id = ".$id;
+	    $result = mysql_query($sql, eBayListing::$database_connect);
+	}
+	
+	//echo $sql."\n";
+	if($result){
+	    echo 1;   
+	}else{
+	    echo 0;
 	}
     }
 }

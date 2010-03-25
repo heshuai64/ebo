@@ -42,7 +42,8 @@
     
 </head>
 <body>
-    <form action="service.php?action=saveFooter" method="post">
+    <form action="service.php?action=saveStandardStyleTemplate" method="post">
+        <input id="standard_style_template_id" name="standard_style_template_id" type="hidden" value="<?=$_GET['id']?>"/>
         <textarea id="content" name="content" rows="30" cols="80" style="width: 100%">
         <?php
 
@@ -58,15 +59,20 @@
                 exit;
             }
             
-            $sql = "select footer from account_footer where accountId = '".$_COOKIE['account_id']."'";
+            $sql = "select content from standard_style_template where id = '".$_GET['id']."' and accountId = '".$_COOKIE['account_id']."'";
             $result = mysql_query($sql, $link);
             $row = mysql_fetch_assoc($result);
-            echo $row['footer'];
+            echo html_entity_decode($row['content'], ENT_QUOTES);
             mysql_close($link);
             
         ?>        
         </textarea>
         <div style="text-align:center;">
+            <?php 
+                if($_GET['id'] == 0){
+                    echo '<font color="red">Standard Style Template Name: </font><input type="text" id="standard_style_template_name" name="standard_style_template_name"/>';
+                }
+            ?>
             <input type="submit" value="Save"/>
             <input type="button" value="Close Window" onclick="self.close()">
         </div>
