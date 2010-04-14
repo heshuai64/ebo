@@ -13,7 +13,7 @@
         <script src="../Ext/2.2/adapter/ext/ext-base.js"></script>
         <script src="../Ext/2.2/ext-all.js"></script>
         <script src="system/modules/orders/lang.js"></script>
-        <script src="system/modules/orders/orders-detail-min.js"></script>
+        <script src="system/modules/orders/orders-detail.js"></script>
 </head>
 <body>
     <script type="text/javascript">

@@ -2,7 +2,7 @@
 class Template{
     private $account_id;
     
-    public function __construct($account_id){
+    public function __construct($account_id=0){
         $this->account_id = $account_id;
     }
     /*
@@ -59,7 +59,7 @@ class Template{
 	}
     }
     
-    private function getSiteTime($site, $date, $time, $num = 0, $interval = 0){
+    public function getSiteTime($site, $date, $time, $num = 0, $interval = 0){
 	switch($site){
 	    case "US":
 		$time = date("Y-m-d H:i:s", strtotime("+12 hour ".$date.' '.$time) + ($num * $interval * 60));
@@ -217,6 +217,7 @@ class Template{
 	    }else{
 		$row['Price'] = $row['BuyItNowPrice'];
 	    }
+            $row['Price'] = ($row['BuyItNowPrice'] == 0)?$row['StartPrice']:$row['BuyItNowPrice'];
 	    /*
 	    $sql_1 = "select ShippingServiceCost from template_international_shipping_service_option where templateId = '".$row['Id']."' order by ShippingServicePriority";
 	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
@@ -374,9 +375,7 @@ class Template{
             case "tcsv":
                 $handle = fopen($_FILES['tcsv']['tmp_name'], "r");
                 while (($data = fgetcsv($handle)) !== FALSE) {
-                    while($row = mysql_fetch_assoc($result)){
                         $this->changeTemplateToItem($data[0]);
-                    }
                 }
                 fclose($handle);
             break;
@@ -2778,7 +2777,7 @@ class Template{
     
     //--------  Standard Style Template ----------------------------------------------------
     public function getStandardStyleTemplate(){
-	$sql = "select id,name from standard_style_template where accountId = '".$this->account_id."' group by name";
+	$sql = "select id,name from standard_style_template where accountId = '".$this->account_id."' order by id";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$array = array();
 	$i = 0;

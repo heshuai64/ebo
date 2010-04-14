@@ -40,6 +40,14 @@ Ext.onReady(function(){
                case "1":
                     return "<img src='./images/lock.png'>";
                break;
+          
+               case "2":
+                    return "<img src='./images/magnifier.png'>";
+               break;
+          
+               case "3":
+                    return "<img src='./images/cart_error.png'>";
+               break;
           }
           return "";
      }
@@ -1985,31 +1993,6 @@ Ext.onReady(function(){
                                         {header: "Relist", width: 40, align: 'center', sortable: true, dataIndex: 'Relist'}
                                    ],
                                    tbar:[{
-                                        text: "Edit and Relist",
-                                        icon: './images/page_edit.png',
-                                        tooltip:'Edit Item',
-                                        handler: function(){
-                                             var selections = sold_item_grid.selModel.getSelections();
-                                             if(sold_item_grid.selModel.getCount() == 0){
-                                                  Ext.MessageBox.alert('Warning','Please select the item you want to relist.');
-                                                  return 0;
-                                             }
-                                             var ids = "";
-                                             for(var i = 0; i< sold_item_grid.selModel.getCount(); i++){
-                                                  ids += selections[i].data.Id + ","
-                                             }
-                                             ids = ids.slice(0,-1);
-                                             //console.log(ids);
-                                             //return 0;
-                                             
-                                             if(sold_item_grid.selModel.getCount() > 1){
-                                                  //window.open(path + "mitem.php?id="+ids+"&Status=4","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
-                                             }else{
-                                                  window.open(path + "item.php?id="+ids+"&Status=4","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
-                                             }
-                                             return 1;
-                                        }
-                                   },'-',{
                                         text: "Relist",
                                         icon: './images/arrow_redo.png',
                                         tooltip:'Relist Item To eBay',
@@ -2467,136 +2450,413 @@ Ext.onReady(function(){
                               }
                          }
                     },{
-                         id:'waiting-to-upload',
-                         title:'Waiting To Upload',
-                         html:'xxx',
+                         id:'waiting-to',
+                         title:'Waiting To ...',
                          border:false,
-                         iconCls:'waiting-to-upload',
-                         listeners:{
-                         expand: function(p){
-                              var wait_search =new Ext.FormPanel({
-                                   width: 1040,
-                                   title: 'Search',
-                                   buttonAlign: 'left',
-                                   items:[{
-                                        layout:"column",
+                         iconCls:'waiting-to',
+                         items: [{
+                              xtype:'button',
+                              text:'Upload',
+                              icon:'images/arrow_up.png',
+                              width: 160,
+                              handler: function(){
+                                   var wait_search =new Ext.FormPanel({
+                                        width: 1040,
+                                        title: 'Search',
+                                        buttonAlign: 'left',
                                         items:[{
-                                             columnWidth:0.4,
-                                             layout:"form",
+                                             layout:"column",
                                              items:[{
-                                                  xtype:"textfield",
-                                                  width: 200,
-                                                  fieldLabel:"Sku",
-                                                  name:"SKU"
+                                                  columnWidth:0.4,
+                                                  layout:"form",
+                                                  items:[{
+                                                       xtype:"textfield",
+                                                       width: 200,
+                                                       fieldLabel:"Sku",
+                                                       name:"SKU"
+                                                  }]
+                                             },{
+                                                  columnWidth:0.6,
+                                                  layout:"form",
+                                                  items:[{
+                                                       xtype:"textfield",
+                                                       width: 400,
+                                                       fieldLabel:"Title",
+                                                       name:"Title"
+                                                  }]
                                              }]
-                                        },{
-                                             columnWidth:0.6,
-                                             layout:"form",
-                                             items:[{
-                                                  xtype:"textfield",
-                                                  width: 400,
-                                                  fieldLabel:"Title",
-                                                  name:"Title"
-                                             }]
-                                        }]
-                                   }],
-                                   buttons: [{
-                                             text: 'Submit',
-                                             handler: function(){
-                                                  wait_store.baseParams = {
-                                                       SKU: wait_search.getForm().findField("SKU").getValue(),
-                                                       Title: wait_search.getForm().findField("Title").getValue()
-                                                  };
-                                                  wait_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
-                                             }
-                                   }]
-                              })
-                              
-                              var wait_store =new Ext.data.JsonStore({
-                                   root: 'records',
-                                   totalProperty: 'totalCount',
-                                   idProperty: 'id',
-                                   //autoLoad:true,
-                                   fields: ['Id', 'TemplateID', 'Site', 'SKU', 'Title', 'Price', 'ShippingFee', 'Quantity', 'ListingDuration', 'ListingType', 'ScheduleTime', 'ScheduleLocalTime'],
-                                   sortInfo: {
-                                        field: 'Id',
-                                        direction: 'ASC'
-                                   },
-                                   remoteSort: true,
-                                   url: 'service.php?action=getWaitingUploadItem',
-                                   listeners: {
-                                        load: function(t, r){
-                                             Ext.getCmp('waiting-to-upload').setTitle('Waiting To Upload ('+t.totalLength+')');
-                                        }
-                                   }
-                              })
-            
-                              var wait_grid_editor = new Ext.ux.grid.RowEditor({
-                                   saveText: 'Update',
-                                   listeners: {
-                                        afteredit : function(a, b, c, d){
-                                             Ext.Ajax.request({  
-                                                  waitMsg: 'Please Wait',
-                                                  url: 'service.php?action=updateFields', 
-                                                  params: { 
-                                                       id: c.data.Id,
-                                                       table: 'items',
-                                                       Title: b.Title,
-                                                       Quantity: b.Quantity,
-                                                       Price: b.Price
-                                                  }, 
-                                                  success: function(response){
-                                                      var result = eval(response.responseText);
-                                                      if(result[0].success){
-                                                            Ext.MessageBox.alert('Success', result[0].msg);
-                                                       }else{
-                                                            Ext.MessageBox.alert('Failure', result[0].msg);
-                                                       }
-                                                  },
-                                                  failure: function(response){
-                                                      var result=response.responseText;
-                                                      Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                        }],
+                                        buttons: [{
+                                                  text: 'Submit',
+                                                  handler: function(){
+                                                       wait_store.baseParams = {
+                                                            SKU: wait_search.getForm().findField("SKU").getValue(),
+                                                            Title: wait_search.getForm().findField("Title").getValue()
+                                                       };
+                                                       wait_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
                                                   }
-                                             });
-                                        }
-                                   }
-                              })
-            
-                              var wait_grid = new Ext.grid.EditorGridPanel({
-                                   title: 'Waiting To Upload List',
-                                   store: wait_store,
-                                   plugins: [wait_grid_editor],
-                                   //autoHeight: true,
-                                   width: 1024,
-                                   height: 460,
-                                   selModel: new Ext.grid.RowSelectionModel({}),
-                                   columns:[
-                                        {header: "ID", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
-                                        {header: "TID", width: 60, align: 'center', sortable: true, dataIndex: 'TemplateID'},
-                                        {header: "Site", width: 30, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
-                                        {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
-                                        {header: "Title", width: 290, align: 'center', sortable: true, dataIndex: 'Title',
-                                             editor: {
-                                                  xtype: 'textfield',
-                                                  allowBlank: false
-                                             }
+                                        }]
+                                   })
+                              
+                                   var wait_store =new Ext.data.JsonStore({
+                                        root: 'records',
+                                        totalProperty: 'totalCount',
+                                        idProperty: 'id',
+                                        //autoLoad:true,
+                                        fields: ['Id', 'TemplateID', 'Site', 'SKU', 'Title', 'Price', 'ShippingFee', 'Quantity', 'ListingDuration', 'ListingType', 'ScheduleTime', 'ScheduleLocalTime'],
+                                        sortInfo: {
+                                             field: 'Id',
+                                             direction: 'ASC'
                                         },
-                                        {header: "ListingType", width: 70, align: 'center', sortable: true, dataIndex: 'ListingType'},
-                                        {header: "Price", width: 50, align: 'center', sortable: true, dataIndex: 'Price'},
-                                        {header: "Shipping Fee", width: 70, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
-                                        {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
-                                        {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
-                                        {header: "BeiJing Upload Time", width: 108, align: 'center', sortable: true, dataIndex: 'ScheduleTime'},
-                                        {header: "Local Upload Time", width: 108, align: 'center', sortable: true, dataIndex: 'ScheduleLocalTime'}
-                                   ],
-                                   tbar: [/*{
-                                             text:'Copy',
-                                             icon: './images/page_copy.png',
-                                             tooltip:'Copy before uploading',
+                                        remoteSort: true,
+                                        url: 'service.php?action=getWaitingUploadItem',
+                                        listeners: {
+                                             load: function(t, r){
+                                                  Ext.getCmp('waiting-to').setTitle('Waiting To Upload ('+t.totalLength+')');
+                                             }
+                                        }
+                                   })
+            
+                                   var wait_grid_editor = new Ext.ux.grid.RowEditor({
+                                        saveText: 'Update',
+                                        listeners: {
+                                             afteredit : function(a, b, c, d){
+                                                  Ext.Ajax.request({  
+                                                       waitMsg: 'Please Wait',
+                                                       url: 'service.php?action=updateFields', 
+                                                       params: { 
+                                                            id: c.data.Id,
+                                                            table: 'items',
+                                                            Title: b.Title,
+                                                            Quantity: b.Quantity,
+                                                            Price: b.Price
+                                                       }, 
+                                                       success: function(response){
+                                                           var result = eval(response.responseText);
+                                                           if(result[0].success){
+                                                                 Ext.MessageBox.alert('Success', result[0].msg);
+                                                            }else{
+                                                                 Ext.MessageBox.alert('Failure', result[0].msg);
+                                                            }
+                                                       },
+                                                       failure: function(response){
+                                                           var result=response.responseText;
+                                                           Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                       }
+                                                  });
+                                             }
+                                        }
+                                   })
+            
+                                   var wait_grid = new Ext.grid.EditorGridPanel({
+                                        title: 'Waiting To Upload List',
+                                        store: wait_store,
+                                        plugins: [wait_grid_editor],
+                                        //autoHeight: true,
+                                        width: 1024,
+                                        height: 460,
+                                        selModel: new Ext.grid.RowSelectionModel({}),
+                                        columns:[
+                                             {header: "ID", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
+                                             {header: "TID", width: 60, align: 'center', sortable: true, dataIndex: 'TemplateID'},
+                                             {header: "Site", width: 30, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
+                                             {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
+                                             {header: "Title", width: 290, align: 'center', sortable: true, dataIndex: 'Title',
+                                                  editor: {
+                                                       xtype: 'textfield',
+                                                       allowBlank: false
+                                                  }
+                                             },
+                                             {header: "ListingType", width: 70, align: 'center', sortable: true, dataIndex: 'ListingType'},
+                                             {header: "Price", width: 50, align: 'center', sortable: true, dataIndex: 'Price'},
+                                             {header: "Shipping Fee", width: 70, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
+                                             {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
+                                             {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
+                                             {header: "BeiJing Upload Time", width: 108, align: 'center', sortable: true, dataIndex: 'ScheduleTime'},
+                                             {header: "Local Upload Time", width: 108, align: 'center', sortable: true, dataIndex: 'ScheduleLocalTime'}
+                                        ],
+                                        tbar: [/*{
+                                                  text:'Copy',
+                                                  icon: './images/page_copy.png',
+                                                  tooltip:'Copy before uploading',
+                                                  handler: function(){
+                                                       var selections = wait_grid.selModel.getSelections();
+                                                       if(wait_grid.selModel.getCount() == 0){
+                                                            Ext.MessageBox.alert('Warning','Please select the you want to copy.');
+                                                            return 0;
+                                                       }
+                                                       var ids = "";
+                                                       for(var i = 0; i< wait_grid.selModel.getCount(); i++){
+                                                            ids += selections[i].data.Id + ","
+                                                       }
+                                                       ids = ids.slice(0,-1);
+                                                       Ext.Ajax.request({  
+                                                            waitMsg: 'Please Wait',
+                                                            url: 'service.php?action=copyItem&type=wait', 
+                                                            params: { 
+                                                                 ids: ids
+                                                            }, 
+                                                            success: function(response){
+                                                                var result=eval(response.responseText);
+                                                                switch(result){
+                                                                   case 1:  // Success : simply reload
+                                                                     wait_store.reload();
+                                                                     break;
+                                                                   default:
+                                                                     Ext.MessageBox.alert('Warning','Copy failure, please notice admin.');
+                                                                     break;
+                                                                }
+                                                            },
+                                                            failure: function(response){
+                                                                var result=response.responseText;
+                                                                Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                            }
+                                                       });
+                                                       return 1;
+                                                  }
+                                             },'-',*/{
+                                                       text: 'Select All',
+                                                       tooltip:'Selects all rows',
+                                                       handler: function(){
+                                                            wait_grid.selModel.selectAll();
+                                                       }
+                                                  },'-',{
+                                                       text: 'Clear Select',
+                                                       tooltip:'Clears all selections',
+                                                       handler: function(){
+                                                            wait_grid.selModel.clearSelections();
+                                                       }
+                                                  },'-',{
+                                                       text: 'Search',
+                                                       icon: './images/magnifier.png',
+                                                       handler: function(){
+                                                            var  searchWindow = new Ext.Window({
+                                                                      title: 'Search Waiting Item' ,
+                                                                      closable:true,
+                                                                      width: 300,
+                                                                      height: 180,
+                                                                      plain:true,
+                                                                      layout: 'form',
+                                                                      items: [/*{
+                                                                                id:'interval-date',
+                                                                                fieldLabel:'Date',
+                                                                                xtype:'datefield',
+                                                                                format:'Y-m-d',
+                                                                                minValue: new Date(),
+                                                                                selectOnFocus:true
+                                                                           },*/{
+                                                                                id:'TID',
+                                                                                fieldLabel:'TID',
+                                                                                xtype:'numberfield'
+                                                                           },{
+                                                                                id:'SKU',
+                                                                                fieldLabel:'SKU',
+                                                                                xtype:'textfield'
+                                                                           },{
+                                                                                id:'Title',
+                                                                                fieldLabel:'Item Title',
+                                                                                xtype:'textfield'
+                                                                           },{
+                                                                                id:'ListingDuration',
+                                                                                fieldLabel:'Duration',
+                                                                                xtype:"combo",
+                                                                                store:['', 'Days_3', 'Days_5', 'Days_7', 'Days_10', 'Days_30', 'Days_60', 'Days_90'],
+                                                                                triggerAction: 'all',
+                                                                                editable: false,
+                                                                                selectOnFocus:true,
+                                                                                listWidth:100,
+                                                                                width:100
+                                                                           }
+                                                                      ],
+                                                                      buttons: [{
+                                                                                     text: 'Submit',
+                                                                                     handler: function(){
+                                                                                          wait_store.baseParams = {
+                                                                                               TID: Ext.getCmp("TID").getValue(),
+                                                                                               SKU: Ext.getCmp("SKU").getValue(),
+                                                                                               Title: Ext.getCmp("Title").getValue(),
+                                                                                               ListingDuration: Ext.getCmp("ListingDuration").getValue()
+                                                                                          };
+                                                                                          wait_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
+                                                                                          searchWindow.close();
+                                                                                     }
+                                                                                },{
+                                                                                     text: 'Close',
+                                                                                     handler: function(){
+                                                                                          searchWindow.close();
+                                                                                     }
+                                                                                }]
+                                                                                
+                                                                 })
+                                                                 
+                                                                 searchWindow.show();
+                                                       }
+                                                  },'-',{
+                                                  text:'Edit',
+                                                  icon: './images/page_edit.png',
+                                                  tooltip:'Editing before uploading',
+                                                  handler:function(){
+                                                       var selections = wait_grid.selModel.getSelections();
+                                                       if(wait_grid.selModel.getCount() == 0){
+                                                            Ext.MessageBox.alert('Warning','Please select the template you want to edit.');
+                                                            return 0;
+                                                       }
+                                                       var ids = "";
+                                                       for(var i = 0; i< wait_grid.selModel.getCount(); i++){
+                                                            ids += selections[i].data.Id + ",";
+                                                       }
+                                                       ids = ids.slice(0,-1);
+                                                       if(wait_grid.selModel.getCount() > 1){
+                                                            window.open(path + "mitem.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768"); 
+                                                       }else{
+                                                            window.open(path + "item.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768"); 
+                                                       }
+                                                       return 1;
+                                                  }
+                                             },'-',{
+                                                  text:'Delete',
+                                                  icon: './images/page_delete.png',
+                                                  tooltip:'Delete before uploading',
+                                                  handler:function(){
+                                                       var selections = wait_grid.selModel.getSelections();
+                                                       if(wait_grid.selModel.getCount() == 0){
+                                                            Ext.MessageBox.alert('Warning','Please select the need to delete.');
+                                                            return 0;
+                                                       }
+                                                       var ids = "";
+                                                       for(var i = 0; i< wait_grid.selModel.getCount(); i++){
+                                                            ids += selections[i].data.Id + ","
+                                                       }
+                                                       ids = ids.slice(0,-1);
+                                                       
+                                                       Ext.Msg.confirm('Confirm', 'Delete waiting to upload item ' + ids, function(a, b, c){
+                                                            if (a == 'yes'){
+                                   
+                                                                 Ext.Ajax.request({  
+                                                                      waitMsg: 'Please Wait',
+                                                                      url: 'service.php?action=waitUploadItemDelete', 
+                                                                      params: { 
+                                                                             ids: ids
+                                                                      }, 
+                                                                      success: function(response){
+                                                                          var result=eval(response.responseText);
+                                                                          switch(result){
+                                                                             case 1:  // Success : simply reload
+                                                                               wait_store.reload();
+                                                                               break;
+                                                                             default:
+                                                                               Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
+                                                                               break;
+                                                                          }
+                                                                      },
+                                                                      failure: function(response){
+                                                                          var result=response.responseText;
+                                                                          Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                                      }
+                                                                 });
+                                                            }
+                                                       })
+                                                       return 1;
+                                                  }
+                                             },'-',{
+                                             text:'Reset Time',
+                                             icon: './images/clock_edit.png',
+                                             tooltip:'Reset upload time',
                                              handler: function(){
                                                   var selections = wait_grid.selModel.getSelections();
                                                   if(wait_grid.selModel.getCount() == 0){
-                                                       Ext.MessageBox.alert('Warning','Please select the you want to copy.');
+                                                       Ext.MessageBox.alert('Warning','Please select the need to reset.');
+                                                       return 0;
+                                                  }
+                                                  var ids = "";
+                                                  for(var i = 0; i< wait_grid.selModel.getCount(); i++){
+                                                       ids += selections[i].data.Id + ","
+                                                  }
+                                                  ids = ids.slice(0,-1);
+                                                  
+                                                  var  resetTimeWindow = new Ext.Window({
+                                                       title: 'Reset Upload Time' ,
+                                                       closable:true,
+                                                       width: 300,
+                                                       height: 180,
+                                                       plain:true,
+                                                       layout: 'form',
+                                                       items: [{
+                                                                 id:'interval-date',
+                                                                 fieldLabel:'Date',
+                                                                 xtype:'datefield',
+                                                                 format:'Y-m-d',
+                                                                 minValue: new Date(),
+                                                                 selectOnFocus:true
+                                                            },{
+                                                                 id:'interval-time',
+                                                                 fieldLabel:'Time',
+                                                                 xtype:'timefield',
+                                                                 increment:1,
+                                                                 triggerAction: 'all',
+                                                                 editable: false,
+                                                                 selectOnFocus:true,
+                                                                 listWidth:80,
+                                                                 width:80  
+                                                            },{
+                                                                 id:'interval-minute',
+                                                                 fieldLabel:'Interval',
+                                                                 xtype:"combo",
+                                                                 store:[0,1,2,3,4,5,6,7,8,9,10],
+                                                                 listWidth:60,
+                                                                 width:60
+                                                            }
+                                                       ],
+                                                       buttons: [{
+                                                                      text: 'Ok',
+                                                                      handler: function(){
+                                                                           Ext.Ajax.request({  
+                                                                                waitMsg: 'Please Wait',
+                                                                                url: 'service.php?action=updateItemUploadTime', 
+                                                                                params: {
+                                                                                     ids: ids,
+                                                                                     date: Ext.getCmp('interval-date').getValue(),
+                                                                                     time: Ext.getCmp('interval-time').getValue(),
+                                                                                     minute: Ext.getCmp('interval-minute').getValue()
+                                                                                }, 
+                                                                                success: function(response){
+                                                                                     //console.log(response);
+                                                                                     var result = eval(response.responseText);
+                                                                                     //console.log(result);
+                                                                                     if(result[0].success){
+                                                                                          wait_store.reload();
+                                                                                          resetTimeWindow.close();
+                                                                                          Ext.MessageBox.alert('Success', result[0].msg);
+                                                                                     }else{
+                                                                                          Ext.MessageBox.alert('Warning', result[0].msg);
+                                                                                     }
+                                                                                },
+                                                                                failure: function(response){
+                                                                                    var result=response.responseText;
+                                                                                    Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                                                }
+                                                                           });
+                                                                      }
+                                                                 },{
+                                                                      text: 'Close',
+                                                                      handler: function(){
+                                                                           resetTimeWindow.close();
+                                                                      }
+                                                                 }]
+                                                                 
+                                                  })
+                                                  
+                                                  resetTimeWindow.show();
+                                                  return 1;
+                                             }
+                                        },'-',{
+                                             text:'Add To Schedule',
+                                             icon: './images/time.png',
+                                             tooltip:'add to schedule list',
+                                             handler: function(){
+                                                  var selections = wait_grid.selModel.getSelections();
+                                                  if(wait_grid.selModel.getCount() == 0){
+                                                       Ext.MessageBox.alert('Warning','Please select the you want to schedule.');
                                                        return 0;
                                                   }
                                                   var ids = "";
@@ -2606,7 +2866,7 @@ Ext.onReady(function(){
                                                   ids = ids.slice(0,-1);
                                                   Ext.Ajax.request({  
                                                        waitMsg: 'Please Wait',
-                                                       url: 'service.php?action=copyItem&type=wait', 
+                                                       url: 'service.php?action=addItemToSchedule', 
                                                        params: { 
                                                             ids: ids
                                                        }, 
@@ -2617,7 +2877,7 @@ Ext.onReady(function(){
                                                                 wait_store.reload();
                                                                 break;
                                                               default:
-                                                                Ext.MessageBox.alert('Warning','Copy failure, please notice admin.');
+                                                                Ext.MessageBox.alert('Warning','failure, please notice admin.');
                                                                 break;
                                                            }
                                                        },
@@ -2628,127 +2888,169 @@ Ext.onReady(function(){
                                                   });
                                                   return 1;
                                              }
-                                        },'-',*/{
-                                                  text: 'Select All',
-                                                  tooltip:'Selects all rows',
-                                                  handler: function(){
-                                                       wait_grid.selModel.selectAll();
-                                                  }
-                                             },'-',{
-                                                  text: 'Clear Select',
-                                                  tooltip:'Clears all selections',
-                                                  handler: function(){
-                                                       wait_grid.selModel.clearSelections();
-                                                  }
-                                             },'-',{
-                                                  text: 'Search',
-                                                  icon: './images/magnifier.png',
-                                                  handler: function(){
-                                                       var  searchWindow = new Ext.Window({
-                                                                 title: 'Search Waiting Item' ,
-                                                                 closable:true,
-                                                                 width: 300,
-                                                                 height: 180,
-                                                                 plain:true,
-                                                                 layout: 'form',
-                                                                 items: [/*{
-                                                                           id:'interval-date',
-                                                                           fieldLabel:'Date',
-                                                                           xtype:'datefield',
-                                                                           format:'Y-m-d',
-                                                                           minValue: new Date(),
-                                                                           selectOnFocus:true
-                                                                      },*/{
-                                                                           id:'TID',
-                                                                           fieldLabel:'TID',
-                                                                           xtype:'numberfield'
-                                                                      },{
-                                                                           id:'SKU',
-                                                                           fieldLabel:'SKU',
-                                                                           xtype:'textfield'
-                                                                      },{
-                                                                           id:'Title',
-                                                                           fieldLabel:'Item Title',
-                                                                           xtype:'textfield'
-                                                                      },{
-                                                                           id:'ListingDuration',
-                                                                           fieldLabel:'Duration',
-                                                                           xtype:"combo",
-                                                                           store:['', 'Days_3', 'Days_5', 'Days_7', 'Days_10', 'Days_30', 'Days_60', 'Days_90'],
-                                                                           triggerAction: 'all',
-                                                                           editable: false,
-                                                                           selectOnFocus:true,
-                                                                           listWidth:100,
-                                                                           width:100
-                                                                      }
-                                                                 ],
-                                                                 buttons: [{
-                                                                                text: 'Submit',
-                                                                                handler: function(){
-                                                                                     wait_store.baseParams = {
-                                                                                          TID: Ext.getCmp("TID").getValue(),
-                                                                                          SKU: Ext.getCmp("SKU").getValue(),
-                                                                                          Title: Ext.getCmp("Title").getValue(),
-                                                                                          ListingDuration: Ext.getCmp("ListingDuration").getValue()
-                                                                                     };
-                                                                                     wait_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
-                                                                                     searchWindow.close();
-                                                                                }
-                                                                           },{
-                                                                                text: 'Close',
-                                                                                handler: function(){
-                                                                                     searchWindow.close();
-                                                                                }
-                                                                           }]
-                                                                           
-                                                            })
-                                                            
-                                                            searchWindow.show();
-                                                  }
-                                             },'-',{
-                                             text:'Edit',
+                                        }],
+                                        bbar: new Ext.PagingToolbar({
+                                            pageSize: parseInt(getCookie("pagination")),
+                                            store: wait_store,
+                                            displayInfo: true
+                                        })
+                                   })
+                                   
+                                   if(tabPanel.isVisible('waiting-to-upload-tab'))
+                                        tabPanel.remove('waiting-to-upload-tab');
+                                   
+                                   wait_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
+                                   tabPanel.add({
+                                        id:'waiting-to-upload-tab',
+                                        iconCls: 'waiting-to-upload',
+                                        title: "Waiting To Upload",
+                                        items: wait_grid,
+                                        closable: true,
+                                        autoScroll:true
+                                   })
+                                   tabPanel.doLayout();
+                                   tabPanel.activate('waiting-to-upload-tab');
+                             
+                              }
+                         },{
+                              xtype:'button',
+                              text:'Relist',
+                              icon:'images/arrow_refresh.png',
+                              width: 160,
+                              handler: function(){
+                                   var wait_relist_store =new Ext.data.JsonStore({
+                                        root: 'records',
+                                        totalProperty: 'totalCount',
+                                        idProperty: 'id',
+                                        //autoLoad:true,
+                                        fields: ['Id', 'TemplateID', 'Site', 'SKU', 'Title', 'Price', 'ShippingFee', 'Quantity', 'ListingDuration', 'ListingType'],
+                                        sortInfo: {
+                                             field: 'Id',
+                                             direction: 'ASC'
+                                        },
+                                        remoteSort: true,
+                                        url: 'service.php?action=getWaitingRelistItem',
+                                        listeners: {
+                                             load: function(t, r){
+                                                  Ext.getCmp('waiting-to').setTitle('Waiting To Relist ('+t.totalLength+')');
+                                             }
+                                        }
+                                   })
+                                   
+                                   var wait_relist_grid = new Ext.grid.GridPanel({
+                                        title: 'Waiting To Relist List',
+                                        store: wait_relist_store,
+                                        //autoHeight: true,
+                                        width: 1024,
+                                        height: 460,
+                                        selModel: new Ext.grid.RowSelectionModel({}),
+                                        columns:[
+                                             {header: "ID", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
+                                             {header: "TID", width: 60, align: 'center', sortable: true, dataIndex: 'TemplateID'},
+                                             {header: "Site", width: 30, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
+                                             {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
+                                             {header: "Title", width: 400, align: 'center', sortable: true, dataIndex: 'Title'},
+                                             {header: "ListingType", width: 70, align: 'center', sortable: true, dataIndex: 'ListingType'},
+                                             {header: "Price", width: 50, align: 'center', sortable: true, dataIndex: 'Price'},
+                                             {header: "Shipping Fee", width: 70, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
+                                             {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
+                                             {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'}
+                                        ],
+                                        tbar: [{
+                                             text: 'Select All',
+                                             tooltip:'Selects all rows',
+                                             handler: function(){
+                                                  wait_relist_grid.selModel.selectAll();
+                                             }
+                                        },'-',{
+                                             text: 'Clear Select',
+                                             tooltip:'Clears all selections',
+                                             handler: function(){
+                                                  wait_relist_grid.selModel.clearSelections();
+                                             }
+                                        },'-',{
+                                             text: "Edit and Relist",
                                              icon: './images/page_edit.png',
-                                             tooltip:'Editing before uploading',
-                                             handler:function(){
-                                                  var selections = wait_grid.selModel.getSelections();
-                                                  if(wait_grid.selModel.getCount() == 0){
-                                                       Ext.MessageBox.alert('Warning','Please select the template you want to edit.');
+                                             tooltip:'Edit Item',
+                                             handler: function(){
+                                                  var selections = wait_relist_grid.selModel.getSelections();
+                                                  if(wait_relist_grid.selModel.getCount() == 0){
+                                                       Ext.MessageBox.alert('Warning','Please select the item you want to relist.');
                                                        return 0;
                                                   }
                                                   var ids = "";
-                                                  for(var i = 0; i< wait_grid.selModel.getCount(); i++){
-                                                       ids += selections[i].data.Id + ",";
+                                                  for(var i = 0; i< wait_relist_grid.selModel.getCount(); i++){
+                                                       ids += selections[i].data.Id + ","
                                                   }
                                                   ids = ids.slice(0,-1);
-                                                  if(wait_grid.selModel.getCount() > 1){
-                                                       window.open(path + "mitem.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768"); 
+                                                  //console.log(ids);
+                                                  //return 0;
+                                                  
+                                                  if(wait_relist_grid.selModel.getCount() > 1){
+                                                       //window.open(path + "mitem.php?id="+ids+"&Status=4","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                                   }else{
-                                                       window.open(path + "item.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768"); 
+                                                       window.open(path + "item.php?id="+ids+"&Status=4","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                                   }
                                                   return 1;
                                              }
                                         },'-',{
-                                             text:'Delete',
-                                             icon: './images/page_delete.png',
-                                             tooltip:'Delete before uploading',
-                                             handler:function(){
-                                                  var selections = wait_grid.selModel.getSelections();
-                                                  if(wait_grid.selModel.getCount() == 0){
-                                                       Ext.MessageBox.alert('Warning','Please select the need to delete.');
+                                             text: 'Relist',
+                                             icon: 'images/arrow_refresh.png',
+                                             handler: function(){
+                                                  var selections = wait_relist_grid.selModel.getSelections();
+                                                  if(wait_relist_grid.selModel.getCount() == 0){
+                                                       Ext.MessageBox.alert('Warning','Please select the you want to relist.');
                                                        return 0;
                                                   }
                                                   var ids = "";
-                                                  for(var i = 0; i< wait_grid.selModel.getCount(); i++){
+                                                  for(var i = 0; i< wait_relist_grid.selModel.getCount(); i++){
                                                        ids += selections[i].data.Id + ","
                                                   }
                                                   ids = ids.slice(0,-1);
-                                                  
-                                                  Ext.Msg.confirm('Confirm', 'Delete waiting to upload item ' + ids, function(a, b, c){
+                                                  Ext.Ajax.request({  
+                                                       waitMsg: 'Please Wait',
+                                                       url: 'service.php?action=addItemToRelist', 
+                                                       params: { 
+                                                            ids: ids
+                                                       }, 
+                                                       success: function(response){
+                                                           var result=eval(response.responseText);
+                                                           switch(result){
+                                                              case 1:  // Success : simply reload
+                                                                wait_relist_store.reload();
+                                                                break;
+                                                              default:
+                                                                Ext.MessageBox.alert('Warning','failure, please notice admin.');
+                                                                break;
+                                                           }
+                                                       },
+                                                       failure: function(response){
+                                                           var result=response.responseText;
+                                                           Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                       }
+                                                  });
+                                                  return 1;
+                                             }
+                                        },'-',{
+                                             text:'Delete',
+                                             icon: 'images/cancel.png',
+                                             handler: function(){
+                                                  var selections = wait_relist_grid.selModel.getSelections();
+                                                  if(wait_relist_grid.selModel.getCount() == 0){
+                                                       Ext.MessageBox.alert('Warning','Please select template.');
+                                                       return 0;
+                                                  }
+                                                  var ids = "";
+                                                  for(var i = 0; i< wait_relist_grid.selModel.getCount(); i++){
+                                                       ids += selections[i].data.Id + ","
+                                                  }
+                                                  ids = ids.slice(0,-1);
+                                                  //console.log(ids);
+                                                  Ext.Msg.confirm('Confirm', 'Delete ' + ids, function(a, b, c){
                                                        if (a == 'yes'){
-                              
                                                             Ext.Ajax.request({  
                                                                  waitMsg: 'Please Wait',
-                                                                 url: 'service.php?action=waitUploadItemDelete', 
+                                                                 url: 'service.php?action=deleteItem', 
                                                                  params: { 
                                                                         ids: ids
                                                                  }, 
@@ -2756,7 +3058,7 @@ Ext.onReady(function(){
                                                                      var result=eval(response.responseText);
                                                                      switch(result){
                                                                         case 1:  // Success : simply reload
-                                                                          wait_store.reload();
+                                                                          wait_relist_store.reload();
                                                                           break;
                                                                         default:
                                                                           Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
@@ -2769,179 +3071,33 @@ Ext.onReady(function(){
                                                                  }
                                                             });
                                                        }
-                                                  })
+                                                  });
                                                   return 1;
                                              }
-                                        },'-',{
-                                        text:'Reset Time',
-                                        icon: './images/clock_edit.png',
-                                        tooltip:'Reset upload time',
-                                        handler: function(){
-                                             var selections = wait_grid.selModel.getSelections();
-                                             if(wait_grid.selModel.getCount() == 0){
-                                                  Ext.MessageBox.alert('Warning','Please select the need to reset.');
-                                                  return 0;
-                                             }
-                                             var ids = "";
-                                             for(var i = 0; i< wait_grid.selModel.getCount(); i++){
-                                                  ids += selections[i].data.Id + ","
-                                             }
-                                             ids = ids.slice(0,-1);
-                                             
-                                             var  resetTimeWindow = new Ext.Window({
-                                                  title: 'Reset Upload Time' ,
-                                                  closable:true,
-                                                  width: 300,
-                                                  height: 180,
-                                                  plain:true,
-                                                  layout: 'form',
-                                                  items: [{
-                                                            id:'interval-date',
-                                                            fieldLabel:'Date',
-                                                            xtype:'datefield',
-                                                            format:'Y-m-d',
-                                                            minValue: new Date(),
-                                                            selectOnFocus:true
-                                                       },{
-                                                            id:'interval-time',
-                                                            fieldLabel:'Time',
-                                                            xtype:'timefield',
-                                                            increment:1,
-                                                            triggerAction: 'all',
-                                                            editable: false,
-                                                            selectOnFocus:true,
-                                                            listWidth:80,
-                                                            width:80  
-                                                       },{
-                                                            id:'interval-minute',
-                                                            fieldLabel:'Interval',
-                                                            xtype:"combo",
-                                                            store:[0,1,2,3,4,5,6,7,8,9,10],
-                                                            listWidth:60,
-                                                            width:60
-                                                       }
-                                                  ],
-                                                  buttons: [{
-                                                                 text: 'Ok',
-                                                                 handler: function(){
-                                                                      Ext.Ajax.request({  
-                                                                           waitMsg: 'Please Wait',
-                                                                           url: 'service.php?action=updateItemUploadTime', 
-                                                                           params: {
-                                                                                ids: ids,
-                                                                                date: Ext.getCmp('interval-date').getValue(),
-                                                                                time: Ext.getCmp('interval-time').getValue(),
-                                                                                minute: Ext.getCmp('interval-minute').getValue()
-                                                                           }, 
-                                                                           success: function(response){
-                                                                                //console.log(response);
-                                                                                var result = eval(response.responseText);
-                                                                                //console.log(result);
-                                                                                if(result[0].success){
-                                                                                     wait_store.reload();
-                                                                                     resetTimeWindow.close();
-                                                                                     Ext.MessageBox.alert('Success', result[0].msg);
-                                                                                }else{
-                                                                                     Ext.MessageBox.alert('Warning', result[0].msg);
-                                                                                }
-                                                                           },
-                                                                           failure: function(response){
-                                                                               var result=response.responseText;
-                                                                               Ext.MessageBox.alert('error','could not connect to the database. retry later');      
-                                                                           }
-                                                                      });
-                                                                 }
-                                                            },{
-                                                                 text: 'Close',
-                                                                 handler: function(){
-                                                                      resetTimeWindow.close();
-                                                                 }
-                                                            }]
-                                                            
-                                             })
-                                             
-                                             resetTimeWindow.show();
-                                             return 1;
-                                        }
-                                   },'-',{
-                                        text:'Add To Schedule',
-                                        icon: './images/time.png',
-                                        tooltip:'add to schedule list',
-                                        handler: function(){
-                                             var selections = wait_grid.selModel.getSelections();
-                                             if(wait_grid.selModel.getCount() == 0){
-                                                  Ext.MessageBox.alert('Warning','Please select the you want to schedule.');
-                                                  return 0;
-                                             }
-                                             var ids = "";
-                                             for(var i = 0; i< wait_grid.selModel.getCount(); i++){
-                                                  ids += selections[i].data.Id + ","
-                                             }
-                                             ids = ids.slice(0,-1);
-                                             Ext.Ajax.request({  
-                                                  waitMsg: 'Please Wait',
-                                                  url: 'service.php?action=addItemToSchedule', 
-                                                  params: { 
-                                                       ids: ids
-                                                  }, 
-                                                  success: function(response){
-                                                      var result=eval(response.responseText);
-                                                      switch(result){
-                                                         case 1:  // Success : simply reload
-                                                           wait_store.reload();
-                                                           break;
-                                                         default:
-                                                           Ext.MessageBox.alert('Warning','failure, please notice admin.');
-                                                           break;
-                                                      }
-                                                  },
-                                                  failure: function(response){
-                                                      var result=response.responseText;
-                                                      Ext.MessageBox.alert('error','could not connect to the database. retry later');      
-                                                  }
-                                             });
-                                             return 1;
-                                        }
-                                   }],
-                                   bbar: new Ext.PagingToolbar({
-                                       pageSize: parseInt(getCookie("pagination")),
-                                       store: wait_store,
-                                       displayInfo: true
-                                   })
-                              })
-                              
-                              if(tabPanel.isVisible('waiting-to-upload-tab'))
-                                   tabPanel.remove('waiting-to-upload-tab');
+                                        }],
+                                        bbar: new Ext.PagingToolbar({
+                                            pageSize: parseInt(getCookie("pagination")),
+                                            store: wait_relist_store,
+                                            displayInfo: true
+                                        })
+                                   });
                                    
-                              //if(waitOpen == true){
-                                   //tabPanel.activate('waiting-to-upload-tab');
-                              //}else{
-                                   wait_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
+                                   if(tabPanel.isVisible('waiting-to-relist-tab'))
+                                        tabPanel.remove('waiting-to-relist-tab');
+                                   
+                                   wait_relist_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
                                    tabPanel.add({
-                                        id:'waiting-to-upload-tab',
-                                        iconCls: 'waiting-to-upload',
-                                        title: "Waiting To Upload",
-                                        items: wait_grid,
+                                        id:'waiting-to-relist-tab',
+                                        iconCls: 'waiting-to-relist',
+                                        title: "Waiting To Relist",
+                                        items: wait_relist_grid,
                                         closable: true,
                                         autoScroll:true
                                    })
                                    tabPanel.doLayout();
-                                   tabPanel.activate('waiting-to-upload-tab');
-                              //}
-                              
-                              /*
-                              //if(tabPanel.isVisible('waiting-to-upload-tab'))
-                                   //tabPanel.remove('waiting-to-upload-tab');
-                              
-                              console.log(tabPanel.find('waiting-to-upload-tab'));
-                              
-                              if(tabPanel.find('waiting-to-upload-tab')){
-                                   tabPanel.activate('waiting-to-upload-tab');
+                                   tabPanel.activate('waiting-to-relist-tab');
                               }
-                              */
-                              
-                         }
-                       }
+                         }]
                    },{
                          id:'schedule',
                          title:'Schedule',
@@ -4122,7 +4278,7 @@ Ext.onReady(function(){
                                                                            id:'level',
                                                                            fieldLabel:'Level',
                                                                            xtype:"combo",
-                                                                           store:['', 'error', 'normal'],
+                                                                           store:['', 'error', 'warn', 'normal'],
                                                                            triggerAction: 'all',
                                                                            editable: false,
                                                                            selectOnFocus:true,

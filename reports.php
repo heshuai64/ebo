@@ -25,7 +25,7 @@ class Reports{
         }
         
         Reports::$memcache_connect = new Memcache;
-        Reports::$memcache_connect->connect(self::MEMCACHE_HOST, self::MEMCACHE_PORT);
+        @Reports::$memcache_connect->connect(self::MEMCACHE_HOST, self::MEMCACHE_PORT);
     }
     
     private function log($file_name, $data){
@@ -102,17 +102,30 @@ class Reports{
             
     public function skuSellReport($seller_id, $start_date, $end_date){
         require ("class/class-excel-xml.inc.php");
-        if(empty($seller_id)){
-            $sql = "select o.sellerId,od.skuId,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id=od.ordersId where o.status = 'P' and o.createdOn between '$start_date 10:10:00' and '$end_date 10:10:00' group by od.skuId";
-        }else{
-            $sql = "select o.sellerId,od.skuId,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id=od.ordersId where o.status = 'P' and o.createdOn between '$start_date 10:10:00' and '$end_date 10:10:00' and o.sellerId='$seller_id' group by od.skuId";
-        }
+	if(!empty($seller_id)){
+	    $sql = "select o.sellerId,od.skuId,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id=od.ordersId where o.sellerId = '".$seller_id."' and o.status = 'p' and o.createdOn between '$start_date 10:10:00' and '$end_date 10:10:00' group by od.skuId";
+	}else{
+	    $sql = "select o.sellerId,od.skuId,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id=od.ordersId where o.status = 'p' and o.createdOn between '$start_date 10:10:00' and '$end_date 10:10:00' group by od.skuId";
+	}
+        
         //echo $sql;
+	//exit;
         $result = mysql_query($sql, Reports::$database_connect);
         $data = array();
         $data[0] = array('Seller', 'SKU', 'MODEL', 'Quantity', 'Stock');
         $i = 1;
         while($row = mysql_fetch_assoc($result)){
+	    /*
+	    $sql_1 = "select sellerId from qo_orders where id = '".$row['ordersId']."'";
+	    $result_1 = mysql_query($sql_1, Reports::$database_connect);
+	    $row_1 = mysql_fetch_assoc($result_1);
+	    //echo $sql_1."<br>";
+	    //echo $row_1['sellerId']."<br>";
+	    
+	    if(!empty($seller_id) && $seller_id != $row_1['sellerId']){
+		continue;
+	    }
+	    */
             $service_result = $this->get(self::INVENTORY_SERVICE.'?action=getModelBySkuId&skuId='.urlencode($row['skuId']));
             //$this->log('getModelBySkuId.html','skuId:'.$row['skuId'].', return:'.$service_result);
             $data[$i]['sellerId'] = $row['sellerId'];

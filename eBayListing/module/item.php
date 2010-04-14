@@ -228,6 +228,37 @@ class Item{
 	mysql_free_result($result);
     }
     
+    public function getWaitingRelistItem(){
+        $sql = "select count(*) as count from items where accountId = '".$this->account_id."' and Status = 8";
+        $result = mysql_query($sql, eBayListing::$database_connect);
+        $row = mysql_fetch_assoc($result);
+        $totalCount = $row['count'];
+        
+        if(empty($_POST['start']) && empty($_POST['limit'])){
+            $_POST['start'] = 0;
+            $_POST['limit'] = 20;
+        }
+        
+        $sql = "select Id,TemplateID,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,Site from items where accountId = '".$this->account_id."' and Status = 8 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
+        $result = mysql_query($sql, eBayListing::$database_connect);
+        
+        while($row = mysql_fetch_assoc($result)){
+	    if($row['ListingType'] == "FixedPriceItem" || $row['ListingType'] == "StoresFixedPrice"){
+		$row['Price'] = $row['StartPrice'];
+	    }else{
+		$row['Price'] = $row['BuyItNowPrice'];
+	    }
+	    $sql_1 = "select ShippingServiceCost from international_shipping_service_option where ItemID = '".$row['Id']."' order by ShippingServicePriority";
+	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	    $row_1 = mysql_fetch_assoc($result_1);
+	    $row['ShippingFee'] = $row_1['ShippingServiceCost'];
+	    $array[] = $row;
+	}
+	
+	echo json_encode(array('totalCount'=>$totalCount, 'records'=>$array));
+	mysql_free_result($result);
+    }
+    
     public function geScheduleItem(){
 	$array = array();
 	
@@ -510,7 +541,7 @@ class Item{
 	}elseif($_GET['type'] == "schedule"){
 	    $Status = 1;
 	}elseif($_GET['type'] == "relist"){
-            $Status = 4;
+            $Status = 8;
         }elseif(!empty($id) && !empty($status)){
             $Status = $status;
             $_POST['ids'] = $id;
@@ -567,7 +598,7 @@ class Item{
 		    $result_7 = mysql_query($sql_7, eBayListing::$database_connect);
 		}
 		
-                if($Status == 4){
+                if($Status == 8){
                     $sql_8 = "update items set Relist = 'Y' where Id = '".$a."'";
                     $result_8 = mysql_query($sql_8, eBayListing::$database_connect);
                 }
@@ -627,7 +658,7 @@ class Item{
 		$result_7 = mysql_query($sql_7, eBayListing::$database_connect);
 	    }
 	
-            if($Status == 4){
+            if($Status == 8){
                 $sql_8 = "update items set Relist = 'Y' where Id = '".$_POST['ids']."'";
                 $result_8 = mysql_query($sql_8, eBayListing::$database_connect);
             }
@@ -724,6 +755,28 @@ class Item{
 	    echo 0;
 	}
     }
+    
+    public function addItemToRelist(){
+        if(strpos($_POST['ids'], ',')){
+	    $ids = explode(',', $_POST['ids']);
+	    foreach($ids as $id){
+		$sql = "update items set Status = 4 where Id = ".$id;
+		$result = mysql_query($sql, eBayListing::$database_connect);
+	    }
+	}else{
+	    $id = $_POST['ids'];
+	    $sql = "update items set Status = 4 where Id = ".$id;
+	    $result = mysql_query($sql, eBayListing::$database_connect);
+	}
+	
+	//echo $sql."\n";
+	if($result){
+	    echo 1;   
+	}else{
+	    echo 0;
+	}
+    }
+    
     public function getItem(){
     	session_start();
 	$sql = "select * from items where Id = '".$_GET['id']."'";
@@ -1405,6 +1458,59 @@ class Item{
 	
 	//echo $sql."\n";
 	if($result){
+	    echo 1;   
+	}else{
+	    echo 0;
+	}
+    }
+    
+    public function deleteItem(){
+	if(strpos($_POST['ids'], ',')){
+	    $ids = explode(',', $_POST['ids']);
+	    foreach($ids as $id){
+		$sql_1 = "delete from items where Id = '".$id."'";
+		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+                
+		$sql_3 = "delete from shipping_service_options where ItemID = '".$id."'";
+		$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+		
+		$sql_4 = "delete from international_shipping_service_option where ItemID = '".$id."'";
+		$result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+		
+		$sql_5 = "select * from attribute_set where item_id = '".$id."'";
+		$result_5 = mysql_query($sql_5, eBayListing::$database_connect);
+		while($row_5 = mysql_fetch_assoc($result_5)){
+		    $sql_6 = "delete from attribute where attribute_set_id = '".$row_5['attribute_set_id']."'";
+		    $result_6 = mysql_query($sql_6, eBayListing::$database_connect);
+		}
+    
+		$sql_7 = "delete from attribute_set where item_id = '".$id."'";
+		$result_7 = mysql_query($sql_7, eBayListing::$database_connect);
+	    }
+	}else{
+	    $id = $_POST['ids'];
+	    $sql_1 = "delete from items where Id = '".$id."'";
+            $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+            
+            $sql_3 = "delete from shipping_service_options where ItemID = '".$id."'";
+            $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+            
+            $sql_4 = "delete from international_shipping_service_option where ItemID = '".$id."'";
+            $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+            
+            $sql_5 = "select * from attribute_set where item_id = '".$id."'";
+            $result_5 = mysql_query($sql_5, eBayListing::$database_connect);
+            while($row_5 = mysql_fetch_assoc($result_5)){
+                $sql_6 = "delete from attribute where attribute_set_id = '".$row_5['attribute_set_id']."'";
+                $result_6 = mysql_query($sql_6, eBayListing::$database_connect);
+            }
+
+            $sql_7 = "delete from attribute_set where item_id = '".$id."'";
+            $result_7 = mysql_query($sql_7, eBayListing::$database_connect);
+	}
+	//print_r(array($result_1, $result_2, $result_3, $result_4, $result_5, $result_7));
+	
+	if($result_1 && $result_3 && $result_4 && $result_5 && $result_7){
 	    echo 1;   
 	}else{
 	    echo 0;

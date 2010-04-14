@@ -333,6 +333,56 @@ Ext.onReady(function(){
                                                 });
                                                 reviseOrderDetailWindow.show();
                                     }
+                        },{
+                                    text: 'Complaints SKU',
+                                    handler: function(){
+                                                if(orderDetailGrid.selModel.getCount() >= 1){
+                                                    //Ext.MessageBox.confirm('Confirmation','Complaints this sku?', complaintsSku);
+                                                    Ext.Msg.prompt('Complaints this sku', 'Please enter content:', function(btn, text){
+                                                            if (btn == 'ok'){
+                                                                //console.log(text);
+                                                                var selections = orderDetailGrid.selModel.getSelections();
+                                                                //console.log(selections);
+                                                                //var prez = [];
+                                                                var skus = "";
+                                                                for(i = 0; i< orderDetailGrid.selModel.getCount(); i++){
+                                                                    //prez.push(selections[i].data.id);
+                                                                    //console.log(selections[i].data);
+                                                                    skus += selections[i].data.skuId + ","
+                                                                }
+                                                                skus = skus.slice(0,-1);
+                                                                //console.log(skus);
+                                                                //var encoded_array = Ext.encode(prez);
+                                                                Ext.Ajax.request({  
+                                                                    waitMsg: 'Please Wait',
+                                                                    url: 'service.php?action=complaints', 
+                                                                    params: { 
+                                                                      //ids:  encoded_array
+                                                                      sku: skus,
+                                                                      content: text
+                                                                    }, 
+                                                                    success: function(response){
+                                                                        var result=eval(response.responseText);
+                                                                        switch(result){
+                                                                        case 1:  // Success : simply reload
+                                                                          //orderDetailGridStore.reload();
+                                                                          break;
+                                                                        default:
+                                                                          Ext.MessageBox.alert('Warning','Please notice admin.');
+                                                                          break;
+                                                                        }
+                                                                    },
+                                                                    failure: function(response){
+                                                                        var result=response.responseText;
+                                                                        Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                                    }
+                                                                });
+                                                            }
+                                                    });
+                                                } else {
+                                                    Ext.MessageBox.alert('Uh oh...','Please select a sku.');
+                                                }
+                                    }
                         }/*,{
                             text: 'Delete Detail',
                             handler: function(){

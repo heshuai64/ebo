@@ -627,6 +627,54 @@ class Service{
         }
     }
     
+     private function post($request, $postargs){
+	// Get the curl session object
+	$session = curl_init($request);
+	
+	// Set the POST options.
+	curl_setopt ($session, CURLOPT_POST, true);
+	curl_setopt ($session, CURLOPT_POSTFIELDS, $postargs);
+	curl_setopt($session, CURLOPT_HEADER, true);
+	curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+	
+	// Do the POST and then close the session
+	$response = curl_exec($session);
+	curl_close($session);
+	//echo $response;
+	// Get HTTP Status code from the response
+	$status_code = array();
+	preg_match('/\d\d\d/', $response, $status_code);
+	
+	// Check for errors
+	switch( $status_code[0] ) {
+		case 200:
+			return 1;
+			break;
+		case 503:
+			die('Your call to Web Services failed and returned an HTTP status of 503. That means: Service unavailable. An internal problem prevented us from returning data to you.');
+			break;
+		case 403:
+			die('Your call to Web Services failed and returned an HTTP status of 403. That means: Forbidden. You do not have permission to access this resource, or are over your rate limit.');
+			break;
+		case 400:
+			// You may want to fall through here and read the specific XML error
+			die('Your call to Web Services failed and returned an HTTP status of 400. That means:  Bad request. The parameters passed to the service did not match as expected. The exact error is returned in the XML response.');
+			break;
+		default:
+			die('Your call to Web Services returned an unexpected HTTP status of:' . $status_code[0]);
+	}
+
+    }
+    
+    public function complaints(){
+        $postargs = "";
+        foreach($_POST as $key=>$value){
+            $postargs .= $key."=".$value."&";
+        }
+        $postargs = substr($postargs, 0, -1);
+        echo $this->post(Service::INVENTORY_SERVICE."?action=complaints", $postargs);
+    }
+    
     public function __destruct(){
         mysql_close(Service::$database_connect);
     }

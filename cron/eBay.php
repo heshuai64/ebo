@@ -589,23 +589,28 @@ class eBay{
 			$num++;
 		}
 		if($success_num == $num){
-			$sql_2 = "select count(*) as num from qo_orders_transactions where ordersId = '".$ordersId."' and transactionsId = '".$row['id']."'";
-			$result_2 = mysql_query($sql_2, eBay::$database_connect);
-			$row_2 = mysql_fetch_assoc($result_2);
-			if($row_2['num'] == 0){
-				$sql_3 = "insert into qo_orders_transactions (ordersId,transactionsId,status,amountPayCurrency,
-				amountPayValue,createdBy,createdOn,modifiedBy,modifiedOn) values
-				('".$ordersId."','".$row['id']."','A','".$transaction->AmountPaid->currencyID."',
-				'".$transaction->AmountPaid->_."','eBay','".date("Y-m-d H:i:s")."','eBay','".date("Y-m-d H:i:s")."')";
-				echo "map ebay transaction: ",$sql_3."<br>\n";
-				$result_3 = mysql_query($sql_3, eBay::$database_connect);
-				$this->updateOrderPayPalAddress($ordersId, $row['id']);
-				if($row['status'] == 'P'){
-					$this->updateOrderStatus($ordersId, $transaction->AmountPaid->_, $row['amountValue']);
-				}
-			}else{
-				if($row['status'] == 'P'){
-					$this->updateOrderStatus($ordersId, $transaction->AmountPaid->_, $row['amountValue']);
+			$sql_4 = "select count(*) as num from qo_orders_transactions where transactionsId = '".$row['id']."'";
+			$result_4 = mysql_query($sql_4, eBay::$database_connect);
+			$row_4 = mysql_fetch_assoc($result_4);
+			if($row_4['num'] == 0){
+				$sql_2 = "select count(*) as num from qo_orders_transactions where ordersId = '".$ordersId."' and transactionsId = '".$row['id']."'";
+				$result_2 = mysql_query($sql_2, eBay::$database_connect);
+				$row_2 = mysql_fetch_assoc($result_2);
+				if($row_2['num'] == 0){
+					$sql_3 = "insert into qo_orders_transactions (ordersId,transactionsId,status,amountPayCurrency,
+					amountPayValue,createdBy,createdOn,modifiedBy,modifiedOn) values
+					('".$ordersId."','".$row['id']."','A','".$transaction->AmountPaid->currencyID."',
+					'".$transaction->AmountPaid->_."','eBay','".date("Y-m-d H:i:s")."','eBay','".date("Y-m-d H:i:s")."')";
+					echo "map ebay transaction: ",$sql_3."<br>\n";
+					$result_3 = mysql_query($sql_3, eBay::$database_connect);
+					$this->updateOrderPayPalAddress($ordersId, $row['id']);
+					if($row['status'] == 'P'){
+						$this->updateOrderStatus($ordersId, $transaction->AmountPaid->_, $row['amountValue']);
+					}
+				}else{
+					if($row['status'] == 'P'){
+						$this->updateOrderStatus($ordersId, $transaction->AmountPaid->_, $row['amountValue']);
+					}
 				}
 			}
 			break;	

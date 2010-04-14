@@ -5,6 +5,7 @@ class Cron{
     const DATABASE_USER = 'root';
     const DATABASE_PASSWORD = '5333533';
     const DATABASE_NAME = 'ebaylisting';
+    const LOG_DIR ='/export/eBayListing/log/cron';
     
     public function __construct(){
         set_time_limit(1800);
@@ -31,6 +32,12 @@ class Cron{
 	Europe/Berlin       +0100  +7
 	Asia/Shanghai       +0800
     */
+    private function log($file_name, $data){
+        if(!file_exists(self::LOG_DIR."/".date("Ymd"))){
+            mkdir(self::LOG_DIR."/".date("Ymd"), 0777);
+        }
+        file_put_contents(self::LOG_DIR."/".date("Ymd")."/".$file_name, $data, FILE_APPEND);
+    }
     
     public function calculateTemplateData(){
         set_time_limit(600);
@@ -131,7 +138,7 @@ class Cron{
                 $array[$row_5['TemplateID']]['ListingTwenty'] = $row_5['ListingTwenty'];
             }
             
-            $sql_6 = "select sum(QuantitySold) as Sold,TemplateID from items where (EndTime > '".$yestoday."' and EndTime < '".$today."') or (StartTime > '".$yestoday."' and StartTime < '".$today."') and accountId = '".$row['id']."' group by TemplateID";
+            $sql_6 = "select sum(QuantitySold) as Sold,TemplateID from items where ((EndTime > '".$yestoday."' and EndTime < '".$today."') or (StartTime > '".$yestoday."' and StartTime < '".$today."')) and accountId = '".$row['id']."' group by TemplateID";
             $result_6 = mysql_query($sql_6, Cron::$database_connect);
             while($row_6 = mysql_fetch_assoc($result_6)){
                 $array[$row_6['TemplateID']]['Sold'] = $row_6['Sold'];
@@ -175,6 +182,37 @@ class Cron{
         
     }
     
+    /*
+        US: 12:00:00 18
+        UK: 07:00:00 13
+        AU: 22:00:00 04
+        FR: 06:00:00 12
+    */
+    public function calculateListingSchedule(){
+        global $argv;
+        require_once 'module/template.php';
+        $template = new Template();
+        $today = date("Y-m-d");
+        $Site = $argv[2];
+        $sql_1 = "select * from template where Site = '".$Site."' and ScheduleStartDate = '".$today."'";
+        echo $sql_1."\n";
+        $result_1 = mysql_query($sql_1, Cron::$database_connect);
+	while($row_1 = mysql_fetch_assoc($result_1)){
+            $sql_2 = "select * from schedule_template where name = '".$row_1['scheduleTemplateName']."' and account_id = '".$row_1['accountId']."'";
+            echo $sql_2."\n";
+            $result_2 = mysql_query($sql_2, Cron::$database_connect);
+            while($row_2 = mysql_fetch_assoc($result_2)){
+                if(date("D") == $row_2['day']){
+                    $local_time = $template->getSiteTime($row_1['Site'], $today, $row_2['time']);
+                    //$item_id = $template->changeTemplateToItem($row_1['Id'], $local_time, $today . " " .$row_2['time']);
+                    $this->log("calculateListingSchedule.log", "t:".$row_1['Id']." ==> i:".$item_id.". ".$Site.":".$local_time.", BeiJing:".$today . " " .$row_2['time']."\n");
+                }
+            }
+            //$sql_3 = "update template set ScheduleStartDate = '".$today."' where Id = ".$row_1['Id'];
+            //$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+        }
+    }
+    
     public function temp(){
         /*
         $sql = "select t.Id as TID,i.Id as IID from template as t left join items as i on t.SKU = i.SKU and t.Title = i.Title and t.accountId = i.accountId";
@@ -199,6 +237,7 @@ class Cron{
     }
 }
 
-$a = new Cron();
-$a->calculateTemplateData();
+$cron = new Cron();
+$action = $argv[1];
+$cron->$action();
 ?>
