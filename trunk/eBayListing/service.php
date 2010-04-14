@@ -1859,11 +1859,11 @@ class eBayListing{
 			echo $error->LongMessage."<br>";
 			$temp .= $error->LongMessage;
 		    }
-		    $this->log("upload", $item['Id'] ." " . $temp, "error");
+		    $this->log("upload", $item['Id'] ." " . $temp, (empty($results->ItemID)?"error":"warn"));
 		}else{
 		    echo $results->Errors->ShortMessage." : ";
 		    echo $results->Errors->LongMessage."<br>";
-		    $this->log("upload", $item['Id'] ." " . $results->Errors->LongMessage, "error");
+		    $this->log("upload", $item['Id'] ." " . $results->Errors->LongMessage, (empty($results->ItemID)?"error":"warn"));
 		}
 		
 		if(!empty($results->ItemID)){
@@ -2398,7 +2398,7 @@ class eBayListing{
 	    $row_1['ShippingServiceOptions'] = $ShippingServiceOptions;
 	    $row_1['InternationalShippingServiceOption'] = $InternationalShippingServiceOption;
 	    $row_1['PictureURL'] = $PictureURL;
-	    
+	    $row_1['ListingDuration'] = "Days_7";
 	    //print_r($row_1);
 	    //exit;
 	    $this->reListItem($row_1);
@@ -2589,8 +2589,8 @@ class eBayListing{
 	    
 	  
 	    if(!empty($results->Errors)){
-		$sql_0 = "update items set Status = 4 where Id = '".$item['Id']."'";
-		$result_0 = mysql_query($sql_0);
+		//$sql_0 = "update items set Status = 4 where Id = '".$item['Id']."'";
+		//$result_0 = mysql_query($sql_0);
 		
 		if(is_array($results->Errors)){
 		    $temp = '';
@@ -2599,11 +2599,11 @@ class eBayListing{
 			echo $error->LongMessage."<br>";
 			$temp .= $error->LongMessage;
 		    }
-		    $this->log("relist", $item['Id'] ." " . $temp, "error");
+		    $this->log("relist", $item['Id'] ." " . $temp, (empty($results->ItemID)?"error":"warn"));
 		}else{
 		    echo $results->Errors->ShortMessage." : ";
 		    echo $results->Errors->LongMessage."<br>";
-		    $this->log("relist", $item['Id'] ." " . $results->Errors->LongMessage, "error");
+		    $this->log("relist", $item['Id'] ." " . $results->Errors->LongMessage, (empty($results->ItemID)?"error":"warn"));
 		}
 		
 		if(!empty($results->ItemID)){
@@ -2648,8 +2648,8 @@ class eBayListing{
 	    }
 	    
 	    if(!empty($results->faultcode)){
-		$sql_0 = "update items set Status = 4 where Id = '".$item['Id']."'";
-		$result_0 = mysql_query($sql_0);
+		//$sql_0 = "update items set Status = 4 where Id = '".$item['Id']."'";
+		//$result_0 = mysql_query($sql_0);
 		$this->log("relist", $item['Id'] ." " . $results->faultcode . ": " . $results->faultstring, "error");
 
 	    }
@@ -2696,8 +2696,29 @@ class eBayListing{
 		
 	    $results = $client->EndItem($params);
 	    
+	    if(!empty($results->Errors)){
+		if(is_array($results->Errors)){
+		    $temp = '';
+		    foreach($results->Errors as $error){
+			echo $error->ShortMessage." : ";
+			echo $error->LongMessage."<br>";
+			$temp .= $error->LongMessage;
+		    }
+		    $this->log("end", $item['Id'] ." " . $temp, (empty($results->ItemID)?"error":"warn"));
+		}else{
+		    echo $results->Errors->ShortMessage." : ";
+		    echo $results->Errors->LongMessage."<br>";
+		    $this->log("end", $item['Id'] ." " . $results->Errors->LongMessage, (empty($results->ItemID)?"error":"warn"));
+		}
+	    }elseif($results->Ack == "Success"){
+		$sql_2 = "update items set Status = 9,EndTime = '".$results->EndTime."' where Id = '".$item['Id']."'";
+		echo $sql_2."<br>";
+		$result_2 = mysql_query($sql_2);
+	    }
+	    
 	    $this->saveFetchData("endItem-Request-".date("YmdHis").".xml", $client->__getLastRequest());
 	    $this->saveFetchData("endItem-Response-".date("YmdHis").".xml", $client->__getLastResponse());
+	    
 	} catch (SOAPFault $f) {
             print $f; // error handling
         }
@@ -2714,6 +2735,8 @@ class eBayListing{
 	5 : unsold
 	6 : sold
 	7 : end
+	8 : waiting to relist
+	9 : ended
 	
 	10: uploading
 	11: reviseing

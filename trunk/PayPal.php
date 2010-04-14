@@ -724,7 +724,7 @@
             
             $i = 0;
             while(!empty($httpParsedResponseAr['L_TRANSACTIONID'.$i])){
-                if(in_array($httpParsedResponseAr['L_TYPE'.$i], array("Payment"/*, "Refund"*/))){
+                if(in_array($httpParsedResponseAr['L_TYPE'.$i], array("Payment", "Refund"))){
                     $this->GetTransactionDetails($userName, $password, $sgnature, $httpParsedResponseAr['L_TRANSACTIONID'.$i]);
                 }
                 $i++;

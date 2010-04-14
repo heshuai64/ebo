@@ -35,9 +35,15 @@ if(empty($_COOKIE['account_id'])){
 	    .template {
 	    background-image:url(./images/plugin.png);
 	}
-	.waiting-to-upload {
-	    background-image:url(./images/package_go.png);
+	.waiting-to{
+	    background-image:url(./images/bomb.png);
 	}
+	.waiting-to-upload {
+            background-image:url(./images/arrow_up.png);
+        }
+	.waiting-to-relist {
+            background-image:url(./images/arrow_refresh.png);
+        }
 	.schedule{
 	    background-image:url(./images/time.png);
 	}
