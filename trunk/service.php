@@ -47,9 +47,7 @@ class Service{
             %s";
             
     //XMAS ------------------------------------------------------------------------------------------------------
-    const XMAS_REGISTERED_TEMPLATE_1  = "<p><b>
-            Note: Currently, most parts of Europe are experiencing adverse weather conditions - heavy snowfall. As such, delays on our courier delivery are inevitable despite effort to mitigate the effects. Hopefully to get your understanding.
-            </b></p>
+    const XMAS_REGISTERED_TEMPLATE_1  = "
             <p>%s</p>
             <p>Dear %s,</p>
             <p>Thank you for your purchasing, this email just to inform you that we sent your item to our dispatch center. It is estimated to arrive in 7 to 15 WORKING days in normal conditions to most of US, UK, AU destinations and 3 to 5 weeks to arrive the Europe countries and other remote regions, it depends your custom inspections and the freight efficiency. If not arrive at that time period, please do not hesitate to contact us.</p>
@@ -58,7 +56,7 @@ class Service{
             <p>We sincerely hope our item and customer service can give you the BEST BUYING EXPERIENCE on eBay.</p>
             Yours Sincerely,<br>
             %s";
-            
+    /*        
     const XMAS_BLUK_TEMPLATE_1  = "<p><b>
             Note: Currently, most parts of Europe are experiencing adverse weather conditions - heavy snowfall. As such, delays on our courier delivery are inevitable despite effort to mitigate the effects. Hopefully to get your understanding.
             </b></p>
@@ -69,10 +67,21 @@ class Service{
             <p>We sincerely hope our item and customer service can give you the BEST BUYING EXPERIENCE on eBay.</p>
             Yours Sincerely,<br>
             %s";
-    
-    const XMAS_REGISTERED_TEMPLATE_2  = "<p><b>
-            Note: Currently, most parts of Europe are experiencing adverse weather conditions - heavy snowfall. As such, delays on our courier delivery are inevitable despite effort to mitigate the effects. Hopefully to get your understanding.
+    */
+    const XMAS_BLUK_TEMPLATE_1  = "<p><b><font color='red'>Note: To our European customers: </br>
+            Your item may be delayed on the delivery for the volcanic explosion in south Iceland. Owning to this volcanic explosion, airlines to Europe have to been cancelled, and many airports also have been closed, which directly caused the shipping delivery delayed. Once the flight condition comes to normal, your item will be dispatched with no delay.</br> 
+            We appreciate your understanding and patience.</br>
+            European customers pls disregard the letter below sent by our ERP system automatically in normal delivery condition.</font>
             </b></p>
+            <p>%s</p>
+            <p>Dear %s,</p>
+            <p>Thank you for your purchasing from us, this email just to inform you that we sent your item to our dispatch center. It is estimated to arrive in 7 to 15 WORKING days in normal conditions to most of US, UK, AU destinations and 3 to 5 weeks to arrive the Europe countries and other remote regions, it depends your custom inspections and the freight efficiency. If not arrive at that time period, please do not hesitate to contact us.</p> 
+            <p>Hopefully the item could be arrived as quickly as possible and appreciate for your positive feedback with all 5 stars DSRs after reiceving it, we will leave it for you also.</p> 
+            <p>We sincerely hope our item and customer service can give you the BEST BUYING EXPERIENCE on eBay.</p>
+            <p>Yours Sincerely,<br>
+            %s";
+
+    const XMAS_REGISTERED_TEMPLATE_2  = "
             <p>%s</p>
             <p>Dear %s,</p>
             <p>Just keep in my mind, 12 days have passed since your item was shipped. Have you received it?</p>
@@ -85,9 +94,7 @@ class Service{
             Yours Sincerely,<br>
             %s";
             
-    const XMAS_BLUK_TEMPLATE_2  = "<p><b>
-            Note: Currently, most parts of Europe are experiencing adverse weather conditions - heavy snowfall. As such, delays on our courier delivery are inevitable despite effort to mitigate the effects. Hopefully to get your understanding.
-            </b></p>
+    const XMAS_BLUK_TEMPLATE_2  = "
             <p>%s</p>
             <p>Dear %s,</p>
             <p>Just keep in my mind, 12 days have passed since your item was shipped. Have you received it?</p>
@@ -99,9 +106,7 @@ class Service{
             Yours Sincerely,<br>
             %s";
     
-    const XMAS_TEMPLATE_3  = "<p><b>
-            Note: Currently, most parts of Europe are experiencing adverse weather conditions - heavy snowfall. As such, delays on our courier delivery are inevitable despite effort to mitigate the effects. Hopefully to get your understanding.
-            </b></p>
+    const XMAS_TEMPLATE_3  = "
             <p>%s</p>
             <p>Dear %s,</p>
             <p>22 days have passed since your item was shipped. I’d like to know that have you received it?</p>
@@ -673,6 +678,56 @@ class Service{
         }
         $postargs = substr($postargs, 0, -1);
         echo $this->post(Service::INVENTORY_SERVICE."?action=complaints", $postargs);
+    }
+    
+    public function getEbayAccount(){
+        $array = array();
+        $sql = "select id,password from qo_ebay_seller";
+        $result = mysql_query($sql, Service::$database_connect);
+        while($row = mysql_fetch_assoc($result)){
+            $array[] = $row;
+        }
+        echo json_encode($array);
+    }
+    
+    /*
+    CREATE TABLE `ebaybo`.`qo_client_ip` (
+    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+    `ip` VARCHAR( 15 ) NOT NULL ,
+    `last_update_time` DATETIME NOT NULL ,
+    INDEX ( `ip` )
+    )
+  */
+    public function updateClientIp(){
+        $sql = "select count(*) as num from qo_client_ip where ip = '".$_SERVER['REMOTE_ADDR']."'";
+        $result = mysql_query($sql, Service::$database_connect);
+        $row = mysql_fetch_assoc($result);
+        if($row['num'] == 0){
+            $sql_1 = "insert into qo_client_ip (ip,last_update_time) values ('".$_SERVER['REMOTE_ADDR']."', '".date("Y-m-d H:i:s")."')";
+            echo $sql_1;
+            $result_1 = mysql_query($sql_1, Service::$database_connect);
+        }
+    }
+    
+    public function remoteLogin(){
+        $sql = "select id,email_address from qo_members where email_address = '".$_GET['user']."' and password = '".$_GET['password']."' and active = 1";
+        $result = mysql_query($sql, Service::$database_connect);
+        $row = mysql_fetch_assoc($result);
+        if(!empty($row['id'])){
+            $sql_1 = "select qo_groups_id from qo_groups_has_members where qo_members_id = ".$row['id'];
+            $result_1 = mysql_query($sql_1, Service::$database_connect);
+            $row_1 = mysql_fetch_assoc($result_1);
+            echo json_encode(array('success'=> true,
+                                   'user'=> $row['email_address'],
+                                   'role'=> ($row_1['qo_groups_id']==1)?'admin':'user')
+                             );
+            //echo "{success: true, user: '".$row['email_address']."', role: '".(($row_1['qo_groups_id']==1)?'admin':'user')."'}";
+        }else{
+            echo json_encode(array('success'=> false,
+                                   'message'=> 'bad user or password!')
+                             );
+            //echo "{success: false, message: 'bad user or password!'}";
+        }
     }
     
     public function __destruct(){

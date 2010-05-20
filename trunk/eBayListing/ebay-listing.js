@@ -263,7 +263,7 @@ Ext.onReady(function(){
           }]
      })
           
-     var template_grid_editor = new Ext.ux.grid.RowEditor({
+     var template_category_editor = new Ext.ux.grid.RowEditor({
           saveText: 'Update',
           listeners: {
                afteredit : function(a, b, c, d){
@@ -300,6 +300,43 @@ Ext.onReady(function(){
           }
      });
      
+     var template_status_editor = new Ext.ux.grid.RowEditor({
+          saveText: 'Update',
+          listeners: {
+               afteredit : function(a, b, c, d){
+                    //console.log([a, b, c, d]);
+                    //console.log(selections[0].data.Id);
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=updateFields', 
+                         params: { 
+                              id: c.data.Id,
+                              table: 'template',
+                              Title: b.Title,
+                              Price: b.Price,
+                              Quantity: b.Quantity,
+                              ListingDuration : b.ListingDuration,
+                              Category: b.Category
+                         }, 
+                         success: function(response){
+                             var result = eval(response.responseText);
+                             if(result[0].success){
+                                   Ext.MessageBox.alert('Success', result[0].msg);
+                                   template_status_store.reload();
+                              }else{
+                                   Ext.MessageBox.alert('Failure', result[0].msg);
+                                   //template_store.reload();
+                              }
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
+               }
+          }
+     });
+     
      var template_store = new Ext.data.JsonStore({
           root: 'records',
           totalProperty: 'totalCount',
@@ -315,19 +352,19 @@ Ext.onReady(function(){
           listeners: {
                load: function(t, r){
                     //console.log(t.totalLength);
-                    Ext.getCmp('template-accordion').setTitle('Template ('+t.totalLength+')');
+                    Ext.getCmp('template-accordion').setTitle('Template Category('+t.totalLength+')');
                }
           }
      })
      
      var template_grid = new Ext.grid.GridPanel({
-          title: 'Template List',
+          title: 'Template Under Category List',
           store: template_store,
           //autoHeight: true,
           width: 1024,
           height: 460,
           selModel: new Ext.grid.RowSelectionModel({}),
-          plugins: [template_grid_editor],
+          plugins: [template_category_editor],
           columns:[
                {header: "ID", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
                {header: "Site", width: 30, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
@@ -1376,6 +1413,575 @@ Ext.onReady(function(){
                }
           }]
      })
+     
+     var template_status_store = new Ext.data.JsonStore({
+          root: 'records',
+          totalProperty: 'totalCount',
+          idProperty: 'id',
+          //autoLoad:true,
+          fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'shippingTemplateName', 'Quantity', 'ListingDuration', 'ListingType', 'Category'],
+          sortInfo: {
+               field: 'Id',
+               direction: 'ASC'
+          },
+          remoteSort: true,
+          url: 'service.php?action=getTemplateByStatus',
+          listeners: {
+               load: function(t, r){
+                    Ext.getCmp('template-status').setTitle('Template Status('+t.totalLength+')');
+               }
+          }
+     })
+     
+     var template_status_grid = new Ext.grid.GridPanel({
+          title: 'Template Under Status List',
+          store: template_status_store,
+          //autoHeight: true,
+          width: 1024,
+          height: 460,
+          selModel: new Ext.grid.RowSelectionModel({}),
+          plugins: [template_status_editor],
+          columns:[
+               {header: "ID", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
+               {header: "Site", width: 30, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
+               {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
+               {header: "Title", width: 350, align: 'center', sortable: true, dataIndex: 'Title',
+                    editor: {
+                         xtype: 'textfield',
+                         allowBlank: false
+                    }
+               },
+               {header: "Listing Type", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
+               {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price',
+                    editor: {
+                         xtype: 'numberfield',
+                         allowBlank: false
+                    }
+               },
+               //{header: "Shipping Fee", width: 80, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
+               {header: "Shipping TP", width: 80, align: 'center', sortable: true, dataIndex: 'shippingTemplateName'},
+               {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity',
+                    editor: {
+                         xtype: 'numberfield',
+                         allowBlank: false
+                    }
+               },
+               {header: "Duration", width: 70, align: 'center', sortable: true, dataIndex: 'ListingDuration',
+                    editor: {
+                         xtype: 'combo',
+                         allowBlank: false,
+                         store: listingTemplateDurationStore,
+                         mode: 'local',
+                         valueField:'id',
+                         displayField:'name',
+                         triggerAction: 'all',
+                         editable: false,
+                         selectOnFocus:true,
+                         listeners: {
+                              focus: function(t){
+                                   var selections = template_status_grid.selModel.getSelections();
+                                   //console.log(selections[0].data.Id);
+                                   listingTemplateDurationStore.load({params: {Id: selections[0].data.Id}}); 
+                              }
+                         }
+                    }
+               },
+               {header: "Category", width: 100, align: 'center', sortable: true, dataIndex: 'Category',
+                    editor: {
+                         xtype: 'combo',
+                         //allowBlank: false,
+                         mode: 'local',
+                         store: templateCategoryStore,
+                         valueField:'id',
+                         displayField:'name',
+                         triggerAction: 'all',
+                         editable: false,
+                         selectOnFocus:true
+                    }
+               }
+          ],
+          tbar:[{
+               id: 'template-status-combo',
+               xtype: 'combo',
+               mode: 'local',
+               width: 100,
+               listWidth: 120,
+               store: new Ext.data.ArrayStore({
+                    fields: [
+                        'id',
+                        'name'
+                    ],
+                    data: [[5,'Freeze SKU']] 
+               }),
+               valueField: 'id',
+               displayField: 'name',
+               triggerAction: 'all',
+               editable: false
+          },{xtype: 'tbspacer', width: 120},{
+               text: 'Change Status',
+               icon: './images/cog_go.png',
+               handler: function(){
+                    var status_array = ['new', 'waiting for approve', 'active', 'out of stock', 'under review', 'inactive'];
+                    var selections = template_status_grid.selModel.getSelections();
+                    if(template_status_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','Please select the template you want to preview.');
+                         return 0;
+                    }
+                    var ids = "";
+                    for(var i = 0; i< template_status_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    Ext.Msg.confirm('Confirm', 'Change template status ' + ids + ' to <font color="red">' + status_array[Ext.getCmp('template-status-combo').getValue()] + '</font>', function(a, b, c){
+                         if (a == 'yes'){
+                              Ext.Ajax.request({  
+                                   waitMsg: 'Please Wait',
+                                   url: 'service.php?action=changeTemplateStatus', 
+                                   params: { 
+                                        ids: ids,
+                                        status: Ext.getCmp('template-status-combo').getValue()
+                                   }, 
+                                   success: function(response){
+                                       var result=eval(response.responseText);
+                                       switch(result){
+                                          case 1:  // Success : simply reload
+                                            template_status_store.reload();
+                                            break;
+                                          default:
+                                            Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
+                                            break;
+                                       }
+                                   },
+                                   failure: function(response){
+                                       var result=response.responseText;
+                                       Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                   }
+                              });
+                         }
+                    });
+                    return 1;
+               }
+          },'-',{
+               text: 'Search',
+               icon: './images/magnifier.png',
+               handler: function(){
+                    var  searchWindow = new Ext.Window({
+                              title: 'Search Templage' ,
+                              closable:true,
+                              width: 300,
+                              height: 180,
+                              plain:true,
+                              layout: 'form',
+                              items: [/*{
+                                        id:'interval-date',
+                                        fieldLabel:'Date',
+                                        xtype:'datefield',
+                                        format:'Y-m-d',
+                                        minValue: new Date(),
+                                        selectOnFocus:true
+                                   },*/{
+                                        id:'TID',
+                                        fieldLabel:'TID',
+                                        xtype:'numberfield'
+                                   },{
+                                        id:'SKU',
+                                        fieldLabel:'SKU',
+                                        xtype:'textfield'
+                                   },{
+                                        id:'Title',
+                                        fieldLabel:'Item Title',
+                                        xtype:'textfield'
+                                   },{
+                                        id:'ListingDuration',
+                                        fieldLabel:'Duration',
+                                        xtype:"combo",
+                                        store:['', 'Days_3', 'Days_5', 'Days_7', 'Days_10', 'Days_30', 'Days_60', 'Days_90'],
+                                        triggerAction: 'all',
+                                        editable: false,
+                                        selectOnFocus:true,
+                                        listWidth:100,
+                                        width:100
+                                   }
+                              ],
+                              buttons: [{
+                                             text: 'Submit',
+                                             handler: function(){
+                                                  template_status_store.setBaseParam("TID", Ext.getCmp("TID").getValue());
+                                                  template_status_store.setBaseParam("SKU", Ext.getCmp("SKU").getValue());
+                                                  template_status_store.setBaseParam("Title", Ext.getCmp("Title").getValue());
+                                                  template_status_store.setBaseParam("ListingDuration", Ext.getCmp("ListingDuration").getValue());
+                                                  template_status_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
+                                                  searchWindow.close();
+                                             }
+                                        },{
+                                             text: 'Close',
+                                             handler: function(){
+                                                  searchWindow.close();
+                                             }
+                                        }]
+                                        
+                         })
+                         
+                         searchWindow.show();
+               }
+          },'-',{
+                    text: 'Preview',
+                    icon: './images/camera.png',
+                    tooltip:'Preview Description',
+                    handler: function(){
+                         var selections = template_status_grid.selModel.getSelections();
+                         if(template_status_grid.selModel.getCount() == 0){
+                              Ext.MessageBox.alert('Warning','Please select the template you want to preview.');
+                              return 0;
+                         }
+                         var ids = "";
+                         for(var i = 0; i< template_status_grid.selModel.getCount(); i++){
+                              ids += selections[i].data.Id + ","
+                         }
+                         ids = ids.slice(0,-1);
+                         window.open(path + "preview.php?h=s&id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                         return 1;
+                    }
+               },'-',{id: 'template_copy_num', xtype: 'numberfield', width: 30},{
+                    text:'Copy',
+                    icon: './images/plugin_link.png',
+                    tooltip:'copy template',
+                    handler: function(){
+                         var selections = template_status_grid.selModel.getSelections();
+                         if(template_status_grid.selModel.getCount() == 0){
+                              Ext.MessageBox.alert('Warning','Please select the template you want to copy.');
+                              return 0;
+                         }
+                         var ids = "";
+                         for(var i = 0; i< template_status_grid.selModel.getCount(); i++){
+                              ids += selections[i].data.Id + ","
+                         }
+                         ids = ids.slice(0,-1);
+                         Ext.Ajax.request({  
+                              waitMsg: 'Please Wait',
+                              url: 'service.php?action=copyTemplate', 
+                              params: { 
+                                   ids: ids,
+                                   copy_num: Ext.getCmp("template_copy_num").getValue()
+                              }, 
+                              success: function(response){
+                                  var result=eval(response.responseText);
+                                  //console.log(result);
+                                  if(result[0].success){
+                                        template_status_store.reload();
+                                        alert(result[0].msg);
+                                  }else{
+                                        Ext.MessageBox.alert('Warning','Data error, please check template data.');
+                                  }
+                              },
+                              failure: function(response){
+                                  var result=response.responseText;
+                                  Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                              }
+                         });
+                         return 1;
+                    }
+               },'-',{
+                    text:'Edit',
+                    icon: './images/plugin_edit.png',
+                    tooltip:'edit multi template',
+                    handler: function(){
+                         var selections = template_status_grid.selModel.getSelections();
+                         if(template_status_grid.selModel.getCount() == 0){
+                              Ext.MessageBox.alert('Warning','Please select the template you want to edit.');
+                              return 0;
+                         }
+                         var ids = "";
+                         for(var i = 0; i< template_status_grid.selModel.getCount(); i++){
+                              ids += selections[i].data.Id + ","
+                         }
+                         ids = ids.slice(0,-1);
+                         if(template_status_grid.selModel.getCount() > 1){
+                              window.open(path + "mtemplate.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                         }else{
+                              window.open(path + "template.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                         }     
+                         return 1;
+                    }     
+               },'-',{
+               text: 'Delete',
+               icon: './images/cancel.png',
+               tooltip:'Delete selected template',
+               handler: function(){
+                    var selections = template_status_grid.selModel.getSelections();
+                    if(template_status_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','Please select template.');
+                         return 0;
+                    }
+                    var ids = "";
+                    for(var i = 0; i< template_status_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    //console.log(ids);
+                    Ext.Msg.confirm('Confirm', 'Delete template ' + ids, function(a, b, c){
+                         if (a == 'yes'){
+                              Ext.Ajax.request({  
+                                   waitMsg: 'Please Wait',
+                                   url: 'service.php?action=deleteTemplate', 
+                                   params: { 
+                                          ids: ids
+                                   }, 
+                                   success: function(response){
+                                       var result=eval(response.responseText);
+                                       switch(result){
+                                          case 1:  // Success : simply reload
+                                            template_status_store.reload();
+                                            break;
+                                          default:
+                                            Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
+                                            break;
+                                       }
+                                   },
+                                   failure: function(response){
+                                       var result=response.responseText;
+                                       Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                   }
+                              });
+                         }
+                    });
+                    return 1;
+               }
+          },'-',{
+               text:'Add To Upload',
+               icon: './images/package_go.png',
+               tooltip:'add selected template to waiting to upload(no set date time)',
+               handler: function(){
+                    var selections = template_status_grid.selModel.getSelections();
+                    if(template_status_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','Please select template.');
+                         return 0;
+                    }
+                    var ids = "";
+                    for(var i = 0; i< template_status_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=addTemplateToUpload', 
+                         params: { 
+                              ids: ids
+                         }, 
+                         success: function(response){
+                             var result = eval(response.responseText);
+                              //console.log(result);
+                              if(result[0].success){
+                                   Ext.MessageBox.alert('Success', result[0].msg);      
+                              }else{
+                                   Ext.MessageBox.alert('Failure', result[0].msg);      
+                              }
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
+                    
+                    return 1;
+               }
+          },'-',{
+               text:'Immediately Upload',
+               icon: './images/arrow_up.png',
+               tooltip:'Immediately upload selected template',
+               handler: function(){
+                    var selections = template_status_grid.selModel.getSelections();
+                    if(template_status_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','Please select template.');
+                         return 0;
+                    }
+                    var ids = "";
+                    for(var i = 0; i< template_status_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=immediatelyUploadTemplate', 
+                         params: { 
+                              ids: ids
+                         }, 
+                         success: function(response){
+                             var result = eval(response.responseText);
+                              //console.log(result);
+                              if(result[0].success){
+                                   Ext.MessageBox.alert('Success', result[0].msg);      
+                              }else{
+                                   Ext.MessageBox.alert('Failure', result[0].msg);      
+                              }
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
+                    
+                    return 1;
+               }
+          },'-',{
+                    text:'Interval Upload',
+                    icon: './images/clock_add.png',
+                    tooltip:'add selected template to waiting to upload based on interval time',
+                    handler: function(){
+                         var selections = template_status_grid.selModel.getSelections();
+                         if(template_status_grid.selModel.getCount() == 0){
+                              Ext.MessageBox.alert('Warning','Please select template.');
+                              return 0;
+                         }
+                         var ids = "";
+                         for(var i = 0; i< template_status_grid.selModel.getCount(); i++){
+                              ids += selections[i].data.Id + ","
+                         }
+                         ids = ids.slice(0,-1);
+                         
+                         //var today = new Date();
+                         //console.log(today.getFullYear()+'-'+minMonth+'-'+minDay);
+                         
+                         var  intervalUploadWindow = new Ext.Window({
+                              title: 'Interval Upload Set' ,
+                              closable:true,
+                              width: 300,
+                              height: 180,
+                              plain:true,
+                              layout: 'form',
+                              items: [{
+                                        id:'interval-date',
+                                        fieldLabel:'Date',
+                                        xtype:'datefield',
+                                        format:'Y-m-d',
+                                        minValue: new Date(),
+                                        selectOnFocus:true
+                                   },{
+                                        id:'interval-time',
+                                        fieldLabel:'Time',
+                                        xtype:'timefield',
+                                        increment:1,
+                                        triggerAction: 'all',
+                                        editable: false,
+                                        selectOnFocus:true,
+                                        listWidth:80,
+                                        width:80  
+                                   },{
+                                        id:'interval-minute',
+                                        fieldLabel:'Interval',
+                                        xtype:"combo",
+                                        store:[0,1,2,3,4,5,6,7,8,9,10],
+                                        listWidth:60,
+                                        width:60
+                                   }
+                              ],
+                              buttons: [{
+                                             text: 'Ok',
+                                             handler: function(){
+                                                  Ext.Ajax.request({  
+                                                       waitMsg: 'Please Wait',
+                                                       url: 'service.php?action=intervalUploadTemplate', 
+                                                       params: {
+                                                            ids: ids,
+                                                            date: Ext.getCmp('interval-date').getValue(),
+                                                            time: Ext.getCmp('interval-time').getValue(),
+                                                            minute: Ext.getCmp('interval-minute').getValue()
+                                                       }, 
+                                                       success: function(response){
+                                                            //console.log(response);
+                                                            var result = eval(response.responseText);
+                                                            //console.log(result);
+                                                            if(result[0].success){
+                                                                 //template_store.reload();
+                                                                 intervalUploadWindow.close();
+                                                                 Ext.MessageBox.alert('Success', result[0].msg);
+                                                            }else{
+                                                                 Ext.MessageBox.alert('Warning', result[0].msg);
+                                                            }
+                                                       },
+                                                       failure: function(response){
+                                                           var result=response.responseText;
+                                                           Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                       }
+                                                  });
+                                             }
+                                        },{
+                                             text: 'Close',
+                                             handler: function(){
+                                                  intervalUploadWindow.close();
+                                             }
+                                        }]
+                                        
+                         })
+                         
+                         intervalUploadWindow.show();
+                         return 1;
+                    }
+          }],
+          bbar: new Ext.PagingToolbar({
+              pageSize: parseInt(getCookie("pagination")),
+              store: template_status_store,
+              displayInfo: true
+          })
+     })
+     
+     function template_status_tab(status){
+          switch(status){
+               case 0:
+                    var status_name = "New";
+                    Ext.getCmp('template-status-combo').getStore().loadData([[1,'Submit Approve']]);
+               break;
+          
+               case 1:
+                    var status_name = "Waiting For Approve";
+                    Ext.getCmp('template-status-combo').getStore().loadData([[2,'Approve'], [4,'Not Approve']]);
+               break;
+          
+               case 2:
+                    var status_name = "Active";
+                    if(!Ext.isEmpty(Ext.getCmp('template-status-combo'))){
+                         Ext.getCmp('template-status-combo').getStore().loadData([[5,'Freeze SKU']]);
+                    }
+               break;
+          
+               case 3:
+                    var status_name = "Out Of Stock";
+               break;
+          
+               case 4:
+                    var status_name = "Under Review";
+                    Ext.getCmp('template-status-combo').getStore().loadData([[1, "Re Approve"], [5, "Freeze SKU"]]);
+               break;
+          
+               case 5:
+                    var status_name = "Inactive";
+                    Ext.getCmp('template-status-combo').getStore().loadData([[4,'Reactivation SKU']]);
+               break;
+          }
+          if(Ext.getCmp('template-status-tab')){
+               template_status_store.baseParams = {'status': status};
+               template_status_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
+               tabPanel.activate('template-status-tab');
+               tabPanel.getActiveTab().setTitle("Template Under <font color='red'>"+status_name+"</font> Status");
+          }else{
+               template_status_store.baseParams = {'status': status};
+               template_status_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
+               tabPanel.add({
+                    id:'template-status-tab',
+                    iconCls: 'template-status',
+                    title: "Template Under <font color='red'>"+status_name+"</font> Status",
+                    autoScroll: true,
+                    items: template_status_grid,
+                    //closable: true,
+                    autoScroll:true
+               })
+               tabPanel.doLayout();
+               tabPanel.activate('template-status-tab');
+          }
+     }
+     
      /*
      template_grid.on("rowdblclick", function(oGrid){
           var oRecord = oGrid.getSelectionModel().getSelected();
@@ -2415,7 +3021,7 @@ Ext.onReady(function(){
                          }
                    },{
                          id:'template-accordion',
-                         title:'Template',
+                         title:'Template Category',
                          border:false,
                          autoScroll:true,
                          items:[template_category_form, template_category_tree],
@@ -2447,6 +3053,61 @@ Ext.onReady(function(){
                                         tabPanel.doLayout();
                                         tabPanel.activate('template-tab');
                                    }
+                              }
+                         }
+                    },{
+                         id:'template-status',
+                         title:'Template Status',
+                         border:false,
+                         autoScroll:true,
+                         iconCls:'template-status',
+                         layout:'vbox',
+                         items: [{
+                              xtype:'button',
+                              text: 'NEW',
+                              width:160,
+                              handler: function(){
+                                   template_status_tab(0);
+                              }
+                         },{
+                              xtype:'button',
+                              text: 'Waiting For Approve',
+                              width:160,
+                              handler: function(){
+                                   template_status_tab(1);
+                              }
+                         },{
+                              xtype:'button',
+                              text: 'Active',
+                              width:160,
+                              handler: function(){
+                                   template_status_tab(2);
+                              }
+                         },{
+                              xtype:'button',
+                              text: 'Out Of Stock',
+                              width:160,
+                              handler: function(){
+                                  template_status_tab(3);
+                              }
+                         },{
+                              xtype:'button',
+                              text: 'Under Review',
+                              width:160,
+                              handler: function(){
+                                   template_status_tab(4);
+                              }
+                         },{
+                              xtype:'button',
+                              text: 'Inactive',
+                              width:160,
+                              handler: function(){
+                                   template_status_tab(5);
+                              }
+                         }],
+                         listeners:{
+                              expand: function(p){
+                                   template_status_tab(2);
                               }
                          }
                     },{
@@ -3534,7 +4195,7 @@ Ext.onReady(function(){
                                    
                               }
                          }
-                    },{
+                    },/*{
                          title:'Processing',
                          //items: processing,
                          border:false,
@@ -3545,7 +4206,7 @@ Ext.onReady(function(){
                                    
                               }
                          }
-                    },{
+                    },*/{
                          title:'Manage',
                          hidden:(getCookie("role")=='admin')?false:true,
                          items:{
@@ -4435,7 +5096,7 @@ Ext.onReady(function(){
                                    
                               }
                          }
-                    },{
+                    }/*,{
                          title:'Sales Report',
                          border:false,
                          iconCls:'sales-report',
@@ -4466,7 +5127,7 @@ Ext.onReady(function(){
                                    });
                               }
                          }
-                   }]
+                   }*/]
                },tabPanel
             ]
      });

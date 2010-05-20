@@ -93,6 +93,7 @@ class eBay{
     const DATABASE_NAME = 'ebaybo';
     const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
     const LOG_DIR = '/export/eBayBO/log/';
+    const ACTIVE_MQ = "tcp://192.168.1.168:61613";
     
     private $startTime;
     private $endTime;
@@ -112,6 +113,32 @@ class eBay{
             exit;
         }
        
+    }
+    
+    private function log($file_name, $content){
+	file_put_contents("/export/eBayBO/log/".$file_name."-".date("Y-m-d").".log", date("Y-m-d H:i:s")."   ".$content."\n", FILE_APPEND);
+    }
+    
+    private function sendMessageToAM($destination, $message){
+        require_once 'Stomp.php';
+        require_once 'Stomp/Message/Map.php';
+        
+        $con = new Stomp(eBay::ACTIVE_MQ);
+        $conn->sync = false;
+        $con->connect();
+        
+        $header = array();
+        $header['transformation'] = 'jms-map-json';
+        $mapMessage = new StompMessageMap($message, $header);
+        $result = $con->send($destination, $mapMessage, array('persistent'=>'true'));
+        $con->disconnect();
+        if(!$result){
+            $this->log("sendMessageToAM", "send message to activemq failure,
+                       destination: $destination,
+                       mapMessage: ".print_r($mapMessage, true)."
+                       <br>");
+        }
+        return $result;
     }
     
     public function api_error_log($file_name, $content){
@@ -190,8 +217,17 @@ class eBay{
 		//$this->saveFetchData("/GetSellerTransactions/".$sellerId."-Request-GetSellerTransactions-".date("Y-m-d H:i:s").".xml", $client->__getLastRequest());
 		//$this->saveFetchData("/GetSellerTransactions/".$sellerId."-Response-GetSellerTransactions-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
                 $this->saveFetchData($sellerId, "GetSellerTransactions-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
-		return $results;
-                
+		if(!empty($results->faultcode)){
+			$this->sendMessageToAM("/topic/GetSellerTransactions",
+					       array(
+							"sellerId"=>$sellerId,
+							"time"=>date("Y-m-d H:i:s"),
+							"DetailedMessage" => $results->detail->FaultDetail->DetailedMessage
+						));
+			echo $results->detail->FaultDetail->DetailedMessage."<br>";
+		}else{
+			return $results;
+		} 
         } catch (SOAPFault $f) {
 		$this->api_error_log("GetSellerTransactions", print_r($f, true));
         }
@@ -571,49 +607,54 @@ class eBay{
     }
     
     private function mapEbayTransaction($ordersId, $transaction){
-	$sevenDayAgo = date("Y-m-d H:i:s", time() - (7 * 24 * 60 * 60));
-	
-	$sql = "select id,itemId,amountValue,status from qo_transactions where payerId = '".$transaction->Buyer->UserID."' and createdOn > '".$sevenDayAgo."' order by transactionTime desc";
+	$sql = "select status from qo_orders where id = '".$ordersId."'";
 	$result = mysql_query($sql, eBay::$database_connect);
-	while($row = mysql_fetch_assoc($result)){
-		//$itemNumber = explode(" ", $row['itemId']);
-		$itemNumber = "hs".$row['itemId'];
-		$num = 0;
-		$success_num = 0;
-		$sql_1 = "select itemId from qo_orders_detail where ordersId = '".$ordersId."'";
-		$result_1 = mysql_query($sql_1, eBay::$database_connect);
-		while($row_1 = mysql_fetch_assoc($result_1)){
-			if(strpos($itemNumber, $row_1['itemId'])){
-				$success_num++;
+	$row = mysql_fetch_assoc($result);
+	if($row["status"] == "W"){
+		$sevenDayAgo = date("Y-m-d H:i:s", time() - (7 * 24 * 60 * 60));
+		
+		$sql = "select id,itemId,amountValue,status from qo_transactions where payerId = '".$transaction->Buyer->UserID."' and createdOn > '".$sevenDayAgo."' order by transactionTime desc";
+		$result = mysql_query($sql, eBay::$database_connect);
+		while($row = mysql_fetch_assoc($result)){
+			//$itemNumber = explode(" ", $row['itemId']);
+			$itemNumber = "hs".$row['itemId'];
+			$num = 0;
+			$success_num = 0;
+			$sql_1 = "select itemId from qo_orders_detail where ordersId = '".$ordersId."'";
+			$result_1 = mysql_query($sql_1, eBay::$database_connect);
+			while($row_1 = mysql_fetch_assoc($result_1)){
+				if(strpos($itemNumber, $row_1['itemId'])){
+					$success_num++;
+				}
+				$num++;
 			}
-			$num++;
-		}
-		if($success_num == $num){
-			$sql_4 = "select count(*) as num from qo_orders_transactions where transactionsId = '".$row['id']."'";
-			$result_4 = mysql_query($sql_4, eBay::$database_connect);
-			$row_4 = mysql_fetch_assoc($result_4);
-			if($row_4['num'] == 0){
-				$sql_2 = "select count(*) as num from qo_orders_transactions where ordersId = '".$ordersId."' and transactionsId = '".$row['id']."'";
-				$result_2 = mysql_query($sql_2, eBay::$database_connect);
-				$row_2 = mysql_fetch_assoc($result_2);
-				if($row_2['num'] == 0){
-					$sql_3 = "insert into qo_orders_transactions (ordersId,transactionsId,status,amountPayCurrency,
-					amountPayValue,createdBy,createdOn,modifiedBy,modifiedOn) values
-					('".$ordersId."','".$row['id']."','A','".$transaction->AmountPaid->currencyID."',
-					'".$transaction->AmountPaid->_."','eBay','".date("Y-m-d H:i:s")."','eBay','".date("Y-m-d H:i:s")."')";
-					echo "map ebay transaction: ",$sql_3."<br>\n";
-					$result_3 = mysql_query($sql_3, eBay::$database_connect);
-					$this->updateOrderPayPalAddress($ordersId, $row['id']);
-					if($row['status'] == 'P'){
-						$this->updateOrderStatus($ordersId, $transaction->AmountPaid->_, $row['amountValue']);
-					}
-				}else{
-					if($row['status'] == 'P'){
-						$this->updateOrderStatus($ordersId, $transaction->AmountPaid->_, $row['amountValue']);
+			if($success_num == $num){
+				$sql_4 = "select count(*) as num from qo_orders_transactions where transactionsId = '".$row['id']."'";
+				$result_4 = mysql_query($sql_4, eBay::$database_connect);
+				$row_4 = mysql_fetch_assoc($result_4);
+				if($row_4['num'] == 0){
+					$sql_2 = "select count(*) as num from qo_orders_transactions where ordersId = '".$ordersId."' and transactionsId = '".$row['id']."'";
+					$result_2 = mysql_query($sql_2, eBay::$database_connect);
+					$row_2 = mysql_fetch_assoc($result_2);
+					if($row_2['num'] == 0){
+						$sql_3 = "insert into qo_orders_transactions (ordersId,transactionsId,status,amountPayCurrency,
+						amountPayValue,createdBy,createdOn,modifiedBy,modifiedOn) values
+						('".$ordersId."','".$row['id']."','A','".$transaction->AmountPaid->currencyID."',
+						'".$transaction->AmountPaid->_."','eBay','".date("Y-m-d H:i:s")."','eBay','".date("Y-m-d H:i:s")."')";
+						echo "map ebay transaction: ",$sql_3."<br>\n";
+						$result_3 = mysql_query($sql_3, eBay::$database_connect);
+						$this->updateOrderPayPalAddress($ordersId, $row['id']);
+						if($row['status'] == 'P'){
+							$this->updateOrderStatus($ordersId, $transaction->AmountPaid->_, $row['amountValue']);
+						}
+					}else{
+						if($row['status'] == 'P'){
+							$this->updateOrderStatus($ordersId, $transaction->AmountPaid->_, $row['amountValue']);
+						}
 					}
 				}
+				break;	
 			}
-			break;	
 		}
 	}
     }

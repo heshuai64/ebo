@@ -220,7 +220,7 @@ class QoOrders {
 		discountCurrency,discountValue,grandTotalCurrency,grandTotalValue,
 		ebayName,ebayEmail,ebayAddress1,ebayAddress2,ebayCity,ebayStateOrProvince,ebayPostalCode,
 		ebayCountry,ebayPhone,paypalName,paypalEmail,paypalAddress1,paypalAddress2,paypalCity,paypalStateOrProvince,
-		paypalPostalCode,paypalCountry,paypalPhone,createdBy,createdOn) values ('".$_POST['id']."','".$_POST['status']."',
+		paypalPostalCode,paypalCountry,paypalPhone,createdBy,createdOn,modifiedBy,modifiedOn) values ('".$_POST['id']."','".$_POST['status']."',
 		'".$_POST['shippingMethod']."','".$_POST['remarks']."','".$_POST['sellerId']."','".$_POST['buyerId']."',
 		'".$_POST['shippingFeeCurrency']."','".$_POST['shippingFeeValue']."','".$_POST['insuranceCurrency']."','".$_POST['insuranceValue']."',
 		'".$_POST['discountCurrency']."','".$_POST['discountValue']."','".$_POST['grandTotalCurrency']."','".$_POST['grandTotalValue']."',
@@ -228,7 +228,7 @@ class QoOrders {
 		'".$_POST['ebayCity']."','".$_POST['ebayStateOrProvince']."','".$_POST['ebayPostalCode']."','".$_POST['ebayCountry']."',
 		'".$_POST['ebayPhone']."','".$_POST['paypalName']."','".$_POST['paypalEmail']."','".$_POST['paypalAddress1']."',
 		'".$_POST['paypalAddress2']."','".$_POST['paypalCity']."','".$_POST['paypalStateOrProvince']."','".$_POST['paypalPostalCode']."',
-		'".$_POST['paypalCountry']."','".$_POST['paypalPhone']."','".$this->os->session->get_member_name()."','".date("Y-m-d H:i:s")."')";
+		'".$_POST['paypalCountry']."','".$_POST['paypalPhone']."','".$this->os->session->get_member_name()."','".date("Y-m-d H:i:s")."','".$this->os->session->get_member_name()."','".date("Y-m-d H:i:s")."')";
 		$result = mysql_query($sql);
 		if($result){
 			echo 	'{success: true}';

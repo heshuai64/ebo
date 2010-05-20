@@ -1009,7 +1009,7 @@ Ext.override(QoDesk.Manage, {
 						hiddenName:"currency"
 					      }]
 					  }]
-				      },{
+				    }/*,{
 					xtype:"textfield",
 					fieldLabel:"Dev Id",
 					width:350,
@@ -1024,7 +1024,7 @@ Ext.override(QoDesk.Manage, {
 					fieldLabel:"Cert",
 					width:350,
 					name:"cert"
-				    },{
+				    }*/,{
 					xtype:"textarea",
 					fieldLabel:"Token",
 					height:200,

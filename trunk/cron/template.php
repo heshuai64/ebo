@@ -15,10 +15,14 @@
                         padding-right:0px;
                         position:relative;
                         width:500px;
+                        float: none;
+                        margin-bottom:-10px;
                 }
                 
                 .sku{
+                        margin-top:-10px;
                         padding:0px;
+                        float: left;
                 }
                 
                 .barcode{
@@ -72,7 +76,32 @@
                                                 echo '<div class="barcode">';
                                                         echo '<img src="'.PackingList::BAR_CODE_URL.'?code=code39&o=1&t=30&r=1&text='.$this->shipment[$i]['id'].'&f1=-1&f2=8&a1=&a2=&a3=">';
                                                 echo '</div>
-                                                </div></td>';
+                                                </div><hr>';
+                                                
+                                                $j = 1;
+                                                $k = 0;
+                                                foreach($this->shipment[$i]['shipmentDetail'] as $shipmentDetail){
+                                                        if($j >= 8){
+                                                                continue;
+                                                        }
+                                                        /*
+                                                        if((3 * $k + 1) == $j){
+                                                                echo '<tr>';
+                                                        }*/
+                                                        echo '<div class="sku">';
+                                                                echo $shipmentDetail['skuId'].' X '.$shipmentDetail['quantity'];
+                                                                if($j != sizeof($this->shipment[$i]['shipmentDetail'])){
+                                                                        echo ",&nbsp;";
+                                                                }
+                                                        echo '</div>';
+                                                        if($j % 4 == 0){
+                                                                echo '<br>';
+                                                                $k++;
+                                                        }
+                                                        $j++;
+                                                }
+                                
+                                        echo '</td>';
                                         $i++;
                                         
                                         if($i < count($this->shipment)){
@@ -86,17 +115,35 @@
                                                 echo '<div class="barcode">';                       //image.php?code=code39&o=1&t=30&r=1&text=SHM200906A0013&f1=Arial.ttf&f2=8&a1=&a2=&a3=
                                                         echo '<img src="'.PackingList::BAR_CODE_URL.'?code=code39&o=1&t=30&r=1&text='.$this->shipment[$i]['id'].'&f1=-1&f2=8&a1=&a2=&a3=">';
                                                 echo '</div>
-                                                </div></td>';    
-                                        }
-                                        /*
-                                        echo '<td><div class="sku">';
+                                                </div><hr>';
+                                                
+                                                $j = 1;
+                                                $k = 0;
                                                 foreach($this->shipment[$i]['shipmentDetail'] as $shipmentDetail){
-                                                        echo $shipmentDetail['skuId'].' X '.$shipmentDetail['quantity'].'<br>';
+                                                        if($j >= 8){
+                                                                continue;
+                                                        }
+                                                        /*
+                                                        if((3 * $k + 1) == $j){
+                                                                echo '<tr>';
+                                                        }*/
+                                                        echo '<div class="sku">';
+                                                                echo $shipmentDetail['skuId'].' X '.$shipmentDetail['quantity'];
+                                                                if($j != sizeof($this->shipment[$i]['shipmentDetail'])){
+                                                                        echo ",&nbsp;";
+                                                                }
+                                                        echo '</div>';
+                                                        if($j % 4 == 0){
+                                                                echo '<br>';
+                                                                $k++;
+                                                        }
+                                                        $j++;
                                                 }
-                                        echo '</div></td>';
-                                        
-                                        
-                                        
+                                                echo '</td>';
+                                        }
+                                echo '</tr>';
+
+                                /*        
                                         if($i < count($this->shipment)){
                                                 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                                                 echo '<td>';
@@ -141,8 +188,6 @@
                                                 echo $this->shipment[$i]['shippingMethod'];
                                         echo '</td>';
                                         */
-                                echo '</tr>';
-                                
                                 //$i++;
                         }
                         ?>
