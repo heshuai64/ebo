@@ -6,10 +6,12 @@ class Template{
         $this->account_id = $account_id;
     }
     /*
-        0: normal
-        1: lock
-        2: under review
+        0: new
+        1: waiting for approve
+        2: active
         3: out of stock
+        4: under review
+        5: inactive
     */
     private function getCategoryPathById($SiteID, $CategoryID){
     	global $categoryPathArray, $nest;
@@ -217,7 +219,7 @@ class Template{
 	    }else{
 		$row['Price'] = $row['BuyItNowPrice'];
 	    }
-            $row['Price'] = ($row['BuyItNowPrice'] == 0)?$row['StartPrice']:$row['BuyItNowPrice'];
+            //$row['Price'] = ($row['BuyItNowPrice'] == 0)?$row['StartPrice']:$row['BuyItNowPrice'];
 	    /*
 	    $sql_1 = "select ShippingServiceCost from template_international_shipping_service_option where templateId = '".$row['Id']."' order by ShippingServicePriority";
 	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
@@ -393,6 +395,11 @@ class Template{
 	$result_0 = mysql_query($sql_0, eBayListing::$database_connect);
 	$row_0 = mysql_fetch_assoc($result_0);
 	
+        if($row_0['status'] !=2 && $row_0['status'] !=3){
+	    echo "[{success: false, msg: 'template status error.'}]";
+	    exit;
+	}
+        
 	if(empty($row_0['shippingTemplateName'])){
 	    echo "[{success: false, msg: 'template ".$template_id." no set shipping template.'}]";
 	    exit;
@@ -876,7 +883,7 @@ class Template{
 	PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,Quantity,ReservePrice,
 	Site,SKU,StartPrice,StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,
 	BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypePlus,GalleryURL,accountId,UseStandardFooter,
-	scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,StandardStyleTemplateId) values (
+	scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,StandardStyleTemplateId,status) values (
 	'".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
 	'".htmlentities($_POST['Description'], ENT_QUOTES)."',
 	'".$_POST['ListingDuration']."','".$_POST['ListingType']."','PayPal',
@@ -889,7 +896,7 @@ class Template{
 	'".(empty($_POST['Border'])?0:1)."','".(empty($_POST['Featured'])?0:1)."','".(empty($_POST['Highlight'])?0:1)."',
 	'".(empty($_POST['HomePageFeatured'])?0:1)."','".(empty($_POST['GalleryTypeFeatured'])?0:1)."','".(empty($_POST['GalleryTypePlus'])?0:1)."','".$_POST['GalleryURL']."',
 	'".$this->account_id."','".(empty($_POST['UseStandardFooter'])?0:1)."',
-	'".$_POST['scheduleTemplateName']."',".(empty($_POST['ScheduleStartDate'])?'NULL':"'".$_POST['ScheduleStartDate']."'").",".(empty($_POST['ScheduleEndDate'])?'NULL':"'".$_POST['ScheduleEndDate']."'").",'".$_POST['shippingTemplateName']."',".(empty($_POST['StandardStyleTemplateId'])?'NULL':"'".$_POST['StandardStyleTemplateId']."'").")";
+	'".$_POST['scheduleTemplateName']."',".(empty($_POST['ScheduleStartDate'])?'NULL':"'".$_POST['ScheduleStartDate']."'").",".(empty($_POST['ScheduleEndDate'])?'NULL':"'".$_POST['ScheduleEndDate']."'").",'".$_POST['shippingTemplateName']."',".(empty($_POST['StandardStyleTemplateId'])?'NULL':"'".$_POST['StandardStyleTemplateId']."'").",0)";
 	    
 	
 	$result = mysql_query($sql, eBayListing::$database_connect);
@@ -1154,7 +1161,7 @@ class Template{
 		ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 		StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,StandardStyleTemplateId,'1' from template where Id = '".$a."'";
+		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,StandardStyleTemplateId,0 from template where Id = '".$a."'";
 		
 		//echo $sql_1."\n";
 		
@@ -1223,7 +1230,7 @@ class Template{
 		ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 		StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,StandardStyleTemplateId,'1' from template where Id = '".$_POST['ids']."'";
+		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,StandardStyleTemplateId,0 from template where Id = '".$_POST['ids']."'";
 		
 		//echo $sql_1."\n";
 		
@@ -1283,7 +1290,7 @@ class Template{
 	$row = mysql_fetch_assoc($result);
 	$row['SiteID'] = $row['Site'];
 	$row['Description'] = html_entity_decode($row['Description'], ENT_QUOTES);
-	$row['Title'] = html_entity_decode($row['Title'], ENT_QUOTES);
+	//$row['Title'] = html_entity_decode($row['Title'], ENT_QUOTES);
 	
 	if($row['ListingType'] == "FixedPriceItem" || $row['ListingType'] == "StoresFixedPrice"){
 	    $row['BuyItNowPrice'] = $row['StartPrice'];
@@ -1412,7 +1419,7 @@ class Template{
 	Quantity='".@$_POST['Quantity']."',ReservePrice='".@$_POST['ReservePrice']."',
 	Site='".$_POST['Site']."',SKU='".$_POST['SKU']."',StartPrice='".$_POST['StartPrice']."',StoreCategory2ID='".$_POST['StoreCategory2ID']."',StoreCategory2Name='".$_POST['StoreCategory2Name']."',
 	StoreCategoryID='".$_POST['StoreCategoryID']."',StoreCategoryName='".$_POST['StoreCategoryName']."',SubTitle='".$_POST['SubTitle']."',
-	Title='".htmlentities($_POST['Title'], ENT_QUOTES)."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
+	Title='".mysql_real_escape_string($_POST['Title'])."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
 	Border='".(empty($_POST['Border'])?0:1)."',Featured='".(empty($_POST['Featured'])?0:1)."',Highlight='".(empty($_POST['Highlight'])?0:1)."',
 	HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',GalleryURL='".$_POST['GalleryURL']."',
 	UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."',accountId='".$this->account_id."',UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."',
@@ -3149,6 +3156,47 @@ class Template{
 	}else{
 	    echo "[{success: false, msg: 'delete failure!'}]";
 	}
+    }
+    
+    //-------------------- status manage --------------------------------------------------------------------
+    public function getTemplateByStatus(){
+        $where = "";
+        if(!empty($_POST['TID'])){
+            $where .= " and Id = '".$_POST['TID']."'";
+        }
+        
+        if(!empty($_POST['SKU'])){
+            $where .= " and SKU like '%".mysql_real_escape_string($_POST['SKU'])."%'";
+        }
+        
+        if(!empty($_POST['Title'])){
+            $where .= " and Title like '%".mysql_real_escape_string($_POST['Title'])."%'";
+        }
+        
+        if(!empty($_POST['ListingDuration'])){
+            $where .= " and ListingDuration = '".$_POST['ListingDuration']."'";
+        }
+            
+        $sql = "select count(*) as count from template where accountId = '".$this->account_id."' and status = ".$_POST['status'] . $where;
+        $result = mysql_query($sql, eBayListing::$database_connect);
+        $row = mysql_fetch_assoc($result);
+        $totalCount = $row['count'];
+        
+        $array = array();
+        $sql = "select Id,Site,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ListingDuration,shippingTemplateName,status from template where accountId = '".$this->account_id."' and status = ".$_POST['status']. $where . " order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
+        $result = mysql_query($sql, eBayListing::$database_connect);
+        while($row = mysql_fetch_assoc($result)){
+            $array[] = $row;
+        }
+        echo json_encode(array('totalCount'=>$totalCount, 'records'=>$array));
+	mysql_free_result($result);
+    }
+    
+    public function changeTemplateStatus(){
+        $sql = "update template set status = ".$_POST['status'] . " where Id in (".$_POST['ids'].")";
+        //echo $sql;
+        $result = mysql_query($sql, eBayListing::$database_connect);
+        echo $result;
     }
 }
 ?>

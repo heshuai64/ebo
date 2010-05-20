@@ -6,6 +6,7 @@ class Cron{
     const DATABASE_PASSWORD = '5333533';
     const DATABASE_NAME = 'ebaylisting';
     const LOG_DIR ='/export/eBayListing/log/cron';
+    const ACTIVE_MQ = "tcp://192.168.1.168:61613";
     
     public function __construct(){
         set_time_limit(1800);
@@ -211,6 +212,75 @@ class Cron{
             //$sql_3 = "update template set ScheduleStartDate = '".$today."' where Id = ".$row_1['Id'];
             //$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
         }
+    }
+    
+    public function dealSkuStatusMessage(){
+    	//ini_set('include_path', '../');
+        require_once 'Stomp.php';
+        require_once 'Stomp/Message/Map.php';
+        $status_array = array(/*'new'=> 0,
+                              'waiting for approve'=> 1,
+                              'active'=> 2,
+                              'out of stock'=> 3,*/
+                              'under review'=> 4,
+                              'inactive'=> 5);
+        
+        $consumer = new Stomp(Cron::ACTIVE_MQ);
+        $consumer->clientId = "eBayListingSkuStatus";
+        $consumer->connect();
+        $consumer->subscribe("/queue/SkuStatus", array('transformation' => 'jms-map-json'));
+        //for($i=0; $i<60; $i++){
+            $msg = $consumer->readFrame();
+            if ($msg != null) {
+                    //echo "Message '$msg->body' received from queue\n";
+                    print_r($msg->map);
+                    if(array_key_exists($msg->map['status'], $status_array)){
+                        $consumer->ack($msg);
+                        if(strpos($msg->map['skus'], ',')){
+                            $skus = explode(',', $msg->map['skus']);
+                            foreach($skus as $sku){
+                                $sql = "update template set status = ".$status_array[$msg->map['status']]." where SKU = '".$sku."'";
+                                echo $sql."\n";
+                                $result = mysql_query($sql, Cron::$database_connect);
+                            }
+                        }else{
+                            $sql = "update template set status = ".$status_array[$msg->map['status']]." where SKU = '".$msg->map['skus']."'";
+                            echo $sql."\n";
+                            $result = mysql_query($sql, Cron::$database_connect);
+                        }
+                    }
+            }
+            //sleep(1);
+        //}
+        $consumer->disconnect();
+    }
+    
+    public function dealSkuOutOfStockMessage(){
+        require_once 'Stomp.php';
+        require_once 'Stomp/Message/Map.php';
+        
+        $consumer = new Stomp(Cron::ACTIVE_MQ);
+        $consumer->clientId = "eBayListingSkuOutOfStock";
+        $consumer->connect();
+        $consumer->subscribe("/topic/SkuOutOfStock", array('transformation' => 'jms-map-json'));
+        //for($i=0; $i<6; $i++){
+            $msg = $consumer->readFrame();
+            if ( $msg != null) {
+                //echo "Message '$msg->body' received from queue\n";
+                //print_r($msg->map);
+                $consumer->ack($msg);
+                $sku_array = explode(",", $msg->map['sku']);
+                foreach($sku_array as $sku){
+                    $sql = "update template set status = 3 where SKU = '".$sku."'";
+                    echo $sql."\n";
+                    $result = mysql_query($sql, Cron::$database_connect);
+                }
+            }else{
+                echo date("Y-m-d H:i:s")." no message\n";
+            }
+            //sleep(1);
+        //}
+        $consumer->disconnect();
     }
     
     public function temp(){

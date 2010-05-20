@@ -1403,6 +1403,17 @@ class eBayListing{
     
     //-------------------------- Item  -------------------------------------------------------------------
     
+    private function getItemTemplateStatus($itemId){
+	$sql_1 = "select TemplateID from items where Id = ".$itemId;
+	$result_1 = mysql_query($sql_1);
+	$row_1 = mysql_fetch_assoc($result_1);
+	    
+	$sql_2 = "select status from template where Id = ".$row_1['TemplateID'];
+	$result_2 = mysql_query($sql_2);
+	$row_2 = mysql_fetch_assoc($result_2);
+	
+	return $row_2['status'];
+    }
     //-------------------------- Upload  -----------------------------------------------------------------
     public function uploadItem(){
 	$date = date("Y-m-d");
@@ -1415,12 +1426,35 @@ class eBayListing{
 	$from = date("Y-m-d H:i:s", time() - 60);
 	$to = date("Y-m-d H:i:s", time() + 30);
 	
-	$sql = "select Id,AccountId from items where Status = 1 and ScheduleTime between '".$from."' and '".$to."'";
+	$sql = "select Id,AccountId,SKU from items where Status = 1 and ScheduleTime between '".$from."' and '".$to."'";
 	//$sql = "select Id,AccountId from items where Status = 1";
 	
 	$result = mysql_query($sql);
 	while($row = mysql_fetch_assoc($result)){
 	    $this->setAccount($row['AccountId']);
+	    $template_status = $this->getItemTemplateStatus($row['Id']);
+	    if($template_status !=2 && $template_status != 3){
+		switch($template_status){
+		    case 0:
+			$status = "new";
+		    break;
+		
+		    case 1:
+			$status = "waiting for approve";
+		    break;
+		
+		    case 4:
+			$status = "under review";
+		    break;
+		
+		    case 5:
+			$status = "inactive";
+		    break;
+		}
+		$this->log("upload", $row['Id'] . " template status is ".$status, "warn");
+		continue;
+	    }
+	    
 	    $sql_0 = "update items set Status = 10 where Id = '".$row['Id']."'";
 	    $result_0 = mysql_query($sql_0);
 	    
@@ -1683,7 +1717,7 @@ class eBayListing{
 		$itemArray['AttributeSetArray'] = $item['AttributeSetArray'];
 	    }
 	    
-	    if(!empty($item['BuyItNowPrice']) && $item['BuyItNowPrice'] != 0){
+	    if(!empty($item['BuyItNowPrice']) && $item['BuyItNowPrice'] != 0 && $itemArray['BuyItNowPrice'] > $itemArray['StartPrice']){
 		$itemArray['BuyItNowPrice'] = $item['BuyItNowPrice'];
 	    }
 	    $itemArray['CategoryMappingAllowed'] = true;
@@ -2054,7 +2088,7 @@ class eBayListing{
 		$itemArray['AttributeSetArray'] = $item['AttributeSetArray'];
 	    }
 	    
-	    if(!empty($item['BuyItNowPrice']) && $item['BuyItNowPrice'] != 0){
+	    if(!empty($item['BuyItNowPrice']) && $item['BuyItNowPrice'] != 0 && $itemArray['BuyItNowPrice'] > $itemArray['StartPrice']){
 		$itemArray['BuyItNowPrice'] = $item['BuyItNowPrice'];
 	    }
 	    $itemArray['CategoryMappingAllowed'] = true;
@@ -2248,8 +2282,8 @@ class eBayListing{
 	   
 	    
 	    if(!empty($results->Errors)){
-		$sql_0 = "update items set Status = 3 where Id = '".$item['Id']."'";
-		$result_0 = mysql_query($sql_0);
+		//$sql_0 = "update items set Status = 3 where Id = '".$item['Id']."'";
+		//$result_0 = mysql_query($sql_0);
 		
 		if(is_array($results->Errors)){
 		    $temp = '';
@@ -2278,8 +2312,8 @@ class eBayListing{
 	    }
 	    
 	    if(!empty($results->faultcode)){
-		$sql_0 = "update items set Status = 3 where Id = '".$item['Id']."'";
-		$result_0 = mysql_query($sql_0);
+		//$sql_0 = "update items set Status = 3 where Id = '".$item['Id']."'";
+		//$result_0 = mysql_query($sql_0);
 		$this->log("revise", $item['Id'] ." " . $results->faultcode . ": " . $results->faultstring, "error");
 
 	    }
@@ -2421,7 +2455,7 @@ class eBayListing{
 		$itemArray['AttributeSetArray'] = $item['AttributeSetArray'];
 	    }
 	    
-	    if(!empty($item['BuyItNowPrice']) && $item['BuyItNowPrice'] != 0){
+	    if(!empty($item['BuyItNowPrice']) && $item['BuyItNowPrice'] != 0 && $itemArray['BuyItNowPrice'] > $itemArray['StartPrice']){
 		$itemArray['BuyItNowPrice'] = $item['BuyItNowPrice'];
 	    }
 	    $itemArray['CategoryMappingAllowed'] = true;

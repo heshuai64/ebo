@@ -32,8 +32,11 @@ if(empty($_COOKIE['account_id'])){
 	.inventory {
 	    background-image:url(./images/package.png);
 	}
-	    .template {
+	.template {
 	    background-image:url(./images/plugin.png);
+	}
+	.template-status {
+	    background-image:url(./images/cog.png);
 	}
 	.waiting-to{
 	    background-image:url(./images/bomb.png);
