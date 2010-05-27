@@ -1,6 +1,7 @@
 <?php
 class Template{
     private $account_id;
+    const INVENTORY_SERVICE = 'http://192.168.1.169:8888/inventory/service.php';
     
     public function __construct($account_id=0){
         $this->account_id = $account_id;
@@ -13,6 +14,11 @@ class Template{
         4: under review
         5: inactive
     */
+    private function getService($request){
+        $json = file_get_contents(Template::INVENTORY_SERVICE.$request);
+        return json_decode($json);
+    }
+    
     private function getCategoryPathById($SiteID, $CategoryID){
     	global $categoryPathArray, $nest;
 	
@@ -1387,7 +1393,37 @@ class Template{
     }
     
     public function updateTemplate(){
-	/*
+        $sql = "select SKU,status,shippingTemplateName from template where Id = ".$_GET['template_id'];
+	$result = mysql_query($sql, eBayListing::$database_connect);
+        $row = mysql_fetch_assoc($result);
+        if($row['status'] == 2){
+            echo '{success: false, errors: {message:""},
+                    msg: "Template In Active Status, can\'t update!"}';
+            return 0;
+        }
+        
+        if(!empty($row['shippingTemplateName'])){
+            $sql_8 = "select * from shipping_template where name = '".$row['shippingTemplateName']."' and account_id = '".$this->account_id."'";
+            $result_8 = mysql_query($sql_8, eBayListing::$database_connect);
+            $row_8 = mysql_fetch_assoc($result_8);
+            
+            //ShippingServiceCost1,ShippingServiceAdditionalCost1
+            $sql_31 = "select ShippingServiceCost from s_template where template_id = '".$row_8['id']."' and ShippingServicePriority = 1";
+            $result_31 = mysql_query($sql_31, eBayListing::$database_connect);
+            $row_31 = mysql_fetch_assoc($result_31);
+            $_POST['ShippingServiceCost1'] = $row_31['ShippingServiceCost'];
+        }
+        
+        
+        
+        $json_object = $this->getService("?action=getSkuLowestPrice&sku=".$row['SKU']);
+        if(min($_POST['StartPrice'], $_POST['BuyItNowPrice']) + $_POST['ShippingServiceCost1'] < $json_object->L){
+            echo '{success: false, errors: {message:""},
+                    msg: "Price + Shipping Too low!"}';
+            return 0;
+        }
+        
+        /*
 	if(!empty($_POST['UseStandardFooter']) && $_POST['UseStandardFooter'] == 1){
 	    $sql = "select footer from account_footer where accountId = '".$this->account_id."'";
 	    $result = mysql_query($sql, eBayListing::$database_connect);
@@ -3193,9 +3229,25 @@ class Template{
     }
     
     public function changeTemplateStatus(){
-        $sql = "update template set status = ".$_POST['status'] . " where Id in (".$_POST['ids'].")";
-        //echo $sql;
-        $result = mysql_query($sql, eBayListing::$database_connect);
+        $result = 0;
+        if($_POST['status'] == 2 || $_POST['status'] == 3){
+            $id_array = explode(",", $_POST['ids']);
+            foreach($id_array as $id){
+                $sql = "select SKU from template where id = ".$id;
+                $result = mysql_query($sql, eBayListing::$database_connect);
+                $row = mysql_fetch_assoc($result);
+                $json_object = $this->getService("?action=getSkuStatus&sku=".$row['SKU']);
+                if($json_object->status == "active" || $json_object->status == "out of stock"){
+                    $sql = "update template set status = ".$_POST['status'] . " where SKU = '".$row['SKU']."'";
+                    //echo $sql;
+                    $result = mysql_query($sql, eBayListing::$database_connect);
+                }
+            }
+        }else{
+            $sql = "update template set status = ".$_POST['status'] . " where Id in (".$_POST['ids'].")";
+            //echo $sql;
+            $result = mysql_query($sql, eBayListing::$database_connect);
+        }
         echo $result;
     }
 }

@@ -51,6 +51,7 @@
                         </tr>
                         -->
                         <?php
+                        $today = date("md");
                         $i = 1;
                         for($i=0; $i< count($this->shipment); $i++){
                         //foreach($this->shipment as $shipment){
@@ -88,7 +89,7 @@
                                                         if((3 * $k + 1) == $j){
                                                                 echo '<tr>';
                                                         }*/
-                                                        echo '<div class="sku">';
+                                                        echo '<div class="sku">('.$today.')';
                                                                 echo $shipmentDetail['skuId'].' X '.$shipmentDetail['quantity'];
                                                                 if($j != sizeof($this->shipment[$i]['shipmentDetail'])){
                                                                         echo ",&nbsp;";
@@ -100,8 +101,10 @@
                                                         }
                                                         $j++;
                                                 }
-                                
-                                        echo '</td>';
+                                                if($k == 0){
+                                                        echo '<br>';
+                                                }
+                                                echo '</td>';
                                         $i++;
                                         
                                         if($i < count($this->shipment)){
@@ -127,7 +130,7 @@
                                                         if((3 * $k + 1) == $j){
                                                                 echo '<tr>';
                                                         }*/
-                                                        echo '<div class="sku">';
+                                                        echo '<div class="sku">('.$today.')';
                                                                 echo $shipmentDetail['skuId'].' X '.$shipmentDetail['quantity'];
                                                                 if($j != sizeof($this->shipment[$i]['shipmentDetail'])){
                                                                         echo ",&nbsp;";
@@ -138,6 +141,9 @@
                                                                 $k++;
                                                         }
                                                         $j++;
+                                                }
+                                                if($k == 0){
+                                                        echo '<br>';
                                                 }
                                                 echo '</td>';
                                         }

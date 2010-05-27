@@ -1748,6 +1748,8 @@ class eBayListing{
 	    if(!empty($item['Location'])){
 		$itemArray['Location'] = $item['Location'];
 	    }
+	    $itemArray['Country'] = 'HK';
+	    
 	    $itemArray['PaymentMethods'] = $item['PaymentMethods'];
 	    $itemArray['PayPalEmailAddress'] = $item['PayPalEmailAddress'];
 	    //PictureDetails
@@ -3375,6 +3377,14 @@ class eBayListing{
     
     //-----------------    Login  -----------------------------------------------------------------------------
     public function login(){
+	if($_SERVER['REMOTE_ADDR'] != "127.0.0.1" && substr($_SERVER['REMOTE_ADDR'], 0, 8) != "192.168."){
+	    $ip_array = json_decode(file_get_contents("http://192.168.1.168:8888/eBayBO/service.php?action=getClientIp"));
+	    //file_put_contents("/tmp/xx.log", print_r($ip_array, true));
+	    if(!in_array($_SERVER['REMOTE_ADDR'], $ip_array)){
+		echo "{success: false}";
+		return 0;
+	    }
+	}
 	$sql = "select id,role,pagination from account where name = '".$_POST['name']."' and password = '".$_POST['password']."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);

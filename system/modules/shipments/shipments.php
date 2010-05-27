@@ -2,8 +2,8 @@
 class QoShipments {
 	
 	private $os;
-	//private $inventory_service_address = 'http://192.168.1.169:8080/inventory/service.php';
-        private $inventory_service_address = 'http://127.0.0.1:6666/inventory/service.php';
+	private $inventory_service_address = 'http://192.168.1.169:8080/inventory/service.php';
+        //private $inventory_service_address = 'http://127.0.0.1:6666/inventory/service.php';
 	private $email_service_address = 'http://127.0.0.1/eBayBO/service.php';
 	private static $memcache_connect;
 	const MEMCACHE_HOST = '127.0.0.1';
@@ -17,6 +17,28 @@ class QoShipments {
 		QoShipments::$memcache_connect->connect(self::MEMCACHE_HOST, self::MEMCACHE_PORT);
 	}
         
+        private function sendMessageToAM($destination, $message){
+            require_once 'Stomp.php';
+            require_once 'Stomp/Message/Map.php';
+            
+            $con = new Stomp(Service::ACTIVE_MQ);
+            $conn->sync = false;
+            $con->connect();
+            
+            $header = array();
+            $header['transformation'] = 'jms-map-json';
+            $mapMessage = new StompMessageMap($message, $header);
+            $result = $con->send($destination, $mapMessage, array('persistent'=>'true'));
+            $con->disconnect();
+            if(!$result){
+                $this->log("sendMessageToAM", "send message to activemq failure,
+                           destination: $destination,
+                           mapMessage: ".print_r($mapMessage, true)."
+                           <br>");
+            }
+            return $result;
+        }
+    
         private function getService($request){
         
             //$request =  'http://search.yahooapis.com/ImageSearchService/V1/imageSearch?appid=YahooDemo&query='.urlencode('Al Gore').'&results=1';
@@ -501,7 +523,7 @@ class QoShipments {
 				echo "{success: false, errors: { reason: '".$info."' }}";
 			}
 		}else{
-			echo "{success: false, errors: { reason: '<font color=\'red\'>Can\'t Ship This Shipment, Shipment Status is ".$row['status'].".</font>'}}";
+			echo "{success: false, errors: { reason: '<font color=\'red\'>包裹不能发送, 包裹状态是 ".$row['status'].".</font>'}}";
 		}
 	}
 	
