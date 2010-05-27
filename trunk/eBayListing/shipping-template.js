@@ -302,7 +302,17 @@ Ext.onReady(function(){
                                     fieldLabel:"Cost",
                                     id:"ShippingServiceCost_1",
                                     name:"ShippingServiceCost_1",
-                                    width:60
+                                    width:60,
+                                    listeners: {
+                                        blur: function(t){
+                                            Ext.getCmp("ShippingServiceAdditionalCost_1").setValue(t.getValue());
+                                            Ext.getCmp("ShippingServiceCost_2").minValue = t.getValue();
+                                            Ext.getCmp("ShippingServiceCost_3").minValue = t.getValue();
+                                            Ext.getCmp("InternationalShippingServiceCost_1").minValue = t.getValue();
+                                            Ext.getCmp("InternationalShippingServiceCost_2").minValue = t.getValue();
+                                            Ext.getCmp("InternationalShippingServiceCost_3").minValue = t.getValue();
+                                        }
+                                    }
                                   }]
                               },{
                                 layout:"form",
@@ -312,7 +322,17 @@ Ext.onReady(function(){
                                     fieldLabel:"E A I",
                                     id:"ShippingServiceAdditionalCost_1",
                                     name:"ShippingServiceAdditionalCost_1",
-                                    width:60
+                                    width:60,
+                                    validator: function(){
+                                        if(Ext.isEmpty(Ext.getCmp("ShippingServiceCost_1").getValue())){
+                                            return true;    
+                                        }
+                                        if(this.getValue() >= Ext.getCmp("ShippingServiceCost_1").getValue()){
+                                            return true;
+                                        }else{
+                                            return false;
+                                        }
+                                    }
                                   }]
                               },{
                                 layout:"form",
@@ -369,7 +389,12 @@ Ext.onReady(function(){
                                     fieldLabel:"",
                                     id:"ShippingServiceCost_2",
                                     name:"ShippingServiceCost_2",
-                                    width:60
+                                    width:60,
+                                    listeners: {
+                                        blur: function(t){
+                                            Ext.getCmp("ShippingServiceAdditionalCost_2").setValue(t.getValue());
+                                        }
+                                    }
                                   }]
                               },{
                                 layout:"form",
@@ -382,7 +407,17 @@ Ext.onReady(function(){
                                     fieldLabel:"",
                                     id:"ShippingServiceAdditionalCost_2",
                                     name:"ShippingServiceAdditionalCost_2",
-                                    width:60
+                                    width:60,
+                                    validator: function(){
+                                        if(Ext.isEmpty(Ext.getCmp("ShippingServiceCost_2").getValue())){
+                                            return true;    
+                                        }
+                                        if(this.getValue() >= Ext.getCmp("ShippingServiceCost_1").getValue()){
+                                            return true;
+                                        }else{
+                                            return false;
+                                        }
+                                    }
                                   }]
                               },{
                                 layout:"form",
@@ -439,7 +474,12 @@ Ext.onReady(function(){
                                     fieldLabel:"",
                                     id:"ShippingServiceCost_3",
                                     name:"ShippingServiceCost_3",
-                                    width:60
+                                    width:60,
+                                    listeners: {
+                                        blur: function(t){
+                                            Ext.getCmp("ShippingServiceAdditionalCost_3").setValue(t.getValue());
+                                        }
+                                    }
                                   }]
                               },{
                                 layout:"form",
@@ -452,7 +492,18 @@ Ext.onReady(function(){
                                     fieldLabel:"",
                                     id:"ShippingServiceAdditionalCost_3",
                                     name:"ShippingServiceAdditionalCost_3",
-                                    width:60
+                                    width:60,
+                                    validator: function(){
+                                        if(Ext.isEmpty(Ext.getCmp("ShippingServiceCost_3").getValue())){
+                                            return true;    
+                                        }
+                                    
+                                        if(this.getValue() >= Ext.getCmp("ShippingServiceCost_1").getValue()){
+                                            return true;
+                                        }else{
+                                            return false;
+                                        }
+                                    }
                                   }]
                               },{
                                 layout:"form",
@@ -624,8 +675,14 @@ Ext.onReady(function(){
                             items:[{
                                 xtype:"numberfield",
                                 fieldLabel:"Cost",
+                                id:"InternationalShippingServiceCost_1",
                                 name:"InternationalShippingServiceCost_1",
-                                width:60
+                                width:60,
+                                listeners: {
+                                    blur: function(t){
+                                        Ext.getCmp("InternationalShippingServiceAdditionalCost_1").setValue(t.getValue());
+                                    }
+                                }
                               }]
                           },{
                             layout:"form",
@@ -633,8 +690,20 @@ Ext.onReady(function(){
                             items:[{
                                 xtype:"numberfield",
                                 fieldLabel:"E A I",
+                                id:"InternationalShippingServiceAdditionalCost_1",
                                 name:"InternationalShippingServiceAdditionalCost_1",
-                                width:60
+                                width:60,
+                                validator: function(){
+                                    if(Ext.isEmpty(Ext.getCmp("InternationalShippingServiceCost_1").getValue())){
+                                        return true;    
+                                    }
+                                    
+                                    if(this.getValue() >= Ext.getCmp("ShippingServiceCost_1").getValue()){
+                                        return true;
+                                    }else{
+                                        return false;
+                                    }
+                                }
                               }]
                           },{
                             id:"InternationalShippingTo_1",
@@ -879,8 +948,14 @@ Ext.onReady(function(){
                                 labelSeparator: '',
                                 labelStyle:'height:0px;padding:0px;',
                                 fieldLabel:"",
+                                id:"InternationalShippingServiceCost_2",
                                 name:"InternationalShippingServiceCost_2",
-                                width:60
+                                width:60,
+                                listeners: {
+                                    blur: function(t){
+                                        Ext.getCmp("InternationalShippingServiceAdditionalCost_2").setValue(t.getValue());
+                                    }
+                                }
                               }]
                           },{
                             layout:"form",
@@ -891,8 +966,20 @@ Ext.onReady(function(){
                                 labelSeparator: '',
                                 labelStyle:'height:0px;padding:0px;',
                                 fieldLabel:"",
+                                id:"InternationalShippingServiceAdditionalCost_2",
                                 name:"InternationalShippingServiceAdditionalCost_2",
-                                width:60
+                                width:60,
+                                validator: function(){
+                                    if(Ext.isEmpty(Ext.getCmp("InternationalShippingServiceCost_2").getValue())){
+                                        return true;    
+                                    }
+                                    
+                                    if(this.getValue() >= Ext.getCmp("ShippingServiceCost_1").getValue()){
+                                        return true;
+                                    }else{
+                                        return false;
+                                    }
+                                }
                               }]
                           },{
                             id:"InternationalShippingTo_2",
@@ -1137,8 +1224,14 @@ Ext.onReady(function(){
                                 labelSeparator: '',
                                 labelStyle:'height:0px;padding:0px;',
                                 fieldLabel:"",
+                                id:"InternationalShippingServiceCost_3",
                                 name:"InternationalShippingServiceCost_3",
-                                width:60
+                                width:60,
+                                listeners: {
+                                    blur: function(t){
+                                        Ext.getCmp("InternationalShippingServiceAdditionalCost_3").setValue(t.getValue());
+                                    }
+                                }
                               }]
                           },{
                             layout:"form",
@@ -1149,8 +1242,20 @@ Ext.onReady(function(){
                                 labelSeparator: '',
                                 labelStyle:'height:0px;padding:0px;',
                                 fieldLabel:"",
+                                id:"InternationalShippingServiceAdditionalCost_3",
                                 name:"InternationalShippingServiceAdditionalCost_3",
-                                width:60
+                                width:60,
+                                validator: function(){
+                                    if(Ext.isEmpty(Ext.getCmp("InternationalShippingServiceCost_3").getValue())){
+                                        return true;    
+                                    }
+                                    
+                                    if(this.getValue() >= Ext.getCmp("ShippingServiceCost_1").getValue()){
+                                        return true;
+                                    }else{
+                                        return false;
+                                    }
+                                }
                               }]
                           },{
                             id:"InternationalShippingTo_3",

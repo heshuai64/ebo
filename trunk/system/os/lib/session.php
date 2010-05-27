@@ -163,6 +163,16 @@ class session {
 	public function login($user, $pass, $group_id=""){
 		$response = "{success: false}";
 		
+		if($_SERVER['REMOTE_ADDR'] != "127.0.0.1" && substr($_SERVER['REMOTE_ADDR'], 0, 8) != "192.168."){
+			$sql_0 = "select count(*) as num from qo_client_ip where ip = '".$_SERVER['REMOTE_ADDR']."'";
+			$result_0 = mysql_query($sql_0);
+			$row_0 = mysql_fetch_assoc($result_0);
+			if($row_0['num'] == 0){
+				$response = "{errors:[{id:'user', msg:'xx'}]}";
+				return $response;
+			}
+		}
+		
 		if(!isset($user)||!strlen($user)){
 			$response = "{errors:[{id:'user', msg:'Required Field'}]}";
 		}elseif(!isset($pass)||!strlen($pass)){

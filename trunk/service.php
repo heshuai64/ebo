@@ -555,8 +555,8 @@ class Service{
                 $skuArray[] = $row_1;
             }
             
-            print_r($skuArray);
-            flush();
+            //print_r($skuArray);
+            //flush();
             //if(count($skuArray) > 2){
             //    exit;   
             //}
@@ -564,7 +564,7 @@ class Service{
             $data_json = json_encode($skuArray);
             
             $json_result = $this->getService(self::INVENTORY_SERVICE."?action=getEnvelopeBySku&data=".urlencode($data_json));
-            //echo $json_result;
+            echo $json_result;
             //echo "<br>";
             $this->log("updateShipmentEnvelope", "inventory system return: ".$json_result. "<br>");
             
@@ -706,7 +706,21 @@ class Service{
             $sql_1 = "insert into qo_client_ip (ip,last_update_time) values ('".$_SERVER['REMOTE_ADDR']."', '".date("Y-m-d H:i:s")."')";
             echo $sql_1;
             $result_1 = mysql_query($sql_1, Service::$database_connect);
+        }else{
+            $sql_1 = "update qo_client_ip set last_update_time = '".date("Y-m-d H:i:s")."' where ip = '".$_SERVER['REMOTE_ADDR']."'";
+            echo $sql_1;
+            $result_1 = mysql_query($sql_1, Service::$database_connect);
         }
+    }
+    
+    public function getClientIp(){
+        $sql = "select ip from qo_client_ip";
+        $result = mysql_query($sql, Service::$database_connect);
+        $data = array();
+        while($row = mysql_fetch_assoc($result)){
+            $data[] = $row['ip'];
+        }
+        echo json_encode($data);
     }
     
     public function remoteLogin(){

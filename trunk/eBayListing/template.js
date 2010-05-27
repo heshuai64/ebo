@@ -1882,7 +1882,29 @@ Ext.onReady(function(){
                                     items:[{
                                         xtype:"numberfield",
                                         fieldLabel:"Cost",
-                                        name:"ShippingServiceCost1"
+                                        id:"ShippingServiceCost1",
+                                        name:"ShippingServiceCost1",
+                                        listeners: {
+                                            blur: function(t){
+                                                //alert(t.getValue());
+                                                Ext.getCmp("ShippingServiceAdditionalCost1").setValue(t.getValue());
+                                                Ext.getCmp("ShippingServiceCost2").minValue = t.getValue();
+                                                Ext.getCmp("ShippingServiceCost3").minValue = t.getValue();
+                                                
+                                                Ext.getCmp("ShippingServiceAdditionalCost1").minValue = t.getValue();
+                                                Ext.getCmp("ShippingServiceAdditionalCost2").minValue = t.getValue();
+                                                Ext.getCmp("ShippingServiceAdditionalCost3").minValue = t.getValue();
+                                                
+                                                Ext.getCmp("InternationalShippingServiceCost1").minValue = t.getValue();
+                                                Ext.getCmp("InternationalShippingServiceCost2").minValue = t.getValue();
+                                                Ext.getCmp("InternationalShippingServiceCost3").minValue = t.getValue();
+                                                
+                                                Ext.getCmp("InternationalShippingServiceAdditionalCost1").minValue = t.getValue();
+                                                Ext.getCmp("InternationalShippingServiceAdditionalCost2").minValue = t.getValue();
+                                                Ext.getCmp("InternationalShippingServiceAdditionalCost3").minValue = t.getValue();
+                                                
+                                            }
+                                        }
                                       }]
                                   },{
                                     columnWidth:0.5,
@@ -1892,6 +1914,7 @@ Ext.onReady(function(){
                                     items:[{
                                         xtype:"numberfield",
                                         fieldLabel:"E A I",
+                                        id:"ShippingServiceAdditionalCost1",
                                         name:"ShippingServiceAdditionalCost1"
                                       }]
                                   },{
@@ -1900,7 +1923,13 @@ Ext.onReady(function(){
                                     items:[{
                                         xtype:"numberfield",
                                         fieldLabel:"Number",
-                                        name:"ShippingServiceCost2"
+                                        id:"ShippingServiceCost2",
+                                        name:"ShippingServiceCost2",
+                                        listeners: {
+                                            blur: function(t){
+                                                Ext.getCmp("ShippingServiceAdditionalCost2").setValue(t.getValue());
+                                            }
+                                        }
                                       }]
                                   },{
                                     columnWidth:0.5,
@@ -1908,6 +1937,7 @@ Ext.onReady(function(){
                                     items:[{
                                         xtype:"numberfield",
                                         fieldLabel:"Number",
+                                        id:"ShippingServiceAdditionalCost2",
                                         name:"ShippingServiceAdditionalCost2"
                                       }]
                                   },{
@@ -1916,7 +1946,13 @@ Ext.onReady(function(){
                                     items:[{
                                         xtype:"numberfield",
                                         fieldLabel:"Number",
-                                        name:"ShippingServiceCost3"
+                                        id:"ShippingServiceCost3",
+                                        name:"ShippingServiceCost3",
+                                        listeners: {
+                                            blur: function(t){
+                                                Ext.getCmp("ShippingServiceAdditionalCost3").setValue(t.getValue());
+                                            }
+                                        }
                                       }]
                                   },{
                                     columnWidth:0.5,
@@ -1924,6 +1960,7 @@ Ext.onReady(function(){
                                     items:[{
                                         xtype:"numberfield",
                                         fieldLabel:"Number",
+                                        id:"ShippingServiceAdditionalCost3",
                                         name:"ShippingServiceAdditionalCost3"
                                       }]
                                   }]
@@ -1938,7 +1975,13 @@ Ext.onReady(function(){
                                     items:[{
                                         xtype:"numberfield",
                                         fieldLabel:"Cost",
-                                        name:"InternationalShippingServiceCost1"
+                                        id:"InternationalShippingServiceCost1",
+                                        name:"InternationalShippingServiceCost1",
+                                        listeners: {
+                                            blur: function(t){
+                                                Ext.getCmp("InternationalShippingServiceAdditionalCost1").setValue(t.getValue());
+                                            }
+                                        }
                                       }]
                                   },{
                                     columnWidth:0.5,
@@ -1948,6 +1991,7 @@ Ext.onReady(function(){
                                     items:[{
                                         xtype:"numberfield",
                                         fieldLabel:"E A I",
+                                        id:"InternationalShippingServiceAdditionalCost1",
                                         name:"InternationalShippingServiceAdditionalCost1"
                                       }]
                                   },{
@@ -1956,7 +2000,13 @@ Ext.onReady(function(){
                                     items:[{
                                         xtype:"numberfield",
                                         fieldLabel:"Number",
-                                        name:"InternationalShippingServiceCost2"
+                                        id:"InternationalShippingServiceCost2",
+                                        name:"InternationalShippingServiceCost2",
+                                        listeners: {
+                                            blur: function(t){
+                                                Ext.getCmp("InternationalShippingServiceAdditionalCost2").setValue(t.getValue());
+                                            }
+                                        }
                                       }]
                                   },{
                                     columnWidth:0.5,
@@ -1964,6 +2014,7 @@ Ext.onReady(function(){
                                     items:[{
                                         xtype:"numberfield",
                                         fieldLabel:"Number",
+                                        id:"InternationalShippingServiceAdditionalCost2",
                                         name:"InternationalShippingServiceAdditionalCost2"
                                       }]
                                   },{
@@ -1972,7 +2023,13 @@ Ext.onReady(function(){
                                     items:[{
                                         xtype:"numberfield",
                                         fieldLabel:"Number",
-                                        name:"InternationalShippingServiceCost3"
+                                        id:"InternationalShippingServiceCost3",
+                                        name:"InternationalShippingServiceCost3",
+                                        listeners: {
+                                            blur: function(t){
+                                                Ext.getCmp("InternationalShippingServiceAdditionalCost3").setValue(t.getValue());
+                                            }
+                                        }
                                       }]
                                   },{
                                     columnWidth:0.5,
@@ -1980,6 +2037,7 @@ Ext.onReady(function(){
                                     items:[{
                                         xtype:"numberfield",
                                         fieldLabel:"Number",
+                                        id:"InternationalShippingServiceAdditionalCost3",
                                         name:"InternationalShippingServiceAdditionalCost3"
                                       }]
                                   }]
