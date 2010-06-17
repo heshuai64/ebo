@@ -85,8 +85,8 @@ Ext.override(QoDesk.Reports, {
 		salesReportSearchWin = desktop.createWindow({
 		    id: 'sales-report-win',
 		    title:lang.reports.search_sales_report_window_title,
-		    width:300,
-		    height:100,
+		    width:500,
+		    height:300,
 		    iconCls: 'sales-report-icon',
 		    shim:false,
 		    animCollapse:false,
@@ -115,14 +115,28 @@ Ext.override(QoDesk.Reports, {
 			    listWidth:160,
 			    name: 'sellerId',
 			    hiddenName:'sellerId'
+			},{
+			    id:'skus',
+			    xtype: 'textarea',
+			    fieldLabel: 'SKUS',
+			    width: 300,
+			    height: 180
 			}],
 			buttons: [{
 			    text: lang.reports.submit,
 			    handler: function(){
 				var sellerId = document.getElementById("sellerId").value;
+				var skus = Ext.getCmp('skus').getValue();
+				var sku_array = skus.split("\n");
+				var sku_str = "";
+				for(var i = 0; i < sku_array.length; i++){
+				    sku_str += sku_array[i] + ",";
+				}
+				sku_str = sku_str.substring(0, sku_str.length-1);
 				
 				for(var i=1;i<5;i++){
-				    setTimeout('window.open("/eBayBO/salesReport.php?week='+i+'&sellerId='+sellerId+'", "_blank", "toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=700")',i * 5000);
+				    setTimeout('window.open("/eBayBO/salesReport.php?week='+i+'&sellerId='+sellerId+'&skus='+sku_str+'", "_blank", "toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=700")',i * 5000);
+				    //return 0;
 				}
 				
 				//window.open("/eBayBO/salesReport.php?week=1&sellerId=" + sellerId, "_blank", "toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=700");

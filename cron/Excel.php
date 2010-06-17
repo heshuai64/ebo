@@ -148,7 +148,7 @@ class eBayBOExcel{
 		$end = $this->endTime;
 		
 		$sql = "select s.id,o.buyerId,s.shipmentMethod,s.ordersId from qo_shipments as s left join qo_orders as o on s.ordersId = o.id 
-		where s.modifiedOn between '".$start."' and '".$end."' and s.status = 'N'";
+		where s.modifiedOn between '".$start."' and '".$end."' and s.status = 'N' order by s.shipmentMethod desc,s.id";
 		$result = mysql_query($sql, eBayBOExcel::$database_connect);
 		
 		$this->php_excel->setActiveSheetIndex(0);
@@ -191,9 +191,50 @@ class eBayBOExcel{
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $json_result->skuStock);
 			$i++;
 		}
+		
 		$writer = PHPExcel_IOFactory::createWriter($this->php_excel, 'Excel5');
 		$writer->save($this->getFilePath('address-list.xls'));
 	} 
+	
+	public function pickingList(){
+		$start = $this->startTime;
+		$end = $this->endTime;
+		
+		$sql = "select sd.skuId,sd.skuTitle,sum(sd.quantity) as quantity from qo_shipments as s left join 
+		qo_shipments_detail as sd on s.id = sd.shipmentsId where s.modifiedOn between '".$start."' and '".$end."' 
+		and s.status = 'N' group by sd.skuId order by sd.skuId";
+		//echo $sql."\n";
+		$result = mysql_query($sql, eBayBOExcel::$database_connect);
+		
+		$this->php_excel->setActiveSheetIndex(0);
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, 'No');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, 'Sku');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, 'Short Description');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, 'Quantity');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 1, 'Stock');
+		
+		$i = 2;
+		while($row = mysql_fetch_assoc($result)){
+			$j = 0;			
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $i-1);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['skuId']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['skuTitle']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['quantity']);
+			$request = eBayBOExcel::INVENTORY_SERVICE."?action=getSkuInfo&data=".urlencode($row['skuId']);
+                        $json_result = json_decode($this->getService($request));
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $json_result->skuStock);
+			$i++;
+		}
+		
+		$this->php_excel->getActiveSheet()->getStyle('A1:E'.($i-1))->applyFromArray(
+			array('borders' => array('allborders'=>array('style' => PHPExcel_Style_Border::BORDER_THICK),
+						),
+			)
+		);
+		
+		$writer = PHPExcel_IOFactory::createWriter($this->php_excel, 'Excel5');
+		$writer->save($this->getFilePath('picking-list.xls'));
+	}
 	
 	public function reSentShipment(){
 		if(!empty($_GET['start']) && !empty($_GET['end'])){

@@ -196,12 +196,24 @@ class Reports{
         if($data_array == false){
             $day_data = array();
             $sku_array = array();
-            
+            $sku_where = "";
+	    if(!empty($_GET['skus'])){
+		if(strpos($_GET['skus'], ",")){
+		    $sku_array = explode(",", $_GET['skus']);
+		    $sku_where .= " and od.skuId in (";
+		    foreach($sku_array as $sku){
+			$sku_where .= "'".$sku."',";
+		    }
+		    $sku_where = substr($sku_where, 0, -1).")";
+		}else{
+		    $sku_where .= " and od.skuId = '".$_GET['skus']."'";
+		}
+	    }
             //********************************************* Last Week Yesterday  *************************************
             if(!empty($_GET['sellerId'])){
-                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn like '".$lastWeekYesterday."%' group by od.skuId";
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn like '".$lastWeekYesterday."%' ".$sku_where." group by od.skuId";
             }else{
-                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn like '".$lastWeekYesterday."%' group by od.skuId";
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn like '".$lastWeekYesterday."%' ".$sku_where." group by od.skuId";
             }
             
             //echo $sql_1;
@@ -226,9 +238,9 @@ class Reports{
             
             //********************************************* Yesterday  ***********************************************
             if(!empty($_GET['sellerId'])){
-                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn like '".$yesterday."%' group by od.skuId";
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn like '".$yesterday."%' ".$sku_where." group by od.skuId";
             }else{
-                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn like '".$yesterday."%' group by od.skuId";
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn like '".$yesterday."%' ".$sku_where." group by od.skuId";
             }
             
             //echo $sql_1;
@@ -267,9 +279,9 @@ class Reports{
             
             //******************************************  Last 4 Week  *******************************************
             if(!empty($_GET['sellerId'])){
-                $sql_1 = "select o.id,od.skuId,od.itemTitle,od.quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn between '".$eightWeekAgoMon."' and '".$fourWeekAgoMon."' order by createdOn";
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,od.quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn between '".$eightWeekAgoMon."' and '".$fourWeekAgoMon."' ".$sku_where." order by createdOn";
             }else{
-                $sql_1 = "select o.id,od.skuId,od.itemTitle,od.quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn between '".$eightWeekAgoMon."' and '".$fourWeekAgoMon."' order by createdOn";
+                $sql_1 = "select o.id,od.skuId,od.itemTitle,od.quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn between '".$eightWeekAgoMon."' and '".$fourWeekAgoMon."' ".$sku_where." order by createdOn";
             }
             
             //echo $sql_1;
@@ -300,9 +312,9 @@ class Reports{
             //******************************************  This 4 Week  *******************************************
             
             if(!empty($_GET['sellerId'])){
-                $sql_2 = "select o.id,od.skuId,od.itemTitle,od.quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn between '".$fourWeekAgoMon."' and '".$nextSun."' order by createdOn";
+                $sql_2 = "select o.id,od.skuId,od.itemTitle,od.quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn between '".$fourWeekAgoMon."' and '".$nextSun."' ".$sku_where." order by createdOn";
             }else{
-                $sql_2 = "select o.id,od.skuId,od.itemTitle,od.quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn between '".$fourWeekAgoMon."' and '".$nextSun."' order by createdOn";
+                $sql_2 = "select o.id,od.skuId,od.itemTitle,od.quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn between '".$fourWeekAgoMon."' and '".$nextSun."' ".$sku_where." order by createdOn";
             }
             
             //echo $sql_2;
@@ -341,9 +353,9 @@ class Reports{
                 //echo $date;
                 //echo "<br>";
                 if(!empty($_GET['sellerId'])){
-                    $sql = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn like '".$date."%' group by skuId order by createdOn";
+                    $sql = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.sellerId='".$_GET['sellerId']."' and o.createdOn like '".$date."%' ".$sku_where." group by skuId order by createdOn";
                 }else{
-                    $sql = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn like '".$date."%' group by skuId order by createdOn";    
+                    $sql = "select o.id,od.skuId,od.itemTitle,sum(od.quantity) as quantity,DATE_FORMAT(o.createdOn, '%Y-%m-%d') as date1,DATE_FORMAT(o.createdOn, '%a') as date2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.createdOn like '".$date."%' ".$sku_where." group by skuId order by createdOn";    
                 }
                 //echo $sql;
                 //echo "<br>";
