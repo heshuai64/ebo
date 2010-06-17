@@ -259,8 +259,8 @@ class Service{
                     $subjet = "Your order has been sent out";
                     $send_result = $this->sendEmail($seller, $buyer, $subjet, $toContent);
                     if($send_result){
-                        //$sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
-                        //$result_3 = mysql_query($sql_3);
+                        $sql_3 = "update qo_shipments set emailStatus = 1 where id = '".$row['id']."'";
+                        $result_3 = mysql_query($sql_3);
                         $this->log("email/1_sendXmasShpmentEmail", $sellerId. ": ".$row['id']." Send <br>".$toContent."<br> To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
                     }else{
                         $this->log("email/1_sendXmasShpmentEmail", "<font color='red'>".$sellerId. ": " .$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
@@ -305,8 +305,8 @@ class Service{
                     $subjet = "12 days been passed, any news of your order?";
                     $send_result = $this->sendEmail($seller, $buyer, $subjet, $toContent);
                     if($send_result){
-                        //$sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
-                        //$result_3 = mysql_query($sql_3);
+                        $sql_3 = "update qo_shipments set emailStatus = 1 where id = '".$row['id']."'";
+                        $result_3 = mysql_query($sql_3);
                         $this->log("email/12_sendXmasShpmentEmail", $sellerId. ": ".$row['id']." Send <br>".$toContent."<br> To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
                     }else{
                         $this->log("email/12_sendXmasShpmentEmail", "<font color='red'>".$sellerId. ": ".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
@@ -335,8 +335,8 @@ class Service{
                     $subjet = "Have you received the item you bought from us on ebay? How is everything?";
                     $send_result = $this->sendEmail($seller, $buyer, $subjet, $toContent);
                     if($send_result){
-                        //$sql_3 = "update qo_shipments set emailStatus = '".$type."' where id = '".$row['id']."'";
-                        //$result_3 = mysql_query($sql_3);
+                        $sql_3 = "update qo_shipments set emailStatus = 1 where id = '".$row['id']."'";
+                        $result_3 = mysql_query($sql_3);
                         $this->log("email/22_sendXmasShpmentEmail", $sellerId. ": ".$row['id']." Send <br>".$toContent."<br> To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
                     }else{
                         $this->log("email/22_sendXmasShpmentEmail", "<font color='red'>".$sellerId. ": ".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");

@@ -16,6 +16,7 @@
         <script type="text/javascript">
             var week = "<?=$_GET['week']?>";
             var sellerId = "<?=$_GET['sellerId']?>";
+            var skus = "<?=$_GET['skus']?>";
         </script>
 </head>
 <body>

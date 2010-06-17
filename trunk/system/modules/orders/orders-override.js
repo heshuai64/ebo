@@ -162,7 +162,7 @@ Ext.override(QoDesk.Orders, {
                                     valueField:'id',
                                     displayField:'name',
                                     triggerAction: 'all',
-                                    editable: false,
+                                    //editable: false,
                                     selectOnFocus:true,
                                     name: 'sellerId',
                                     hiddenName:'sellerId'

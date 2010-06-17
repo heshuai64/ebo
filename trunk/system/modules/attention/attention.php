@@ -12,24 +12,24 @@ class QoAttention {
 			$_POST['start'] = 0;
 			$_POST['limit'] = 10;
 		}
-		
+		$now = date("Y-m-d H:i:s");
 		if(!empty($_POST['payeeId'])){
-			$sql = "select count(*) as num from qo_transactions where payeeId='".$_POST['payeeId']."' and createdOn between '".$_POST['start_date']."' and '".$_POST['end_date']."' and id not in (select transactionsId from qo_orders_transactions where createdOn between '".$_POST['start_date']."' and '".$_POST['end_date']."')";
+			$sql = "select count(*) as num from qo_transactions where payeeId='".$_POST['payeeId']."' and createdOn between '".$_POST['start_date']."' and '".$_POST['end_date']."' and id not in (select transactionsId from qo_orders_transactions where createdOn between '".$_POST['start_date']."' and '".$now."')";
 			$result = mysql_query($sql);
 			$row = mysql_fetch_assoc($result);
 			
-			$sql_1 = "select * from qo_transactions where payeeId='".$_POST['payeeId']."' and createdOn between '".$_POST['start_date']."' and '".$_POST['end_date']."' and id not in (select transactionsId from qo_orders_transactions where createdOn between '".$_POST['start_date']."' and '".$_POST['end_date']."') order by id desc limit ".$_POST['start'].",".$_POST['limit'];
+			$sql_1 = "select * from qo_transactions where payeeId='".$_POST['payeeId']."' and createdOn between '".$_POST['start_date']."' and '".$_POST['end_date']."' and id not in (select transactionsId from qo_orders_transactions where createdOn between '".$_POST['start_date']."' and '".$now."') order by id desc limit ".$_POST['start'].",".$_POST['limit'];
 			$result_1 = mysql_query($sql_1);
 			$array = array();
 			while($row_1 = mysql_fetch_assoc($result_1)){
 				$array[] = $row_1;
 			}
 		}else{
-			$sql = "select count(*) as num from qo_transactions where createdOn between '".$_POST['start_date']."' and '".$_POST['end_date']."' and id not in (select transactionsId from qo_orders_transactions where createdOn between '".$_POST['start_date']."' and '".$_POST['end_date']."')";
+			$sql = "select count(*) as num from qo_transactions where createdOn between '".$_POST['start_date']."' and '".$_POST['end_date']."' and id not in (select transactionsId from qo_orders_transactions where createdOn between '".$_POST['start_date']."' and '".$now."')";
 			$result = mysql_query($sql);
 			$row = mysql_fetch_assoc($result);
 			
-			$sql_1 = "select * from qo_transactions where createdOn between '".$_POST['start_date']."' and '".$_POST['end_date']."' and id not in (select transactionsId from qo_orders_transactions where createdOn between '".$_POST['start_date']."' and '".$_POST['end_date']."') order by id desc limit ".$_POST['start'].",".$_POST['limit'];
+			$sql_1 = "select * from qo_transactions where createdOn between '".$_POST['start_date']."' and '".$_POST['end_date']."' and id not in (select transactionsId from qo_orders_transactions where createdOn between '".$_POST['start_date']."' and '".$now."') order by id desc limit ".$_POST['start'].",".$_POST['limit'];
 			$result_1 = mysql_query($sql_1);
 			$array = array();
 			while($row_1 = mysql_fetch_assoc($result_1)){

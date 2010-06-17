@@ -1,7 +1,7 @@
 <?php
 class Template{
     private $account_id;
-    const INVENTORY_SERVICE = 'http://192.168.1.169:8888/inventory/service.php';
+    const INVENTORY_SERVICE = 'http://192.168.1.169:8080/inventory/service.php';
     
     public function __construct($account_id=0){
         $this->account_id = $account_id;
@@ -1414,14 +1414,32 @@ class Template{
             $_POST['ShippingServiceCost1'] = $row_31['ShippingServiceCost'];
         }
         
-        
-        
+        /*
+        switch($_POST['Currency']){
+            case 'USD':
+                $rate = 1;
+            break;
+            
+            case 'GBP':
+                $rate = 1;
+            break;
+            
+            case 'AUD':
+                $rate = 1;
+            break;
+            
+            case 'EUR':
+                $rate = 1;
+            break;
+        }
         $json_object = $this->getService("?action=getSkuLowestPrice&sku=".$row['SKU']);
+        $l_price = $json_object->L * $rate;
         if(min($_POST['StartPrice'], $_POST['BuyItNowPrice']) + $_POST['ShippingServiceCost1'] < $json_object->L){
             echo '{success: false, errors: {message:""},
                     msg: "Price + Shipping Too low!"}';
             return 0;
         }
+        */
         
         /*
 	if(!empty($_POST['UseStandardFooter']) && $_POST['UseStandardFooter'] == 1){
@@ -3233,12 +3251,13 @@ class Template{
         if($_POST['status'] == 2 || $_POST['status'] == 3){
             $id_array = explode(",", $_POST['ids']);
             foreach($id_array as $id){
-                $sql = "select SKU from template where id = ".$id;
+                $sql = "select SKU from template where Id = ".$id;
                 $result = mysql_query($sql, eBayListing::$database_connect);
                 $row = mysql_fetch_assoc($result);
-                $json_object = $this->getService("?action=getSkuStatus&sku=".$row['SKU']);
+                $json_object = $this->getService("?action=getSkuStatus&data=".$row['SKU']);
+                //print_r($json_object);
                 if($json_object->status == "active" || $json_object->status == "out of stock"){
-                    $sql = "update template set status = ".$_POST['status'] . " where SKU = '".$row['SKU']."'";
+                    $sql = "update template set status = ".$_POST['status'] . " where Id = ".$id;
                     //echo $sql;
                     $result = mysql_query($sql, eBayListing::$database_connect);
                 }

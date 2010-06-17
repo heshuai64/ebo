@@ -85,7 +85,24 @@ Ext.override(QoDesk.Attention, {
                 }],
 		tbar: [
 		       {xtype: 'tbtext', text: 'Seller:'},
-		       {xtype:"textfield", id:"payeeId", name:"payeeId"},
+		       /*{xtype:"textfield", id:"payeeId", name:"payeeId"},*/
+		       {
+			    id: 'payeeId',
+			    xtype: 'combo',
+			    mode: 'local',
+			    store: new Ext.data.JsonStore({
+				autoLoad: true,
+				fields: ['id', 'name'],
+				url: "connect.php?moduleId=qo-transactions&action=getSeller"
+			    }),
+			    valueField:'id',
+			    displayField:'name',
+			    triggerAction: 'all',
+			    editable: false,
+			    selectOnFocus:true,
+			    name: 'sellerId',
+			    hiddenName:'sellerId'
+			},
 		       {xtype: 'tbseparator'},
 		       {xtype: 'tbtext', text: 'Start Date:'},
 		       {xtype:"datefield", id:"start_date", name:"start_date", format:'Y-m-d', value:start_date},
