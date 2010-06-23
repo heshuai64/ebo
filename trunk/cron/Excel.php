@@ -373,6 +373,28 @@ class eBayBOExcel{
 		$writer->save($this->getFilePath('register.xls'));
 	}
 	
+	public function SFCShipment(){
+		$start = $this->startTime;
+		$end = $this->endTime;
+		
+		$sql = "select id,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,
+		shipToStateOrProvince,shipToPostalCode,shipToCountry,shipToPhoneNo from qo_shipments where status = 'N' and modifiedOn between '".$start."' and '".$end."'";
+		$result = mysql_query($sql, eBayBOExcel::$database_connect);
+		$i = 2;
+		$data = '"Sales Record Number","User Id","Buyer Fullname","Buyer Phone Number","Buyer Email",
+		"Buyer Address 1","Buyer Address 2","Buyer City","Buyer State","Buyer Country","Buyer Zip",
+		"Item Number","Item Title","Custom Label","category","Quantity","Sale Date","Checkout Date",
+		"Paid on Date","Shipped on Date","Listed On","Sold On","PayPal Transaction ID","Shipping Service",
+		"Transaction ID","Order ID","declared value","weight","isreturn","Length","Width","Height"';
+		while($row = mysql_fetch_assoc($result)){
+			$data .= '"","","'.$row['shipToName'].'","'.$row['shipToPhoneNo'].'","","","","'.$row['shipToCity'].'","'.$row['shipToStateOrProvince'].'","'.$row['shipToCountry'].'",
+				  "'.$row['shipToPostalCode'].'","","Item Title","","","","","","","",
+				  "","","","HKBAM","","","10","","Y","",
+				  "","",';
+		}
+		file_put_contents($this->getFilePath('sfc.csv'), $data);
+	}
+	
 	public function __destruct(){
 		mysql_close(eBayBOExcel::$database_connect);
 	}
