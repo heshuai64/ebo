@@ -10,7 +10,7 @@ class QoAttention {
 	public function getUnmapTransaction(){
 		if(empty($_POST['start']) || empty($_POST['limit'])){
 			$_POST['start'] = 0;
-			$_POST['limit'] = 10;
+			$_POST['limit'] = 20;
 		}
 		$now = date("Y-m-d H:i:s");
 		if(!empty($_POST['payeeId'])){

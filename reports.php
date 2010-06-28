@@ -3,23 +3,21 @@ class Reports{
     private static $database_connect;
     private static $memcache_connect;
     
-    const DATABASE_HOST = 'localhost';
-    const DATABASE_USER = 'root';
-    const DATABASE_PASSWORD = '5333533';
-    const DATABASE_NAME = 'ebaybo';
     const INVENTORY_SERVICE = 'http://192.168.1.169:8080/inventory/service.php';
     const MEMCACHE_HOST = '127.0.0.1';
     const MEMCACHE_PORT = 11211;
     
     public function __construct(){
-        Reports::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
+	$config = parse_ini_file('config.ini', true);
+	
+        Reports::$database_connect = mysql_connect($config['database']['host'], $config['database']['user'], $config['database']['password']);
 
         if (!Reports::$database_connect) {
             echo "Unable to connect to DB: " . mysql_error(Reports::$database_connect);
             exit;
         }
           
-        if (!mysql_select_db(self::DATABASE_NAME, Reports::$database_connect)) {
+        if (!mysql_select_db($config['database']['name'], Reports::$database_connect)) {
             echo "Unable to select mydbname: " . mysql_error(Reports::$database_connect);
             exit;
         }

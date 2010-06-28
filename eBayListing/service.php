@@ -968,10 +968,12 @@ class eBayListing{
 		$row_01 = mysql_fetch_assoc($result_01);
 		
 		$row_1['Description'] = str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
-						    array($row_1['Title'], $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'], ENT_QUOTES)), html_entity_decode($row_01['content'], ENT_QUOTES));
+						    array(html_entity_decode($row_1['Title'], ENT_QUOTES), $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'], ENT_QUOTES)), html_entity_decode($row_01['content'], ENT_QUOTES));
 	    }else{
 		$row_1['Description'] = html_entity_decode($row_1['Description'], ENT_QUOTES);
 	    }
+	    
+	    
 	    $row_1['Description'] = utf8_encode($row_1['Description']);
 	    $row_1['Title'] = html_entity_decode($row_1['Title'], ENT_QUOTES);
 	    
@@ -1482,10 +1484,11 @@ class eBayListing{
 		$row_01 = mysql_fetch_assoc($result_01);
 		
 		$row_1['Description'] = str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
-						    array($row_1['Title'], $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'], ENT_QUOTES)), html_entity_decode($row_01['content'], ENT_QUOTES));
+						    array(html_entity_decode($row_1['Title'], ENT_QUOTES), $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'], ENT_QUOTES)), html_entity_decode($row_01['content'], ENT_QUOTES));
 	    }else{
 		$row_1['Description'] = html_entity_decode($row_1['Description'], ENT_QUOTES);
 	    }
+	    
 	    $row_1['Description'] = utf8_encode($row_1['Description']);
 	    $row_1['Title'] = html_entity_decode($row_1['Title'], ENT_QUOTES);
 	    
@@ -1872,10 +1875,11 @@ class eBayListing{
 		$row_01 = mysql_fetch_assoc($result_01);
 		
 		$row_1['Description'] = str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
-						    array($row_1['Title'], $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'], ENT_QUOTES)), html_entity_decode($row_01['content'], ENT_QUOTES));
+						    array(html_entity_decode($row_1['Title'], ENT_QUOTES), $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'], ENT_QUOTES)), html_entity_decode($row_01['content'], ENT_QUOTES));
 	    }else{
 		$row_1['Description'] = html_entity_decode($row_1['Description'], ENT_QUOTES);
 	    }
+	    
 	    $row_1['Description'] = utf8_encode($row_1['Description']);
 	    $row_1['Title'] = html_entity_decode($row_1['Title'], ENT_QUOTES);
 	    
@@ -2008,6 +2012,8 @@ class eBayListing{
 	    if(!empty($item['Location'])){
 		$itemArray['Location'] = $item['Location'];
 	    }
+	    $itemArray['Country'] = 'HK';
+	    
 	    $itemArray['PaymentMethods'] = $item['PaymentMethods'];
 	    $itemArray['PayPalEmailAddress'] = $item['PayPalEmailAddress'];
 	    //PictureDetails
@@ -2178,6 +2184,14 @@ class eBayListing{
 		    EndTime='".$results->EndTime."',InsertionFee='".$InsertionFee."',ListingFee='".$ListingFee."' where Id = '".$item['Id']."'";
 		    echo $sql;
 		    $result = mysql_query($sql);
+		    
+		    $sql_1 = "select parentId from items where Id = '".$item['Id']."'";
+		    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+		    $row_1 = mysql_fetch_assoc($result_1);
+		    
+		    $sql_2 = "update items set Relist = 'Y' where Id = ".$row_1['parentId'];
+		    $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
+	    
 		    $this->log("relist", $item['Id']." relist success, ItemID is ".$results->ItemID);
 		}
 	    }elseif(!empty($results->ItemID)){
@@ -2198,6 +2212,14 @@ class eBayListing{
 		EndTime='".$results->EndTime."',InsertionFee='".$InsertionFee."',ListingFee='".$ListingFee."' where Id = '".$item['Id']."'";
 		echo $sql;
 		$result = mysql_query($sql);
+		
+		$sql_1 = "select parentId from items where Id = '".$item['Id']."'";
+		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+		$row_1 = mysql_fetch_assoc($result_1);
+		
+		$sql_2 = "update items set Relist = 'Y' where Id = ".$row_1['parentId'];
+		$result_2 = mysql_query($sql_2, eBayListing::$database_connect);
+		
 		$this->log("relist", $item['Id']." relist success, ItemID is ".$results->ItemID);
 	    }
 	    
@@ -2839,7 +2861,7 @@ class eBayListing{
 		$sql = "update template set Description = '".htmlentities($_POST['english'], ENT_QUOTES)."' where (Site = 'US' or Site = 'UK' or Site = 'Australia') and SKU = '".$_POST['sku']."'";
 		$result = mysql_query($sql, eBayListing::$database_connect);
 		
-		$sql_1 = "update items set Description = '".htmlentities($_POST['english'], ENT_QUOTES)."' where (Site = 'US' or Site = 'UK' or Site = 'Australia') and SKU = '".$_POST['sku']."' and (Status = 0 or Status = 1)";
+		$sql_1 = "update items set Description = '".htmlentities($_POST['english'], ENT_QUOTES)."' where (Site = 'US' or Site = 'UK' or Site = 'Australia') and SKU = '".$_POST['sku']."' and Status in (0,1,3,4.8)";
 		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 		
 		if($result && $result_1){
@@ -2850,7 +2872,7 @@ class eBayListing{
 		$sql = "update template set Description = '".htmlentities($_POST['french'], ENT_QUOTES)."' where Site = 'France' and SKU = '".$_POST['sku']."'";
 		$result = mysql_query($sql, eBayListing::$database_connect);
 		
-		$sql_1 = "update items set Description = '".htmlentities($_POST['french'], ENT_QUOTES)."' where Site = 'France' and SKU = '".$_POST['sku']."' and (Status = 0 or Status = 1)";
+		$sql_1 = "update items set Description = '".htmlentities($_POST['french'], ENT_QUOTES)."' where Site = 'France' and SKU = '".$_POST['sku']."' and Status in (0,1,3,4.8)";
 		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 		
 		if($result && $result_1){
@@ -2861,7 +2883,7 @@ class eBayListing{
 		$sql = "update template set Description = '".htmlentities($_POST['germany'], ENT_QUOTES)."' where Site = 'Germany' and SKU = '".$_POST['sku']."'";
 		$result = mysql_query($sql, eBayListing::$database_connect);
 		
-		$sql_1 = "update items set Description = '".htmlentities($_POST['germany'], ENT_QUOTES)."' where Site = 'Germany' and SKU = '".$_POST['sku']."' and (Status = 0 or Status = 1)";
+		$sql_1 = "update items set Description = '".htmlentities($_POST['germany'], ENT_QUOTES)."' where Site = 'Germany' and SKU = '".$_POST['sku']."' and Status in (0,1,3,4.8)";
 		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 		
 		if($result && $result_1){

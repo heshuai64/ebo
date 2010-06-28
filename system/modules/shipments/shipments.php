@@ -262,7 +262,7 @@ class QoShipments {
 	}
 	
 	public function saveShipmentInfo(){
-		$sql = "update qo_shipments set status='".$_POST['status']."',shipmentMethod='".$_POST['shipmentMethod']."',
+		$sql = "update qo_shipments set status='".$_POST['status']."',shipmentMethod='".$_POST['shipmentMethod']."',shipmentReason='".$_POST['shipmentReason']."',
 		remarks='".$_POST['remarks']."',postalReferenceNo='".$_POST['postalReferenceNo']."',shippingFeeCurrency='".$_POST['shippingFeeCurrency']."',
 		shippingFeeValue='".$_POST['shippingFeeValue']."',shipToName='".$_POST['shipToName']."',shipToEmail='".$_POST['shipToEmail']."',
 		shipToAddressLine1='".$_POST['shipToAddressLine1']."',shipToAddressLine2='".$_POST['shipToAddressLine2']."',shipToCity='".$_POST['shipToCity']."',
@@ -541,17 +541,51 @@ class QoShipments {
             
             $today = date("Y-m-d");
             
-            if(!empty($_POST['sellerId'])){
-                $count_sql = "select count(*) as num from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where o.sellerId = '".$_POST['sellerId']."' and (s.status = 'N' or s.status = 'H' or s.status = 'W') and s.createdOn < '".$today."'";
-                $data_sql = "select s.id,o.id as ordersId,s.shipToName,o.paypalEmail as shipToEmail,o.sellerId,s.createdOn,s.shipmentMethod,s.status,s.remarks   
-                from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where o.sellerId = '".$_POST['sellerId']."' and (s.status = 'N' or s.status = 'H' or s.status = 'W') and s.createdOn < '".$today."' order by s.createdOn desc limit ".$_POST['start'].",".$_POST['limit'];
-            }else{
-                $count_sql = "select count(*) as num from qo_shipments where (status = 'N' or status = 'H' or status = 'W') and createdOn < '".$today."'";
-                $data_sql = "select s.id,o.id as ordersId,s.shipToName,o.paypalEmail as shipToEmail,o.sellerId,s.createdOn,s.shipmentMethod,s.status,s.remarks  
-                from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where (s.status = 'N' or s.status = 'H' or s.status = 'W') and s.createdOn < '".$today."' order by s.createdOn desc limit ".$_POST['start'].",".$_POST['limit'];
-            }
-            
-            //echo $count_sql;
+	    $where_sellerId = "";
+	    if(!empty($_POST['sellerId'])){
+		$where_sellerId = "and o.sellerId = '".$_POST['sellerId']."'";
+	    }
+		
+	    if(!empty($_POST['searchType'])){
+		switch($_POST['searchType']){
+			case 1:
+				$where_type = " and sd.skuId = '".$_POST['searchValue']."'";
+			break;
+		
+			case 2:
+				$where_type = " and o.id = '".$_POST['searchValue']."'";
+			break;
+		
+			case 3:
+				$where_type = " and s.id = '".$_POST['searchValue']."'";
+			break;
+		}
+		$count_sql = "select count(*) as num from (qo_shipments as s left join qo_shipments_detail as sd on s.id = sd.shipmentsId) 
+		left join qo_orders as o on s.ordersId=o.id where 
+		(s.status = 'N' or s.status = 'H' or s.status = 'W') and s.createdOn < '".$today."' ".$where_sellerId.$where_type;
+		
+		$data_sql = "select s.id,o.id as ordersId,s.shipToName,o.paypalEmail as shipToEmail,o.sellerId,s.createdOn,s.shipmentMethod,s.status,s.remarks 
+		from (qo_shipments as s left join qo_shipments_detail as sd on s.id = sd.shipmentsId) left join qo_orders as o on s.ordersId=o.id where (s.status = 'N' or s.status = 'H' or s.status = 'W') and s.createdOn < '".$today."' ".$where_sellerId.$where_type." order by s.createdOn desc limit ".$_POST['start'].",".$_POST['limit'];
+	    }else{
+		$count_sql = "select count(*) as num from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where (s.status = 'N' or s.status = 'H' or s.status = 'W') and s.createdOn < '".$today."' ".$where_sellerId.$where_type;
+		$data_sql = "select s.id,o.id as ordersId,s.shipToName,o.paypalEmail as shipToEmail,o.sellerId,s.createdOn,s.shipmentMethod,s.status,s.remarks   
+		from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where (s.status = 'N' or s.status = 'H' or s.status = 'W') and s.createdOn < '".$today."' ".$where_sellerId.$where_type." order by s.createdOn desc limit ".$_POST['start'].",".$_POST['limit'];
+	    }
+	    /*
+		if(!empty($_POST['sellerId'])){
+		    $count_sql = "select count(*) as num from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where o.sellerId = '".$_POST['sellerId']."' and (s.status = 'N' or s.status = 'H' or s.status = 'W') and s.createdOn < '".$today."'";
+		    $data_sql = "select s.id,o.id as ordersId,s.shipToName,o.paypalEmail as shipToEmail,o.sellerId,s.createdOn,s.shipmentMethod,s.status,s.remarks   
+		    from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where o.sellerId = '".$_POST['sellerId']."' and (s.status = 'N' or s.status = 'H' or s.status = 'W') and s.createdOn < '".$today."' order by s.createdOn desc limit ".$_POST['start'].",".$_POST['limit'];
+		}else{
+		    $count_sql = "select count(*) as num from qo_shipments where (status = 'N' or status = 'H' or status = 'W') and createdOn < '".$today."'";
+		    $data_sql = "select s.id,o.id as ordersId,s.shipToName,o.paypalEmail as shipToEmail,o.sellerId,s.createdOn,s.shipmentMethod,s.status,s.remarks  
+		    from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where (s.status = 'N' or s.status = 'H' or s.status = 'W') and s.createdOn < '".$today."' order by s.createdOn desc limit ".$_POST['start'].",".$_POST['limit'];
+		}
+	    */
+	    
+            //echo $count_sql."\n";
+	    //echo $data_sql."\n";
+	    //exit;
             $count_result = mysql_query($count_sql);
 	    $count_row = mysql_fetch_assoc($count_result);
 	    $totalCount = $count_row['num'];

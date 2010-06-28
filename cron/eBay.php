@@ -1,6 +1,6 @@
 <?php
-require_once '/export/eBayBO/cron/eBaySOAP.php';
-
+require_once 'eBaySOAP.php';
+ini_set("memory_limit","256M");
 class eBayPlatformNotificationListener extends eBayPlatformNotifications {
 	protected $NotificationSignature;
 
@@ -87,19 +87,17 @@ class eBayPlatformNotificationListener extends eBayPlatformNotifications {
 
 class eBay{
     private static $database_connect;
-    const DATABASE_HOST = 'localhost';
-    const DATABASE_USER = 'root';
-    const DATABASE_PASSWORD = '5333533';
-    const DATABASE_NAME = 'ebaybo';
     const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
-    const LOG_DIR = '/export/eBayBO/log/';
     const ACTIVE_MQ = "tcp://192.168.1.168:61613";
     
+    private $config;
     private $startTime;
     private $endTime;
     
     public function __construct(){
-        eBay::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
+	$this->config = parse_ini_file('config.ini', true);
+	
+        eBay::$database_connect = mysql_connect($this->config['database']['host'], $this->config['database']['user'], $this->config['database']['password']);
 
         if (!eBay::$database_connect) {
             echo "Unable to connect to DB: " . mysql_error(eBay::$database_connect);
@@ -108,7 +106,7 @@ class eBay{
 	
         mysql_query("SET NAMES 'UTF8'", eBay::$database_connect);
 	
-        if (!mysql_select_db(self::DATABASE_NAME, eBay::$database_connect)) {
+        if (!mysql_select_db($this->config['database']['name'], eBay::$database_connect)) {
             echo "Unable to select mydbname: " . mysql_error(eBay::$database_connect);
             exit;
         }
@@ -116,7 +114,7 @@ class eBay{
     }
     
     private function log($file_name, $content){
-	file_put_contents("/export/eBayBO/log/".$file_name."-".date("Y-m-d").".log", date("Y-m-d H:i:s")."   ".$content."\n", FILE_APPEND);
+	file_put_contents($this->config['log']['ebay'].$file_name."-".date("Y-m-d").".log", date("Y-m-d H:i:s")."   ".$content."\n", FILE_APPEND);
     }
     
     private function sendMessageToAM($destination, $message){
@@ -156,7 +154,7 @@ class eBay{
     private function configEbay($dev='', $app='', $cert='', $token='', $proxy_host='', $proxy_port=''){
     	
 	// Load developer-specific configuration data from ini file
-	$config = parse_ini_file('/export/eBayBO/cron/ebay.ini', true);
+	$config = parse_ini_file('ebay.ini', true);
 	$site = $config['settings']['site'];
 	//$compatibilityLevel = $config['settings']['compatibilityLevel'];
 	
@@ -177,15 +175,15 @@ class eBay{
     }
     
     private function saveFetchData($account_name, $file_name, $data){
-	if(!file_exists(self::LOG_DIR.$account_name)){
-            mkdir(self::LOG_DIR.$account_name, 0777);
+	if(!file_exists($this->config['log']['ebay'].$account_name)){
+            mkdir($this->config['log']['ebay'].$account_name, 0777);
         }
 	
-	if(!file_exists(self::LOG_DIR.$account_name."/".date("Ymd"))){
-            mkdir(self::LOG_DIR.$account_name."/".date("Ymd"), 0777);
+	if(!file_exists($this->config['log']['ebay'].$account_name."/".date("Ymd"))){
+            mkdir($this->config['log']['ebay'].$account_name."/".date("Ymd"), 0777);
         }
 	
-	file_put_contents(self::LOG_DIR.$account_name."/".date("Ymd")."/".$file_name, $data);
+	file_put_contents($this->config['log']['ebay'].$account_name."/".date("Ymd")."/".$file_name, $data);
 	//file_put_contents("/export/eBayBO/log/".$file_name, $data);
     }
     
@@ -867,7 +865,7 @@ class eBay{
                 $client = new eBaySOAP($session);
                 
 		$Version = "607";
-		$RuName = "Creasion-Creasion-1ca1-4-vldylhxcb";
+		$RuName = "Creasion-Creasion-390e-4-jfbgzuav";
                 $params = array('Version' => $Version, 'RuName' => $RuName);
                 $results = $client->GetSessionID($params);
 		//$results->SessionID
@@ -986,7 +984,6 @@ if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
 //30 */2 * * * root php -q /export/eBayBO/cron/eBay.php getAllEbayTransaction >> /tmp/getAllEbayTransaction.log
 //http://heshuai64.3322.org/eBayBO/cron/eBay.php?action=getAllEbayTransaction&start=2009-04-18 00:00:00&end=2009-04-19 00:00:00
 //http://heshuai64.3322.org/eBayBO/cron/eBay.php?action=getAllSellerList&start=2009-04-17 00:00:00&end=2009-04-19 00:00:00
-//php -q /export/eBayBO/cron/eBay.php getAllSellerList 2009-05-05 2009-05-06 bestnbestonline
 
 
 

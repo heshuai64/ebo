@@ -1655,7 +1655,13 @@ Ext.onReady(function(){
                                     //allowBlank: false,
                                     hiddenName:'ListingDuration',
                                     allowBlank:false
-                                  }]
+                                  }/*,{
+                                    xtype:"numberfield",
+                                    fieldLabel:"Lowest Price",
+                                    disabled:true,
+                                    id:'LowPrice',
+                                    name: 'LowPrice'
+                                }*/]
                               }]
                         }],
                         cls: 'my-fieldset',

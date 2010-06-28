@@ -2,10 +2,6 @@
 
 class PackingList{
     private static $database_connect;
-    const DATABASE_HOST = 'localhost';
-    const DATABASE_USER = 'root';
-    const DATABASE_PASSWORD = '5333533';
-    const DATABASE_NAME = 'ebaybo';
     const FILE_PATH = '/export/eBayBO/packing/';
     const BAR_CODE_URL = '/eBayBO/cron/image.php';
     private $sellerSell = array();
@@ -15,7 +11,9 @@ class PackingList{
     private $shipment = array();
     
     public function __construct(){
-        PackingList::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
+        $config = parse_ini_file('config.ini', true);
+        
+        PackingList::$database_connect = mysql_connect($config['database']['host'], $config['database']['user'], $config['database']['password']);
 
         if (!PackingList::$database_connect) {
             echo "Unable to connect to DB: " . mysql_error(PackingList::$database_connect);
@@ -24,14 +22,12 @@ class PackingList{
         
         mysql_query("SET NAMES 'UTF8'", PackingList::$database_connect);
           
-        if (!mysql_select_db(self::DATABASE_NAME, PackingList::$database_connect)) {
+        if (!mysql_select_db($config['database']['name'], PackingList::$database_connect)) {
             echo "Unable to select mydbname: " . mysql_error(PackingList::$database_connect);
             exit;
         }
         
-        $this->startTime = date("Y-m-d 09:10:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
-        //$this->startTime = date("Y-m-d 14:10:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
-        $this->endTime   = date("Y-m-d 09:10:00");
+       
     }
     
     public function setStartTime($startTime){
@@ -40,6 +36,31 @@ class PackingList{
     
     public function setEndTime($endTime){
         $this->endTime = $endTime;
+    }
+    
+    public function general(){
+        $this->startTime = date("Y-m-d 09:10:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
+        $this->endTime   = date("Y-m-d 09:10:00");
+        $this->getPackingList();
+    }
+    
+    public function morning(){
+        $this->startTime = date("Y-m-d 17:00:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
+        $this->endTime   = date("Y-m-d 10:00:00");
+        $this->getPackingList();
+    }
+    
+    public function afternoon(){
+        $this->startTime = date("Y-m-d 10:00:00");
+        $this->endTime   = date("Y-m-d 17:00:00");
+        $this->getPackingList();
+    }
+    
+    public function temp(){
+        global $argv;
+        $this->startTime = $argv[2];
+        $this->endTime   = $argv[3];
+        $this->getPackingList();
     }
     
     private function getSellerSell(){
@@ -210,7 +231,7 @@ class PackingList{
         */
         $this->getShipment();
         ob_start();
-        require("/export/eBayBO/cron/template.php");
+        require("template.php");
         $content = ob_get_contents();
         ob_end_clean();
         $this->generateFile(date("Ymd"), $content);
@@ -234,15 +255,10 @@ class PackingList{
 
 
 }
+
+$action = $argv[1];
 $packing_list = new PackingList();
-if(!empty($_GET)){
-    $packing_list->setStartTime($_GET['start']);
-    $packing_list->setEndTime($_GET['end']);
-}elseif(!empty($argv[1]) && !empty($argv[2])){
-    $packing_list->setStartTime($argv[1]);
-    $packing_list->setEndTime($argv[2]);
-}
-$packing_list->getPackingList();
+$packing_list->$action();
 
 //http://heshuai64.3322.org/eBayBO/cron/PackingList.php?start=2009-04-22%2000:00:00&end=2009-04-23%2000:00:00
 ?>
