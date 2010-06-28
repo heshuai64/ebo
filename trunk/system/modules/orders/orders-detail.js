@@ -948,39 +948,48 @@ Ext.onReady(function(){
                                     displayField: 'name',
                                     triggerAction: 'all',
                                     editable: false,
+                                    //id: 'shipmentReason',
                                     name: 'shipmentReason',
                                     hiddenName:'shipmentReason'
                         },{
                         text: 'Create Shipment',
                         //tooltip: 'Great tooltips...',
                         handler: function(){
+                                    var toolbar = orderShipmentGrid.getBottomToolbar();
+                                    if(Ext.isEmpty(toolbar.items.items[0].value)){
+                                                Ext.MessageBox.alert('Error', 'Please select Reason.');
+                                                return 0; 
+                                    }
                             Ext.Msg.show({
                                 title:'Create Shipment?',
                                 msg: ' Would you like to create shipment?',
                                 buttons: Ext.Msg.YESNO,
-                                fn: function(btn,text){ 
-                                    if(btn=='yes')
-                                        Ext.Ajax.request({
-                                            waitMsg: 'Please wait...',
-                                            url: 'connect.php?moduleId=qo-orders&action=addOrderShipment',
-                                            params: { 
-                                                id: ordersId,
-                                                shipmentReason: document.getElementById("shipmentReason").value
-                                            }, 
-                                            success: function(response){
-                                                var result = eval(response.responseText);
-                                                if(result=='1')
-                                                {
-                                                        orderShipmentStore.reload();
-                                                        Ext.MessageBox.alert('Attention','Shipment Create Successfully!');
-                                                }else{
-                                                        Ext.MessageBox.alert('Attention','Shipment Create Failed!');
-                                                }      
-                                            },
-                                            failure: function(response){
-                                                Ext.MessageBox.alert('Attention', 'could not connect to the server. retry later');
-                                            }
-                                        });},
+                                fn: function(btn,text){        
+                                    if(btn=='yes'){
+                                                            Ext.Ajax.request({
+                                                                waitMsg: 'Please wait...',
+                                                                url: 'connect.php?moduleId=qo-orders&action=addOrderShipment',
+                                                                params: { 
+                                                                    id: ordersId,
+                                                                    shipmentReason: toolbar.items.items[0].value
+                                                                }, 
+                                                                success: function(response){
+                                                                    var result = eval(response.responseText);
+                                                                    if(result=='1')
+                                                                    {
+                                                                            orderShipmentStore.reload();
+                                                                            Ext.MessageBox.alert('Attention','Shipment Create Successfully!');
+                                                                    }else{
+                                                                            Ext.MessageBox.alert('Attention','Shipment Create Failed!');
+                                                                    }      
+                                                                },
+                                                                failure: function(response){
+                                                                    Ext.MessageBox.alert('Attention', 'could not connect to the server. retry later');
+                                                                }
+                                                            })
+                                                }
+                                    return 1;
+                                    },
                                 animEl: 'elId',
                                 icon: Ext.MessageBox.QUESTION
                             });

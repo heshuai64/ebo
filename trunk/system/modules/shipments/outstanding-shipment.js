@@ -65,21 +65,60 @@ Ext.onReady(function(){
             handler: function(){
                 //outstandingShipmentStore.setBaseParam('sellerId', {bar:3});
                 var toolbar = outstandingShipmentGrid.getTopToolbar();
+                
+                outstandingShipmentStore.baseParams = { searchType: '',
+                                                        searchValue: ''};
+                                                            
                 if(!Ext.isEmpty(toolbar.items.items[0].value)){
-                    outstandingShipmentStore.baseParams = {sellerId: toolbar.items.items[0].value};
+                    outstandingShipmentStore.baseParams = { sellerId: toolbar.items.items[0].value,
+                                                            searchType: '',
+                                                            searchValue: ''};
                 }
                 
                 if(!Ext.isEmpty(toolbar.items.items[1].value)){
-                    outstandingShipmentStore.baseParams = {stock: toolbar.items.items[1].value};
+                    outstandingShipmentStore.baseParams = { stock: toolbar.items.items[1].value,
+                                                            searchType: '',
+                                                            searchValue: ''};
                 }
                 
                 if(!Ext.isEmpty(toolbar.items.items[0].value) && !Ext.isEmpty(toolbar.items.items[1].value)){
                     outstandingShipmentStore.baseParams = {
                                                             sellerId: toolbar.items.items[0].value,
-                                                            stock: toolbar.items.items[1].value
+                                                            stock: toolbar.items.items[1].value,
+                                                            searchType: '',
+                                                            searchValue: ''
                                                         };
                 }
                 outstandingShipmentStore.load({params:{start:0, limit:200}});
+            }
+        },'-',{
+            xtype: 'combo',
+            mode: 'local',
+            store: new Ext.data.SimpleStore({
+                fields: ['id', 'name'],
+                data: [['1', 'SKU'], ['2', 'Order ID'], ['3', 'Shipment ID']]
+            }),
+            valueField:'id',
+            displayField:'name',
+            triggerAction: 'all',
+            editable: false,
+            selectOnFocus:true,
+            name: 'searchType',
+            hiddenName:'searchType',
+            width: 100    
+        },{
+            id:'searchValue',
+            xtype:'textfield',
+            name:'searchValue',
+            hiddenName:'searchValue'
+        },{
+            text: 'Search',
+            handler: function(){
+                var toolbar = outstandingShipmentGrid.getTopToolbar();
+                if(!Ext.isEmpty(toolbar.items.items[4].value)){
+                    outstandingShipmentStore.baseParams = {searchType: toolbar.items.items[4].value, searchValue: Ext.getCmp('searchValue').getValue()};
+                    outstandingShipmentStore.load({params:{start:0, limit:200}});
+                }
             }
         },'-',{
             text: 'Set Remark',
@@ -159,13 +198,13 @@ Ext.onReady(function(){
             width: 100,
             align: 'center',
             sortable: true
-        },{
+        }/*,{
             header: "shipTo",
             dataIndex: 'shipToName',
             width: 120,
             align: 'center',
             sortable: true
-        },{
+        }*/,{
             header: "Order Id",
             dataIndex: 'ordersId',
             width: 100,

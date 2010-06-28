@@ -2,6 +2,7 @@
 class Template{
     private $account_id;
     const INVENTORY_SERVICE = 'http://192.168.1.169:8080/inventory/service.php';
+    private $batch = false;
     
     public function __construct($account_id=0){
         $this->account_id = $account_id;
@@ -335,6 +336,7 @@ class Template{
     public function importTemplateFromCSV(){
 	//echo '{success:true, test:"'.print_r($_FILES, true).'"}';
 	//exit;
+        $msg = "";
 	switch($_GET['type']){
 	    case "spcsv":
 		$handle = fopen($_FILES['spcsv']['tmp_name'], "r");
@@ -367,6 +369,7 @@ class Template{
 	    break;
 	    
 	    case "stcsv":
+                $this->batch = true;
 	    	$handle = fopen($_FILES['stcsv']['tmp_name'], "r");
                 while (($data = fgetcsv($handle)) !== FALSE) {
                     //print_r($data);
@@ -381,18 +384,25 @@ class Template{
 	    break;
         
             case "tcsv":
+                $this->batch = true;
                 $handle = fopen($_FILES['tcsv']['tmp_name'], "r");
                 while (($data = fgetcsv($handle)) !== FALSE) {
-                        $this->changeTemplateToItem($data[0]);
+                    if(!$this->changeTemplateToItem($data[0])){
+                        $msg .= $data[0];
+                    }
                 }
                 fclose($handle);
             break;
 	}
+        
+        echo "{success:true}";
+        /*
 	if($result){
 	    echo "{success:true}";
 	}else{
 	    echo "{success:false}";
 	}
+        */
     }
     
     //-----------------------  Template change to item ------------------------------------
@@ -403,18 +413,28 @@ class Template{
 	
         if($row_0['status'] !=2 && $row_0['status'] !=3){
 	    echo "[{success: false, msg: 'template status error.'}]";
-	    exit;
+            if($this->batch){
+                return 0;
+            }
+            exit;
 	}
         
 	if(empty($row_0['shippingTemplateName'])){
 	    echo "[{success: false, msg: 'template ".$template_id." no set shipping template.'}]";
-	    exit;
+            if($this->batch){
+                return 0;
+            }
+            exit;
 	}
-	
+	/*
         if($row_0['status'] == 1){
             echo "[{success: false, msg: 'template ".$template_id." is locked.'}]";
+            if($this->batch){
+                return 0;
+            }
 	    exit;
         }
+        */
         
 	$sql_8 = "select * from shipping_template where name = '".$row_0['shippingTemplateName']."' and account_id = '".$this->account_id."'";
 	$result_8 = mysql_query($sql_8, eBayListing::$database_connect);
@@ -1289,6 +1309,29 @@ class Template{
 	}
     }
     
+    private function getSkuLowPrice($sku, $currency){
+        switch($currency){
+            case 'USD':
+                $rate = 6.82;
+            break;
+            
+            case 'GBP':
+                $rate = 10.12;
+            break;
+            
+            case 'AUD':
+                $rate = 5.95;
+            break;
+            
+            case 'EUR':
+                $rate = 8.45;
+            break;
+        }
+        $json_object = $this->getService("?action=getSkuLowestPrice&sku=".$sku);
+        $l_price = $json_object->L / $rate;
+        return round($l_price, 2);
+    }
+    
     public function getTemplate(){
 	session_start();
 	$sql = "select * from template where Id = '".$_GET['id']."'";
@@ -1297,7 +1340,8 @@ class Template{
 	$row['SiteID'] = $row['Site'];
 	$row['Description'] = html_entity_decode($row['Description'], ENT_QUOTES);
 	//$row['Title'] = html_entity_decode($row['Title'], ENT_QUOTES);
-	
+	$row['LowPrice'] = $this->getSkuLowPrice($row['SKU'], $row['Currency']);
+        
 	if($row['ListingType'] == "FixedPriceItem" || $row['ListingType'] == "StoresFixedPrice"){
 	    $row['BuyItNowPrice'] = $row['StartPrice'];
 	    $row['StartPrice'] = 0;
@@ -1449,6 +1493,14 @@ class Template{
 	    $_POST['Description'] .= $row['footer'];
 	}
 	*/
+        /*            
+        $l_price = $this->getSkuLowPrice($_POST['SKU'], $_POST['Currency']);
+        if(min($_POST['StartPrice'], $_POST['BuyItNowPrice']) + $_POST['ShippingServiceCost1'] < $json_object->L){
+            echo '{success: false, errors: {message:""},
+                    msg: "Price + Shipping Need more than '.$l_price.'"}';
+            return 0;
+        }
+        */
 	session_start();
 	if($_POST['ListingType'] == "FixedPriceItem" || $_POST['ListingType'] == "StoresFixedPrice"){
 	    $_POST['StartPrice'] = $_POST['BuyItNowPrice'];

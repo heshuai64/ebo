@@ -1,11 +1,7 @@
 <?php
 class Service{
     private static $database_connect;
-    const DATABASE_HOST = 'localhost';
-    const DATABASE_USER = 'root';
-    const DATABASE_PASSWORD = '5333533';
-    const DATABASE_NAME = 'ebaybo';
-    const INVENTORY_SERVICE = 'http://192.168.1.169:8080/inventory/service.php';
+    private $inventory_service;
     
     const SHIPPED_BULK_TEMPLET = "Hi %s,<p>
             Thank you for your purchasing from us and prompt payment, your item #%s has been posted to the dispatch center just now which will be sent out soon via the HongKong post regular air mail without tracking number. It normally will takes around 7 to 15 business days from the dispatch date (public holidays and weekends are not recognized as \"business days\"), please kindly wait a few days for delivery.<p>
@@ -67,12 +63,21 @@ class Service{
             <p>We sincerely hope our item and customer service can give you the BEST BUYING EXPERIENCE on eBay.</p>
             Yours Sincerely,<br>
             %s";
-    */
+            
     const XMAS_BLUK_TEMPLATE_1  = "<p><b><font color='red'>Note: To our European customers: </br>
             Your item may be delayed on the delivery for the volcanic explosion in south Iceland. Owning to this volcanic explosion, airlines to Europe have to been cancelled, and many airports also have been closed, which directly caused the shipping delivery delayed. Once the flight condition comes to normal, your item will be dispatched with no delay.</br> 
             We appreciate your understanding and patience.</br>
             European customers pls disregard the letter below sent by our ERP system automatically in normal delivery condition.</font>
             </b></p>
+            <p>%s</p>
+            <p>Dear %s,</p>
+            <p>Thank you for your purchasing from us, this email just to inform you that we sent your item to our dispatch center. It is estimated to arrive in 7 to 15 WORKING days in normal conditions to most of US, UK, AU destinations and 3 to 5 weeks to arrive the Europe countries and other remote regions, it depends your custom inspections and the freight efficiency. If not arrive at that time period, please do not hesitate to contact us.</p> 
+            <p>Hopefully the item could be arrived as quickly as possible and appreciate for your positive feedback with all 5 stars DSRs after reiceving it, we will leave it for you also.</p> 
+            <p>We sincerely hope our item and customer service can give you the BEST BUYING EXPERIENCE on eBay.</p>
+            <p>Yours Sincerely,<br>
+            %s";
+    */
+    const XMAS_BLUK_TEMPLATE_1  = "
             <p>%s</p>
             <p>Dear %s,</p>
             <p>Thank you for your purchasing from us, this email just to inform you that we sent your item to our dispatch center. It is estimated to arrive in 7 to 15 WORKING days in normal conditions to most of US, UK, AU destinations and 3 to 5 weeks to arrive the Europe countries and other remote regions, it depends your custom inspections and the freight efficiency. If not arrive at that time period, please do not hesitate to contact us.</p> 
@@ -115,9 +120,22 @@ class Service{
             Yours Sincerely,<br>
             %s";
     
+    const OUTSTANDING = "
+            Dear buyer,
+            First of all, we thank you for your purchasing from us and prompt payment.
+            However, I feel very regret to inform you that our system indicates your order still hasn't be dispatched yet, cause the item is out of stock temporary, and it wil be restocked to our warehouse at 5 days later.
+            May I know that if you could pay a bit patience to wait for a few more days to get it restock?
+            If you can't wait, then we will full refund amount for you 2 working days(exclude  Chinese public holiday) after your confirmation. .
+            If you are unsatisfied with our item or service, then please follow the good eBay practice to contact us before leaving any feedback. We are committed to resolve all issues in a friendly and satisfactory manner.
+            Our sincerely apology for any inconvenience caused, your kindly understanding and quick response are much appreciated.
+            Best Regards
+            ";
     
     public function __construct(){
-        Service::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
+        $config = parse_ini_file('config.ini', true);
+        $this->inventory_service = $config['service']['inventory'];
+        
+        Service::$database_connect = mysql_connect($config['database']['host'], $config['database']['user'], $config['database']['password']);
 
         if (!Service::$database_connect) {
             echo "Unable to connect to DB: " . mysql_error(Service::$database_connect);
@@ -126,7 +144,7 @@ class Service{
 	
         mysql_query("SET NAMES 'UTF8'", Service::$database_connect);
 	
-        if (!mysql_select_db(self::DATABASE_NAME, Service::$database_connect)) {
+        if (!mysql_select_db($config['database']['name'], Service::$database_connect)) {
             echo "Unable to select mydbname: " . mysql_error(Service::$database_connect);
             exit;
         }
@@ -146,19 +164,8 @@ class Service{
                      'email'=>$row['email'],
                      'emailPassword'=>$row['emailPassword']);
         */
-        
-        $array = array('ymca200808'=> array('id'=>'ymca200808', 'email'=> 'ymca2u@gmail.com', 'emailPassword'=> '33touagr'),
-                       'libra.studio'=> array('id'=>'libra.studio', 'email'=> 'libra.studio.cn@gmail.com', 'emailPassword'=> 'weeknesw99'),
-                       'bestnbestonline'=> array('id'=>'bestnbestonline', 'email'=> 'bestnbestonline@gmail.com', 'emailPassword'=> 'brststbb99'),
-                       'nereus.store'=> array('id'=>'nereus.store', 'email'=> 'nereus.art@gmail.com', 'emailPassword'=> 'mercedesbenz'),
-                       'aphroditestore'=> array('id'=>'aphroditestore', 'email'=> 'aphroditestore@gmail.com', 'emailPassword'=> 'evaluecn88'),
-                       'mission-hill'=> array('id'=>'mission-hill', 'email'=> 'oldtreegallerypp@gmail.com', 'emailPassword'=> 'yearshare88'),
-                       'geniusartgallery'=> array('id'=>'geniusartgallery', 'email'=> 'geniusartgallery2008@gmail.com', 'emailPassword'=> 'febdarary'),
-                       'top.art.online'=> array('id'=>'top.art.online','email'=> 'topartonline.store@gmail.com', 'emailPassword'=>'ing88store'),
-                       'exrell'=> array('id'=>'exrell','email'=> 'exxrell@gmail.com', 'emailPassword'=>'vostrrell')
-                );
-        
-        return $array[$sellerId];
+        $config = parse_ini_file('email.ini', true);
+        return $config[$sellerId];
     }
     
     private function getShipmentItems($shipmentsId){
@@ -454,6 +461,38 @@ class Service{
         //http://heshuai64.3322.org/eBayBO/service.php?action=sendShipShpmentEmail
     }
     
+    public function sendOutstandingEmail(){
+        include("/export/eBayBO/class/class.phpmailer.php");
+        $day   = date("Y-m-d", time() - (3 * 24 * 60 * 60));
+        $sql = "select id,ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where createdOn like '".$day."%' and emailStatus = 0 and status = 'N'";
+        //echo $sql."\n";
+        $result = mysql_query($sql);
+        while($row = mysql_fetch_assoc($result)){
+            
+            //get seller Id
+            $sql_2 = "select sellerId from qo_orders where id = '".$row['ordersId']."'";
+            $result_2 = mysql_query($sql_2);
+            $row_2 = mysql_fetch_assoc($result_2);
+            $sellerId = $row_2['sellerId'];
+            $seller = $this->getSellerEmailAccountAndPassword($sellerId);
+            
+            $toContent = self::OUTSTANDING;
+            $buyer = array('name'=> "heshuai", 'email'=> "heshuai64@gmail.com");
+            //$buyer = array('name'=> $row['shipToName'], 'email'=> $row['shipToEmail']);
+            $subjet = "important notice regarding yr ebay purchase";
+            $send_result = $this->sendEmail($seller, $buyer, $subjet, $toContent);
+            if($send_result){
+                $sql_3 = "update qo_shipments set emailStatus = 1 where id = '".$row['id']."'";
+                $result_3 = mysql_query($sql_3);
+                $this->log("email/outstandingEmail", $sellerId. ": ".$row['id']." Send <br>".$toContent."<br> To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
+            }else{
+                $this->log("email/outstandingEmail", "<font color='red'>".$sellerId. ": ".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
+            }
+            $this->log("email/outstandingEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
+            exit;
+        }
+    }
+    
     public function getService($request){
         
         //$request =  'http://search.yahooapis.com/ImageSearchService/V1/imageSearch?appid=YahooDemo&query='.urlencode('Al Gore').'&results=1';
@@ -516,7 +555,7 @@ class Service{
             //$json_result = $this->getService($request."?skuString=".$sku_string."&country=".$row['ebayCountry']);
             //echo $data_json;
             //echo "<br>";
-            $json_result = $this->getService(self::INVENTORY_SERVICE."?action=getShippingMethodBySku&data=".urlencode($data_json));
+            $json_result = $this->getService($this->inventory_service."?action=getShippingMethodBySku&data=".urlencode($data_json));
             //echo $json_result;
             //echo "<br>";
             $this->log("updateShippingMethod", "ordersId: ".$id.", sku: ".print_r($sku_array, true).", inventory system return: ".$json_result."<br>");
@@ -563,7 +602,7 @@ class Service{
             //print_r($skuArray);
             $data_json = json_encode($skuArray);
             
-            $json_result = $this->getService(self::INVENTORY_SERVICE."?action=getEnvelopeBySku&data=".urlencode($data_json));
+            $json_result = $this->getService($this->inventory_service."?action=getEnvelopeBySku&data=".urlencode($data_json));
             echo $json_result;
             //echo "<br>";
             $this->log("updateShipmentEnvelope", "inventory system return: ".$json_result. "<br>");
@@ -591,7 +630,7 @@ class Service{
         $sql = "select id,skuId from qo_orders_detail where skuCostStatus = 0";
         $result = mysql_query($sql, Service::$database_connect);
         while($row = mysql_fetch_assoc($result)){
-            $json_result = $this->getService(self::INVENTORY_SERVICE."?action=getSkuCost&data=".urlencode($row['skuId']));
+            $json_result = $this->getService($this->inventory_service."?action=getSkuCost&data=".urlencode($row['skuId']));
             echo $json_result;
             echo "<br>";
             $service_result = json_decode($json_result);
@@ -611,7 +650,7 @@ class Service{
     	$sql = "select id,skuId from qo_orders_detail where skuInfoStatus = 0";
     	$result = mysql_query($sql, Service::$database_connect);
         while($row = mysql_fetch_assoc($result)){
-            $json_result = $this->getService(self::INVENTORY_SERVICE."?action=getSkuInfo&data=".urlencode($row['skuId']));
+            $json_result = $this->getService($this->inventory_service."?action=getSkuInfo&data=".urlencode($row['skuId']));
             echo $json_result;
             echo "\n";
             $service_result = json_decode($json_result);

@@ -14,7 +14,7 @@
         <script src="../Ext/2.2/ext-all.js"></script>
         <script src="system/modules/shipments/RowExpander.js"></script>
         <script src="system/modules/shipments/lang.js"></script>
-        <script src="system/modules/shipments/outstanding-shipment.js"></script>
+        <script src="system/modules/shipments/outstanding-shipment-min.js"></script>
 </head>
 <body>
     <div id="outstanding-shipment"></div>

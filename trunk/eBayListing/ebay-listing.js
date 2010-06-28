@@ -4,8 +4,8 @@ Ext.onReady(function(){
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      
-     var path = "/eBayBO/eBayListing/";
-     //var path = "/eBayListing/";
+     //var path = "/eBayBO/eBayListing/";
+     var path = "/eBayListing/";
      
      /*
      var cp = new Ext.state.CookieProvider({
@@ -570,7 +570,7 @@ Ext.onReady(function(){
                          }     
                          return 1;
                     }     
-               },'-',{
+               }/*,'-',{
                text: 'Delete',
                icon: './images/cancel.png',
                tooltip:'Delete selected template',
@@ -615,7 +615,7 @@ Ext.onReady(function(){
                     });
                     return 1;
                }
-          },'-',{
+          }*/,'-',{
                text: 'Import',
                icon: './images/folder_database.png',
                tooltip:'Import CSV file, include sku and tiitle / sku and price / sku and quantiry',
@@ -1703,7 +1703,7 @@ Ext.onReady(function(){
                          }     
                          return 1;
                     }     
-               },'-',{
+               }/*,'-',{
                text: 'Delete',
                icon: './images/cancel.png',
                tooltip:'Delete selected template',
@@ -1747,7 +1747,7 @@ Ext.onReady(function(){
                     });
                     return 1;
                }
-          },'-',{
+          }*/,'-',{
                text:'Add To Upload',
                icon: './images/package_go.png',
                tooltip:'add selected template to waiting to upload(no set date time)',
@@ -2315,6 +2315,94 @@ Ext.onReady(function(){
                     }else{
                          window.open(path + "item.php?id="+ids+"&Status=3","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                     }     
+                    return 1;
+               }
+          },'-',{
+               text: "Batch Revise",
+               icon: "./images/building_edit.png",
+               handler: function(){
+                    var selections = activity_grid.selModel.getSelections();
+                    if(activity_grid.selModel.getCount() <= 1){
+                         Ext.MessageBox.alert('Warning','Please select the mulit items.');
+                         return 0;
+                    }
+                    
+                    var ids = "";
+                    for(var i = 0; i< activity_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    
+                    
+                    var  batchReviseWindow = new Ext.Window({
+                         title: 'Batch Revise Online Items(' + ids + ')' ,
+                         closable:true,
+                         width: 450,
+                         height: 230,
+                         plain:true,
+                         layout: 'form',
+                         items: [{
+                              id: 'batch_price',
+                              fieldLabel: 'Price',
+                              xtype: 'numberfield',
+                              name: 'price'
+                         },{
+                              id: 'batch_title',
+                              fieldLabel: 'Title',
+                              xtype: 'textfield',
+                              name: 'title',
+                              maxLength: 55,
+                              width: 250
+                         },{
+                              id: 'batch_gallery_image',
+                              fieldLabel: 'Gallery Image',
+                              xtype: 'textfield',
+                              name: 'image',
+                              width: 250
+                         },{
+                              id: 'batch_product_image',
+                              fieldLabel: 'Product Image',
+                              xtype: 'textfield',
+                              name: 'image',
+                              width: 250
+                         }],                                           
+                         buttons: [{
+                                        text: 'Batch Revise',
+                                        handler: function(){
+                                             Ext.Ajax.request({  
+                                                  waitMsg: 'Please Wait',
+                                                  url: 'service.php?action=batchReviseItem', 
+                                                  params: {
+                                                       ids: ids,
+                                                       batch_price: Ext.getCmp('batch_price').getValue(),
+                                                       batch_title: Ext.getCmp('batch_title').getValue(),
+                                                       batch_gallery_image: Ext.getCmp('batch_gallery_image').getValue(),
+                                                       batch_product_image: Ext.getCmp('batch_product_image').getValue()
+                                                  }, 
+                                                  success: function(response){
+                                                       //console.log(response);
+                                                       //alert(response.responseText);
+                                                  
+                                                       var result = eval(response.responseText);
+                                                       if(result[0].success){
+                                                            activity_store.reload();
+                                                            Ext.MessageBox.alert('Success', result[0].msg);
+                                                            batchReviseWindow.close();
+                                                       }else{
+                                                            Ext.MessageBox.alert('Warning', result[0].msg);
+                                                       }
+                                                  },
+                                                  failure: function(response){
+                                                      var result=response.responseText;
+                                                      Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                  }
+                                             }); 
+                                        }
+                                   }]
+                                   
+                    })
+                    batchReviseWindow.show();
+                    
                     return 1;
                }
           },'-',{
@@ -3858,7 +3946,7 @@ Ext.onReady(function(){
                                    var schedule_grid = new Ext.grid.EditorGridPanel({
                                         title: 'Schedule List',
                                         store: schedule_store,
-                                        plugins: [schedule_grid_editor],
+                                        //plugins: [schedule_grid_editor],
                                         //autoHeight: true,
                                         width: 1024,
                                         height: 460,
@@ -3998,7 +4086,7 @@ Ext.onReady(function(){
                                                             
                                                             searchWindow.show();
                                                   }
-                                             },'-',{
+                                             }/*,'-',{
                                                   text:'Edit',
                                                   icon: './images/page_edit.png',
                                                   tooltip:'Editing before uploading',
@@ -4020,7 +4108,7 @@ Ext.onReady(function(){
                                                        }
                                                        return 1;
                                                   }
-                                             },'-',{
+                                             }*/,'-',{
                                                   text:'Delete',
                                                   icon: './images/page_delete.png',
                                                   tooltip:'Delete before uploading',

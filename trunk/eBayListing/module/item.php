@@ -1,9 +1,15 @@
 <?php
 class Item{
     private $account_id;
+    const INVENTORY_SERVICE = 'http://192.168.1.169:8080/inventory/service.php';
     
     public function __construct($account_id){
         $this->account_id = $account_id;
+    }
+    
+    private function getService($request){
+        $json = file_get_contents(Template::INVENTORY_SERVICE.$request);
+        return json_decode($json);
     }
     
     private function getSiteTime($site, $date, $time, $num = 0, $interval = 0){
@@ -599,9 +605,10 @@ class Item{
 		}
 		
                 if($Status == 8){
-                    $sql_8 = "update items set Relist = 'Y' where Id = '".$a."'";
+                    $sql_8 = "update items set parentId = ".$a." where Id = ".$item_id;
                     $result_8 = mysql_query($sql_8, eBayListing::$database_connect);
                 }
+                
 		//var_dump(array($result_1, $result_2, $result_3, $result_4, $result_5, $result_6, $result_7));
 	    }
 	    if($result_1 && $result_2 && $result_3 && $result_4){
@@ -657,12 +664,12 @@ class Item{
 		where attribute_set_id = '".$template_attribute_set_id."'";
 		$result_7 = mysql_query($sql_7, eBayListing::$database_connect);
 	    }
-	
+            
             if($Status == 8){
-                $sql_8 = "update items set Relist = 'Y' where Id = '".$_POST['ids']."'";
+                $sql_8 = "update items set parentId = ".$_POST['ids']." where Id = ".$item_id;
                 $result_8 = mysql_query($sql_8, eBayListing::$database_connect);
             }
-                
+            
 	    if($result_1 && $result_2 && $result_3 && $result_4){
                 if(empty($id) && empty($status)){
                     echo 1;
@@ -777,6 +784,29 @@ class Item{
 	}
     }
     
+    private function getSkuLowPrice($sku, $currency){
+        switch($currency){
+            case 'USD':
+                $rate = 6.82;
+            break;
+            
+            case 'GBP':
+                $rate = 10.12;
+            break;
+            
+            case 'AUD':
+                $rate = 5.95;
+            break;
+            
+            case 'EUR':
+                $rate = 8.45;
+            break;
+        }
+        $json_object = $this->getService("?action=getSkuLowestPrice&sku=".$sku);
+        $l_price = $json_object->L / $rate;
+        return round($l_price, 2);
+    }
+    
     public function getItem(){
     	session_start();
 	$sql = "select * from items where Id = '".$_GET['id']."'";
@@ -785,7 +815,8 @@ class Item{
 	$row['SiteID'] = $row['Site'];
 	$row['Description'] = html_entity_decode($row['Description'], ENT_QUOTES);
 	$row['Title'] = html_entity_decode($row['Title'], ENT_QUOTES);
-	
+	//$row['LowPrice'] = $this->getSkuLowPrice($row['SKU'], $row['Currency']);
+        
 	$_SESSION['ReturnPolicyReturns'][$_GET['id']]['ReturnPolicyReturnsAcceptedOption'] = $row['ReturnPolicyReturnsAcceptedOption'];
 	$_SESSION['ReturnPolicyReturns'][$_GET['id']]['ReturnPolicyReturnsWithinOption'] = $row['ReturnPolicyReturnsWithinOption'];
 	$_SESSION['ReturnPolicyReturns'][$_GET['id']]['ReturnPolicyRefundOption'] = $row['ReturnPolicyRefundOption'];
@@ -867,7 +898,14 @@ class Item{
 	    $row = mysql_fetch_assoc($result);
 	    $_POST['Description'] .= $row['footer'];
 	}
-	*/
+	
+        $l_price = $this->getSkuLowPrice($_POST['SKU'], $_POST['Currency']);
+        if(min($_POST['StartPrice'], $_POST['BuyItNowPrice']) + $_POST['ShippingServiceCost1'] < $json_object->L){
+            echo '{success: false, errors: {message:""},
+                    msg: "Price + Shipping Need more than '.$l_price.'"}';
+            return 0;
+        }
+        */
         $id = $_GET['item_id'];
         
 	if(!empty($_GET['status'])){
@@ -1515,6 +1553,38 @@ class Item{
 	}else{
 	    echo 0;
 	}
+    }
+    
+    public function batchReviseItem(){
+        $sql = "update items set status = 3,";   
+        if(!empty($_POST['batch_price'])){
+            $sql .= " BuyItNowPrice = ".$_POST['batch_price'].",";
+        }
+        
+        if(!empty($_POST['batch_title'])){
+            $sql .= " Title = '".mysql_real_escape_string($_POST['batch_title'])."',";
+        }
+        
+        if(!empty($_POST['batch_gallery_image'])){
+            $sql .= " GalleryURL = '".$_POST['batch_gallery_image']."',";
+        }
+        
+        if(!empty($_POST['batch_product_image'])){
+            $sql_1 = "update picture_url set url = '".$_POST['batch_product_image']."' where ItemID in (".$_POST['ids'].")";
+            //echo $sql_1."\n";
+            $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+        }
+        
+        $sql = substr($sql, 0, -1);
+        $sql .= " where Id in (".$_POST['ids'].")";
+        
+        //echo $sql."\n";
+        $result = mysql_query($sql, eBayListing::$database_connect);
+        if($result){
+            echo "[{success: true, msg: 'batch revise item success.'}]";
+        }else{
+            echo "[{success: false, msg: 'batch revise item failure.'}]";
+        }
     }
 }
 ?>

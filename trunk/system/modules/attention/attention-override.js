@@ -38,6 +38,7 @@ Ext.override(QoDesk.Attention, {
 	var unMapTransactionGrid = new Ext.grid.GridPanel({
 		autoHeight: true,
                 store: unMapTransactionGridStore,
+		autoScroll: true,
                 columns:[{
 		    header: lang.attention.grid_transactions_payee_id,
                     dataIndex: 'payeeId',
@@ -116,12 +117,12 @@ Ext.override(QoDesk.Attention, {
 				start_date: document.getElementById("start_date").value,
 				end_date: document.getElementById("end_date").value
 			    };
-			    unMapTransactionGridStore.load({params:{start:0, limit:10}});
+			    unMapTransactionGridStore.load({params:{start:0, limit:20}});
 		       }
 		       }
 		    ],
                 bbar: new Ext.PagingToolbar({
-		    pageSize: 10,
+		    pageSize: 20,
 		    store: unMapTransactionGridStore,
 		    displayInfo: true
                 })
@@ -143,6 +144,7 @@ Ext.override(QoDesk.Attention, {
                 animCollapse:false,
                 constrainHeader:true,
 		layout: 'fit',
+		autoScroll: true,
 		items:[{
 			xtype: 'panel',
 			title: lang.attention.un_map_transaction_grid_title,

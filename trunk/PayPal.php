@@ -1,10 +1,6 @@
 <?php
     class PayPal{
         private static $database_connect;
-        const DATABASE_HOST = 'localhost';
-        const DATABASE_USER = 'root';
-        const DATABASE_PASSWORD = '5333533';
-        const DATABASE_NAME = 'ebaybo';
         //const IPN_VALIDATE_HOST = 'ssl://www.sandbox.paypal.com';
         const IPN_VALIDATE_HOST = 'ssl://www.paypal.com';
         const NVPAPI_HOST = 'https://api-3t.paypal.com/nvp';
@@ -12,7 +8,9 @@
 	private $end_time;
 	
         public function __construct(){
-            PayPal::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
+	    $config = parse_ini_file('config.ini', true);
+	    
+            PayPal::$database_connect = mysql_connect($config['database']['host'], $config['database']['user'], $config['database']['password']);
 
             if (!PayPal::$database_connect) {
                 echo "Unable to connect to DB: " . mysql_error(PayPal::$database_connect);
@@ -21,7 +19,7 @@
             
 	    mysql_query("SET NAMES 'UTF8'", PayPal::$database_connect);
 	    
-            if (!mysql_select_db(self::DATABASE_NAME, PayPal::$database_connect)) {
+            if (!mysql_select_db($config['database']['name'], PayPal::$database_connect)) {
                 echo "Unable to select mydbname: " . mysql_error(PayPal::$database_connect);
                 exit;
             }
@@ -797,7 +795,7 @@
 	    
 	    if($row['num'] == 0){
                 $transactionId = $this->getTransactionId();
-		$payeeId = $this->getPayeeIdFromEmail($api_date['RECEIVERBUSINESS']);
+		$payeeId = $this->getPayeeIdFromEmail($api_date['RECEIVEREMAIL']);
 		
                 $sql = "insert into qo_transactions (id,txnId,transactionTime,amountCurrency,amountValue,status,remarks,createdBy,createdOn,payeeId,
                 payerId,payerName,payerEmail,payerAddressLine1,payerAddressLine2,payerCity,payerStateOrProvince,
@@ -873,43 +871,7 @@
 		$this->end_time   = date("Y-m-d H:i:s", time() - (8 * 60 * 60));
 	    }
 	    
-	    $api_acount = array(array(
-					"Username"=> "paintings.suppliersz_api1.gmail.com",
-					"Password"=>"BQ3G47PGEUPFJYUW",
-					"Signature"=>"AFAonZoEN5Tlf1AdMI6LHryIRiuXAZmyV1n8z4H3aK3CTTmVXIajebfk"),
-				array(
-					"Username"=> "bestnbestonlinesz_api1.gmail.com",
-					"Password"=>"8QRU8M9WXG7N3953",
-					"Signature"=>"ATFJ04PNS0BGkSpwDZ9jfBhWpU8DAenN3dU8O9ap3NNjIK46BR-KRcos"),
-				array(
-					"Username"=> "libra.studio.gd_api1.gmail.com",
-					"Password"=>"9SX9GJJX38PGPDBZ",
-					"Signature"=>"AFcWxV21C7fd0v3bYYYRCpSSRl31A5TLxC.ZzYePJo53IDKsil6q0V3o"),
-				array(
-					"Username"=> "nereus.art.cn_api1.gmail.com",
-					"Password"=>"QDS5D3X3KMQ3NCV7",
-					"Signature"=>"AFcWxV21C7fd0v3bYYYRCpSSRl31Asr3tZEXyZXwyN79SRA4ulR.0J7E"),
-                                array(
-                                        "Username"=> "oldtreegallerypp_api1.gmail.com",
-					"Password"=>"TEREJGADVK95MWJR",
-					"Signature"=>"A7q2cyetJjzJX85fxzjXpjxCQkMEAu-p4XeFoUBBAvtfnbH7gyAnQO0q"),
-                                array(
-                                        "Username"=> "aphroditestore_api1.gmail.com",
-					"Password"=>"5FPAT9TZD2NBW4H7",
-					"Signature"=>"ACZLQT51.W3KBggie8Z1cE3P-wY5Aw7.GiUniQ0wDxc9G4fkTsKRc25u"),
-				array(
-                                        "Username"=> "genius.art.gallery_api1.gmail.com",
-					"Password"=>"W7GWJ7UMREGJNAGH",
-					"Signature"=>"AFcWxV21C7fd0v3bYYYRCpSSRl31ADjM473ABUGANDJgwg3zBtn8v1Hn"),
-				array(
-					"Username"=> "topartonline_api1.gmail.com",
-					"Password"=>"GD2CQWEWE4UJTNQ5",
-					"Signature"=>"Azdw3eGr-YJzTa64KKCbC-VkV1kTAIwK6.OrZPCc9s-2pR86bYoSIYaU"),
-				array(
-					"Username"=> "exxrellpp_api1.gmail.com",
-					"Password"=>"CVF74N48G2S88TQD",
-					"Signature"=>"AsLaR1oNaSygWGse376fhYSOLUMRAFCLOlJ7BjxM8VJF-UV20syTTedG")
-                                );
+	    $api_acount = parse_ini_file('paypal.ini', true);
 	    
 	    foreach($api_acount as $acount){
 		$this->TransactionSearch($acount['Username'], $acount['Password'], $acount['Signature'], $this->start_time, $this->end_time);

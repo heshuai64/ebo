@@ -367,7 +367,8 @@ Ext.onReady(function(){
                 'picture_9','picture_10','template_category_id','PhotoDisplay',
                 'accountId','UseStandardFooter','ScheduleStartDate','ScheduleEndDate','scheduleTemplateName','shippingTemplateName',
                 'ShippingServiceCost1','ShippingServiceAdditionalCost1','ShippingServiceCost2','ShippingServiceAdditionalCost2','ShippingServiceCost3','ShippingServiceAdditionalCost3',
-                'InternationalShippingServiceCost1','InternationalShippingServiceAdditionalCost1','InternationalShippingServiceCost2','InternationalShippingServiceAdditionalCost2','InternationalShippingServiceCost3','InternationalShippingServiceAdditionalCost3','StandardStyleTemplateId'
+                'InternationalShippingServiceCost1','InternationalShippingServiceAdditionalCost1','InternationalShippingServiceCost2','InternationalShippingServiceAdditionalCost2',
+                'InternationalShippingServiceCost3','InternationalShippingServiceAdditionalCost3','StandardStyleTemplateId','LowPrice'
         ]),
         items:[{
                 layout:"column",
@@ -1649,12 +1650,30 @@ Ext.onReady(function(){
                                     xtype:"numberfield",
                                     fieldLabel:"Start Price",
                                     id:"StartPrice",
-                                    name:"StartPrice"
+                                    name:"StartPrice"/*,
+                                    validator: function(){
+                                        if(this.getValue() > 0){}
+                                            if(this.getValue() >= Ext.getCmp("LowPrice").getValue()){
+                                                return true;
+                                            }else{
+                                                return false;
+                                            }
+                                        }else{
+                                            return false;
+                                        }
+                                    }*/
                                   },{
                                     xtype:"numberfield",
                                     fieldLabel:"Buy It Now Price",
                                     id:"BuyItNowPrice",
-                                    name:"BuyItNowPrice"
+                                    name:"BuyItNowPrice"/*,
+                                    validator: function(){
+                                        if(this.getValue() >= Ext.getCmp("LowPrice").getValue()){
+                                            return true;
+                                        }else{
+                                            return false;
+                                        }
+                                    }*/
                                   },{
                                     xtype:"numberfield",
                                     fieldLabel:"Quantity",
@@ -1698,7 +1717,13 @@ Ext.onReady(function(){
                                     //allowBlank: false,
                                     hiddenName:'ListingDuration',
                                     allowBlank:false
-                                  }]
+                                  }/*,{
+                                    xtype:"numberfield",
+                                    fieldLabel:"Lowest Price",
+                                    disabled:true,
+                                    id:'LowPrice',
+                                    name: 'LowPrice'
+                                }*/]
                             }]
                         }],
                         cls: 'my-fieldset',

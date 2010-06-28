@@ -1,16 +1,15 @@
 <?php
 class Shipment{
     private static $database_connect;
-    const DATABASE_HOST = 'localhost';
-    const DATABASE_USER = 'root';
-    const DATABASE_PASSWORD = '5333533';
-    const DATABASE_NAME = 'ebaybo';
     private $startTime;
     private $endTime;
     private $complete_orders = array();
+    private $config;
     
     public function __construct(){
-        Shipment::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
+        $this->config = parse_ini_file('config.ini', true);
+        
+        Shipment::$database_connect = mysql_connect($this->config['database']['host'], $this->config['database']['user'], $this->config['database']['password']);
 
         if (!Shipment::$database_connect) {
             echo "Unable to connect to DB: " . mysql_error(Shipment::$database_connect);
@@ -19,13 +18,12 @@ class Shipment{
           
         mysql_query("SET NAMES 'UTF8'", Shipment::$database_connect);
         
-        if (!mysql_select_db(self::DATABASE_NAME, Shipment::$database_connect)) {
+        if (!mysql_select_db($this->config['database']['name'], Shipment::$database_connect)) {
             echo "Unable to select mydbname: " . mysql_error(Shipment::$database_connect);
             exit;
         }
         //$this->startTime = date("Y-m-d 13:30:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
-        $this->startTime = date("Y-m-d 08:30:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
-        $this->endTime = date("Y-m-d 09:00:00");
+        
     }
     
     public function setStartTime($startTime){
@@ -34,6 +32,31 @@ class Shipment{
     
     public function setEndTime($endTime){
         $this->endTime = $endTime;
+    }
+    
+    public function general(){
+        $this->startTime = date("Y-m-d 08:30:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
+        $this->endTime = date("Y-m-d 09:00:00");
+        $this->createShipment();
+    }
+    
+    public function morning(){
+        $this->startTime = date("Y-m-d 17:00:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
+        $this->endTime   = date("Y-m-d 10:00:00");
+        $this->createShipment();
+    }
+    
+    public function afternoon(){
+        $this->startTime = date("Y-m-d 10:00:00");
+        $this->endTime   = date("Y-m-d 17:00:00");
+        $this->createShipment();
+    }
+    
+    public function temp(){
+        global $argv;
+        $this->startTime = $argv[2];
+        $this->endTime   = $argv[3];
+        $this->createShipment();
     }
     
     private function getCompleteOrder(){
@@ -81,7 +104,7 @@ class Shipment{
     }
     
     private function log($content){
-        file_put_contents("/export/eBayBO/log/Shipment/CreateShipment-".date("Y-m-d").".log", date("Y-m-d H:i:s")."   ".$content."\n", FILE_APPEND);
+        file_put_contents($this->config['log']['shipments']."CreateShipment-".date("YmdH").".log", date("Y-m-d H:i:s")."   ".$content."\n", FILE_APPEND);
     }
     
     public function createShipment(){
@@ -101,8 +124,8 @@ class Shipment{
                 }else{
                     $shipmentId = $this->getShipmentId();
                 }
-                print_r($orders, true);
-                echo "<br>";
+                //print_r($orders, true);
+                //echo "<br>";
                 $sql = "insert into qo_shipments (id,ordersId,status,shipmentMethod,shippingFeeCurrency,shippingFeeValue,shipToName,
                 shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,
                 shipToCountry,shipToPhoneNo,createdBy,createdOn,modifiedBy,modifiedOn) values ('".$shipmentId."','".$orders['id']."',
@@ -130,14 +153,8 @@ class Shipment{
     }
 }
 
+$action = $argv[1];
 $shipment = new Shipment();
-if(!empty($_GET['start']) && !empty($_GET['end'])){
-    $shipment->setStartTime($_GET['start']);
-    $shipment->setEndTime($_GET['end']);
-}elseif(!empty($argv[1]) && !empty($argv[2])){
-    $shipment->setStartTime($argv[1]);
-    $shipment->setEndTime($argv[2]);
-}
-$shipment->createShipment();
+$shipment->$action();
 //http://heshuai64.3322.org/eBayBO/cron/Shipment.php?start=2009-04-22%2000:00:00&end=2009-04-23%2000:00:00
 ?>

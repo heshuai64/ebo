@@ -4,10 +4,6 @@ require_once '/export/eBayBO/class/PHPExcel/IOFactory.php';
 
 class eBayBOExcel{
 	private static $database_connect;
-	const DATABASE_HOST = 'localhost';
-	const DATABASE_USER = 'root';
-	const DATABASE_PASSWORD = '5333533';
-	const DATABASE_NAME = 'ebaybo';
 	const FILE_PATH = '/export/eBayBO/excel/';
 	const INVENTORY_SERVICE = 'http://192.168.1.169:8080/inventory/service.php';
 	private static $php_excel;
@@ -15,7 +11,9 @@ class eBayBOExcel{
 	private $endTime;
 	
 	public function __construct(){
-		eBayBOExcel::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
+		$config = parse_ini_file('config.ini', true);
+		
+		eBayBOExcel::$database_connect = mysql_connect($config['database']['host'], $config['database']['user'], $config['database']['password']);
 
 		if (!eBayBOExcel::$database_connect) {
 		    echo "Unable to connect to DB: " . mysql_error(eBayBOExcel::$database_connect);
@@ -24,7 +22,7 @@ class eBayBOExcel{
 		
 		mysql_query("SET NAMES 'UTF8'", eBayBOExcel::$database_connect);
 		
-		if (!mysql_select_db(self::DATABASE_NAME, eBayBOExcel::$database_connect)) {
+		if (!mysql_select_db($config['database']['name'], eBayBOExcel::$database_connect)) {
 		    echo "Unable to select mydbname: " . mysql_error(eBayBOExcel::$database_connect);
 		    exit;
 		}
@@ -152,16 +150,20 @@ class eBayBOExcel{
 		$result = mysql_query($sql, eBayBOExcel::$database_connect);
 		
 		$this->php_excel->setActiveSheetIndex(0);
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, 'No');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, 'Shipment Id');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, 'eBay Id');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, 'Shipping Method');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 1, 'Sku');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, 1, 'Item Model');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(6, 1, 'Quantity');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(7, 1, 'Stock');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, date("Y-m-d")." address list");
+		$this->php_excel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$this->php_excel->getActiveSheet()->mergeCells('A1:H1');
 		
-		$i = 2;
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 2, 'No');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, 2, 'Shipment Id');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, 2, 'eBay Id');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 2, 'Shipping Method');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 2, 'Sku');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, 2, 'Item Model');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(6, 2, 'Quantity');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(7, 2, 'Stock');
+		
+		$i = 3;
 		while($row = mysql_fetch_assoc($result)){
 			$j = 0;
 			$sql_1 = "select skuId,skuTitle,quantity from qo_shipments_detail where shipmentsId = '".$row['id']."'";
@@ -170,27 +172,60 @@ class eBayBOExcel{
 			$sku = '';
 			$skuTitle = '';
 			$quantity = '';
+			$stock = '';
 			while($row_1 = mysql_fetch_assoc($result_1)){
-				$sku .= $row_1['skuId'] . ', ';
-				$skuTitle .= $row_1['skuTitle'] . ', ';
-				$quantity .= $row_1['quantity'] . ', ';
+				$sku .= $row_1['skuId'] . " ,";
+				$skuTitle .= $row_1['skuTitle'] . " ,";
+				$quantity .= $row_1['quantity'] . " ,";
+				$request = eBayBOExcel::INVENTORY_SERVICE."?action=getSkuInfo&data=".urlencode($row_1['skuId']);
+				$json_result = json_decode($this->getService($request));
+				$stock .= $json_result->skuStock . " ,";
 			}
 			$sku = substr($sku, 0, -2);
 			$skuTitle = substr($skuTitle, 0, -2);
 			$quantity = substr($quantity, 0, -2);
+			$stock = substr($stock, 0, -2);
 			
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $i-1);
+			$this->php_excel->getActiveSheet()->getStyle('A'.$i)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+			
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['id']);
+			$this->php_excel->getActiveSheet()->getStyle('B'.$i)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+			
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['buyerId']);
+			$this->php_excel->getActiveSheet()->getStyle('C'.$i)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+			
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $this->getShipmentMethod($row['shipmentMethod']));
+			$this->php_excel->getActiveSheet()->getStyle('D'.$i)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+			
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $sku);
+			//$this->php_excel->getActiveSheet()->getStyle('E'.$j)->getAlignment()->setWrapText(true);
+			$this->php_excel->getActiveSheet()->getStyle('E'.$i)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+			
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $skuTitle);
+			//$this->php_excel->getActiveSheet()->getStyle('F'.$j++)->getAlignment()->setWrapText(true);
+			
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $quantity);
-			$request = eBayBOExcel::INVENTORY_SERVICE."?action=getSkuInfo&data=".urlencode($sku);
-                        $json_result = json_decode($this->getService($request));
-			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $json_result->skuStock);
+			//$this->php_excel->getActiveSheet()->getStyle('G'.$j)->getAlignment()->setWrapText(true);
+			$this->php_excel->getActiveSheet()->getStyle('G'.$i)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+			
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $stock);
+			$this->php_excel->getActiveSheet()->getStyle('H'.$i)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 			$i++;
 		}
+		
+		$this->php_excel->getActiveSheet()->getStyle('A1:H'.($i-1))->applyFromArray(
+			array('borders' => array('allborders'=>array('style' => PHPExcel_Style_Border::BORDER_THIN),
+						),
+			)
+		);
+		
+		$this->php_excel->getActiveSheet()->getPageMargins()->setTop(0.3);
+		$this->php_excel->getActiveSheet()->getPageMargins()->setRight(0.3);
+		$this->php_excel->getActiveSheet()->getPageMargins()->setLeft(0.3);
+		$this->php_excel->getActiveSheet()->getPageMargins()->setBottom(0.3);
+		$this->php_excel->getActiveSheet()->getPageMargins()->setHeader(0.3);
+		$this->php_excel->getActiveSheet()->getPageMargins()->setFooter(0.3);
 		
 		$writer = PHPExcel_IOFactory::createWriter($this->php_excel, 'Excel5');
 		$writer->save($this->getFilePath('address-list.xls'));
@@ -207,30 +242,44 @@ class eBayBOExcel{
 		$result = mysql_query($sql, eBayBOExcel::$database_connect);
 		
 		$this->php_excel->setActiveSheetIndex(0);
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, 'No');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, 'Sku');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, 'Short Description');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, 'Quantity');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 1, 'Stock');
 		
-		$i = 2;
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, date("Y-m-d")." picking list");
+		$this->php_excel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$this->php_excel->getActiveSheet()->mergeCells('A1:F1');
+		
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 2, 'No');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, 2, 'Sku');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, 2, 'Short Description');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 2, 'Quantity');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 2, '');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, 2, 'Stock');
+		
+		$i = 3;
 		while($row = mysql_fetch_assoc($result)){
 			$j = 0;			
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $i-1);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['skuId']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['skuTitle']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['quantity']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, '');
 			$request = eBayBOExcel::INVENTORY_SERVICE."?action=getSkuInfo&data=".urlencode($row['skuId']);
                         $json_result = json_decode($this->getService($request));
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $json_result->skuStock);
 			$i++;
 		}
 		
-		$this->php_excel->getActiveSheet()->getStyle('A1:E'.($i-1))->applyFromArray(
-			array('borders' => array('allborders'=>array('style' => PHPExcel_Style_Border::BORDER_THICK),
+		$this->php_excel->getActiveSheet()->getStyle('A1:F'.($i-1))->applyFromArray(
+			array('borders' => array('allborders'=>array('style' => PHPExcel_Style_Border::BORDER_THIN),
 						),
 			)
 		);
+		
+		$this->php_excel->getActiveSheet()->getPageMargins()->setTop(0.3);
+		$this->php_excel->getActiveSheet()->getPageMargins()->setRight(0.3);
+		$this->php_excel->getActiveSheet()->getPageMargins()->setLeft(0.3);
+		$this->php_excel->getActiveSheet()->getPageMargins()->setBottom(0.3);
+		$this->php_excel->getActiveSheet()->getPageMargins()->setHeader(0.3);
+		$this->php_excel->getActiveSheet()->getPageMargins()->setFooter(0.3);
 		
 		$writer = PHPExcel_IOFactory::createWriter($this->php_excel, 'Excel5');
 		$writer->save($this->getFilePath('picking-list.xls'));
@@ -302,7 +351,7 @@ class eBayBOExcel{
 		}
 		$writer = PHPExcel_IOFactory::createWriter($this->php_excel, 'Excel5');
 		$writer->save('/export/eBayBO/excel/resent-list('.$start.' -- '.$end.').xls');
-		echo "From ".$start." to ". $end." resend shipment generate Success!<br><a href='http://heshuai64.3322.org:8888/eBayBO/excel/resent-list(".$start." -- ".$end.").xls'>please click download</a>";
+		echo "From ".$start." to ". $end." resend shipment generate Success!<br><a href='http://rich2010.3322.org:8888/eBayBO/excel/resent-list(".$start." -- ".$end.").xls'>please click download</a>";
 	}
 	
 	public function registerShipment(){
@@ -371,6 +420,57 @@ class eBayBOExcel{
 		}
 		$writer = PHPExcel_IOFactory::createWriter($this->php_excel, 'Excel5');
 		$writer->save($this->getFilePath('register.xls'));
+	}
+	
+	public function refundStatistics(){
+		$this->php_excel->setActiveSheetIndex(0);
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, '卖家账户');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, '买家邮箱地址');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, '退款金额');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, '退款原因');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 1, '退款日期');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, 1, '买家国家');
+	
+		
+		$sql = "select payeeId,payerEmail,amountCurrency,amountValue,remarks,createdOn,payerCountry from qo_transactions where status = 'R' and createdOn like '".date("Y-m-d")."%'";
+		$result = mysql_query($sql, eBayBOExcel::$database_connect);
+		$i = 2;
+		while($row = mysql_fetch_assoc($result)){
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, $i, $row['payeeId']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, $i, $row['payerEmail']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, $i, $row['amountCurrency'].$row['amountValue']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, $i, $row['remarks']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, $i, $row['createdOn']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, $i, $row['payerCountry']);
+			$i++;
+		}
+		$writer = PHPExcel_IOFactory::createWriter($this->php_excel, 'Excel5');
+		$writer->save($this->getFilePath('refundStatistics.xls'));
+	}
+	
+	public function resentShipmentStatistics(){
+		$this->php_excel->setActiveSheetIndex(0);
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, '重发原因');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, '卖家账户');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, 'Shpment ID');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, 'SKU');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 1, '数量');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, 1, '下单日期');
+		
+		$sql = "select s.remarks,o.sellerId,s.id,s.createdOn,sd.skuId,sd.quantity,o.createdOn,s.shippedOn from (qo_shipments as s left join qo_shipments_detail as sd on s.id = sd.shipmentsId) 
+		left join qo_orders as o on s.ordersId = o.id where s.shipmentReason <> '1' and s.createdOn like '".date("Y-m-d")."%'";
+		$i = 2;
+		while($row = mysql_fetch_assoc($result)){
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, $i, $row['remarks']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, $i, $row['sellerId']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, $i, $row['id']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, $i, $row['skuId']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, $i, $row['quantity']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, $i, $row['createdOn']);
+			$i++;
+		}
+		$writer = PHPExcel_IOFactory::createWriter($this->php_excel, 'Excel5');
+		$writer->save($this->getFilePath('resentShipmentStatistics.xls'));
 	}
 	
 	public function SFCShipment(){
