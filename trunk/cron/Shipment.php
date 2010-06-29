@@ -148,6 +148,105 @@ class Shipment{
         }
     }
     
+    private function getAllSellerToken(){
+        $array = array();
+        $sql = "select id,token from qo_ebay_seller";
+        $result = mysql_query($sql, Shipment::$database_connect);
+        while($row = mysql_fetch_assoc($result)){
+            $array[$row['id']] = $row['token'];
+        }
+        return $array;
+    }
+    
+    private function configEbay($token, $proxy_host = '', $proxy_port = ''){
+    	// Load developer-specific configuration data from ini file
+	$config = parse_ini_file('ebay.ini', true);
+	$site = $config['settings']['site'];
+	//$compatibilityLevel = $config['settings']['compatibilityLevel'];
+	
+	$dev = $config[$site]['devId'];
+	$app = $config[$site]['appId'];
+	$cert = $config[$site]['cert'];
+	$token = $token;
+	$location = $config[$site]['gatewaySOAP'];
+	//$location = self::GATEWAY_SOAP;
+	
+	// Create and configure session
+	$session = new eBaySession($dev, $app, $cert, $proxy_host, $proxy_port);
+	$session->token = $token;
+	$session->site = 0; // 0 = US;
+	$session->location = $location;
+	
+	return $session;
+    }
+    
+    private function CompleteSale($token, $transactionId, $itemId, $shipmentMethod, $shippedOn, $postalReferenceNo){
+	$session = $this->configEbay($token);
+	try {
+		$client = new eBaySOAP($session);
+                /*
+		if(!empty($postalReferenceNo)){
+			switch ($shipmentMethod){
+				case "M":
+					$ShippingCarrierUsed = "UPS";
+					break;
+					
+				case "U":
+					$ShippingCarrierUsed = "UPS";
+					break;
+					
+				default:
+					$ShippingCarrierUsed = "Other";
+				break;
+			}
+			$Shipment = array("ShipmentTrackingNumber"=>$postalReferenceNo, "ShippedTime"=>$shippedOn, "ShippingCarrierUsed"=>$ShippingCarrierUsed);
+			$params = array("Version"=>"607", "ItemID"=>$itemId, "Paid"=> true, "Shipment"=>$Shipment, "Shipped"=>true, "TransactionID"=>$transactionId);
+			print_r($params);
+			$results = $client->CompleteSale($params);
+		}else{
+			$params = array("Version"=>"607", "ItemID"=>$itemId, "Paid"=> true, "Shipped"=>true, "TransactionID"=>$transactionId);
+			print_r($params);
+			$results = $client->CompleteSale($params);
+		}
+		*/
+                $params = array("Version"=>"607", "ItemID"=>$itemId, "Paid"=> true, "Shipped"=>true, "TransactionID"=>$transactionId);
+                print_r($params);
+                $results = $client->CompleteSale($params);
+                        
+		//print_r($results);
+		if(!empty($results->Ack) && $results->Ack == "Success"){
+			updateShipStatus($transactionId, $itemId, 2);
+		}else{
+			
+			if(!empty($results->Errors)){
+				print_r($results->Errors);
+			}else{
+				echo $results->faultstring;
+			}
+			updateShipStatus($transactionId, $itemId, 3);
+		}
+		//exit;
+		sleep(1);
+	} catch (SOAPFault $f) {
+		print $f; // error handling
+	}
+    }
+    
+    public function synceBayShipped(){
+        require_once 'eBaySOAP.php';
+        $sellerToken = $this->getAllSellerToken();
+        $sql = "select ordersId,shipmentMethod,sellerId,shippedOn,postalReferenceNo from qo_shipments where shippedOn = ";
+        $result = mysql_query($sql, Shipment::$database_connect);
+        while($row = mysql_fetch_assoc($result)){
+            $sql_1 = "select o.sellerId,od.itemId,od.ebayTranctionId from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.id = '".$row['ordersId']."'";
+            $result_1 = mysql_query($sql_1, Shipment::$database_connect);
+            while($row_1 = mysql_fetch_assoc($result_1)){
+                $this->CompleteSale($sellerToken[$row_1['sellerId']], $row_1['ebayTranctionId'], $row_1['itemId'], $row['shipmentMethod'], $row['shippedOn'], $row['postalReferenceNo']);
+            }
+        }
+    }
+    
+    
     public function __destruct(){
         mysql_close(Shipment::$database_connect);
     }
