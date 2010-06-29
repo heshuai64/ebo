@@ -17,11 +17,13 @@ Ext.onReady(function(){
                     dataIndex: 'itemId',
                     width: 100,
                     align: 'center',
+                    editor: new Ext.form.TextField({}),
                     sortable: true
                 },{
                     header: "Item Title",
                     dataIndex: 'itemTitle',
                     width: 350,
+                    editor: new Ext.form.TextField({}),
                     align: 'center'
                 },{
                     header: "SKU",

@@ -180,6 +180,13 @@ class Shipment{
 	return $session;
     }
     
+    private function updateEbayShipStatus($transactionId, $itemId){
+        $sql = "update qo_orders_detail set ebayShipStatus = 1 where itemId = '".$itemId."' and ebayTranctionId = '".$transactionId."'";
+        echo $sql."\n";
+        $result = mysql_query($sql, Shipment::$database_connect);
+        return $result;
+    }
+    
     private function CompleteSale($token, $transactionId, $itemId, $shipmentMethod, $shippedOn, $postalReferenceNo){
 	$session = $this->configEbay($token);
 	try {
@@ -215,15 +222,14 @@ class Shipment{
                         
 		//print_r($results);
 		if(!empty($results->Ack) && $results->Ack == "Success"){
-			updateShipStatus($transactionId, $itemId, 2);
+			$this->updateEbayShipStatus($transactionId, $itemId);
 		}else{
-			
 			if(!empty($results->Errors)){
 				print_r($results->Errors);
 			}else{
 				echo $results->faultstring;
 			}
-			updateShipStatus($transactionId, $itemId, 3);
+			$this->updateEbayShipStatus($transactionId, $itemId);
 		}
 		//exit;
 		sleep(1);
@@ -235,14 +241,20 @@ class Shipment{
     public function synceBayShipped(){
         require_once 'eBaySOAP.php';
         $sellerToken = $this->getAllSellerToken();
-        $sql = "select ordersId,shipmentMethod,sellerId,shippedOn,postalReferenceNo from qo_shipments where shippedOn = ";
+        // ALTER TABLE `qo_shipments` ADD INDEX ( `shippedOn` )  
+        $shippedOn = date("Y-m-d");
+        //$shippedOn = "2010-06-28";
+        $sql = "select ordersId,shipmentMethod,shippedOn,postalReferenceNo from qo_shipments where shippedOn like '".$shippedOn."%'";
+        echo $sql."\n";
         $result = mysql_query($sql, Shipment::$database_connect);
         while($row = mysql_fetch_assoc($result)){
-            $sql_1 = "select o.sellerId,od.itemId,od.ebayTranctionId from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.id = '".$row['ordersId']."'";
+            $sql_1 = "select o.sellerId,od.itemId,od.ebayTranctionId from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.id = '".$row['ordersId']."' and od.ebayShipStatus = 0";
+            echo $sql_1."\n";
             $result_1 = mysql_query($sql_1, Shipment::$database_connect);
             while($row_1 = mysql_fetch_assoc($result_1)){
                 $this->CompleteSale($sellerToken[$row_1['sellerId']], $row_1['ebayTranctionId'], $row_1['itemId'], $row['shipmentMethod'], $row['shippedOn'], $row['postalReferenceNo']);
             }
+            //exit;
         }
     }
     

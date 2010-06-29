@@ -49,11 +49,15 @@ Ext.onReady(function(){
             
             function renderShippingServiceCost(v, p, r){
 		//console.log(v.substr(3));
-                if(v.substr(3) == "0" || v.substr(3) == 0){
-                    return String.format('<font color="red">{0}</font>', v);
-                }else{
-                    return String.format('<font color="green">{0}</font>', v);
-                }
+		if(v == "0"){
+		    return String.format('<font color="red">{0}</font>', v);
+		}else{
+		    if(v.substr(3) == "0" || v.substr(3) == 0){
+			return String.format('<font color="red">{0}</font>', v);
+		    }else{
+			return String.format('<font color="green">{0}</font>', v);
+		    }
+		}
             }
             
             function renderListingDays(v, p, r){
@@ -116,8 +120,12 @@ Ext.onReady(function(){
                     item[2] = data.item.title;
                     item[3] = data.item.buyItNowAvailable;
                     item[4] = data.item.currentPrice.currencyID + data.item.currentPrice.value;
-                    item[5] = data.item.shippingCostSummary.shippingServiceCost.currencyID + data.item.shippingCostSummary.shippingServiceCost.value;
-                    item[6] = data.item.quantity;
+		    if(Ext.isEmpty(data.item.shippingCostSummary.shippingServiceCost)){
+			item[5] = 0;
+		    }else{
+			item[5] = data.item.shippingCostSummary.shippingServiceCost.currencyID + data.item.shippingCostSummary.shippingServiceCost.value;
+		    }
+		    item[6] = data.item.quantity;
                     item[7] = data.item.quantitySold;
                     item[8] = data.item.galleryURL;
                     item[9] = data.item.startTime;
@@ -753,6 +761,18 @@ Ext.onReady(function(){
 			    
 				case "FR":
 				    var currency = "EUR";
+				break;
+			    
+				case "GE":
+				    var currency = "EUR";
+				break;
+			    
+				case "HK":
+				    var currency = "HKD";
+				break;
+			    
+				default :
+				    var currency = "USD";
 				break;
 			    }
                             //console.log({QueryKeywords: Ext.getCmp('keyword').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 10, EndTimeFrom: Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.getCmp('to').getValue().format('Y-m-d')});

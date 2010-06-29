@@ -40,12 +40,14 @@ Ext.onReady(function(){
                     dataIndex: 'itemId',
                     width: 110,
                     align: 'center',
+                    editor: new Ext.form.TextField({}),
                     sortable: true
                 },{
                     header: "Item Title",
                     dataIndex: 'itemTitle',
                     width: 350,
                     align: 'center',
+                    editor: new Ext.form.TextField({}),
                     sortable: true
                 },{
                     header: "Quantity",
