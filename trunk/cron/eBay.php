@@ -362,6 +362,9 @@ class eBay{
                 break;
         }
         */
+	if(!empty($transaction->Variation)){
+		$transaction->Item->Title = $transaction->Variation->VariationTitle;
+	}
         $unitPriceCurrency = $transaction->Item->SellingStatus->CurrentPrice->currencyID;
         //$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_ / $transaction->Item->SellingStatus->QuantitySold;
 	$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_;
@@ -415,6 +418,9 @@ class eBay{
     }
     
     private function createOrderDetailFromEbayOrder($orderId, $transaction){
+	if(!empty($transaction->Variation)){
+		$transaction->Item->Title = $transaction->Variation->VariationTitle;
+	}
         $unitPriceCurrency = $transaction->Item->SellingStatus->CurrentPrice->currencyID;
         //$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_ / $transaction->Item->SellingStatus->QuantitySold;
 	$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_;
