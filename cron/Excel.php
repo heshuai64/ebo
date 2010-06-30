@@ -482,38 +482,42 @@ class eBayBOExcel{
 		switch($argv[2]){
 			case "morning":
 				$start = date("Y-m-d 09:50:00");
-				$end   = date("Y-m-d 10:10:00");
+				$end   = date("Y-m-d 10:30:00");
 			break;
 		
 			case "afternoon":
 				$start = date("Y-m-d 16:50:00");
-				$end   = date("Y-m-d 17:10:00");
+				$end   = date("Y-m-d 17:30:00");
 			break;
 		}
 		//$start = $this->startTime;
 		//$end = $this->endTime;
-		
-		$sql = "select id,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,
-		shipToStateOrProvince,shipToPostalCode,shipToCountry,shipToPhoneNo from qo_shipments where status = 'N' and modifiedOn between '".$start."' and '".$end."'";
-		$result = mysql_query($sql, eBayBOExcel::$database_connect);
-		$i = 2;
-		$data = '"Sales Record Number","User Id","Buyer Fullname","Buyer Phone Number","Buyer Email","Buyer Address 1","Buyer Address 2","Buyer City","Buyer State","Buyer Country","Buyer Zip","Item Number","Item Title","Custom Label","category","Quantity","Sale Date","Checkout Date","Paid on Date","Shipped on Date","Listed On","Sold On","PayPal Transaction ID","Shipping Service","Transaction ID","Order ID","declared value","weight","isreturn","Length","Width","Height"'."\n";
-		while($row = mysql_fetch_assoc($result)){
-			$sql_1 = "select itemTitle from qo_shipments_detail where shipmentsId = '".$row['id']."'";
-			$result_1 = mysql_query($sql_1, eBayBOExcel::$database_connect);
-			$itemTitle = "";
-			while($row_1 = mysql_fetch_assoc($result_1)){
-				$itemTitle .= $row_1['itemTitle'].",";
+		$sql_0 = "select id from qo_ebay_seller where status = 'A'";
+		$result_0 = mysql_query($sql_0, eBayBOExcel::$database_connect);
+		while($row_0 = mysql_fetch_assoc($result_0)){
+			$sql = "select s.id,s.shipToName,s.shipToEmail,s.shipToAddressLine1,s.shipToAddressLine2,s.shipToCity,
+			s.shipToStateOrProvince,s.shipToPostalCode,s.shipToCountry,s.shipToPhoneNo from qo_shipments as s 
+			left join qo_orders as o on s.ordersId = o.id where o.sellerId = '".$row_0['id']."' and s.status = 'N' and s.modifiedOn between '".$start."' and '".$end."'";
+			$result = mysql_query($sql, eBayBOExcel::$database_connect);
+			$i = 2;
+			$data = '"Sales Record Number","User Id","Buyer Fullname","Buyer Phone Number","Buyer Email","Buyer Address 1","Buyer Address 2","Buyer City","Buyer State","Buyer Country","Buyer Zip","Item Number","Item Title","Custom Label","category","Quantity","Sale Date","Checkout Date","Paid on Date","Shipped on Date","Listed On","Sold On","PayPal Transaction ID","Shipping Service","Transaction ID","Order ID","declared value","weight","isreturn","Length","Width","Height"'."\n";
+			while($row = mysql_fetch_assoc($result)){
+				$sql_1 = "select itemTitle from qo_shipments_detail where shipmentsId = '".$row['id']."'";
+				$result_1 = mysql_query($sql_1, eBayBOExcel::$database_connect);
+				$itemTitle = "";
+				while($row_1 = mysql_fetch_assoc($result_1)){
+					$itemTitle .= $row_1['itemTitle'].",";
+				}
+				$itemTitle = substr($itemTitle, 0, -1);
+				$BuyerAddress1 = $row['shipToAddressLine1']." ".(!empty($row['shipToAddressLine2'])?$row['shipToAddressLine2']."\n":"\n").
+						$row['shipToCity']. "\n".
+						$row['shipToStateOrProvince']. ", ". $row['shipToPostalCode']."\n".
+						$row['shipToCountry'];
+				
+				$data .= '"","","'.$row['shipToName'].'","'.$row['shipToPhoneNo'].'","","'.$BuyerAddress1.'","","'.$row['shipToCity'].'","'.$row['shipToStateOrProvince'].'","'.$row['shipToCountry'].'","'.$row['shipToPostalCode'].'","","'.$itemTitle.'","","","","","","","","","","","HKBAM","","","10","","Y","","",""'."\n";
 			}
-			$itemTitle = substr($itemTitle, 0, -1);
-			$BuyerAddress1 = $row['shipToAddressLine1']." ".(!empty($row['shipToAddressLine2'])?$row['shipToAddressLine2']."\n":"\n").
-					$row['shipToCity']. "\n".
-					$row['shipToStateOrProvince']. ", ". $row['shipToPostalCode']."\n".
-					$row['shipToCountry'];
-			
-			$data .= '"","","'.$row['shipToName'].'","'.$row['shipToPhoneNo'].'","","'.$BuyerAddress1.'","","'.$row['shipToCity'].'","'.$row['shipToStateOrProvince'].'","'.$row['shipToCountry'].'","'.$row['shipToPostalCode'].'","","'.$itemTitle.'","","","","","","","","","","","HKBAM","","","10","","Y","","",""'."\n";
+			file_put_contents($this->getFilePath($row_0['id'].'-sfc-'.$argv[2].'.csv'), $data);
 		}
-		file_put_contents($this->getFilePath('sfc-'.$argv[2].'.csv'), $data);
 	}
 	
 	private function getItemImage($itemId){
@@ -528,42 +532,47 @@ class eBayBOExcel{
 		switch($argv[2]){
 			case "morning":
 				$start = date("Y-m-d 09:50:00");
-				$end   = date("Y-m-d 10:10:00");
+				$end   = date("Y-m-d 10:30:00");
 			break;
 		
 			case "afternoon":
 				$start = date("Y-m-d 16:50:00");
-				$end   = date("Y-m-d 17:10:00");
+				$end   = date("Y-m-d 17:30:00");
 			break;
 		}
 		
-		$data = "<table border=1>";
-		$data .= "<tr><th>Shipment ID</th><th>Item Image</th><th>Item Title</th><th>Buyer Address</th></tr>";
+		$sql_0 = "select id from qo_ebay_seller where status = 'A'";
+		$result_0 = mysql_query($sql_0, eBayBOExcel::$database_connect);
+		while($row_0 = mysql_fetch_assoc($result_0)){
+			$data = "<table border=1>";
+			$data .= "<tr><th>Shipment ID</th><th>Item Image</th><th>Item Title</th><th>Buyer Address</th></tr>";
 		
-		$sql = "select id,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,
-		shipToStateOrProvince,shipToPostalCode,shipToCountry,shipToPhoneNo from qo_shipments where status = 'N' and modifiedOn between '".$start."' and '".$end."'";
-		$result = mysql_query($sql, eBayBOExcel::$database_connect);
-		while($row = mysql_fetch_assoc($result)){
-			$sql_1 = "select itemId,itemTitle from qo_shipments_detail where shipmentsId = '".$row['id']."'";
-			$result_1 = mysql_query($sql_1, eBayBOExcel::$database_connect);
-			
-			while($row_1 = mysql_fetch_assoc($result_1)){
-				$data .= "<tr>";
-				$data .= "<td>".$row['id']."</td>";
-				$data .= "<td><img width='100' height='100' border=0 src='".$this->getItemImage($row_1['itemId'])."'></td>";
-				$data .= "<td>".$row_1['itemTitle']."</td>";
-				$data .= "<td>Attn: ".$row['shipToName']."<br>".
-				$row['shipToAddressLine1']." ".(!empty($row['shipToAddressLine2'])?$row['shipToAddressLine2'].'<br>':'<br>').
-				$row['shipToCity']. '<br>'.
-                                $row['shipToStateOrProvince']. ", ". $row['shipToPostalCode'].'<br>'.
-                                $row['shipToCountry'].'<br>'.
-                                ((!empty($row['shipToPhoneNo']) && $row['shipToPhoneNo'] != "Invalid Request")?"Tel:".$row['shipToPhoneNo'].'<br>':'<br>').
-				"</td>";
-				$data .= "</tr>";
+			$sql = "select s.id,s.shipToName,s.shipToEmail,s.shipToAddressLine1,s.shipToAddressLine2,s.shipToCity,
+			s.shipToStateOrProvince,s.shipToPostalCode,s.shipToCountry,s.shipToPhoneNo from qo_shipments as s 
+			left join qo_orders as o on s.ordersId = o.id where o.sellerId = '".$row_0['id']."' and s.status = 'N' and s.modifiedOn between '".$start."' and '".$end."'";
+			$result = mysql_query($sql, eBayBOExcel::$database_connect);
+			while($row = mysql_fetch_assoc($result)){
+				$sql_1 = "select itemId,itemTitle from qo_shipments_detail where shipmentsId = '".$row['id']."'";
+				$result_1 = mysql_query($sql_1, eBayBOExcel::$database_connect);
+				
+				while($row_1 = mysql_fetch_assoc($result_1)){
+					$data .= "<tr>";
+					$data .= "<td>".$row['id']."</td>";
+					$data .= "<td><img width='100' height='100' border=0 src='".$this->getItemImage($row_1['itemId'])."'></td>";
+					$data .= "<td>".$row_1['itemTitle']."</td>";
+					$data .= "<td>Attn: ".$row['shipToName']."<br>".
+					$row['shipToAddressLine1']." ".(!empty($row['shipToAddressLine2'])?$row['shipToAddressLine2'].'<br>':'<br>').
+					$row['shipToCity']. '<br>'.
+					$row['shipToStateOrProvince']. ", ". $row['shipToPostalCode'].'<br>'.
+					$row['shipToCountry'].'<br>'.
+					((!empty($row['shipToPhoneNo']) && $row['shipToPhoneNo'] != "Invalid Request")?"Tel:".$row['shipToPhoneNo'].'<br>':'<br>').
+					"</td>";
+					$data .= "</tr>";
+				}
 			}
+			$data .= "</table>";
+			file_put_contents($this->getFilePath($row_0['id'].'-packingList-'.$argv[2].'.html'), $data);
 		}
-		$data .= "</table>";
-		file_put_contents($this->getFilePath('packingList-'.$argv[2].'.html'), $data);
 	}
 	
 	public function __destruct(){

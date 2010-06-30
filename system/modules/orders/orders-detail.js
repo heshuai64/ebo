@@ -336,6 +336,56 @@ Ext.onReady(function(){
                                                 reviseOrderDetailWindow.show();
                                     }
                         },{
+                                    text: 'Split Items',
+                                    handler: function(){
+                                                if(orderDetailGrid.selModel.getCount() == 0){
+                                                            Ext.MessageBox.alert('Warning','Please choice need split ITEM.'); 
+                                                }else{
+                                                            var splitOrderDetail = function(btn){
+                                                                        if(btn=='yes'){
+                                                                                    var selections = orderDetailGrid.selModel.getSelections();
+                                                                                    //console.log(selections);
+                                                                                    //var prez = [];
+                                                                                    var ids = "";
+                                                                                    for(i = 0; i< orderDetailGrid.selModel.getCount(); i++){
+                                                                                        //prez.push(selections[i].data.id);
+                                                                                        ids += selections[i].data.id + ","
+                                                                                    }
+                                                                                    ids = ids.slice(0,-1);
+                                                                                    //console.log(prez);
+                                                                                    //var encoded_array = Ext.encode(prez);
+                                                                                    Ext.Ajax.request({  
+                                                                                        waitMsg: 'Please Wait',
+                                                                                        url: 'connect.php?moduleId=qo-orders&action=splitOrderDetail', 
+                                                                                        params: { 
+                                                                                          //ids:  encoded_array
+                                                                                          ids: ids
+                                                                                        }, 
+                                                                                        success: function(response){
+                                                                                                Ext.MessageBox.alert('Notification', response.responseText);
+                                                                                                /*
+                                                                                            var result=eval(response.responseText);
+                                                                                            switch(result){
+                                                                                            case 1:  // Success : simply reload
+                                                                                              orderDetailGridStore.reload();
+                                                                                              break;
+                                                                                            default:
+                                                                                              Ext.MessageBox.alert('Warning','Could not split.');
+                                                                                              break;
+                                                                                            }
+                                                                                                */
+                                                                                        },
+                                                                                        failure: function(response){
+                                                                                            var result=response.responseText;
+                                                                                            Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                                                                        }
+                                                                                    });      
+                                                                        }
+                                                            }
+                                                            Ext.MessageBox.confirm('Confirmation', 'Split these items?', splitOrderDetail);
+                                                }
+                                    }
+                        }/*,{
                                     text: 'Complaints SKU',
                                     handler: function(){
                                                 if(orderDetailGrid.selModel.getCount() >= 1){
@@ -385,7 +435,7 @@ Ext.onReady(function(){
                                                     Ext.MessageBox.alert('Uh oh...','Please select a sku.');
                                                 }
                                     }
-                        }/*,{
+                        },{
                             text: 'Delete Detail',
                             handler: function(){
                                 var deleteOrderDetail = function(btn){

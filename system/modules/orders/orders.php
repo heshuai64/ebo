@@ -40,7 +40,7 @@ class QoOrders {
             $result = mysql_query($sql);
             $row = mysql_fetch_assoc($result);
             $orderId = $type.$today.$row["curType"].str_repeat("0",(4-strlen($row["curId"]))).$row["curId"];
-	    echo $orderId;
+	    //echo $orderId;
             return $orderId;
         }
 	
@@ -317,6 +317,40 @@ class QoOrders {
 		$result = mysql_query($sql);
 		//echo $sql;
 		echo $result;
+	}
+	
+	public function splitOrderDetail(){
+		$sql_1 = "select ordersId,unitPriceCurrency,unitPriceValue,quantity from qo_orders_detail where id in (".$_POST['ids'].")";
+		$result_1 = mysql_query($sql_1);
+		$sumPriceValue = 0;
+		while($row_1 = mysql_fetch_assoc($result_1)){
+			$o_ordersId = $row_1['ordersId'];
+			$sumPriceValue += $row_1['unitPriceValue'] * $row_1['quantity'];
+		}
+		
+		$ordersId = $this->getOrderId();
+		$sql_2 = "insert into qo_orders (id,status,shippingMethod,paymentMethod,sellerId,buyerId,shippingFeeCurrency,shippingFeeValue,
+		insuranceCurrency,insuranceValue,grandTotalCurrency,grandTotalValue,ebayName,ebayEmail,ebayAddress1,ebayAddress2,
+		ebayCity,ebayStateOrProvince,ebayPostalCode,ebayCountry,ebayPhone,
+		paypalName,paypalEmail,paypalAddress1,paypalAddress2,paypalCity,paypalStateOrProvince,paypalPostalCode,
+		paypalCountry,paypalPhone,createdBy,createdOn) select '".$ordersId."','W',shippingMethod,paymentMethod,sellerId,buyerId,shippingFeeCurrency,shippingFeeValue,
+		insuranceCurrency,insuranceValue,grandTotalCurrency,'".$sumPriceValue."',ebayName,ebayEmail,ebayAddress1,ebayAddress2,
+		ebayCity,ebayStateOrProvince,ebayPostalCode,ebayCountry,ebayPhone,
+		paypalName,paypalEmail,paypalAddress1,paypalAddress2,paypalCity,paypalStateOrProvince,paypalPostalCode,
+		paypalCountry,paypalPhone,'".$this->os->session->get_member_name()."','".date("Y-m-d H:i:s")."' from qo_orders where id = '".$o_ordersId."'";
+		//echo $sql_2;
+		$result_2 = mysql_query($sql_2);
+		
+		if($result_2){
+			$sql_3 = "update qo_orders_detail set ordersId = '".$ordersId."' where id in (".$_POST['ids'].")";
+			//echo $sql_3;
+			$result_3 = mysql_query($sql_3);
+		}
+		if($result_2 && $result_3){
+			echo "split as " . $ordersId;
+		}else{
+			echo "split failure!";
+		}
 	}
 	
 	public function addOrderTransaction(){
