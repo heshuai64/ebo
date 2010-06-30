@@ -1,17 +1,21 @@
 <?php
-require_once '/export/eBayBO/class/PHPExcel.php';
-require_once '/export/eBayBO/class/PHPExcel/IOFactory.php';
+define ('__DOCROOT__', '/export/eBayBO');
+define ('__DOCCLASS__', __DOCROOT__ . '/class');
+
+require_once __DOCCLASS__ . '/PHPExcel.php';
+require_once __DOCCLASS__ . '/PHPExcel/IOFactory.php';
 
 class eBayBOExcel{
 	private static $database_connect;
 	const FILE_PATH = '/export/eBayBO/doc/';
-	const INVENTORY_SERVICE = 'http://192.168.1.169:8080/inventory/service.php';
+	private static $inventory_service;
 	private static $php_excel;
 	private $startTime;
 	private $endTime;
 	
 	public function __construct(){
-		$config = parse_ini_file('config.ini', true);
+		$config = parse_ini_file(__DOCROOT__ . '/config.ini', true);
+		eBayBOExcel::$inventory_service = $config['service']['inventory'];
 		
 		eBayBOExcel::$database_connect = mysql_connect($config['database']['host'], $config['database']['user'], $config['database']['password']);
 
@@ -177,7 +181,7 @@ class eBayBOExcel{
 				$sku .= $row_1['skuId'] . " ,";
 				$skuTitle .= $row_1['skuTitle'] . " ,";
 				$quantity .= $row_1['quantity'] . " ,";
-				$request = eBayBOExcel::INVENTORY_SERVICE."?action=getSkuInfo&data=".urlencode($row_1['skuId']);
+				$request = eBayBOExcel::$inventory_service."?action=getSkuInfo&data=".urlencode($row_1['skuId']);
 				$json_result = json_decode($this->getService($request));
 				$stock .= $json_result->skuStock . " ,";
 			}
@@ -262,7 +266,7 @@ class eBayBOExcel{
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['skuTitle']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['quantity']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, '');
-			$request = eBayBOExcel::INVENTORY_SERVICE."?action=getSkuInfo&data=".urlencode($row['skuId']);
+			$request = eBayBOExcel::$inventory_service."?action=getSkuInfo&data=".urlencode($row['skuId']);
                         $json_result = json_decode($this->getService($request));
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $json_result->skuStock);
 			$i++;
@@ -326,7 +330,7 @@ class eBayBOExcel{
 			$weight = 0;
 			$quantity = 0;
 			while($row_1 = mysql_fetch_assoc($result_1)){
-				$json_result = $this->getService(self::INVENTORY_SERVICE."?action=getSkuInfo&data=".urlencode($row_1['skuId']));
+				$json_result = $this->getService(eBayBOExcel::$inventory_service."?action=getSkuInfo&data=".urlencode($row_1['skuId']));
 				//echo $json_result;
 				$service_result = json_decode($json_result);
 				$sku .= $row_1['skuId'] . ', ';

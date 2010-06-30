@@ -1,6 +1,11 @@
 <?php
-require_once 'eBaySOAP.php';
+define ('__DOCROOT__', '/export/eBayBO');
+define ('__CRON__', __DOCROOT__ .'/cron');
+
 ini_set("memory_limit","256M");
+
+require_once __CRON__ . '/eBaySOAP.php';
+
 class eBayPlatformNotificationListener extends eBayPlatformNotifications {
 	protected $NotificationSignature;
 
@@ -95,7 +100,7 @@ class eBay{
     private $endTime;
     
     public function __construct(){
-	$this->config = parse_ini_file('config.ini', true);
+	$this->config = parse_ini_file(__DOCROOT__ . '/config.ini', true);
 	
         eBay::$database_connect = mysql_connect($this->config['database']['host'], $this->config['database']['user'], $this->config['database']['password']);
 
@@ -118,8 +123,8 @@ class eBay{
     }
     
     private function sendMessageToAM($destination, $message){
-        require_once 'Stomp.php';
-        require_once 'Stomp/Message/Map.php';
+        require_once __DOCROOT__ . '/Stomp.php';
+        require_once __DOCROOT__ . '/Stomp/Message/Map.php';
         
         $con = new Stomp(eBay::ACTIVE_MQ);
         $conn->sync = false;
@@ -154,7 +159,7 @@ class eBay{
     private function configEbay($dev='', $app='', $cert='', $token='', $proxy_host='', $proxy_port=''){
     	
 	// Load developer-specific configuration data from ini file
-	$config = parse_ini_file('ebay.ini', true);
+	$config = parse_ini_file(__CRON__ . '/ebay.ini', true);
 	$site = $config['settings']['site'];
 	//$compatibilityLevel = $config['settings']['compatibilityLevel'];
 	
@@ -391,6 +396,10 @@ class eBay{
     }
     
     private function AddOrderDetailBySameBuy($transaction, $orderId){
+	if(strpos($transaction->any, "<VariationTitle>")){
+		$transaction->Item->Title = $this->getVariationTitle($transaction->any);
+	}
+	
         $unitPriceCurrency = $transaction->Item->SellingStatus->CurrentPrice->currencyID;
         //$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_ / $transaction->Item->SellingStatus->QuantitySold;
 	$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_;
@@ -920,7 +929,7 @@ class eBay{
 
 
 if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
-	$config = parse_ini_file('ebay.ini', true);
+	$config = parse_ini_file(__CRON__ . '/ebay.ini', true);
 	$site = $config['settings']['site'];
 	$dev = $config[$site]['devId'];
 	$app = $config[$site]['appId'];

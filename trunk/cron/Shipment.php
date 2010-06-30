@@ -1,4 +1,7 @@
 <?php
+define ('__DOCROOT__', '/export/eBayBO');
+ini_set("memory_limit","256M");
+
 class Shipment{
     private static $database_connect;
     private $startTime;
@@ -7,7 +10,7 @@ class Shipment{
     private $config;
     
     public function __construct(){
-        $this->config = parse_ini_file('config.ini', true);
+        $this->config = parse_ini_file(__DOCROOT__ . '/config.ini', true);
         
         Shipment::$database_connect = mysql_connect($this->config['database']['host'], $this->config['database']['user'], $this->config['database']['password']);
 
@@ -160,7 +163,7 @@ class Shipment{
     
     private function configEbay($token, $proxy_host = '', $proxy_port = ''){
     	// Load developer-specific configuration data from ini file
-	$config = parse_ini_file('ebay.ini', true);
+	$config = parse_ini_file(__DOCROOT__ . '/ebay.ini', true);
 	$site = $config['settings']['site'];
 	//$compatibilityLevel = $config['settings']['compatibilityLevel'];
 	

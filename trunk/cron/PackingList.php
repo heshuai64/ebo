@@ -1,4 +1,6 @@
 <?php
+define ('__DOCROOT__', '/export/eBayBO');
+ini_set("memory_limit","256M");
 
 class PackingList{
     private static $database_connect;
@@ -11,7 +13,7 @@ class PackingList{
     private $shipment = array();
     
     public function __construct(){
-        $config = parse_ini_file('config.ini', true);
+        $config = parse_ini_file(__DOCROOT__ . '/config.ini', true);
         
         PackingList::$database_connect = mysql_connect($config['database']['host'], $config['database']['user'], $config['database']['password']);
 

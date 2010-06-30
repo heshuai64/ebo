@@ -1,4 +1,7 @@
 <?php
+define ('__DOCROOT__', '/export/eBayBO');
+ini_set("memory_limit","256M");
+
     class PayPal{
         private static $database_connect;
         //const IPN_VALIDATE_HOST = 'ssl://www.sandbox.paypal.com';
@@ -9,7 +12,7 @@
 	private $config;
 	
         public function __construct(){
-	    $this->config = parse_ini_file('config.ini', true);
+	    $this->config = parse_ini_file(__DOCROOT__ . '/config.ini', true);
 	    
             PayPal::$database_connect = mysql_connect($this->config['database']['host'], $this->config['database']['user'], $this->config['database']['password']);
 
@@ -876,7 +879,7 @@
 		$this->end_time   = date("Y-m-d H:i:s", time() - (8 * 60 * 60));
 	    }
 	    
-	    $api_acount = parse_ini_file('paypal.ini', true);
+	    $api_acount = parse_ini_file(__DOCROOT__ . '/paypal.ini', true);
 	    
 	    foreach($api_acount as $acount){
 		$this->TransactionSearch($acount['Username'], $acount['Password'], $acount['Signature'], $this->start_time, $this->end_time);
@@ -909,6 +912,9 @@ if(!empty($_GET['action'])){
 
 if(!empty($argv[1]) && $argv[1] == "API"){
     $PayPal = new PayPal();
+    if(!empty($argv[2]) && !empty($argv[3])){
+	$PayPal->setAPITime($argv[2], $argv[3]);
+    }
     //$PayPal->setAPITime("2009-07-06 00:00:00", "2009-07-06 09:30:00");
     $PayPal->getAllSellerTransactions();
 }
