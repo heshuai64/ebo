@@ -2,6 +2,7 @@
 class Service{
     private static $database_connect;
     private $inventory_service;
+    private $config;
     
     const SHIPPED_BULK_TEMPLET = "Hi %s,<p>
             Thank you for your purchasing from us and prompt payment, your item #%s has been posted to the dispatch center just now which will be sent out soon via the HongKong post regular air mail without tracking number. It normally will takes around 7 to 15 business days from the dispatch date (public holidays and weekends are not recognized as \"business days\"), please kindly wait a few days for delivery.<p>
@@ -132,10 +133,10 @@ class Service{
             ";
     
     public function __construct(){
-        $config = parse_ini_file('config.ini', true);
-        $this->inventory_service = $config['service']['inventory'];
+        $this->config = parse_ini_file('config.ini', true);
+        $this->inventory_service = $this->config['service']['inventory'];
         
-        Service::$database_connect = mysql_connect($config['database']['host'], $config['database']['user'], $config['database']['password']);
+        Service::$database_connect = mysql_connect($this->config['database']['host'], $this->config['database']['user'], $this->config['database']['password']);
 
         if (!Service::$database_connect) {
             echo "Unable to connect to DB: " . mysql_error(Service::$database_connect);
@@ -144,14 +145,14 @@ class Service{
 	
         mysql_query("SET NAMES 'UTF8'", Service::$database_connect);
 	
-        if (!mysql_select_db($config['database']['name'], Service::$database_connect)) {
+        if (!mysql_select_db($this->config['database']['name'], Service::$database_connect)) {
             echo "Unable to select mydbname: " . mysql_error(Service::$database_connect);
             exit;
         }
     }
     
     private function log($file_name, $data){
-        file_put_contents("/export/eBayBO/log/".$file_name."-".date("Y-m-d").".html", $data, FILE_APPEND);
+        file_put_contents($this->config['log']['service'].$file_name."-".date("Y-m-d").".html", $data, FILE_APPEND);
         //echo $data;   
     }
     

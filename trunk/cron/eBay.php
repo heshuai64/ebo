@@ -349,6 +349,12 @@ class eBay{
         }
     }
     
+    private function getVariationTitle($any){
+	$p_s = strpos($any, "<VariationTitle>");
+	$p_e = strpos($any, "</VariationTitle>");
+	return substr($any, $p_s + 16, $p_e - $p_s - 16);
+    }
+    
     private function createOrderDetailFromEbayTransaction($orderId, $transaction){
         /*
         switch($item->ListingType){
@@ -362,9 +368,10 @@ class eBay{
                 break;
         }
         */
-	if(!empty($transaction->Variation)){
-		$transaction->Item->Title = $transaction->Variation->VariationTitle;
+	if(strpos($transaction->any, "<VariationTitle>")){
+		$transaction->Item->Title = $this->getVariationTitle($transaction->any);
 	}
+	
         $unitPriceCurrency = $transaction->Item->SellingStatus->CurrentPrice->currencyID;
         //$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_ / $transaction->Item->SellingStatus->QuantitySold;
 	$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_;
@@ -418,8 +425,8 @@ class eBay{
     }
     
     private function createOrderDetailFromEbayOrder($orderId, $transaction){
-	if(!empty($transaction->Variation)){
-		$transaction->Item->Title = $transaction->Variation->VariationTitle;
+	if(strpos($transaction->any, "<VariationTitle>")){
+		$transaction->Item->Title = $this->getVariationTitle($transaction->any);
 	}
         $unitPriceCurrency = $transaction->Item->SellingStatus->CurrentPrice->currencyID;
         //$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_ / $transaction->Item->SellingStatus->QuantitySold;
