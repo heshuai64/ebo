@@ -6,11 +6,12 @@
         const NVPAPI_HOST = 'https://api-3t.paypal.com/nvp';
         private $start_time;
 	private $end_time;
+	private $config;
 	
         public function __construct(){
-	    $config = parse_ini_file('config.ini', true);
+	    $this->config = parse_ini_file('config.ini', true);
 	    
-            PayPal::$database_connect = mysql_connect($config['database']['host'], $config['database']['user'], $config['database']['password']);
+            PayPal::$database_connect = mysql_connect($this->config['database']['host'], $this->config['database']['user'], $this->config['database']['password']);
 
             if (!PayPal::$database_connect) {
                 echo "Unable to connect to DB: " . mysql_error(PayPal::$database_connect);
@@ -19,14 +20,18 @@
             
 	    mysql_query("SET NAMES 'UTF8'", PayPal::$database_connect);
 	    
-            if (!mysql_select_db($config['database']['name'], PayPal::$database_connect)) {
+            if (!mysql_select_db($this->config['database']['name'], PayPal::$database_connect)) {
                 echo "Unable to select mydbname: " . mysql_error(PayPal::$database_connect);
                 exit;
             }
         }
         
         private function log($file_name, $content, $type="log"){
-            file_put_contents("/export/eBayBO/log/Ipn/".$file_name."-".date("Y-m-d").".".$type, date("Y-m-d H:i:s")."   ".$content."\n", FILE_APPEND);
+	    if(!file_exists($this->config['log']['paypal'].date("Ymd"))){
+		mkdir($this->config['log']['paypal'].date("Ymd"), 0777);
+	    }
+	    
+            file_put_contents($this->config['log']['paypal'].date("Ymd")."/".$file_name."-".date("Y-m-d").".".$type, date("Y-m-d H:i:s")."   ".$content."\n", FILE_APPEND);
         }
         
         private function getTransactionId(){
