@@ -535,7 +535,7 @@ class QoShipments {
 	
 	private function getItemImage($itemId){
 		$sql = "select galleryURL from qo_items where id = ".$itemId;
-		$result = mysql_query($sql, eBayBOExcel::$database_connect);
+		$result = mysql_query($sql);
 		$row = mysql_fetch_assoc($result);
 		return $row['galleryURL'];
 	}
@@ -544,18 +544,18 @@ class QoShipments {
 		$sql = "select count(*) as num from qo_shipments where status = 'N'";
 		$result = mysql_query($sql);
 		$row = mysql_fetch_assoc($result);
-		$totalCount = $count_row['num'];
+		$totalCount = $row['num'];
 		
 		$array = array();
-		$sql = "select id,shipToName,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry,shipToPhoneNo from qo_shipments where s.status = 'N' order by id desc limit ".$_POST['start'].",".$_POST['limit'];	
+		$sql = "select id,shipToName,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry,shipToPhoneNo from qo_shipments where status = 'N' order by id desc limit ".$_POST['start'].",".$_POST['limit'];	
+		//echo $sql;
 		$result = mysql_query($sql);
 		while($row = mysql_fetch_assoc($result)){
 			$item_image = "";
-			$item_quantity = "";
 			$sql_1 = "select itemTitle,itemId,quantity from qo_shipments_detail where shipmentsId = '".$row['id']."'";
 			$result_1 = mysql_query($sql_1);
 			while($row_1 = mysql_fetch_assoc($result_1)){
-				$item_image .= "<img src='".$this->getItemImage($row_1['itemId'])."' /> X ".$item_quantity."<br>";
+				$item_image .= "<img border=0 width='100' height='100' src='".$this->getItemImage($row_1['itemId'])."' /> X ".$row_1['quantity']."<br>";
 			}
 			$item_image = substr($item_image, 0, -4);
 			$row['address'] = "Attn: ".$row['shipToName']."<br>".
@@ -565,7 +565,7 @@ class QoShipments {
 					$row['shipToCountry'].'<br>'.
 					((!empty($row['shipToPhoneNo']) && $row['shipToPhoneNo'] != "Invalid Request")?"Tel:".$row['shipToPhoneNo'].'<br>':'<br>');
 			$row['itemImage'] = $item_image;
-			$array = $row;
+			$array[] = $row;
 		}
 		
 		echo json_encode(array('totalCount'=>$totalCount, 'records'=>$array));
@@ -581,10 +581,15 @@ class QoShipments {
 			$shipmentIdStr = substr($shipmentIdStr, 0, -1);
 			$sql = "update qo_shipments set status='S',shippedBy='".$this->os->session->get_member_name()."',shippedOn='".date("Y-m-d H:i:s")."' where id in (".$shipmentIdStr.")";
 		}else{
-			$sql = "update qo_shipments set status='S',shippedBy='".$this->os->session->get_member_name()."',shippedOn='".date("Y-m-d H:i:s")."' where = '".$_POST['ids']."'";
+			$sql = "update qo_shipments set status='S',shippedBy='".$this->os->session->get_member_name()."',shippedOn='".date("Y-m-d H:i:s")."' where id = '".$_POST['ids']."'";
 		}
 		$result = mysql_query($sql);
-		echo $result;
+		if($result){
+			echo "Batch Shipments Success!";
+		}else{
+			echo "Batch Shipments Failure!";
+		}
+		mysql_free_result($result);
 	}
 	
         public function outstandingShipment(){
