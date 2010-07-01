@@ -533,6 +533,60 @@ class QoShipments {
 		}
 	}
 	
+	private function getItemImage($itemId){
+		$sql = "select galleryURL from qo_items where id = ".$itemId;
+		$result = mysql_query($sql, eBayBOExcel::$database_connect);
+		$row = mysql_fetch_assoc($result);
+		return $row['galleryURL'];
+	}
+	
+	public function getBatchShipShipment(){
+		$sql = "select count(*) as num from qo_shipments where status = 'N'";
+		$result = mysql_query($sql);
+		$row = mysql_fetch_assoc($result);
+		$totalCount = $count_row['num'];
+		
+		$array = array();
+		$sql = "select id,shipToName,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry,shipToPhoneNo from qo_shipments where s.status = 'N' order by id desc limit ".$_POST['start'].",".$_POST['limit'];	
+		$result = mysql_query($sql);
+		while($row = mysql_fetch_assoc($result)){
+			$item_image = "";
+			$item_quantity = "";
+			$sql_1 = "select itemTitle,itemId,quantity from qo_shipments_detail where shipmentsId = '".$row['id']."'";
+			$result_1 = mysql_query($sql_1);
+			while($row_1 = mysql_fetch_assoc($result_1)){
+				$item_image .= "<img src='".$this->getItemImage($row_1['itemId'])."' /> X ".$item_quantity."<br>";
+			}
+			$item_image = substr($item_image, 0, -4);
+			$row['address'] = "Attn: ".$row['shipToName']."<br>".
+					$row['shipToAddressLine1']." ".(!empty($row['shipToAddressLine2'])?$row['shipToAddressLine2'].'<br>':'<br>').
+					$row['shipToCity']. '<br>'.
+					$row['shipToStateOrProvince']. ", ". $row['shipToPostalCode'].'<br>'.
+					$row['shipToCountry'].'<br>'.
+					((!empty($row['shipToPhoneNo']) && $row['shipToPhoneNo'] != "Invalid Request")?"Tel:".$row['shipToPhoneNo'].'<br>':'<br>');
+			$row['itemImage'] = $item_image;
+			$array = $row;
+		}
+		
+		echo json_encode(array('totalCount'=>$totalCount, 'records'=>$array));
+		mysql_free_result($result);
+	}
+	
+	public function batchShipShipment(){
+		if(strpos($_POST['ids'], ",")){
+			$ids = explode(",", $_POST['ids']);
+			foreach($ids as $id){
+				$shipmentIdStr .= "'".$id."',";
+			}
+			$shipmentIdStr = substr($shipmentIdStr, 0, -1);
+			$sql = "update qo_shipments set status='S',shippedBy='".$this->os->session->get_member_name()."',shippedOn='".date("Y-m-d H:i:s")."' where id in (".$shipmentIdStr.")";
+		}else{
+			$sql = "update qo_shipments set status='S',shippedBy='".$this->os->session->get_member_name()."',shippedOn='".date("Y-m-d H:i:s")."' where = '".$_POST['ids']."'";
+		}
+		$result = mysql_query($sql);
+		echo $result;
+	}
+	
         public function outstandingShipment(){
             if(!empty($_GET['subAction'])){
                 switch($_GET['subAction']){

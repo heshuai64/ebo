@@ -345,8 +345,11 @@ class QoOrders {
 			$sql_3 = "update qo_orders_detail set ordersId = '".$ordersId."' where id in (".$_POST['ids'].")";
 			//echo $sql_3;
 			$result_3 = mysql_query($sql_3);
+			
+			$sql_4 = "update qo_orders set grandTotalValue = grandTotalValue - ".$sumPriceValue." where id = '".$o_ordersId."'";
+			$result_4 = mysql_query($sql_4);
 		}
-		if($result_2 && $result_3){
+		if($result_2 && $result_3 && $result_4){
 			echo "split as " . $ordersId;
 		}else{
 			echo "split failure!";
