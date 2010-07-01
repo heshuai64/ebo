@@ -80,3 +80,29 @@ Ext.onReady(function(){
     
     shipmentGrid.render("batch-shipment");
 })
+
+/*
+ INSERT INTO `ebaybo`.`qo_modules_actions` (
+`id` ,
+`qo_modules_id` ,
+`name` ,
+`description`
+)
+VALUES (
+NULL , '12', 'getBatchShipShipment', NULL
+), (
+NULL , '12', 'batchShipShipment', NULL
+);
+
+INSERT INTO `ebaybo`.`qo_privileges_has_module_actions` (
+`id` ,
+`qo_privileges_id` ,
+`qo_modules_actions_id`
+)
+VALUES (
+NULL , '6', '64'
+), (
+NULL , '6', '65'
+);
+
+*/
