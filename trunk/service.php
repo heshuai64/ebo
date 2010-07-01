@@ -1,4 +1,7 @@
 <?php
+define ('__DOCROOT__', '/export/eBayBO');
+define ('__DOCCLASS__', __DOCROOT__ . '/class');
+
 class Service{
     private static $database_connect;
     private $inventory_service;
@@ -102,14 +105,14 @@ class Service{
             
     const XMAS_BLUK_TEMPLATE_2  = "
             <p>%s</p>
-            <p>Dear %s,</p>
-            <p>Just keep in my mind, 12 days have passed since your item was shipped. Have you received it?</p>
+            <p>Dear %s,
+            <p>Just keep in my mind, a few days have passed since your item was shipped. Have you received it?</p>
             <p>If already arrived and with good condition, we sincerely hope that you will like it and satisfied with our customer services, your valued positive comment with all 5-stars Detailed Seller Ratings are much appreciated, which are of vital importance to the growth of our small company.</p>
             <p>If received with anything you feel unsatisfied, please feel free to tell us. We will offer a satisfied resolution for you and will improve our service to better.</p>
             <p>If have not received yet please kindly wait another 10 days for delivery as the item is definitely on the transport way.</p>
             <p>Besides, PLEASE DO NOT leaves us 1, 2, 3 or 4-star Detailed Seller Ratings because they are equal to negative feedback. Like what we said before, if you are not satisfied in any regard, please email me.</p>
             <p>Thanks once more for your purchase.</p>
-            Yours Sincerely,<br>
+            Yours Sincerely,
             %s";
     
     const XMAS_TEMPLATE_3  = "
@@ -133,7 +136,7 @@ class Service{
             ";
     
     public function __construct(){
-        $this->config = parse_ini_file('config.ini', true);
+        $this->config = parse_ini_file(__DOCROOT__ . '/config.ini', true);
         $this->inventory_service = $this->config['service']['inventory'];
         
         Service::$database_connect = mysql_connect($this->config['database']['host'], $this->config['database']['user'], $this->config['database']['password']);
@@ -165,7 +168,7 @@ class Service{
                      'email'=>$row['email'],
                      'emailPassword'=>$row['emailPassword']);
         */
-        $config = parse_ini_file('email.ini', true);
+        $config = parse_ini_file(__DOCROOT__ . '/email.ini', true);
         return $config[$sellerId];
     }
     
@@ -180,7 +183,9 @@ class Service{
     }
     
     private function sendEmail($seller, $buyer, $subjet, $toContent){
+        include(__DOCCLASS__ . "/class.phpmailer.php");
         $mail  = new PHPMailer();
+        $mail->PluginDir = __DOCCLASS__ . "/";
         $mail->IsSMTP();
         $mail->SMTPAuth   = true;                  // enable SMTP authentication
         $mail->SMTPSecure = "ssl";                 // sets the prefix to the servier
@@ -227,7 +232,6 @@ class Service{
     
     public function sendXamsShipmentEmail(){
         global $argv;
-        include("/export/eBayBO/class/class.phpmailer.php");
         //$day = date("Y-m-d");
         $day   = date("Y-m-d", time() - (1 * 24 * 60 * 60));
         $day12 = date("Y-m-d", time() - (13 * 24 * 60 * 60));
@@ -294,8 +298,8 @@ class Service{
                     
                     switch($row['shipmentMethod']){
                         case "R":
-                            $toContent = sprintf(self::XMAS_REGISTERED_TEMPLATE_2, $item, $row['shipToName'], $row['postalReferenceNo'], $sellerId);
-                            break;
+                            //$toContent = sprintf(self::XMAS_REGISTERED_TEMPLATE_2, $item, $row['shipToName'], $row['postalReferenceNo'], $sellerId);
+                            //break;
                         
                         case "B":
                         
@@ -358,7 +362,6 @@ class Service{
     
     public function sendShipShpmentEmail(){
         //file_put_contents("/tmp/1.log", print_r($_POST, true), FILE_APPEND);
-        include("/export/eBayBO/class/class.phpmailer.php");
         
         $sql = "select id,ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where emailStatus = 0 and status = 'S'";
         $result = mysql_query($sql);
@@ -463,13 +466,11 @@ class Service{
     }
     
     public function sendOutstandingEmail(){
-        include("/export/eBayBO/class/class.phpmailer.php");
         $day   = date("Y-m-d", time() - (3 * 24 * 60 * 60));
         $sql = "select id,ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where createdOn like '".$day."%' and emailStatus = 0 and status = 'N'";
         //echo $sql."\n";
         $result = mysql_query($sql);
         while($row = mysql_fetch_assoc($result)){
-            
             //get seller Id
             $sql_2 = "select sellerId from qo_orders where id = '".$row['ordersId']."'";
             $result_2 = mysql_query($sql_2);
@@ -478,19 +479,19 @@ class Service{
             $seller = $this->getSellerEmailAccountAndPassword($sellerId);
             
             $toContent = self::OUTSTANDING;
-            $buyer = array('name'=> "heshuai", 'email'=> "heshuai64@gmail.com");
-            //$buyer = array('name'=> $row['shipToName'], 'email'=> $row['shipToEmail']);
+            //$buyer = array('name'=> "heshuai", 'email'=> "heshuai64@gmail.com");
+            $buyer = array('name'=> $row['shipToName'], 'email'=> $row['shipToEmail']);
             $subjet = "important notice regarding yr ebay purchase";
             $send_result = $this->sendEmail($seller, $buyer, $subjet, $toContent);
             if($send_result){
-                $sql_3 = "update qo_shipments set emailStatus = 1 where id = '".$row['id']."'";
+                $sql_3 = "update qo_shipments set emailStatus = 1,status = 'H' where id = '".$row['id']."'";
                 $result_3 = mysql_query($sql_3);
                 $this->log("email/outstandingEmail", $sellerId. ": ".$row['id']." Send <br>".$toContent."<br> To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
             }else{
                 $this->log("email/outstandingEmail", "<font color='red'>".$sellerId. ": ".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
             }
             $this->log("email/outstandingEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
-            exit;
+            //exit;
         }
     }
     

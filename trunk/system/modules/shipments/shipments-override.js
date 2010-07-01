@@ -381,7 +381,7 @@ Ext.override(QoDesk.Shipments, {
 			text: 'Batch Ship',
 			handler: function(){
 			    win.close();
-			    window.open("/eBayBO/batchShipShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=500, height=400");  
+			    window.open("/eBayBO/batchShipShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");  
 			}
 		    }/*,{
 			text: 'Registered List',

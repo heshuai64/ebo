@@ -555,7 +555,7 @@ class QoShipments {
 			$sql_1 = "select itemTitle,itemId,quantity from qo_shipments_detail where shipmentsId = '".$row['id']."'";
 			$result_1 = mysql_query($sql_1);
 			while($row_1 = mysql_fetch_assoc($result_1)){
-				$item_image .= "<img border=0 width='100' height='100' src='".$this->getItemImage($row_1['itemId'])."' /> X ".$row_1['quantity']."<br>";
+				$item_image .= "<img border=0 width='100' height='100' src='".$this->getItemImage($row_1['itemId'])."' /> " . $row_1['itemTitle']. " X ".$row_1['quantity']."<br>";
 			}
 			$item_image = substr($item_image, 0, -4);
 			$row['address'] = "Attn: ".$row['shipToName']."<br>".
