@@ -20,7 +20,7 @@ Ext.onReady(function(){
         },{
             header: "Image",
             dataIndex: 'itemImage',
-            width: 130,
+            width: 500,
             align: 'center',
             sortable: true
         },{
@@ -31,7 +31,7 @@ Ext.onReady(function(){
             sortable: true
         }],
         tbar: [{
-            text: 'Ship',
+            text: 'Batch Ship',
             handler: function(){
                 if(shipmentGrid.selModel.getCount() == 0){
                     Ext.MessageBox.alert('Warning','Please choice need ship shipment.'); 

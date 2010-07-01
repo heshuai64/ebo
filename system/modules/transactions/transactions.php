@@ -217,9 +217,13 @@ class QoTransactions {
 	}
 	
 	public function mapTransactionOrder(){
+		$sql = "select amountCurrency,amountValue from qo_transactions where id = '".$_POST['transactionsId']."'";
+		$result = mysql_query($sql);
+		$row = mysql_fetch_assoc($result);
+		
 		$sql = "insert into qo_orders_transactions (ordersId,transactionsId,status,amountPayCurrency,amountPayValue,
 			createdBy,createdOn) values ('".$_POST['ordersId']."','".$_POST['transactionsId']."',
-			'A','".$_POST['amountCurrency']."','".$_POST['amountValue']."',
+			'A','".$row['amountCurrency']."','".$row['amountValue']."',
 			'".$this->os->session->get_member_name()."','".date("Y-m-d H:i:s")."')";
 		$result = mysql_query($sql);
 		echo $result;

@@ -299,6 +299,7 @@ Ext.onReady(function(){
                         readOnly:true,
                         name:"id"
                       },{
+                        id:"ordersId",
                         xtype:"textfield",
                         fieldLabel:"Orders Id",
                         readOnly:true,
@@ -500,6 +501,12 @@ Ext.onReady(function(){
                                 xtype:"textfield",
                                 fieldLabel:"PostalReferenceNo",
                                 name:"postalReferenceNo"
+                        },{
+                                xtype:"button",
+                                text: "Link To Orders",
+                                handler: function(){
+                                        window.open("/eBayBO/orders.php?id="+Ext.getCmp("ordersId").getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800"); 
+                                }
                         }]
                   },{
                     columnWidth:0.5,
