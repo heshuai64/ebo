@@ -545,14 +545,14 @@ class eBayBOExcel{
 		$result_0 = mysql_query($sql_0, eBayBOExcel::$database_connect);
 		while($row_0 = mysql_fetch_assoc($result_0)){
 			$data = "<table border=1>";
-			$data .= "<tr><th>Shipment ID</th><th>Item Image</th><th>Item Title</th><th>Buyer Address</th></tr>";
+			$data .= "<tr><th>Shipment ID</th><th>Item Image</th><th>Item Title</th><th>Quantity</th><th>Buyer Address</th></tr>";
 		
 			$sql = "select s.id,s.shipToName,s.shipToEmail,s.shipToAddressLine1,s.shipToAddressLine2,s.shipToCity,
 			s.shipToStateOrProvince,s.shipToPostalCode,s.shipToCountry,s.shipToPhoneNo from qo_shipments as s 
 			left join qo_orders as o on s.ordersId = o.id where o.sellerId = '".$row_0['id']."' and s.status = 'N' and s.modifiedOn between '".$start."' and '".$end."'";
 			$result = mysql_query($sql, eBayBOExcel::$database_connect);
 			while($row = mysql_fetch_assoc($result)){
-				$sql_1 = "select itemId,itemTitle from qo_shipments_detail where shipmentsId = '".$row['id']."'";
+				$sql_1 = "select itemId,itemTitle,quantity from qo_shipments_detail where shipmentsId = '".$row['id']."'";
 				$result_1 = mysql_query($sql_1, eBayBOExcel::$database_connect);
 				
 				while($row_1 = mysql_fetch_assoc($result_1)){
@@ -560,6 +560,7 @@ class eBayBOExcel{
 					$data .= "<td>".$row['id']."</td>";
 					$data .= "<td><img width='100' height='100' border=0 src='".$this->getItemImage($row_1['itemId'])."'></td>";
 					$data .= "<td>".$row_1['itemTitle']."</td>";
+					$data .= "<td>".$row_1['quantity']."</td>";
 					$data .= "<td>Attn: ".$row['shipToName']."<br>".
 					$row['shipToAddressLine1']." ".(!empty($row['shipToAddressLine2'])?$row['shipToAddressLine2'].'<br>':'<br>').
 					$row['shipToCity']. '<br>'.

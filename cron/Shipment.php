@@ -62,12 +62,23 @@ class Shipment{
         $this->createShipment();
     }
     
+    private function getTransactionRemarksByOrdersId($ordersId){
+        $remarks = "";
+        $sql = "select t.remarks from qo_transactions as t left join qo_orders_transactions as ot on t.id = ot.transactionsId where ot.ordersId = '".$ordersId."'";
+        $result = mysql_query($sql, Shipment::$database_connect);
+        while($row = mysql_fetch_assoc($result)){
+            $remarks .= $row['remarks']."\n";
+        }
+        return substr($remarks, 0, -2);
+    }
+    
     private function getCompleteOrder(){
         $sql = "select id,shippingMethod,ebayName,ebayEmail,ebayAddress1,ebayAddress2,ebayCity,ebayStateOrProvince,ebayPostalCode,ebayCountry,ebayPhone from qo_orders 
         where status = 'P' and modifiedOn between '".$this->startTime."' and '".$this->endTime."'";
         $result = mysql_query($sql, Shipment::$database_connect);
         $i= 0;
         while($row = mysql_fetch_assoc($result)){
+            $row['remarks'] = $this->getTransactionRemarksByOrdersId($row['id']);
             $this->complete_orders[$i] = $row;
             $sql_1 = "select skuId,skuTitle,itemId,itemTitle,quantity,barCode from qo_orders_detail where ordersId = '".$row['id']."'";
             $result_1 = mysql_query($sql_1, Shipment::$database_connect);
@@ -129,10 +140,10 @@ class Shipment{
                 }
                 //print_r($orders, true);
                 //echo "<br>";
-                $sql = "insert into qo_shipments (id,ordersId,status,shipmentMethod,shippingFeeCurrency,shippingFeeValue,shipToName,
+                $sql = "insert into qo_shipments (id,ordersId,status,shipmentMethod,remarks,shippingFeeCurrency,shippingFeeValue,shipToName,
                 shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,
                 shipToCountry,shipToPhoneNo,createdBy,createdOn,modifiedBy,modifiedOn) values ('".$shipmentId."','".$orders['id']."',
-                'N','".$orders['shippingMethod']."','".$orders['shippingFeeCurrency']."','".$orders['shippingFeeValue']."','".mysql_escape_string($orders['ebayName'])."',
+                'N','".$orders['shippingMethod']."','".$orders['remarks']."','".$orders['shippingFeeCurrency']."','".$orders['shippingFeeValue']."','".mysql_escape_string($orders['ebayName'])."',
                 '".mysql_escape_string($orders['ebayEmail'])."','".mysql_escape_string($orders['ebayAddress1'])."','".mysql_escape_string($orders['ebayAddress2'])."','".mysql_escape_string($orders['ebayCity'])."',
                 '".mysql_escape_string($orders['ebayStateOrProvince'])."','".mysql_escape_string($orders['ebayPostalCode'])."','".mysql_escape_string($orders['ebayCountry'])."','".$orders['ebayPhone']."',
                 'System','".date("Y-m-d H:i:s")."','System','".date("Y-m-d H:i:s")."')";
