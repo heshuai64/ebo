@@ -545,7 +545,7 @@ class eBayBOExcel{
 		$result_0 = mysql_query($sql_0, eBayBOExcel::$database_connect);
 		while($row_0 = mysql_fetch_assoc($result_0)){
 			$data = "<table border=1>";
-			$data .= "<tr><th>Shipment ID</th><th>Item Image</th><th>Item Title</th><th>Quantity</th><th>Buyer Address</th></tr>";
+			$data .= "<tr><th>Shipment ID</th><th>Item Information</th><th>Buyer Address</th></tr>";
 		
 			$sql = "select s.id,s.shipToName,s.shipToEmail,s.shipToAddressLine1,s.shipToAddressLine2,s.shipToCity,
 			s.shipToStateOrProvince,s.shipToPostalCode,s.shipToCountry,s.shipToPhoneNo from qo_shipments as s 
@@ -555,21 +555,29 @@ class eBayBOExcel{
 				$sql_1 = "select itemId,itemTitle,quantity from qo_shipments_detail where shipmentsId = '".$row['id']."'";
 				$result_1 = mysql_query($sql_1, eBayBOExcel::$database_connect);
 				
+				$sub_data = "<table border=1>";
+				$sub_data .= "<tr><th>Image</th><th>Title</th><th>Quantity</th></tr>";
 				while($row_1 = mysql_fetch_assoc($result_1)){
-					$data .= "<tr>";
-					$data .= "<td>".$row['id']."</td>";
-					$data .= "<td><img width='100' height='100' border=0 src='".$this->getItemImage($row_1['itemId'])."'></td>";
-					$data .= "<td>".$row_1['itemTitle']."</td>";
-					$data .= "<td>".$row_1['quantity']."</td>";
-					$data .= "<td>Attn: ".$row['shipToName']."<br>".
-					$row['shipToAddressLine1']." ".(!empty($row['shipToAddressLine2'])?$row['shipToAddressLine2'].'<br>':'<br>').
-					$row['shipToCity']. '<br>'.
-					$row['shipToStateOrProvince']. ", ". $row['shipToPostalCode'].'<br>'.
-					$row['shipToCountry'].'<br>'.
-					((!empty($row['shipToPhoneNo']) && $row['shipToPhoneNo'] != "Invalid Request")?"Tel:".$row['shipToPhoneNo'].'<br>':'<br>').
-					"</td>";
-					$data .= "</tr>";
+					$sub_data .= "<tr>";
+					$sub_data .= "<td><img width='100' height='100' border=0 src='".$this->getItemImage($row_1['itemId'])."'></td>";
+					$sub_data .= "<td>".$row_1['itemTitle']."</td>";
+					$sub_data .= "<td>".$row_1['quantity']."</td>";
+					$sub_data .= "</tr>";
 				}
+				$sub_data .= "</table>";
+				
+				$data .= "<tr>";
+				$data .= "<td>".$row['id']."</td>";
+				$data .= "<td>".$sub_data."</td>";
+				$data .= "<td>Attn: ".$row['shipToName']."<br>".
+				$row['shipToAddressLine1']." ".(!empty($row['shipToAddressLine2'])?$row['shipToAddressLine2'].'<br>':'<br>').
+				$row['shipToCity']. '<br>'.
+				$row['shipToStateOrProvince']. ", ". $row['shipToPostalCode'].'<br>'.
+				$row['shipToCountry'].'<br>'.
+				((!empty($row['shipToPhoneNo']) && $row['shipToPhoneNo'] != "Invalid Request")?"Tel:".$row['shipToPhoneNo'].'<br>':'<br>').
+				"</td>";
+				$data .= "</tr>";
+				
 			}
 			$data .= "</table>";
 			file_put_contents($this->getFilePath($row_0['id'].'-packingList-'.$argv[2].'.html'), $data);
