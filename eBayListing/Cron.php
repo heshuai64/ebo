@@ -1,16 +1,17 @@
 <?php
+define ('__DOCROOT__', '/export/eBayListing');
+set_time_limit(1800);
+ini_set("memory_limit","256M");
+
 class Cron{
     public static $database_connect;
-    const DATABASE_HOST = 'localhost';
-    const DATABASE_USER = 'root';
-    const DATABASE_PASSWORD = '5333533';
-    const DATABASE_NAME = 'ebaylisting';
-    const LOG_DIR ='/export/eBayListing/log/cron';
-    const ACTIVE_MQ = "tcp://192.168.1.168:61613";
+    private $config;
     
     public function __construct(){
-        set_time_limit(1800);
-        Cron::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
+        
+        $this->config = parse_ini_file(__DOCROOT__ . '/config.ini', true);
+        
+        Cron::$database_connect = mysql_connect($this->config['database']['host'], $this->config['database']['user'], $this->config['database']['password']);
 
         if (!Cron::$database_connect) {
             echo "Unable to connect to DB: " . mysql_error(Cron::$database_connect);
@@ -19,7 +20,7 @@ class Cron{
 	
         mysql_query("SET NAMES 'UTF8'", Cron::$database_connect);
 	
-        if (!mysql_select_db(self::DATABASE_NAME, Cron::$database_connect)) {
+        if (!mysql_select_db($this->config['database']['name'], Cron::$database_connect)) {
             echo "Unable to select mydbname: " . mysql_error(Cron::$database_connect);
             exit;
         }
@@ -34,10 +35,10 @@ class Cron{
 	Asia/Shanghai       +0800
     */
     private function log($file_name, $data){
-        if(!file_exists(self::LOG_DIR."/".date("Ymd"))){
-            mkdir(self::LOG_DIR."/".date("Ymd"), 0777);
+        if(!file_exists($this->config['log']['cron']."/".date("Ymd"))){
+            mkdir($this->config['log']['cron']."/".date("Ymd"), 0777);
         }
-        file_put_contents(self::LOG_DIR."/".date("Ymd")."/".$file_name, $data, FILE_APPEND);
+        file_put_contents($this->config['log']['cron']."/".date("Ymd")."/".$file_name, $data, FILE_APPEND);
     }
     
     public function calculateTemplateData(){
@@ -191,11 +192,11 @@ class Cron{
     */
     public function calculateListingSchedule(){
         global $argv;
-        require_once 'module/template.php';
+        require_once __DOCROOT__ . '/module/template.php';
         $template = new Template();
         $today = date("Y-m-d");
         $Site = $argv[2];
-        $sql_1 = "select * from template where Site = '".$Site."' and ScheduleStartDate = '".$today."'";
+        $sql_1 = "select scheduleTemplateName,accountId from template where status = 2 and Site = '".$Site."' and ScheduleStartDate < '".$today."'";
         echo $sql_1."\n";
         $result_1 = mysql_query($sql_1, Cron::$database_connect);
 	while($row_1 = mysql_fetch_assoc($result_1)){
@@ -216,8 +217,8 @@ class Cron{
     
     public function dealSkuStatusMessage(){
     	//ini_set('include_path', '../');
-        require_once 'Stomp.php';
-        require_once 'Stomp/Message/Map.php';
+        require_once __DOCROOT__ . '/Stomp.php';
+        require_once __DOCROOT__ . '/Stomp/Message/Map.php';
         $status_array = array(/*'new'=> 0,
                               'waiting for approve'=> 1,
                               'active'=> 2,
@@ -225,10 +226,10 @@ class Cron{
                               'under review'=> 4,
                               'inactive'=> 5);
         
-        $consumer = new Stomp(Cron::ACTIVE_MQ);
+        $consumer = new Stomp($this->config['service']['activeMQ']);
         $consumer->clientId = "eBayListingSkuStatus";
         $consumer->connect();
-        $consumer->subscribe("/queue/SkuStatus", array('transformation' => 'jms-map-json'));
+        $consumer->subscribe($this->config['queue']['skuStatus'], array('transformation' => 'jms-map-json'));
         //for($i=0; $i<60; $i++){
             $msg = $consumer->readFrame();
             if ($msg != null) {
@@ -256,13 +257,13 @@ class Cron{
     }
     
     public function dealSkuOutOfStockMessage(){
-        require_once 'Stomp.php';
-        require_once 'Stomp/Message/Map.php';
+        require_once __DOCROOT__ . '/Stomp.php';
+        require_once __DOCROOT__ . '/Stomp/Message/Map.php';
         
-        $consumer = new Stomp(Cron::ACTIVE_MQ);
+        $consumer = new Stomp($this->config['service']['activeMQ']);
         $consumer->clientId = "eBayListingSkuOutOfStock";
         $consumer->connect();
-        $consumer->subscribe("/topic/SkuOutOfStock", array('transformation' => 'jms-map-json'));
+        $consumer->subscribe($this->config['topic']['skuOutOfStock'], array('transformation' => 'jms-map-json'));
         //for($i=0; $i<6; $i++){
             $msg = $consumer->readFrame();
             if ( $msg != null) {

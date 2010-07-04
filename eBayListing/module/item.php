@@ -6,7 +6,24 @@ class Item{
     public function __construct($account_id){
         $this->account_id = $account_id;
     }
-    
+    /*
+    	Status
+	0 : ready
+	1 : schedule
+	2 : selling
+	3 : revise
+	4 : relist
+	5 : unsold
+	6 : sold
+	7 : end
+	8 : waiting to relist
+	9 : ended
+	
+	10: uploading
+	11: reviseing
+	12: relisting
+	13: ending
+    */
     private function getService($request){
         $json = file_get_contents(Template::INVENTORY_SERVICE.$request);
         return json_decode($json);

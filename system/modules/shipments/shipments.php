@@ -10,7 +10,8 @@ class QoShipments {
 	const MEMCACHE_PORT = 11211;
 	const ACTIVE_MQ = "tcp://127.0.0.1:61613";
         private $message;
-        
+        private $connect_inventory = true;
+	
 	public function __construct($os){
 		$this->os = $os;
 		QoShipments::$memcache_connect = new Memcache;
@@ -465,25 +466,25 @@ class QoShipments {
                 $quantiry_str = "";
                 
 		if($row['status'] == "N"){
-			/*
-			$sql_4 = "select shipmentsId,skuId,quantity from qo_shipments_detail where shipmentsId = '".$_POST['id']."'";
-			$result_4 = mysql_query($sql_4);
-                        $flag = true;
-			while($row_4 = mysql_fetch_assoc($result_4)){
-			    //send stock to inventory system
-                            $sku_str .= $row_4['skuId'].",";
-                            $quantiry_str .= $row_4['quantity'].",";
+			if($this->connect_inventory){
+				$sql_4 = "select shipmentsId,skuId,quantity from qo_shipments_detail where shipmentsId = '".$_POST['id']."'";
+				$result_4 = mysql_query($sql_4);
+				$flag = true;
+				while($row_4 = mysql_fetch_assoc($result_4)){
+				    //send stock to inventory system
+				    $sku_str .= $row_4['skuId'].",";
+				    $quantiry_str .= $row_4['quantity'].",";
+				}
+				$sku_str = substr($sku_str, 0, -1);
+				$quantiry_str = substr($quantiry_str, 0, -1);
+				$service_result_1 = $this->inventoryTakeOut($sku_str, $quantiry_str, $row['id'], $row['shipmentMethod']);
+				$info .= $this->message;
+				$result_3 = false;
+			}else{
+				$service_result_1 = true;
+				$result_3 = true;
+				$info = $_POST['id'] . " Ship Success!";
 			}
-			$sku_str = substr($sku_str, 0, -1);
-                        $quantiry_str = substr($quantiry_str, 0, -1);
-                        $service_result_1 = $this->inventoryTakeOut($sku_str, $quantiry_str, $row['id'], $row['shipmentMethod']);
-                        $info .= $this->message;
-                                
-                        $result_3 = false;
-			*/
-			$service_result_1 = true;
-			$result_3 = true;
-			$info = $_POST['id'] . " Ship Success!";
 			
                         if($service_result_1){
                             //update shipment status
@@ -529,7 +530,7 @@ class QoShipments {
 				echo "{success: false, errors: { reason: '".$info."' }}";
 			}
 		}else{
-			echo "{success: false, errors: { reason: '<font color=\'red\'>包裹不能发送, 包裹状态是 ".$row['status'].".</font>'}}";
+			echo "{success: false, errors: { reason: '<font color=\'red\' size=\'7\'>包裹不能发送, 包裹状态是 ".$row['status'].".</font>'}}";
 		}
 	}
 	

@@ -1491,6 +1491,7 @@ class eBayListing{
 	    
 	    $row_1['Description'] = utf8_encode($row_1['Description']);
 	    $row_1['Title'] = html_entity_decode($row_1['Title'], ENT_QUOTES);
+	    $row_1['Title'] = utf8_encode($row_1['Title']);
 	    
 	    $sql_2 = "select * from shipping_service_options where ItemID = '".$row['Id']."'";
 	    $result_2 = mysql_query($sql_2);

@@ -640,7 +640,7 @@ ini_set("memory_limit","256M");
 	
 	private function matchOrder($api_data, $item_number_string, $transactionId){
             $ordersId = $this->getOrderId($api_data['BUYERID'], $item_number_string);
-            //$ordersId = ($ordersId!='')?$ordersId:($this->getOrderIdFromTxnId($api_data['TRANSACTIONID']));
+            $ordersId = ($ordersId!='')?$ordersId:($this->getOrderIdFromTxnId($api_data['PARENTTRANSACTIONID']));
             if($ordersId !=''){
                 $status = "A";
                 $amountPaidCurrency = $api_data['CURRENCYCODE'];
