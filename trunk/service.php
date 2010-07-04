@@ -314,7 +314,7 @@ class Service{
                     }
                     
                     $buyer = array('name'=> $row['shipToName'], 'email'=> $row['shipToEmail']);
-                    $subjet = "12 days been passed, any news of your order?";
+                    $subjet = "Have you receive the order?";
                     $send_result = $this->sendEmail($seller, $buyer, $subjet, $toContent);
                     if($send_result){
                         $sql_3 = "update qo_shipments set emailStatus = 1 where id = '".$row['id']."'";
@@ -466,6 +466,8 @@ class Service{
     }
     
     public function sendOutstandingEmail(){
+        $config = parse_ini_file(__DOCROOT__ . '/email_template.ini', true);
+        
         $day   = date("Y-m-d", time() - (3 * 24 * 60 * 60));
         $sql = "select id,ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where createdOn like '".$day."%' and emailStatus = 0 and status = 'N'";
         //echo $sql."\n";
@@ -478,11 +480,13 @@ class Service{
             $sellerId = $row_2['sellerId'];
             $seller = $this->getSellerEmailAccountAndPassword($sellerId);
             
-            $toContent = self::OUTSTANDING;
+            $toContent = $config['OUTSTANDING'];
             //$buyer = array('name'=> "heshuai", 'email'=> "heshuai64@gmail.com");
             $buyer = array('name'=> $row['shipToName'], 'email'=> $row['shipToEmail']);
             $subjet = "important notice regarding yr ebay purchase";
             $send_result = $this->sendEmail($seller, $buyer, $subjet, $toContent);
+            //var_dump($send_result);
+            //exit;
             if($send_result){
                 $sql_3 = "update qo_shipments set emailStatus = 1,status = 'H' where id = '".$row['id']."'";
                 $result_3 = mysql_query($sql_3);
