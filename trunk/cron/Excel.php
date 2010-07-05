@@ -500,7 +500,7 @@ class eBayBOExcel{
 			left join qo_orders as o on s.ordersId = o.id where o.sellerId = '".$row_0['id']."' and s.status = 'N' and s.modifiedOn between '".$start."' and '".$end."'";
 			$result = mysql_query($sql, eBayBOExcel::$database_connect);
 			$i = 2;
-			$data = '"Sales Record Number","User Id","Buyer Fullname","Buyer Phone Number","Buyer Email","Buyer Address 1","Buyer Address 2","Buyer City","Buyer State","Buyer Country","Buyer Zip","Item Number","Item Title","Custom Label","category","Quantity","Sale Date","Checkout Date","Paid on Date","Shipped on Date","Listed On","Sold On","PayPal Transaction ID","Shipping Service","Transaction ID","Order ID","declared value","weight","isreturn","Length","Width","Height"'."\n";
+			$data = '"Sales Record Number","User Id","Buyer Fullname","Buyer Phone Number","Buyer Email","Buyer Address 1","Buyer Address 2","Buyer City","Buyer State","Buyer Zip","Buyer Country","Item Number","Item Title","Custom Label","category","Quantity","Sale Date","Checkout Date","Paid on Date","Shipped on Date","Listed On","Sold On","PayPal Transaction ID","Shipping Service","Transaction ID","Order ID","declared value","weight","isreturn","Length","Width","Height"'."\n";
 			while($row = mysql_fetch_assoc($result)){
 				$sql_1 = "select itemTitle from qo_shipments_detail where shipmentsId = '".$row['id']."'";
 				$result_1 = mysql_query($sql_1, eBayBOExcel::$database_connect);
@@ -514,9 +514,10 @@ class eBayBOExcel{
 						$row['shipToStateOrProvince']. ", ". $row['shipToPostalCode']."\n".
 						$row['shipToCountry'];
 				
-				$data .= '"","","'.$row['shipToName'].'","'.$row['shipToPhoneNo'].'","","'.$BuyerAddress1.'","","'.$row['shipToCity'].'","'.$row['shipToStateOrProvince'].'","'.$row['shipToCountry'].'","'.$row['shipToPostalCode'].'","","'.$itemTitle.'","","","","","","","","","","","HKBAM","","","10","","Y","","",""'."\n";
+				$data .= '"","","'.$row['shipToName'].'","'.$row['shipToPhoneNo'].'","","'.$BuyerAddress1.'","","'.$row['shipToCity'].'","'.$row['shipToStateOrProvince'].'","'.$row['shipToPostalCode'].'","'.$row['shipToCountry'].'","","'.$itemTitle.'","","","","","","","","","","","HKBAM","","","10","","Y","","",""'."\n";
 			}
 			file_put_contents($this->getFilePath($row_0['id'].'-sfc-'.$argv[2].'.csv'), $data);
+			//file_put_contents("/tmp/".$row_0['id'].'-sfc-'.$argv[2].'.csv', $data);
 		}
 	}
 	
