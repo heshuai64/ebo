@@ -7,6 +7,7 @@ var currency_symbol = {
 var path = "/eBayBO/eBayListing/"
 //var path = "/eBayListing/"
 var inventory_service = "/inventory/service.php";
+var global_config = {LP: true, DS: true};
 
 function previewSkuPicture(index){                                   
     var window = new Ext.Window({

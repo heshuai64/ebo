@@ -185,33 +185,70 @@ class Cron{
     }
     
     /*
-        US: 12:00:00 18
-        UK: 07:00:00 13
-        AU: 22:00:00 04
-        FR: 06:00:00 12
+        US: 12:00:00
+        UK: 17:00:00
+        Germany: 17:00:00
+        Australia: 03:00:00
+        France: 18:00:00
     */
     public function calculateListingSchedule(){
-        global $argv;
-        require_once __DOCROOT__ . '/module/template.php';
-        $template = new Template();
-        $today = date("Y-m-d");
-        $Site = $argv[2];
-        $sql_1 = "select scheduleTemplateName,accountId from template where status = 2 and Site = '".$Site."' and ScheduleStartDate < '".$today."'";
-        echo $sql_1."\n";
-        $result_1 = mysql_query($sql_1, Cron::$database_connect);
-	while($row_1 = mysql_fetch_assoc($result_1)){
-            $sql_2 = "select * from schedule_template where name = '".$row_1['scheduleTemplateName']."' and account_id = '".$row_1['accountId']."'";
-            echo $sql_2."\n";
-            $result_2 = mysql_query($sql_2, Cron::$database_connect);
-            while($row_2 = mysql_fetch_assoc($result_2)){
-                if(date("D") == $row_2['day']){
-                    $local_time = $template->getSiteTime($row_1['Site'], $today, $row_2['time']);
-                    //$item_id = $template->changeTemplateToItem($row_1['Id'], $local_time, $today . " " .$row_2['time']);
-                    $this->log("calculateListingSchedule.log", "t:".$row_1['Id']." ==> i:".$item_id.". ".$Site.":".$local_time.", BeiJing:".$today . " " .$row_2['time']."\n");
-                }
+        //global $argv;
+        if(in_array(date("H"), array('02', '12', '17' ,'18'))){
+            require_once __DOCROOT__ . '/module/template.php';
+            $template = new Template();
+            $today = date("Y-m-d");
+            //$Site = $argv[2];
+            switch(date("H")){
+                case "02":
+                    $Site = "Australia";
+                    $sql_1 = "select Id,scheduleTemplateName,accountId from template where scheduleTemplateName <> '' and status = 2 and Site = 'Australia'";
+                break;
+            
+                case "12":
+                    $Site = "US";
+                    $sql_1 = "select Id,scheduleTemplateName,accountId from template where scheduleTemplateName <> '' and status = 2 and Site = 'US'";
+                break;
+            
+                case "17":
+                    $Site = "UK";
+                    $sql_1 = "select Id,scheduleTemplateName,accountId from template where scheduleTemplateName <> '' and status = 2 and Site = 'UK'";
+                break;
+            
+                case "18":
+                    $Site = "Germany";
+                    $sql_1 = "select Id,scheduleTemplateName,accountId from template where scheduleTemplateName <> '' and status = 2 and (Site = 'Germany' or Site = 'France')";
+                break;
+            
+                case "21":
+                    $Site = "US";
+                    $sql_1 = "select Id,scheduleTemplateName,accountId from template where scheduleTemplateName <> '' and status = 2 and Site = 'US'";
+                break;
             }
-            //$sql_3 = "update template set ScheduleStartDate = '".$today."' where Id = ".$row_1['Id'];
-            //$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+            
+            //$sql_1 = "select scheduleTemplateName,accountId from template where status = 2 and Site = '".$Site."'";
+            $this->log("calculateListingSchedule-".$Site.".html", $sql_1."<br>");
+            $result_1 = mysql_query($sql_1, Cron::$database_connect);
+            $i = 0;
+            while($row_1 = mysql_fetch_assoc($result_1)){
+                $sql_2 = "select * from schedule_template where name = '".$row_1['scheduleTemplateName']."' and account_id = '".$row_1['accountId']."'";
+                $this->log("calculateListingSchedule-".$Site.".html", $sql_2."<br>");
+                $result_2 = mysql_query($sql_2, Cron::$database_connect);
+                while($row_2 = mysql_fetch_assoc($result_2)){
+                    if(date("D") == $row_2['day']){
+                        print_r($row_2);
+                        $local_time = $template->getSiteTime($Site, $today, $row_2['time']);
+                        //$item_id = $template->changeTemplateToItem($row_1['Id'], $local_time, $today . " " .$row_2['time'], 1);
+                        $this->log("calculateListingSchedule-".$Site.".html", "t:".$row_1['Id']." ==> i:".$item_id.". BeiJing:".$local_time.", ".$Site.": ".$today . " " .$row_2['time']."<br>");
+                        $this->log("calculateListingSchedule-".$Site.".html", "<br><font color='red'>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
+                    }
+                }
+                //$sql_3 = "update template set ScheduleStartDate = '".$today."' where Id = ".$row_1['Id'];
+                //$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+                //if($i > 20){
+                //    exit;
+                //}
+                $i++;
+            }
         }
     }
     

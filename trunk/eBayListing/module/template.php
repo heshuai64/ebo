@@ -1,7 +1,6 @@
 <?php
 class Template{
     private $account_id;
-    const INVENTORY_SERVICE = 'http://192.168.1.169:8080/inventory/service.php';
     private $batch = false;
     
     public function __construct($account_id=0){
@@ -15,10 +14,6 @@ class Template{
         4: under review
         5: inactive
     */
-    private function getService($request){
-        $json = file_get_contents(Template::INVENTORY_SERVICE.$request);
-        return json_decode($json);
-    }
     
     private function getCategoryPathById($SiteID, $CategoryID){
     	global $categoryPathArray, $nest;
@@ -79,11 +74,11 @@ class Template{
 	    break;
 	
 	    case "Germany":
-		$time = date("Y-m-d H:i:s", strtotime("+7 hour ".$date.' '.$time) + ($num * $interval * 60));
+		$time = date("Y-m-d H:i:s", strtotime("+6 hour ".$date.' '.$time) + ($num * $interval * 60));
 	    break;
 	
 	    case "Australia":
-		$time = date("Y-m-d H:i:s", strtotime("-3 hour ".$date.' '.$time) + ($num * $interval * 60));
+		$time = date("Y-m-d H:i:s", strtotime("-2 hour ".$date.' '.$time) + ($num * $interval * 60));
 	    break;
 	
 	    case "France":
@@ -1181,13 +1176,21 @@ class Template{
 		ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 		StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,StandardStyleTemplateId,status) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,
+                ShippingServiceCost1,ShippingServiceAdditionalCost1,ShippingServiceCost2,ShippingServiceAdditionalCost2,
+                ShippingServiceCost3,ShippingServiceAdditionalCost3,InternationalShippingServiceCost1,InternationalShippingServiceAdditionalCost1,
+                InternationalShippingServiceCost2,InternationalShippingServiceAdditionalCost2,InternationalShippingServiceCost3,InternationalShippingServiceAdditionalCost3,
+                StandardStyleTemplateId,status) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 		Description,ListingDuration,ListingType,PaymentMethods,PayPalEmailAddress,
 		PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,
 		ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 		StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,StandardStyleTemplateId,0 from template where Id = '".$a."'";
+		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,
+                ShippingServiceCost1,ShippingServiceAdditionalCost1,ShippingServiceCost2,ShippingServiceAdditionalCost2,
+                ShippingServiceCost3,ShippingServiceAdditionalCost3,InternationalShippingServiceCost1,InternationalShippingServiceAdditionalCost1,
+                InternationalShippingServiceCost2,InternationalShippingServiceAdditionalCost2,InternationalShippingServiceCost3,InternationalShippingServiceAdditionalCost3,
+                StandardStyleTemplateId,0 from template where Id = '".$a."'";
 		
 		//echo $sql_1."\n";
 		
@@ -1250,13 +1253,21 @@ class Template{
 		ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 		StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,StandardStyleTemplateId,status) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,
+                ShippingServiceCost1,ShippingServiceAdditionalCost1,ShippingServiceCost2,ShippingServiceAdditionalCost2,
+                ShippingServiceCost3,ShippingServiceAdditionalCost3,InternationalShippingServiceCost1,InternationalShippingServiceAdditionalCost1,
+                InternationalShippingServiceCost2,InternationalShippingServiceAdditionalCost2,InternationalShippingServiceCost3,InternationalShippingServiceAdditionalCost3,
+                StandardStyleTemplateId,status) select AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 		Description,ListingDuration,ListingType,PaymentMethods,PayPalEmailAddress,
 		PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,
 		ReservePrice,CurrentPrice,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,SKU,StartPrice,
 		StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 		Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
-		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,StandardStyleTemplateId,0 from template where Id = '".$_POST['ids']."'";
+		GalleryURL,PhotoDisplay,UseStandardFooter,scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,
+                ShippingServiceCost1,ShippingServiceAdditionalCost1,ShippingServiceCost2,ShippingServiceAdditionalCost2,
+                ShippingServiceCost3,ShippingServiceAdditionalCost3,InternationalShippingServiceCost1,InternationalShippingServiceAdditionalCost1,
+                InternationalShippingServiceCost2,InternationalShippingServiceAdditionalCost2,InternationalShippingServiceCost3,InternationalShippingServiceAdditionalCost3,
+                StandardStyleTemplateId,0 from template where Id = '".$_POST['ids']."'";
 		
 		//echo $sql_1."\n";
 		
@@ -1309,29 +1320,6 @@ class Template{
 	}
     }
     
-    private function getSkuLowPrice($sku, $currency){
-        switch($currency){
-            case 'USD':
-                $rate = 6.82;
-            break;
-            
-            case 'GBP':
-                $rate = 10.12;
-            break;
-            
-            case 'AUD':
-                $rate = 5.95;
-            break;
-            
-            case 'EUR':
-                $rate = 8.45;
-            break;
-        }
-        $json_object = $this->getService("?action=getSkuLowestPrice&sku=".$sku);
-        $l_price = $json_object->L / $rate;
-        return round($l_price, 2);
-    }
-    
     public function getTemplate(){
 	session_start();
 	$sql = "select * from template where Id = '".$_GET['id']."'";
@@ -1340,7 +1328,7 @@ class Template{
 	$row['SiteID'] = $row['Site'];
 	$row['Description'] = html_entity_decode($row['Description'], ENT_QUOTES);
 	//$row['Title'] = html_entity_decode($row['Title'], ENT_QUOTES);
-	$row['LowPrice'] = $this->getSkuLowPrice($row['SKU'], $row['Currency']);
+	$row['LowPrice'] = eBayListing::getSkuLowPriceS($row['SKU'], $row['Currency']);
         
 	if($row['ListingType'] == "FixedPriceItem" || $row['ListingType'] == "StoresFixedPrice"){
 	    $row['BuyItNowPrice'] = $row['StartPrice'];
@@ -1436,6 +1424,92 @@ class Template{
 	mysql_free_result($result);
     }
     
+    private function getTemplateShippingCost1($ShippingServiceCost1, $shippingTemplateName = ""){
+        if(empty($shippingTemplateName)){
+            return $ShippingServiceCost1;
+        }else{
+            $sql_8 = "select id from shipping_template where name = '".$shippingTemplateName."' and account_id = '".$this->account_id."'";
+            //echo $sql_8."\n";
+            $result_8 = mysql_query($sql_8, eBayListing::$database_connect);
+            $row_8 = mysql_fetch_assoc($result_8);
+            
+            $sql_31 = "select ShippingServiceCost from s_template where template_id = '".$row_8['id']."' and ShippingServicePriority = '1'";
+            //echo $sql_31."\n";
+            $result_31 = mysql_query($sql_31, eBayListing::$database_connect);
+            $row_31 = mysql_fetch_assoc($result_31);
+            return $row_31['ShippingServiceCost'];
+        }
+    }
+    /*
+    public function getTemplateLowPrice(){
+        $sql = "select SKU,ShippingServiceCost1,shippingTemplateName from template where Id = ".$_GET['id'];
+        //echo $sql."\n";
+        $result = mysql_query($sql, eBayListing::$database_connect);
+        $row = mysql_fetch_assoc($result);
+            
+        if(empty($_GET['shippingCost'])){
+            $shippingCost1 = $this->getTemplateShippingCost1($row['ShippingServiceCost1'], $row['shippingTemplateName']);
+        }else{
+            $shippingCost1 = $_GET['shippingCost'];
+        }
+        
+        $skuLowPrice = eBayListing::getSkuLowPriceS($row['SKU'], $_GET['currency']);
+        $lowPrice =  $skuLowPrice - $shippingCost1;
+            
+        if($_GET['type'] == "auction"){
+            if($_GET['price'] > 0.01 && $_GET['price'] < 0.99){
+                $lowPrice += 0.1;
+            }elseif($_GET['price'] > 1 && $_GET['price'] < 9.9){
+                $lowPrice += 0.25;
+            }
+        }
+        
+        echo $lowPrice;
+    }
+    */
+    public function getTemplateLowPrice($sku = '', $type = '', $currency = '', $price = '', $ShippingServiceCost1 = '', $shippingTemplateName = ''){
+        if(!empty($_REQUEST)){
+            $sku = $_REQUEST['SKU'];
+            
+            if($_REQUEST['ListingType'] == "Chinese" || $_REQUEST['ListingType'] == "Dutch"){
+                $type = "auction";
+            }elseif($_REQUEST['ListingType'] == "FixedPriceItem" || $_REQUEST['ListingType'] == "StoresFixedPrice"){
+                $type = "fix";
+            }else{
+                $type = $_REQUEST['type'];    
+            }
+            
+            $currency = $_REQUEST['Currency'];
+            $ShippingServiceCost1 = $_REQUEST['ShippingServiceCost1'];
+            $shippingTemplateName = $_REQUEST['shippingTemplateName'];
+            
+            if(empty($_REQUEST['StartPrice'])){
+                $price = $_REQUEST['BuyItNowPrice'];
+            }elseif(empty($_REQUEST['BuyItNowPrice'])){
+                $price = $_REQUEST['StartPrice'];
+            }elseif(!empty($_REQUEST['StartPrice']) && !empty($_REQUEST['BuyItNowPrice'])){
+                $price = min($_REQUEST['StartPrice'], $_REQUEST['BuyItNowPrice']);
+            }else{
+                $price = $_REQUEST['price'];
+            }
+        }
+
+        $ShippingServiceCost1 = $this->getTemplateShippingCost1($ShippingServiceCost1, $shippingTemplateName);
+        $skuLowPrice = eBayListing::getSkuLowPriceS($sku, $currency);
+        $lowPrice =  $skuLowPrice - $ShippingServiceCost1;
+        
+        if($type == "auction"){
+            if($price > 0.01 && $price < 0.99){
+                $lowPrice += 0.1;
+            }elseif($price > 1 && $price < 9.9){
+                $lowPrice += 0.25;
+            }
+        }
+        
+        echo $lowPrice;
+        return $lowPrice;
+    }
+    
     public function updateTemplate(){
         $sql = "select SKU,status,shippingTemplateName from template where Id = ".$_GET['template_id'];
 	$result = mysql_query($sql, eBayListing::$database_connect);
@@ -1446,6 +1520,7 @@ class Template{
             return 0;
         }
         
+        /*
         if(!empty($row['shippingTemplateName'])){
             $sql_8 = "select * from shipping_template where name = '".$row['shippingTemplateName']."' and account_id = '".$this->account_id."'";
             $result_8 = mysql_query($sql_8, eBayListing::$database_connect);
@@ -1457,7 +1532,21 @@ class Template{
             $row_31 = mysql_fetch_assoc($result_31);
             $_POST['ShippingServiceCost1'] = $row_31['ShippingServiceCost'];
         }
+        */
         
+        if(empty($_POST['StartPrice'])){
+            $price = $_POST['BuyItNowPrice'];
+        }elseif(empty($_POST['BuyItNowPrice'])){
+            $price = $_POST['StartPrice'];
+        }else{
+            $price = min($_POST['StartPrice'], $_POST['BuyItNowPrice']);
+        }
+        
+        if($price < $this->getTemplateLowPrice()){
+            echo '{success: false, errors: {message:""},
+                    msg: "Price + Shipping Too low!"}';
+            return 0;
+        }
         /*
         switch($_POST['Currency']){
             case 'USD':
@@ -1476,7 +1565,7 @@ class Template{
                 $rate = 1;
             break;
         }
-        $json_object = $this->getService("?action=getSkuLowestPrice&sku=".$row['SKU']);
+        $json_object = $this->getInventoryService("?action=getSkuLowestPrice&sku=".$row['SKU']);
         $l_price = $json_object->L * $rate;
         if(min($_POST['StartPrice'], $_POST['BuyItNowPrice']) + $_POST['ShippingServiceCost1'] < $json_object->L){
             echo '{success: false, errors: {message:""},
@@ -1494,7 +1583,7 @@ class Template{
 	}
 	*/
         /*            
-        $l_price = $this->getSkuLowPrice($_POST['SKU'], $_POST['Currency']);
+        $l_price = eBayListing::getSkuLowPriceS($_POST['SKU'], $_POST['Currency']);
         if(min($_POST['StartPrice'], $_POST['BuyItNowPrice']) + $_POST['ShippingServiceCost1'] < $json_object->L){
             echo '{success: false, errors: {message:""},
                     msg: "Price + Shipping Need more than '.$l_price.'"}';
@@ -3306,7 +3395,7 @@ class Template{
                 $sql = "select SKU from template where Id = ".$id;
                 $result = mysql_query($sql, eBayListing::$database_connect);
                 $row = mysql_fetch_assoc($result);
-                $json_object = $this->getService("?action=getSkuStatus&data=".$row['SKU']);
+                $json_object = $this->getInventoryService("?action=getSkuStatus&data=".$row['SKU']);
                 //print_r($json_object);
                 if($json_object->status == "active" || $json_object->status == "out of stock"){
                     $sql = "update template set status = ".$_POST['status'] . " where Id = ".$id;
