@@ -1,6 +1,7 @@
 <?php
-
-require_once 'eBaySOAP.php';
+define ('__DOCROOT__', '/export/eBayListing');
+//define ('__DOCROOT__', '.');
+require_once __DOCROOT__ . '/eBaySOAP.php';
 
 function debugLog($file_name, $data){
     //file_put_contents("C:\\xampp\\htdocs\\eBayBO\\eBayListing\\log\\".$file_name, $data ."\n", FILE_APPEND);
@@ -34,10 +35,8 @@ $templateCategoryDeep = "";
  
 class eBayListing{
     public static $database_connect;
-    const DATABASE_HOST = 'localhost';
-    const DATABASE_USER = 'root';
-    const DATABASE_PASSWORD = '5333533';
-    const DATABASE_NAME = 'ebaylisting';
+    public static $service;
+    public static $exchange_rate;
     //const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
     //const GATEWAY_SOAP = 'https://api.ebay.com/wsapi';
     
@@ -58,15 +57,21 @@ class eBayListing{
     private $site_id; //US 0, UK 3, AU 15, FR 71
     private $account_id;
     
+    private $config;
+    
     public function __construct($site_id = 0){
+	$this->config = parse_ini_file(__DOCROOT__ . '/config.ini', true);
+	
 	if(!empty($_COOKIE['account_id'])){
 	    $this->account_id = $_COOKIE['account_id'];
 	}
 	
 	$this->site_id = $site_id;
 	
-        eBayListing::$database_connect = mysql_connect(self::DATABASE_HOST, self::DATABASE_USER, self::DATABASE_PASSWORD);
-
+        eBayListing::$database_connect = mysql_connect($this->config['database']['host'], $this->config['database']['user'], $this->config['database']['password']);
+	eBayListing::$service = $this->config['service'];
+	eBayListing::$exchange_rate = $this->config['exchange_rate'];
+	
         if (!eBayListing::$database_connect) {
             echo "Unable to connect to DB: " . mysql_error(eBayListing::$database_connect);
             exit;
@@ -74,7 +79,7 @@ class eBayListing{
 	
         mysql_query("SET NAMES 'UTF8'", eBayListing::$database_connect);
 	
-        if (!mysql_select_db(self::DATABASE_NAME, eBayListing::$database_connect)) {
+        if (!mysql_select_db($this->config['database']['name'], eBayListing::$database_connect)) {
             echo "Unable to select mydbname: " . mysql_error(eBayListing::$database_connect);
             exit;
         }
@@ -86,6 +91,10 @@ class eBayListing{
 	}
 	
 	header( 'Content-Type: text/html; charset=UTF-8' );
+    }
+    
+    public static function getExchangeRateS($currency){
+	return eBayListing::$exchange_rate[$currency];
     }
     
     public  function setAccount($account_id){
@@ -164,16 +173,15 @@ class eBayListing{
 	$row = mysql_fetch_assoc($result);
 	$account_name = $row['name'];
 	
-	if(!file_exists(self::LOG_DIR.$account_name)){
-            mkdir(self::LOG_DIR.$account_name, 0777);
+	if(!file_exists($this->config['log']['ebay']."/".$account_name)){
+            mkdir($this->config['log']['ebay']."/".$account_name, 0777);
         }
 	
-	if(!file_exists(self::LOG_DIR.$account_name."/".date("Ymd"))){
-            mkdir(self::LOG_DIR.$account_name."/".date("Ymd"), 0777);
+	if(!file_exists($this->config['log']['ebay']."/".$account_name."/".date("Ymd"))){
+            mkdir($this->config['log']['ebay']."/".$account_name."/".date("Ymd"), 0777);
         }
 	
-	file_put_contents(self::LOG_DIR.$account_name."/".date("Ymd")."/".$file_name, $data);
-	//file_put_contents("C:\\xampp\\htdocs\\eBayBO\\eBayListing\\log\\".$file_name, $data);
+	file_put_contents($this->config['log']['ebay']."/".$account_name."/".date("Ymd")."/".$file_name, $data);
     }
     
     // ----------------   GET  POST -----------------------------------------------------------------------
@@ -253,6 +261,52 @@ class eBayListing{
 			die('Your call to Web Services returned an unexpected HTTP status of:' . $status_code[0]);
 	}
 
+    }
+    
+    public static function getInventoryServiceS($request){
+        $json = file_get_contents(eBayListing::$service['inventory'].$request);
+        return json_decode($json);
+    }
+    
+    public static function getSkuLowPriceS($sku='', $currency=''){
+	$rate = eBayListing::getExchangeRateS($currency);
+        $json_object = eBayListing::getInventoryServiceS("?action=getSkuLowestPrice&sku=".$sku);
+        $l_price = $json_object->L / $rate;
+        //echo round($l_price, 2);
+        return round($l_price, 2);
+    }
+    
+    public function getSkuLowPrice(){
+	echo eBayListing::getSkuLowPriceS($_GET['sku'], $_GET['currency']);
+    }
+    
+    private function getShippingCost1ByTemplateName($shippingTemplate){
+	$sql_8 = "select id from shipping_template where name = '".$shippingTemplate."' and account_id = '".$this->account_id."'";
+	//echo $sql_8."\n";
+	$result_8 = mysql_query($sql_8, eBayListing::$database_connect);
+	$row_8 = mysql_fetch_assoc($result_8);
+	
+	$sql_31 = "select ShippingServiceCost from s_template where template_id = '".$row_8['id']."' and ShippingServicePriority = '1'";
+	//echo $sql_31."\n";
+	$result_31 = mysql_query($sql_31, eBayListing::$database_connect);
+	$row_31 = mysql_fetch_assoc($result_31);
+	return $row_31['ShippingServiceCost'];
+    }
+    
+    public function getSkuLowSoldPrice(){
+	$skuLowPrice = eBayListing::getSkuLowPriceS($_GET['sku'], $_GET['currency']);
+	$shippingCost1 = $this->getShippingCost1ByTemplateName($_GET['shippingTemplate']);
+	$lowPrice = $skuLowPrice - $shippingCost1;
+	
+	if($_GET['type'] == "auction"){
+            if($_GET['price'] > 0.01 && $_GET['price'] < 0.99){
+                $lowPrice += 0.1;
+            }elseif($_GET['price'] > 1 && $_GET['price'] < 9.9){
+                $lowPrice += 0.25;
+            }
+        }
+        
+        echo $lowPrice;
     }
     
     //-----------------  Template --------------------------------------------------------------------------

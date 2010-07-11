@@ -1,5 +1,6 @@
 <?php
 define ('__DOCROOT__', '/export/eBayBO');
+define ('__CRON__', __DOCROOT__ .'/cron');
 ini_set("memory_limit","256M");
 
 class Shipment{
@@ -253,7 +254,7 @@ class Shipment{
     }
     
     public function synceBayShipped(){
-        require_once 'eBaySOAP.php';
+        require_once __CRON__ . '/eBaySOAP.php';
         $sellerToken = $this->getAllSellerToken();
         // ALTER TABLE `qo_shipments` ADD INDEX ( `shippedOn` )  
         $shippedOn = date("Y-m-d");

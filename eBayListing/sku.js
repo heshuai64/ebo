@@ -198,7 +198,59 @@ Ext.onReady(function(){
         name:'Currency',
         hiddenName:'Currency'
     })
-       
+    
+    var listTypeCombo = new Ext.form.ComboBox({
+        mode: 'local',
+        store: new Ext.data.JsonStore({
+            autoLoad: true,
+            fields: ['id', 'name'],
+            url: "service.php?action=getListingDurationType"
+        }),
+        valueField:'id',
+        displayField:'name',
+        triggerAction: 'all',
+        editable: false,
+        selectOnFocus:true,
+        //name: 'ListingTypeCombo',
+        //hiddenName:'ListingTypeCombo',
+        width: 150,
+        allowBlank:false,
+        listeners: {
+            "select": function(c, r, i){
+                switch(r.data.name){
+                    case "Chinese":
+                        Ext.getCmp("StartPrice").setDisabled(0);
+                        Ext.getCmp("ReservePrice").setDisabled(0);
+                        Ext.getCmp("Quantity").setValue(1);
+                        //Ext.getCmp("Quantity").setDisabled(1);
+                    break;
+                
+                    case "Dutch":
+                        Ext.getCmp("Quantity").setDisabled(0);
+                        Ext.getCmp("StartPrice").setDisabled(0);
+                        Ext.getCmp("ReservePrice").setDisabled(1);
+                    break;
+                
+                    case "FixedPriceItem":
+                        Ext.getCmp("Quantity").setDisabled(0);
+                        Ext.getCmp("StartPrice").setDisabled(1);
+                        Ext.getCmp("StartPrice").setValue(0);
+                        Ext.getCmp("ReservePrice").setDisabled(1);
+                    break;
+                
+                    case "StoresFixedPrice":
+                        Ext.getCmp("Quantity").setDisabled(0);
+                        Ext.getCmp("StartPrice").setDisabled(1);
+                        Ext.getCmp("StartPrice").setValue(0);
+                        Ext.getCmp("ReservePrice").setDisabled(1);
+                    break;
+                }
+                
+                document.getElementById("ListingType").value = r.data.name;
+                listingDurationStore.load({params: {id: r.data.id}});
+            }
+        }
+    });
     /*                 
     var schedule = new Ext.Panel({                              
         //title:"Schedule",
@@ -386,15 +438,27 @@ Ext.onReady(function(){
                                 }
                                 Ext.getCmp("SiteID").setValue(r.data.name);
                                 
+                                if(global_config.DS){
+                                    Ext.Ajax.request({
+                                        url: inventory_service + '?action=getSkuDescription&site=' + Ext.getCmp("SiteID").getValue() + '&sku=' + sku,
+                                        success: function(a, b){
+                                            //console.log(a);
+                                            //document.getElementById("Description").value = a.responseText;
+                                            tinyMCE.get("Description").setContent(a.responseText);
+                                        }
+                                    })
+                                }
                                 
-                                Ext.Ajax.request({
-                                    url: inventory_service + '?action=getSkuDescription&site=' + Ext.getCmp("SiteID").getValue() + '&sku=' + sku,
-                                    success: function(a, b){
-                                        //console.log(a);
-                                        //document.getElementById("Description").value = a.responseText;
-                                        tinyMCE.get("Description").setContent(a.responseText);
-                                    }
-                                })
+                                if(global_config.LP){
+                                    Ext.Ajax.request({
+                                        url: 'service.php?action=getSkuLowPrice&currency=' + currencyCombo.getValue() + '&sku=' + sku,
+                                        success: function(a, b){
+                                            //console.log(a);
+                                            //document.getElementById("Description").value = a.responseText;
+                                            Ext.getCmp("LowPrice").setValue(a.responseText);
+                                        }
+                                    })
+                                }
                             }
                         }
                     }]
@@ -1539,6 +1603,7 @@ Ext.onReady(function(){
                                     fieldLabel:"Start Price",
                                     id:"StartPrice",
                                     name:"StartPrice",
+                                    maxValue: 9.9,
                                     listeners: {
                                         focus: function(t){
                                             if(!Ext.isNumber(t.getValue())){
@@ -1546,6 +1611,19 @@ Ext.onReady(function(){
                                             }
                                         },
                                         blur: function(t){
+                                            if(global_config.LP){
+                                                if(Ext.isEmpty(shippingTemplateCombo.getValue())){
+                                                    Ext.Msg.alert('Warning', 'Please first select shipping template.');
+                                                }else{
+                                                    Ext.Ajax.request({
+                                                        url: 'service.php?action=getSkuLowSoldPrice&sku=' + sku + '&type=auction&currency=' + currencyCombo.getValue() + '&price=' + t.getValue() + '&shippingTemplate=' + shippingTemplateCombo.getValue(),
+                                                        success: function(a, b){
+                                                            Ext.getCmp("StartPrice").minValue = a.responseText;
+                                                        }
+                                                    })
+                                                }
+                                            }
+                                            /*
                                             if(!Ext.isNumber(t.getValue())){
                                                 switch(Ext.getCmp("Currency").getValue()){
                                                     case "US":
@@ -1565,6 +1643,7 @@ Ext.onReady(function(){
                                                     break;
                                                 }
                                             }
+                                            */
                                         }
                                     }
                                   },{
@@ -1576,6 +1655,20 @@ Ext.onReady(function(){
                                         focus: function(t){
                                             if(!Ext.isNumber(t.getValue())){
                                                 t.setValue('');
+                                            }
+                                        },
+                                        blur: function(t){
+                                            if(global_config.LP){
+                                                if(Ext.isEmpty(shippingTemplateCombo.getValue())){
+                                                    Ext.Msg.alert('Warning', 'Please first select shipping template.');
+                                                }else{
+                                                    Ext.Ajax.request({
+                                                        url: 'service.php?action=getSkuLowSoldPrice&sku=' + sku + '&type=fix&currency=' + currencyCombo.getValue() + '&price=' + t.getValue() + '&shippingTemplate=' + shippingTemplateCombo.getValue(),
+                                                        success: function(a, b){
+                                                            Ext.getCmp("BuyItNowPrice").minValue = a.responseText;
+                                                        }
+                                                    })
+                                                }
                                             }
                                         }
                                     }
@@ -1623,15 +1716,22 @@ Ext.onReady(function(){
                                     hiddenName:'ListingDuration',
                                     allowBlank:false
                                 },{
+                                    xtype:"numberfield",
+                                    fieldLabel:"Lowest Price",
+                                    disabled:true,
+                                    id:'LowPrice',
+                                    name: 'LowPrice'
+                                }/*,{
                                     id:"currency-icon",
                                     xtype:"button"
-                                }]
+                                }*/]
                               }]
                         }],
                         cls: 'my-fieldset',
                         style: 'margin: 10px;',
                         listeners: {
                             render: function(c){
+                                /*
                                 var combo = new Ext.form.ComboBox({
                                         mode: 'local',
                                         store: new Ext.data.JsonStore({
@@ -1679,6 +1779,11 @@ Ext.onReady(function(){
                                 combo.render(c.header, 1);
                                 c.on('destroy', function(){
                                         combo.destroy();
+                                }, c, {single: true});
+                                */
+                                listTypeCombo.render(c.header, 1);
+                                c.on('destroy', function(){
+                                        listTypeCombo.destroy();
                                 }, c, {single: true});
                             }
                         }

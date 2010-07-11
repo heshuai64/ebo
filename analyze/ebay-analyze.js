@@ -14,7 +14,7 @@ Ext.onReady(function(){
     //http://open.api.ebay.com/shopping?callname=GetSingleItem&callbackname=com.ebay.shoppingservice.Shopping.getSingleItemClosure1&responseencoding=JSON&callback=true&version=607&appId=eBayAPID-73f4-45f2-b9a3-c8f6388b38d8&ItemID=390059143734&IncludeSelector=Details%2CShippingCosts&client=js
     //http://open.api.ebay.com/shopping?callname=FindItemsAdvanced&callbackname=com.ebay.shoppingservice.Shopping.findItemsAdvancedClosure0&responseencoding=JSON&callback=true&version=607&appId=eBayAPID-73f4-45f2-b9a3-c8f6388b38d8&QueryKeywords=Battery&ItemSort=CurrentBid&SellerID(0)=%20libra.studio&SellerID(1)=easybattery&MaxEntries=10&client=js
     com.ebay.widgets.needs({
-        baseUrl: 'http://w-1.ebay.com/js/607/min/',
+        baseUrl: 'http://w-1.ebay.com/js/643/min/',
         files: ['FindItemsAdvanced.js', 'GetSingleItem.js'],
 	resources: [].concat(com.ebay.shoppingservice.Shopping.getSingleItem, com.ebay.shoppingservice.Shopping.findItemsAdvanced),
         callback: function() {
@@ -72,6 +72,45 @@ Ext.onReady(function(){
 		}else{
 		    return "N";
 		}
+	    }
+	    
+	    function getCurrencyByCountry(country){
+		var currency = "USD";
+		
+		switch(country){
+		    case "US":
+			currency = "USD";
+		    break;
+		
+		    case "GB":
+			currency = "GBP";
+		    break;
+		
+		    case "AU":
+			currency = "AUD";
+		    break;
+		
+		    case "FR":
+			currency = "EUR";
+		    break;
+		
+		    case "GE":
+			currency = "EUR";
+		    break;
+		
+		    case "HK":
+			currency = "HKD";
+		    break;
+		
+		    default :
+			currency = "USD";
+		    break;
+		}
+		return currency;
+	    }
+	    
+	    function getSearchCondition(currentlyPage, currency){
+		return {PageNumber: currentlyPage, Currency: currency, ItemsAvailableTo: countryCombo.getValue(), ItemsLocatedIn: locatedCombo.getValue(), QueryKeywords: Ext.getCmp('keyword').getValue(), StoreName: Ext.getCmp('storeName').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 50, EndTimeFrom: Ext.isEmpty(Ext.getCmp('from').getValue())?null:Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.isEmpty(Ext.getCmp('to').getValue())?null:Ext.getCmp('to').getValue().format('Y-m-d'), itemSort: com.ebay.shoppingservice.SimpleItemSortCodeType.BestMatch};
 	    }
 	    
             var countryCombo = new Ext.form.ComboBox({
@@ -211,137 +250,55 @@ Ext.onReady(function(){
             }
                                
             var moveFirst = function(){
-                switch(countryCombo.getValue()){
-                    case "US":
-                        var currency = "USD";
-                    break;
-                
-                    case "GB":
-                        var currency = "GBP";
-                    break;
-                
-                    case "AU":
-                        var currency = "AUD";
-                    break;
-                
-                    case "FR":
-                        var currency = "EUR";
-                    break;
-                }
+                var currency = getCurrencyByCountry(countryCombo.getValue());
                 //console.log({QueryKeywords: Ext.getCmp('keyword').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 10, EndTimeFrom: Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.getCmp('to').getValue().format('Y-m-d')});
                 var config = new com.ebay.shoppingservice.ShoppingConfig({appId: 'eBayAPID-73f4-45f2-b9a3-c8f6388b38d8'});
                 var shopping = new com.ebay.shoppingservice.Shopping(config);
                 currentlyPage = 1;
-                var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType({PageNumber: currentlyPage, Currency: currency, ItemsAvailableTo: countryCombo.getValue(), ItemsLocatedIn: locatedCombo.getValue(), QueryKeywords: Ext.getCmp('keyword').getValue(), StoreName: Ext.getCmp('storeName').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 50, EndTimeFrom: Ext.isEmpty(Ext.getCmp('from').getValue())?null:Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.isEmpty(Ext.getCmp('to').getValue())?null:Ext.getCmp('to').getValue().format('Y-m-d')});
+                var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType(getSearchCondition(currentlyPage, currency));
                 var callback = new com.ebay.shoppingservice.ShoppingCallback({success: findItemsAdvancedSuccess, failure: findItemsAdvancedFailure});
                 shopping.findItemsAdvanced(request, callback);
             }
             
             var movePrevious = function(){
-                switch(countryCombo.getValue()){
-                    case "US":
-                        var currency = "USD";
-                    break;
-                
-                    case "GB":
-                        var currency = "GBP";
-                    break;
-                
-                    case "AU":
-                        var currency = "AUD";
-                    break;
-                
-                    case "FR":
-                        var currency = "EUR";
-                    break;
-                }
+                var currency = getCurrencyByCountry(countryCombo.getValue());
                 //console.log({QueryKeywords: Ext.getCmp('keyword').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 10, EndTimeFrom: Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.getCmp('to').getValue().format('Y-m-d')});
                 var config = new com.ebay.shoppingservice.ShoppingConfig({appId: 'eBayAPID-73f4-45f2-b9a3-c8f6388b38d8'});
                 var shopping = new com.ebay.shoppingservice.Shopping(config);
                 currentlyPage--;
-                var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType({PageNumber: currentlyPage, Currency: currency, ItemsAvailableTo: countryCombo.getValue(), ItemsLocatedIn: locatedCombo.getValue(), QueryKeywords: Ext.getCmp('keyword').getValue(), StoreName: Ext.getCmp('storeName').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 50, EndTimeFrom: Ext.isEmpty(Ext.getCmp('from').getValue())?null:Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.isEmpty(Ext.getCmp('to').getValue())?null:Ext.getCmp('to').getValue().format('Y-m-d')});
+                var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType(getSearchCondition(currentlyPage, currency));
                 var callback = new com.ebay.shoppingservice.ShoppingCallback({success: findItemsAdvancedSuccess, failure: findItemsAdvancedFailure});
                 shopping.findItemsAdvanced(request, callback);
             }
             
             var moveNext = function(){
-                switch(countryCombo.getValue()){
-                    case "US":
-                        var currency = "USD";
-                    break;
-                
-                    case "GB":
-                        var currency = "GBP";
-                    break;
-                
-                    case "AU":
-                        var currency = "AUD";
-                    break;
-                
-                    case "FR":
-                        var currency = "EUR";
-                    break;
-                }
+                var currency = getCurrencyByCountry(countryCombo.getValue());
                 //console.log({QueryKeywords: Ext.getCmp('keyword').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 10, EndTimeFrom: Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.getCmp('to').getValue().format('Y-m-d')});
                 var config = new com.ebay.shoppingservice.ShoppingConfig({appId: 'eBayAPID-73f4-45f2-b9a3-c8f6388b38d8'});
                 var shopping = new com.ebay.shoppingservice.Shopping(config);
                 currentlyPage++;
-                var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType({PageNumber: currentlyPage, Currency: currency, ItemsAvailableTo: countryCombo.getValue(), ItemsLocatedIn: locatedCombo.getValue(), QueryKeywords: Ext.getCmp('keyword').getValue(), StoreName: Ext.getCmp('storeName').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 50, EndTimeFrom: Ext.isEmpty(Ext.getCmp('from').getValue())?null:Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.isEmpty(Ext.getCmp('to').getValue())?null:Ext.getCmp('to').getValue().format('Y-m-d')});
+                var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType(getSearchCondition(currentlyPage, currency));
                 var callback = new com.ebay.shoppingservice.ShoppingCallback({success: findItemsAdvancedSuccess, failure: findItemsAdvancedFailure});
                 shopping.findItemsAdvanced(request, callback);
             }
             
             var moveLast = function(){
-                switch(countryCombo.getValue()){
-                    case "US":
-                        var currency = "USD";
-                    break;
-                
-                    case "GB":
-                        var currency = "GBP";
-                    break;
-                
-                    case "AU":
-                        var currency = "AUD";
-                    break;
-                
-                    case "FR":
-                        var currency = "EUR";
-                    break;
-                }
-                
+                var currency = getCurrencyByCountry(countryCombo.getValue());
                 //console.log({QueryKeywords: Ext.getCmp('keyword').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 10, EndTimeFrom: Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.getCmp('to').getValue().format('Y-m-d')});
                 var config = new com.ebay.shoppingservice.ShoppingConfig({appId: 'eBayAPID-73f4-45f2-b9a3-c8f6388b38d8'});
                 var shopping = new com.ebay.shoppingservice.Shopping(config);
                 currentlyPage = TotalPage;
-                var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType({PageNumber: currentlyPage, Currency: currency, ItemsAvailableTo: countryCombo.getValue(), ItemsLocatedIn: locatedCombo.getValue(), QueryKeywords: Ext.getCmp('keyword').getValue(), StoreName: Ext.getCmp('storeName').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 50, EndTimeFrom: Ext.isEmpty(Ext.getCmp('from').getValue())?null:Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.isEmpty(Ext.getCmp('to').getValue())?null:Ext.getCmp('to').getValue().format('Y-m-d')});
+                var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType(getSearchCondition(currentlyPage, currency));
                 var callback = new com.ebay.shoppingservice.ShoppingCallback({success: findItemsAdvancedSuccess, failure: findItemsAdvancedFailure});
                 shopping.findItemsAdvanced(request, callback);
             }
             
 	    var refresh = function(){
-		switch(countryCombo.getValue()){
-                    case "US":
-                        var currency = "USD";
-                    break;
-                
-                    case "GB":
-                        var currency = "GBP";
-                    break;
-                
-                    case "AU":
-                        var currency = "AUD";
-                    break;
-                
-                    case "FR":
-                        var currency = "EUR";
-                    break;
-                }
-                
+                var currency = getCurrencyByCountry(countryCombo.getValue());
                 //console.log({QueryKeywords: Ext.getCmp('keyword').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 10, EndTimeFrom: Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.getCmp('to').getValue().format('Y-m-d')});
                 var config = new com.ebay.shoppingservice.ShoppingConfig({appId: 'eBayAPID-73f4-45f2-b9a3-c8f6388b38d8'});
                 var shopping = new com.ebay.shoppingservice.Shopping(config);
-                var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType({PageNumber: currentlyPage, Currency: currency, ItemsAvailableTo: countryCombo.getValue(), ItemsLocatedIn: locatedCombo.getValue(), QueryKeywords: Ext.getCmp('keyword').getValue(), StoreName: Ext.getCmp('storeName').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 50, EndTimeFrom: Ext.isEmpty(Ext.getCmp('from').getValue())?null:Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.isEmpty(Ext.getCmp('to').getValue())?null:Ext.getCmp('to').getValue().format('Y-m-d')});
+                var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType(getSearchCondition(currentlyPage, currency));
                 var callback = new com.ebay.shoppingservice.ShoppingCallback({success: findItemsAdvancedSuccess, failure: findItemsAdvancedFailure});
                 shopping.findItemsAdvanced(request, callback);
 	    }
@@ -745,40 +702,11 @@ Ext.onReady(function(){
 		    },{
                         text: 'Submit',
                         handler: function(){
-                            
-			    switch(countryCombo.getValue()){
-				case "US":
-				    var currency = "USD";
-				break;
-			    
-				case "GB":
-				    var currency = "GBP";
-				break;
-			    
-				case "AU":
-				    var currency = "AUD";
-				break;
-			    
-				case "FR":
-				    var currency = "EUR";
-				break;
-			    
-				case "GE":
-				    var currency = "EUR";
-				break;
-			    
-				case "HK":
-				    var currency = "HKD";
-				break;
-			    
-				default :
-				    var currency = "USD";
-				break;
-			    }
+			    var currency = getCurrencyByCountry(countryCombo.getValue());
                             //console.log({QueryKeywords: Ext.getCmp('keyword').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 10, EndTimeFrom: Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.getCmp('to').getValue().format('Y-m-d')});
                             var config = new com.ebay.shoppingservice.ShoppingConfig({appId: 'eBayAPID-73f4-45f2-b9a3-c8f6388b38d8'});
                             var shopping = new com.ebay.shoppingservice.Shopping(config);
-                            var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType({PageNumber: 1, Currency: currency, ItemsAvailableTo: countryCombo.getValue(), ItemsLocatedIn: locatedCombo.getValue(), QueryKeywords: Ext.getCmp('keyword').getValue(), StoreName: Ext.getCmp('storeName').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 50, EndTimeFrom: Ext.isEmpty(Ext.getCmp('from').getValue())?null:Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.isEmpty(Ext.getCmp('to').getValue())?null:Ext.getCmp('to').getValue().format('Y-m-d')});
+                            var request = new com.ebay.shoppingservice.FindItemsAdvancedRequestType(getSearchCondition(1, currency));
                             var callback = new com.ebay.shoppingservice.ShoppingCallback({success: findItemsAdvancedSuccess, failure: findItemsAdvancedFailure});
                             shopping.findItemsAdvanced(request, callback); 
                         }
