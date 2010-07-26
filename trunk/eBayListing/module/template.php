@@ -476,7 +476,7 @@ class Template{
             if(!empty($row_0['ShippingServiceCost'.$row_31['ShippingServicePriority']]) && $row_0['ShippingServiceCost'.$row_31['ShippingServicePriority']] > 0){
                 $sql_3 = "insert into shipping_service_options (ItemID,FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority) select '".$item_id."',FreeShipping,ShippingService,'".$row_0['ShippingServiceCost'.$row_31['ShippingServicePriority']]."','".$row_0['ShippingServiceAdditionalCost'.$row_31['ShippingServicePriority']]."',ShippingServicePriority from s_template where id = '".$row_31['id']."'";
                 $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
-            }else{
+            }elseif(empty($row_0['ShippingServiceCost1'])){
                 $sql_3 = "insert into shipping_service_options (ItemID,FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority) select '".$item_id."',FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority from s_template where id = '".$row_31['id']."'";
                 $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
             }
@@ -489,7 +489,7 @@ class Template{
             if(!empty($row_0['InternationalShippingServiceCost'.$row_41['ShippingServicePriority']]) && $row_0['InternationalShippingServiceCost'.$row_41['ShippingServicePriority']] > 0){
                 $sql_4 = "insert into international_shipping_service_option (ItemID,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority,ShipToLocation) select '".$item_id."',ShippingService,'".$row_0['InternationalShippingServiceCost'.$row_41['ShippingServicePriority']]."','".$row_0['InternationalShippingServiceAdditionalCost'.$row_41['ShippingServicePriority']]."',ShippingServicePriority,ShipToLocation from i_s_template where id = '".$row_41['id']."'";
                 $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
-            }else{
+            }elseif(empty($row_0['InternationalShippingServiceCost1'])){
                 $sql_4 = "insert into international_shipping_service_option (ItemID,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority,ShipToLocation) select '".$item_id."',ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority,ShipToLocation from i_s_template where id = '".$row_41['id']."'";
                 $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
             }
@@ -888,6 +888,20 @@ class Template{
 	//ShipToLocations
 	//print_r($_POST);
 	//exit;
+        if(empty($_POST['StartPrice'])){
+            $price = $_POST['BuyItNowPrice'];
+        }elseif(empty($_POST['BuyItNowPrice'])){
+            $price = $_POST['StartPrice'];
+        }else{
+            $price = min($_POST['StartPrice'], $_POST['BuyItNowPrice']);
+        }
+        
+        if($price < $this->getTemplateLowPrice(true)){
+            echo '{success: false, errors: {message:""},
+                    msg: "Price + Shipping Too low!"}';
+            return 0;
+        }
+        
 	session_start();
 	
 	if($_POST['ListingType'] == "FixedPriceItem" || $_POST['ListingType'] == "StoresFixedPrice"){
@@ -1327,7 +1341,7 @@ class Template{
 	$row = mysql_fetch_assoc($result);
 	$row['SiteID'] = $row['Site'];
 	$row['Description'] = html_entity_decode($row['Description'], ENT_QUOTES);
-	//$row['Title'] = html_entity_decode($row['Title'], ENT_QUOTES);
+	$row['Title'] = html_entity_decode($row['Title'], ENT_QUOTES);
 	$row['LowPrice'] = eBayListing::getSkuLowPriceS($row['SKU'], $row['Currency']);
         
 	if($row['ListingType'] == "FixedPriceItem" || $row['ListingType'] == "StoresFixedPrice"){
@@ -1425,9 +1439,9 @@ class Template{
     }
     
     private function getTemplateShippingCost1($ShippingServiceCost1, $shippingTemplateName = ""){
-        if(empty($shippingTemplateName)){
+        if(!empty($ShippingServiceCost1)){
             return $ShippingServiceCost1;
-        }else{
+        }elseif(!empty($shippingTemplateName)){
             $sql_8 = "select id from shipping_template where name = '".$shippingTemplateName."' and account_id = '".$this->account_id."'";
             //echo $sql_8."\n";
             $result_8 = mysql_query($sql_8, eBayListing::$database_connect);
@@ -1437,7 +1451,13 @@ class Template{
             //echo $sql_31."\n";
             $result_31 = mysql_query($sql_31, eBayListing::$database_connect);
             $row_31 = mysql_fetch_assoc($result_31);
-            return $row_31['ShippingServiceCost'];
+            if(!empty($row_31['ShippingServiceCost'])){
+                return $row_31['ShippingServiceCost'];
+            }else{
+                return 0;
+            }
+        }else{
+            return 0;
         }
     }
     /*
@@ -1467,7 +1487,7 @@ class Template{
         echo $lowPrice;
     }
     */
-    public function getTemplateLowPrice($sku = '', $type = '', $currency = '', $price = '', $ShippingServiceCost1 = '', $shippingTemplateName = ''){
+    public function getTemplateLowPrice($Internal = false){
         if(!empty($_REQUEST)){
             $sku = $_REQUEST['SKU'];
             
@@ -1505,8 +1525,9 @@ class Template{
                 $lowPrice += 0.25;
             }
         }
-        
-        echo $lowPrice;
+        if($Internal == false){
+            echo $lowPrice;
+        }
         return $lowPrice;
     }
     
@@ -1542,7 +1563,7 @@ class Template{
             $price = min($_POST['StartPrice'], $_POST['BuyItNowPrice']);
         }
         
-        if($price < $this->getTemplateLowPrice()){
+        if($price < $this->getTemplateLowPrice(true)){
             echo '{success: false, errors: {message:""},
                     msg: "Price + Shipping Too low!"}';
             return 0;
@@ -1614,7 +1635,7 @@ class Template{
 	Quantity='".@$_POST['Quantity']."',ReservePrice='".@$_POST['ReservePrice']."',
 	Site='".$_POST['Site']."',SKU='".$_POST['SKU']."',StartPrice='".$_POST['StartPrice']."',StoreCategory2ID='".$_POST['StoreCategory2ID']."',StoreCategory2Name='".$_POST['StoreCategory2Name']."',
 	StoreCategoryID='".$_POST['StoreCategoryID']."',StoreCategoryName='".$_POST['StoreCategoryName']."',SubTitle='".$_POST['SubTitle']."',
-	Title='".mysql_real_escape_string($_POST['Title'])."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
+	Title='".htmlentities($_POST['Title'], ENT_QUOTES)."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
 	Border='".(empty($_POST['Border'])?0:1)."',Featured='".(empty($_POST['Featured'])?0:1)."',Highlight='".(empty($_POST['Highlight'])?0:1)."',
 	HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',GalleryURL='".$_POST['GalleryURL']."',
 	UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."',accountId='".$this->account_id."',UseStandardFooter='".(empty($_POST['UseStandardFooter'])?0:1)."',
@@ -3395,7 +3416,7 @@ class Template{
                 $sql = "select SKU from template where Id = ".$id;
                 $result = mysql_query($sql, eBayListing::$database_connect);
                 $row = mysql_fetch_assoc($result);
-                $json_object = $this->getInventoryService("?action=getSkuStatus&data=".$row['SKU']);
+                $json_object = eBayListing::getInventoryServiceS("?action=getSkuStatus&data=".$row['SKU']);
                 //print_r($json_object);
                 if($json_object->status == "active" || $json_object->status == "out of stock"){
                     $sql = "update template set status = ".$_POST['status'] . " where Id = ".$id;

@@ -110,7 +110,7 @@ Ext.onReady(function(){
 	    }
 	    
 	    function getSearchCondition(currentlyPage, currency){
-		return {PageNumber: currentlyPage, Currency: currency, ItemsAvailableTo: countryCombo.getValue(), ItemsLocatedIn: locatedCombo.getValue(), QueryKeywords: Ext.getCmp('keyword').getValue(), StoreName: Ext.getCmp('storeName').getValue(), SellerID: Ext.getCmp('seller').getValue(), MaxEntries: 50, EndTimeFrom: Ext.isEmpty(Ext.getCmp('from').getValue())?null:Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.isEmpty(Ext.getCmp('to').getValue())?null:Ext.getCmp('to').getValue().format('Y-m-d'), itemSort: com.ebay.shoppingservice.SimpleItemSortCodeType.BestMatch};
+		return {PageNumber: currentlyPage, Currency: currency, ItemsAvailableTo: countryCombo.getValue(), ItemsLocatedIn: locatedCombo.getValue(), QueryKeywords: Ext.getCmp('keyword').getValue(), SellerID: Ext.getCmp('SellerID').getValue(), PriceMin: {currencyID: currency, Value: Ext.getCmp('PriceMin').getValue()}, PriceMax: {currencyID: currency, Value: Ext.getCmp('PriceMax').getValue()}, MaxEntries: 25, EndTimeFrom: Ext.isEmpty(Ext.getCmp('from').getValue())?null:Ext.getCmp('from').getValue().format('Y-m-d'), EndTimeTo: Ext.isEmpty(Ext.getCmp('to').getValue())?null:Ext.getCmp('to').getValue().format('Y-m-d'), ItemSort: com.ebay.shoppingservice.SimpleItemSortCodeType.BestMatch};
 	    }
 	    
             var countryCombo = new Ext.form.ComboBox({
@@ -363,7 +363,23 @@ Ext.onReady(function(){
                     },countryCombo,{
                         xtype: 'tbtext',
                         text: 'Located:'
-                    },locatedCombo,{
+                    },locatedCombo,'-',{
+                        xtype: 'tbtext',
+                        text: 'Price >'
+                    },{
+                        id: 'PriceMin',
+                        name: 'PriceMin',
+                        xtype: 'numberfield',
+                        width: 40
+		    },'-',{
+                        xtype: 'tbtext',
+                        text: 'Price <'
+                    },{
+                        id: 'PriceMax',
+                        name: 'PriceMax',
+                        xtype: 'numberfield',
+                        width: 40
+		    },/*{
                         xtype: 'tbtext',
                         text: 'Store Name:'
                     },{
@@ -380,12 +396,12 @@ Ext.onReady(function(){
                                         }
                                     }
                         }
-                    },'-',{
+                    },*/'-',{
                         xtype: 'tbtext',
                         text: 'Seller:'
                     },{
-                        id: 'seller',
-                        name: 'seller',
+                        id: 'SellerID',
+                        name: 'SellerID',
                         xtype: 'textfield',
                         stateful: true,
                         width: 150
