@@ -722,7 +722,7 @@ class Service{
             $postargs .= $key."=".$value."&";
         }
         $postargs = substr($postargs, 0, -1);
-        echo $this->post(Service::INVENTORY_SERVICE."?action=complaints", $postargs);
+        echo $this->post($this->inventory_service."?action=complaints", $postargs);
     }
     
     public function getEbayAccount(){

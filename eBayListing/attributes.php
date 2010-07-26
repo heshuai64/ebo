@@ -177,17 +177,23 @@ class Attributes  {
     	//exit;
     	foreach ($this->array as $key1=>$value1){
             foreach ($value1 as $key2=>$value2){
-                $sql_1 = "insert into CharacteristicsLists (CharacteristicsSetId,AttributeId,Label,Type) values ('".$key1."','".$key2."','".$value2['Label']."','".$value2['Type']."')";
-                $result_1 = mysql_query($sql_1, Attributes::$database_connect);
-                //echo $sql_1;
-                //echo "\n";
+		$sql_10 = "delete from CharacteristicsLists where CharacteristicsSetId = ".$key1." and AttributeId = ".$key2;
+		$result_10 = mysql_query($sql_10, Attributes::$database_connect);
+		
+                $sql_11 = "insert into CharacteristicsLists (CharacteristicsSetId,AttributeId,Label,Type) values ('".$key1."','".$key2."','".$value2['Label']."','".$value2['Type']."')";
+                $result_11 = mysql_query($sql_11, Attributes::$database_connect);
+                echo $sql_11;
+                echo "\n";
                 
+		$sql_20 = "delete from CharacteristicsAttributeValueLists where CharacteristicsSetId = ".$key1." and AttributeId = ".$key2;
+		$result_20 = mysql_query($sql_20, Attributes::$database_connect);
+		
                 foreach ($value2['ValueList'] as $key3=>$value3){
-                    $sql_2 = "insert into CharacteristicsAttributeValueLists (CharacteristicsSetId,AttributeId,id,name) values 
+                    $sql_21 = "insert into CharacteristicsAttributeValueLists (CharacteristicsSetId,AttributeId,id,name) values 
                     ('".$key1."','".$key2."','".$key3."','".$value3."')";
-                    $result_2 = mysql_query($sql_2, Attributes::$database_connect);
-                    //echo $sql_2;
-                    //echo "\n";
+                    $result_21 = mysql_query($sql_21, Attributes::$database_connect);
+                    echo $sql_21;
+                    echo "\n";
                 }
             }
         }
@@ -210,7 +216,7 @@ if (!mysql_select_db("ebaylisting")) {
 
 if(!empty($argv[1])){
     $a = new Attributes();
-    $f = fopen('GetAttributesCS-'.$argv[2].'.xml', 'r' );
+    $f = fopen('GetAttributesCS-'.$argv[1].'.xml', 'r' );
     while( $data = fread($f, 4096)){
         $a->parse($data);
     }

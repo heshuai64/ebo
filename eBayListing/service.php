@@ -2969,7 +2969,8 @@ if(!empty($argv[2])){
 $ebay_service = array('getAllCategories', 'getStoreCategories', 'getAllStoreCategories', 'getCategoryFeatures',
 		      'getAllSiteShippingServiceDetails', 'getAllSiteShippingLocationDetails', 'getShippingLocation',
 		      'getAllCategory2CS', 'getAllAttributesCS',
-		      'getAllSellerList');   
+		      'getAllSellerList',
+		      'uploadItem', 'modifyActiveItem', 'reUploadItem', 'endListingItem');   
 //$service->setAccount(1);
 $service = new eBayListing();
 $acton = (!empty($_GET['action'])?$_GET['action']:$argv[1]);
@@ -2986,6 +2987,8 @@ if(isset($_GET['action']) && strpos($acton, 'Template')){
     $ebay = new Ebay($service->getAccount());
     $ebay->$acton();
 }else{
-    $service->$acton();
+    if(method_exists($service, $acton)){
+	$service->$acton();
+    }
 }
 ?>
