@@ -79,6 +79,7 @@ Ext.onReady(function(){
                 }],
                 bbar: [{
                     text: 'Map Orders',
+                    disabled: (get_cookie('qo-transactions.mapTransactionOrder') == 0)?true:false,
                     handler: function(){
                         var map_transaction_order_data_store = new Ext.data.JsonStore({
                                 root: 'records',
@@ -433,6 +434,7 @@ Ext.onReady(function(){
             ],
             buttons: [{
                         text: 'Save',
+                        disabled: (get_cookie('qo-transactions.updateTransaction') == 0)?true:false,
                         handler: function(){
                                 transactionDetailForm.getForm().submit({
                                            url: "connect.php?moduleId=qo-transactions&action=updateTransaction",

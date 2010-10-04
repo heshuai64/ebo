@@ -306,12 +306,14 @@ Ext.override(QoDesk.Orders, {
                           }],
                         buttons: [{
                                 text: lang.orders.submit,
+				disabled: (get_cookie('qo-orders.searchOrder') == 0)?true:false,
                                 handler: function(){
                                     searchOrders();
                                     win.close();
                                 }
                             },{
                                 text: lang.orders.create_orders,
+				disabled: (get_cookie('qo-orders.createOrder') == 0)?true:false,
                                 handler: function(){
                                     createOrder();
                                 }

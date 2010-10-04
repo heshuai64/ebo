@@ -25,8 +25,8 @@ var lang = {
         submit: "Submit Query",
         close: "Close",
         create_transactions: "Create Transactions",
-        transactions_status_json : {"N": "Pending", "P": "Completed", "R": "Refunded", "V": "Reversed", "C": "Canceled Reversal", "X": "Canceled"},
-        transactions_status : [["N", "Pending"],["P","Completed"],["R","Refunded"],["V","Reversed"],["C","Canceled Reversal"],["X","Canceled"]],
+        transactions_status_json : {"N": "Pending", "P": "Completed", "R": "Refunded", "V": "Reversed", "C": "Canceled Reversal", "X": "Canceled", "A": "Pending For Refund", "J": "Completed Refund"},
+        transactions_status : [["N", "Pending"],["P","Completed"],["R","Refunded"],["V","Reversed"],["C","Canceled Reversal"],["X","Canceled"],['A','Pending For Refund'],['J', 'Completed Refund']],
         currency: [['USD','USD'],['EUR','EUR'],['GBP','GBP'],['AUD','AUD'],['RMB','RMB'],['CAD','CAD']]
     }
 }

@@ -355,24 +355,28 @@ Ext.override(QoDesk.Shipments, {
                           }],
                     buttons: [{
                         text: 'Search',
+			disabled: (get_cookie('qo-shipment.searchShipment') == 0)?true:false,
                         handler: function(){
                             searchShipment();
                             win.close();
                         }
 		    },{
 			text: 'Verify',
+			disabled: (get_cookie('qo-shipment.verifyShipment') == 0)?true:false,
 			handler: function(){
 			    win.close();
 			    window.open("/eBayBO/verifyShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1000, height=800");   
 			}
 		    },{
 			text: 'Pack',
+			disabled: (get_cookie('qo-shipment.packShipment') == 0)?true:false,
 			handler: function(){
 			    win.close();
 			    window.open("/eBayBO/packShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=500, height=400");  
 			}
 		    },{
 			text: 'Ship',
+			disabled: (get_cookie('qo-shipment.shipShipment') == 0)?true:false,
 			handler: function(){
 			    win.close();
 			    window.open("/eBayBO/shipShipment.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=500, height=400");  
@@ -391,6 +395,7 @@ Ext.override(QoDesk.Shipments, {
 			}
 		    }*/,{
 			text: 'Outstanding',
+			disabled: (get_cookie('qo-shipment.outstandingShipment') == 0)?true:false,
 			handler: function(){
 			    window.open("/eBayBO/outstandingShipmen.php","_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=700");  
 			    win.close();

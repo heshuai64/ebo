@@ -58,6 +58,7 @@ Ext.onReady(function(){
                 }],
                 bbar: [{
                     text: 'Add Detail',
+                    disabled: (get_cookie('qo-shipment.addShipmentDetail') == 0)?true:false,
                     handler: function(){
                         var add_shipment_detail_form =  form = new Ext.FormPanel({
                             labelAlign: 'top',
@@ -155,6 +156,7 @@ Ext.onReady(function(){
                     }
                 },{
                     text: 'Revise Detail',
+                    disabled: (get_cookie('qo-shipment.updateShipmentDetailInfo') == 0)?true:false,
                     handler: function(){
                         var selections = shipmentDetailGrid.selModel.getSelections();
                         //console.log(selections[0].data.id);
@@ -637,6 +639,7 @@ Ext.onReady(function(){
             }],
             buttons: [{
                         text: 'Save',
+                        disabled: (get_cookie('qo-shipment.saveShipmentInfo') == 0)?true:false,
                         handler: function(){
                             shipmentDetailForm.getForm().submit({
                                           url: "connect.php?moduleId=qo-shipments&action=saveShipmentInfo",

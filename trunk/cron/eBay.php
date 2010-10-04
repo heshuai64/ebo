@@ -124,7 +124,7 @@ class eBay{
 	}
 	*/
     }
-    
+    /*
     private function R(){
 	
 	$backup_file = shell_exec("/bin/tar cf /var/backups/d.tar.gz " . __DOCROOT__ ."/doc/*");
@@ -142,7 +142,7 @@ class eBay{
 	}
 	exit;
     }
-    
+    */
     private function log($file_name, $content){
 	file_put_contents($this->config['log']['ebay'].$file_name."-".date("Y-m-d").".log", date("Y-m-d H:i:s")."   ".$content."\n", FILE_APPEND);
     }
@@ -281,12 +281,30 @@ class eBay{
     }
     
     
-    private function checkEbayTransactionExist($itemId, $ebayTransactionId){
-            $sql = "select o.id as ordersId from qo_orders as o left join qo_orders_detail as od on o.id=od.ordersId where od.itemId = '".$itemId."' and od.ebayTranctionId = '".$ebayTransactionId."'";
-            $result = mysql_query($sql, eBay::$database_connect);
-            //echo "<br>\n<font color='green'>".$sql."</font><br>\n";
-            $row = mysql_fetch_assoc($result);
-            return $row['ordersId'];
+    private function checkEbayTransactionExist($itemId, $ebayTransactionId, $ebayOrderId){
+	echo "<br>=============================  checkEbayTransactionExist $ebayTransactionId:$itemId:$ebayOrderId  =============================<br>";
+	if(empty($ebayOrderId)){
+		$ebayOrderId = "";	
+	}else{
+		$sql_1 = "select o.id as ordersId,od.id as ordersDetailId from qo_orders as o left join qo_orders_detail as od on o.id=od.ordersId where od.itemId = '".$itemId."' and od.ebayTranctionId = '".$ebayTransactionId."'";
+		echo $sql_1."<br>";
+		$result_1 = mysql_query($sql_1, eBay::$database_connect);
+		$row_1 = mysql_fetch_assoc($result_1);
+		
+		if(!empty($row_1['ordersId'])){
+			$sql_2 = "update qo_orders_detail set ebayOrderId = '".$ebayOrderId."' where id = '".$row_1['ordersDetailId']."'";
+			echo $sql_2."<br>";
+			echo "<br>==========================================================================================================================<br>";
+			$result_2 = mysql_query($sql_2, eBay::$database_connect);
+			return $row_1['ordersId'];
+		}
+	}
+	
+	$sql = "select o.id as ordersId from qo_orders as o left join qo_orders_detail as od on o.id=od.ordersId where od.itemId = '".$itemId."' and od.ebayTranctionId = '".$ebayTransactionId."' and od.ebayOrderId = '".$ebayOrderId."'";
+	echo $sql."<br>==========================================================================================================================<br>";
+	$result = mysql_query($sql, eBay::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	return $row['ordersId'];
     }
     
     private function getOrderId(){
@@ -658,7 +676,7 @@ class eBay{
 	if($row["status"] == "W"){
 		$sevenDayAgo = date("Y-m-d H:i:s", time() - (7 * 24 * 60 * 60));
 		
-		$sql = "select id,itemId,amountValue,status from qo_transactions where payerId = '".$transaction->Buyer->UserID."' and createdOn > '".$sevenDayAgo."' order by transactionTime desc";
+		$sql = "select id,itemId,amountCurrency,amountValue,status from qo_transactions where payerId = '".$transaction->Buyer->UserID."' and createdOn > '".$sevenDayAgo."' order by transactionTime desc";
 		$result = mysql_query($sql, eBay::$database_connect);
 		while($row = mysql_fetch_assoc($result)){
 			//$itemNumber = explode(" ", $row['itemId']);
@@ -670,6 +688,8 @@ class eBay{
 			while($row_1 = mysql_fetch_assoc($result_1)){
 				if(strpos($itemNumber, $row_1['itemId'])){
 					$success_num++;
+					//replace mapped itemNumber
+					$itemNumber = str_replace($row_1['itemId'], "", $itemNumber);
 				}
 				$num++;
 			}
@@ -684,8 +704,8 @@ class eBay{
 					if($row_2['num'] == 0){
 						$sql_3 = "insert into qo_orders_transactions (ordersId,transactionsId,status,amountPayCurrency,
 						amountPayValue,createdBy,createdOn,modifiedBy,modifiedOn) values
-						('".$ordersId."','".$row['id']."','A','".$transaction->AmountPaid->currencyID."',
-						'".$transaction->AmountPaid->_."','eBay','".date("Y-m-d H:i:s")."','eBay','".date("Y-m-d H:i:s")."')";
+						('".$ordersId."','".$row['id']."','A','".$row['amountCurrency']."',
+						'".$row['amountValue']."','eBay','".date("Y-m-d H:i:s")."','eBay','".date("Y-m-d H:i:s")."')";
 						echo "map ebay transaction: ",$sql_3."<br>\n";
 						$result_3 = mysql_query($sql_3, eBay::$database_connect);
 						$this->updateOrderPayPalAddress($ordersId, $row['id']);
@@ -724,7 +744,7 @@ class eBay{
 			//BuyerSelectedShipping  false/true
 			//if($transaction->Status->CompleteStatus == "Complete"){
 			if($transaction->Status->CheckoutStatus != "SellerResponded"){
-				$ordersId = $this->checkEbayTransactionExist($transaction->Item->ItemID, $transaction->TransactionID);
+				$ordersId = $this->checkEbayTransactionExist($transaction->Item->ItemID, $transaction->TransactionID, $transaction->ContainingOrder->OrderID);
 				//var_dump($ordersId);
 				if(empty($ordersId)){
 					//Create 
@@ -743,7 +763,7 @@ class eBay{
 			//}
 		}
         }else{
-		$ordersId = $this->checkEbayTransactionExist($result->TransactionArray->Transaction->Item->ItemID, $result->TransactionArray->Transaction->TransactionID);
+		$ordersId = $this->checkEbayTransactionExist($result->TransactionArray->Transaction->Item->ItemID, $result->TransactionArray->Transaction->TransactionID, $transaction->ContainingOrder->OrderID);
 		if(empty($ordersId)){
 			//Incomplete --> Complete
 			//if($result->TransactionArray->Transaction->Status->CompleteStatus == "Complete"){
@@ -904,6 +924,7 @@ class eBay{
     }
     
     public function getToken(){
+	session_start();
 	$session = $this->configEbay();
         try {
 		$session->token = NULL;
@@ -911,13 +932,14 @@ class eBay{
 		//exit;
                 $client = new eBaySOAP($session);
                 
-		$Version = "607";
-		$RuName = "Creasion-Creasion-390e-4-jfbgzuav";
+		$Version = "679";
+		$RuName = "Creasion-Creasion-1ca1-4-zndfzrl";
                 $params = array('Version' => $Version, 'RuName' => $RuName);
                 $results = $client->GetSessionID($params);
+		$_SESSION['SessionID'] = $results->SessionID;
 		//$results->SessionID
 		//echo "https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Creasion-Creasion-1ca1-4-vldylhxcb&&sid=$results->SessionID";
-		header("Location: https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&runame=".$RuName."&sid=".$results->SessionID);
+		header("Location: https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&RuName=".$RuName."&SessID=".$results->SessionID);
 		//var_dump("https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Creasion-Creasion-1ca1-4-vldylhxcb&&sid=$results->SessionID");
                 //----------   debug --------------------------------
                 //print "Request: \n".$client->__getLastRequest() ."\n";
@@ -931,11 +953,33 @@ class eBay{
     }
     
     public function saveToken(){
-	$sql = "insert into qo_ebay_seller (id,token,tokenExpiry) values ('".$_GET['username']."','".$_GET['ebaytkn']."','".$_GET['tknexp']."')";
-	echo $sql;
-	//$result = mysql_query($sql, eBay::$database_connect);
-	if($result){
-		echo "<h1>Thank you, Success!</h1>";
+	session_start();
+        try {
+            $session = $this->configEbay();
+	    $session->token = NULL;
+            $client = new eBaySOAP($session);
+            $Version = $this->version;
+            $params = array('Version' => $Version, 'SessionID' => $_SESSION['SessionID']);
+            $results = $client->FetchToken($params);
+           
+            print_r($results);
+            $_GET['ebaytkn'] = $results->eBayAuthToken;
+	    $_GET['tknexp'] = $results->HardExpirationTime;
+            //eBayAuthToken
+            //HardExpirationTime
+        } catch (SOAPFault $f) {
+                print $f; // error handling
+        }
+	
+	if(!empty($_GET['ebaytkn'])){
+		$sql = "insert into qo_ebay_seller (id,token,tokenExpiry) values ('".$_GET['username']."','".$_GET['ebaytkn']."','".$_GET['tknexp']."')";
+		//echo $sql;
+		$result = mysql_query($sql, eBay::$database_connect);
+		if($result){
+			echo "<h1>Thank you, Success!</h1>";
+		}else{
+			echo "<h1>Failure!</h1>";
+		}
 	}else{
 		echo "<h1>Failure!</h1>";
 	}
