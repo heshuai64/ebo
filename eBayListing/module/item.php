@@ -23,6 +23,8 @@ class Item{
 	11: reviseing
 	12: relisting
 	13: ending
+	
+	20: relist template error
     */
     private function getService($request){
         $json = file_get_contents(Template::INVENTORY_SERVICE.$request);

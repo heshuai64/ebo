@@ -1,6 +1,6 @@
 <?php
-define ('__DOCROOT__', '/export/eBayListing');
-//define ('__DOCROOT__', '.');
+//define ('__DOCROOT__', '/export/eBayListing');
+define ('__DOCROOT__', '.');
 require_once __DOCROOT__ . '/eBaySOAP.php';
 
 function debugLog($file_name, $data){
@@ -37,6 +37,7 @@ class eBayListing{
     public static $database_connect;
     public static $service;
     public static $exchange_rate;
+    public static $install;
     //const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
     //const GATEWAY_SOAP = 'https://api.ebay.com/wsapi';
     
@@ -71,6 +72,7 @@ class eBayListing{
         eBayListing::$database_connect = mysql_connect($this->config['database']['host'], $this->config['database']['user'], $this->config['database']['password']);
 	eBayListing::$service = $this->config['service'];
 	eBayListing::$exchange_rate = $this->config['exchange_rate'];
+	eBayListing::$install = $this->config['install'];
 	
         if (!eBayListing::$database_connect) {
             echo "Unable to connect to DB: " . mysql_error(eBayListing::$database_connect);
@@ -580,6 +582,9 @@ class eBayListing{
     public function getShippingService(){
 	//echo $InternationalService;
 	//echo "\n";
+	if($_POST['SiteID'] == 100){
+	    $_POST['SiteID'] = 0;
+	}
 	$sql = "select id from site where name = '".$_POST['SiteID']."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
@@ -607,6 +612,10 @@ class eBayListing{
     }
     
     public function getInternationalShippingService(){
+	if($_POST['SiteID'] == 100){
+	    $_POST['SiteID'] = 0;
+	}
+	
 	$sql = "select id from site where name = '".$_POST['SiteID']."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
@@ -2711,6 +2720,8 @@ class eBayListing{
 	    $seller[$row['id']] = $row['name'];
 	}
 	
+	$default_start = date("Y-m-d", time() - 24 * 60 * 60);
+	
 	$array = array();
 	$type = $_GET['type'];
 	
@@ -2726,6 +2737,8 @@ class eBayListing{
 	
 	if(!empty($_POST['startDate'])){
 	    $sql .= " and time > '".$_POST['startDate']."'";
+	}else{
+	    $sql .= " and time > '".$default_start."'";
 	}
 	
 	if(!empty($_POST['endDate'])){
@@ -2966,11 +2979,13 @@ if(!empty($argv[2])){
     $service = new eBayListing();
 }
 */
-$ebay_service = array('getAllCategories', 'getStoreCategories', 'getAllStoreCategories', 'getCategoryFeatures',
+$ebay_service = array(/*'getAllCategories', 'getStoreCategories', 'getAllStoreCategories', 'getCategoryFeatures',
 		      'getAllSiteShippingServiceDetails', 'getAllSiteShippingLocationDetails', 'getShippingLocation',
-		      'getAllCategory2CS', 'getAllAttributesCS',
+		      'getAllCategory2CS', 'getAllAttributesCS',*/
+		      'getStoreCategories',
 		      'getAllSellerList',
-		      'uploadItem', 'modifyActiveItem', 'reUploadItem', 'endListingItem');   
+		      'uploadItem', 'modifyActiveItem', 'reUploadItem', 'endListingItem',
+		      'getToken', 'saveToken');   
 //$service->setAccount(1);
 $service = new eBayListing();
 $acton = (!empty($_GET['action'])?$_GET['action']:$argv[1]);

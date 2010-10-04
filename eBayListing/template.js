@@ -425,6 +425,10 @@ Ext.onReady(function(){
                                     case "Germany":
                                         currencyCombo.setValue("EUR");
                                     break;
+                                
+                                    default:
+                                        currencyCombo.setValue("USD");
+                                    break;
                                 }
                                 Ext.getCmp("SiteID").setValue(r.data.name);
                             }
