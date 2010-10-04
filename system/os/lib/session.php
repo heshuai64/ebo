@@ -252,7 +252,17 @@ class session {
 					if(!mysql_query($sql)){
 						$response = "{errors:[{id:'user', msg:'Login Failed'}]}";
 					}else{ */
-					
+						$sql = "select ma.id,ma.qo_modules_id,ma.name,ghma.active from qo_groups_has_module_actions as ghma left join qo_modules_actions as ma on ghma.modules_actions_id = ma.id where ghma.groups_id = ".$group_id;
+						$result = mysql_query($sql);
+						while($row = mysql_fetch_assoc($result)){
+							$sql_1 = "select module_id from qo_modules where id = ".$row['qo_modules_id'];
+							$result_1 = mysql_query($sql_1);
+							$row_1 = mysql_fetch_assoc($result_1);
+							if($row['active'] == 0){
+								setcookie($row_1['module_id'].".".$row['name'], $row['active'], time()+3600, '/eBayBO/');
+							}
+						}
+						
 						// get our random session id
 						$session_id = $this->os->build_random_id();
 						
@@ -298,6 +308,22 @@ class session {
 		$session_id = $this->get_id();
 		
 		if(isset($session_id)){
+			$sql = "select qo_groups_id from qo_sessions where id = '".$session_id."'";
+			$result = mysql_query($sql);
+			$row = mysql_fetch_assoc($result);
+			$group_id = $row['qo_groups_id'];
+			
+			$sql = "select ma.id,ma.qo_modules_id,ma.name,ghma.active from qo_groups_has_module_actions as ghma left join qo_modules_actions as ma on ghma.modules_actions_id = ma.id where ghma.groups_id = ".$group_id;
+			$result = mysql_query($sql);
+			while($row = mysql_fetch_assoc($result)){
+				$sql_1 = "select module_id from qo_modules where id = ".$row['qo_modules_id'];
+				$result_1 = mysql_query($sql_1);
+				$row_1 = mysql_fetch_assoc($result_1);
+				//if($row['active'] == 0){
+					setcookie($row_1['module_id'].".".$row['name'], "");
+				//}
+			}
+						
 			$sql = "delete
 				from
 				qo_sessions
