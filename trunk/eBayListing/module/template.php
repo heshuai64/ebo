@@ -2,9 +2,11 @@
 class Template{
     private $account_id;
     private $batch = false;
+    private $lowest_price;
     
     public function __construct($account_id=0){
         $this->account_id = $account_id;
+        $this->lowest_price = eBayListing::$install['lowest_price'];
     }
     /*
         0: new
@@ -13,6 +15,7 @@ class Template{
         3: out of stock
         4: under review
         5: inactive
+        6: forever inactive
     */
     
     private function getCategoryPathById($SiteID, $CategoryID){
@@ -332,65 +335,94 @@ class Template{
 	//echo '{success:true, test:"'.print_r($_FILES, true).'"}';
 	//exit;
         $msg = "";
-	switch($_GET['type']){
-	    case "spcsv":
-		$handle = fopen($_FILES['spcsv']['tmp_name'], "r");
-		while (($data = fgetcsv($handle)) !== FALSE) {
-		    //print_r($data);
-		    $sql = "update template set StartPrice='".$data[1]."' where SKU = '".$data[0]."' and accountId = '".$this->account_id."'";
-		    $result = mysql_query($sql, eBayListing::$database_connect);
-		}
-		fclose($handle);
-	    break;
-	
-	    case "sqcsv":
-		$handle = fopen($_FILES['sqcsv']['tmp_name'], "r");
-		while (($data = fgetcsv($handle)) !== FALSE) {
-		    //print_r($data);
-		    $sql = "update template set Quantity='".$data[1]."' where SKU = '".$data[0]."' and accountId = '".$this->account_id."'";
-		    $result = mysql_query($sql, eBayListing::$database_connect);
-		}
-		fclose($handle);
-	    break;
-	    
-	    case "stpcsv":
-		$handle = fopen($_FILES['stpcsv']['tmp_name'], "r");
-		while (($data = fgetcsv($handle)) !== FALSE) {
-		    //print_r($data);
-		    $sql = "update template set StartPrice='".$data[2]."' where SKU = '".$data[0]."' and Title = '".html_entity_decode($data[1], ENT_QUOTES)."' and accountId = '".$this->account_id."'";
-		    $result = mysql_query($sql, eBayListing::$database_connect);
-		}
-		fclose($handle);
-	    break;
-	    
-	    case "stcsv":
-                $this->batch = true;
-	    	$handle = fopen($_FILES['stcsv']['tmp_name'], "r");
-                while (($data = fgetcsv($handle)) !== FALSE) {
-                    //print_r($data);
-                    $sql = "select Id from template where SKU = '".$data[0]."' and Title = '".html_entity_decode($data[1], ENT_QUOTES)."' and accountId = '".$this->account_id."'";
-                    //echo $sql;
-                    $result = mysql_query($sql, eBayListing::$database_connect);
-                    while($row = mysql_fetch_assoc($result)){
-                        $this->changeTemplateToItem($row['Id']);
+        if($_POST['update_password'] == "123" || $_POST['upload_password'] == "321"){
+            switch($_GET['type']){
+                case "spcsv":
+                    $handle = fopen($_FILES['spcsv']['tmp_name'], "r");
+                    while (($data = fgetcsv($handle)) !== FALSE) {
+                        //print_r($data);
+                        $sql = "update template set StartPrice='".$data[1]."' where SKU = '".$data[0]."' and accountId = '".$this->account_id."'";
+                        $result = mysql_query($sql, eBayListing::$database_connect);
+                        if($result){
+                            $msg .= $data[0]." Price = ".$data[1]."<br>";;
+                        }
                     }
-                }
-                fclose($handle);
-	    break;
-        
-            case "tcsv":
-                $this->batch = true;
-                $handle = fopen($_FILES['tcsv']['tmp_name'], "r");
-                while (($data = fgetcsv($handle)) !== FALSE) {
-                    if(!$this->changeTemplateToItem($data[0])){
-                        $msg .= $data[0];
+                    fclose($handle);
+                break;
+            
+                case "sqcsv":
+                    $handle = fopen($_FILES['sqcsv']['tmp_name'], "r");
+                    while (($data = fgetcsv($handle)) !== FALSE) {
+                        //print_r($data);
+                        $sql = "update template set Quantity='".$data[1]."' where SKU = '".$data[0]."' and accountId = '".$this->account_id."'";
+                        $result = mysql_query($sql, eBayListing::$database_connect);
+                        if($result){
+                            $msg .= $data[0]." Quantity = ".$data[1]."<br>";;
+                        }
                     }
-                }
-                fclose($handle);
-            break;
-	}
-        
-        echo "{success:true}";
+                    fclose($handle);
+                break;
+                
+                case "stpcsv":
+                    $handle = fopen($_FILES['stpcsv']['tmp_name'], "r");
+                    while (($data = fgetcsv($handle)) !== FALSE) {
+                        //print_r($data);
+                        $sql = "update template set StartPrice='".$data[2]."' where SKU = '".$data[0]."' and Title = '".html_entity_decode($data[1], ENT_QUOTES)."' and accountId = '".$this->account_id."'";
+                        $result = mysql_query($sql, eBayListing::$database_connect);
+                        if($result){
+                            $msg .= $data[0]." Price = ".$data[1]."<br>";;
+                        }
+                    }
+                    fclose($handle);
+                break;
+                
+                case "dtcsv":
+                    $handle = fopen($_FILES['dtcsv']['tmp_name'], "r");
+                    while (($data = fgetcsv($handle)) !== FALSE) {
+                        //print_r($data);
+                        $sql = "update template set ListingDuration='".$data[1]."' where Id = '".$data[0]."' and accountId = '".$this->account_id."'";
+                        $result = mysql_query($sql, eBayListing::$database_connect);
+                        if($result){
+                            $msg .= $data[0]." ListingDuration = ".$data[1]."<br>";;
+                        }
+                    }
+                    fclose($handle);
+                break;
+            
+                case "stcsv":
+                    $this->batch = true;
+                    $handle = fopen($_FILES['stcsv']['tmp_name'], "r");
+                    while (($data = fgetcsv($handle)) !== FALSE) {
+                        //print_r($data);
+                        $sql = "select Id from template where SKU = '".$data[0]."' and Title = '".html_entity_decode($data[1], ENT_QUOTES)."' and accountId = '".$this->account_id."'";
+                        //echo $sql;
+                        $result = mysql_query($sql, eBayListing::$database_connect);
+                        while($row = mysql_fetch_assoc($result)){
+                            $r = $this->changeTemplateToItem($row['Id']);
+                            if($r){
+                                $msg .= $r."<br>";
+                            }
+                        }
+                    }
+                    fclose($handle);
+                break;
+            
+                case "tcsv":
+                    $this->batch = true;
+                    $handle = fopen($_FILES['tcsv']['tmp_name'], "r");
+                    while (($data = fgetcsv($handle)) !== FALSE) {
+                        $r = $this->changeTemplateToItem($data[0]);
+                        if($r){
+                            $msg .= $r."<br>";
+                        }
+                    }
+                    fclose($handle);
+                break;
+            }
+        }else{
+            $msg = "password is error.";
+        }
+        echo "{success:true, msg: '".mysql_real_escape_string($msg)."'}";
         /*
 	if($result){
 	    echo "{success:true}";
@@ -407,17 +439,19 @@ class Template{
 	$row_0 = mysql_fetch_assoc($result_0);
 	
         if($row_0['status'] !=2 && $row_0['status'] !=3){
-	    echo "[{success: false, msg: 'template status error.'}]";
             if($this->batch){
-                return 0;
+                return 'template('.$template_id.') status error.';
+            }else{
+                echo "[{success: false, msg: 'template status error.'}]";
             }
             exit;
 	}
         
 	if(empty($row_0['shippingTemplateName'])){
-	    echo "[{success: false, msg: 'template ".$template_id." no set shipping template.'}]";
             if($this->batch){
-                return 0;
+                return 'template('.$template_id.') no set shipping template.';
+            }else{
+                echo "[{success: false, msg: 'template ".$template_id." no set shipping template.'}]";
             }
             exit;
 	}
@@ -1342,8 +1376,11 @@ class Template{
 	$row['SiteID'] = $row['Site'];
 	$row['Description'] = html_entity_decode($row['Description'], ENT_QUOTES);
 	$row['Title'] = html_entity_decode($row['Title'], ENT_QUOTES);
-	$row['LowPrice'] = eBayListing::getSkuLowPriceS($row['SKU'], $row['Currency']);
-        
+        if($this->lowest_price){
+            $row['LowPrice'] = eBayListing::getSkuLowPriceS($row['SKU'], $row['Currency']);
+        }else{
+            $row['LowPrice'] = 0;
+        }
 	if($row['ListingType'] == "FixedPriceItem" || $row['ListingType'] == "StoresFixedPrice"){
 	    $row['BuyItNowPrice'] = $row['StartPrice'];
 	    $row['StartPrice'] = 0;
@@ -1515,7 +1552,11 @@ class Template{
         }
 
         $ShippingServiceCost1 = $this->getTemplateShippingCost1($ShippingServiceCost1, $shippingTemplateName);
-        $skuLowPrice = eBayListing::getSkuLowPriceS($sku, $currency);
+        if($this->lowest_price){
+            $skuLowPrice = eBayListing::getSkuLowPriceS($sku, $currency);
+        }else{
+            $skuLowPrice = 0;
+        }
         $lowPrice =  $skuLowPrice - $ShippingServiceCost1;
         
         if($type == "auction"){
@@ -2921,11 +2962,13 @@ class Template{
 	$objExcel = new PHPExcel();
 	
 	$objExcel->setActiveSheetIndex(0);
-	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, 'SKU');
-	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, 'Title');
-	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, 'Description');
-	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, 'Price');
-	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(4, 1, 'Image');
+        $objExcel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, 'Template ID');
+	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, 'SKU');
+        $objExcel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, 'Duration');
+	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, 'Title');
+	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(4, 1, 'Description');
+	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(5, 1, 'Price');
+	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(6, 1, 'Image');
 	
 	$where = "";
 	if(!empty($_GET['SKU'])){
@@ -2959,7 +3002,7 @@ class Template{
 	    $where .= "and Id in (".substr($template_id, 0, -1).")";
 	}
 	
-	$sql = "select SKU,Title,Description,ListingType,BuyItNowPrice,StartPrice from template where accountId = '".$this->account_id."'" . $where;
+	$sql = "select Id,SKU,Title,Description,ListingDuration,ListingType,BuyItNowPrice,StartPrice from template where accountId = '".$this->account_id."'" . $where;
 	//echo $sql."<br>";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$i = 2;
@@ -2968,7 +3011,9 @@ class Template{
 	    if($row['ListingType'] != "FixedPriceItem" && $row['ListingType'] != "StoresFixedPrice"){
 		$row['StartPrice'] = $row['BuyItNowPrice'];
 	    }
+            $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['Id']);
 	    $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['SKU']);
+            $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['ListingDuration']);
 	    $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['Title']);
 	    $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, html_entity_decode($row['Description'], ENT_QUOTES));
 	    $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['StartPrice']);

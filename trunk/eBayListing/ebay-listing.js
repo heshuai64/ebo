@@ -623,8 +623,8 @@ Ext.onReady(function(){
                     var  importCsvWindow = new Ext.Window({
                          title: 'Import CSV File' ,
                          closable:true,
-                         width: 360,
-                         height: 420,
+                         width: 410,
+                         height: 560,
                          plain:true,
                          layout: 'fit',
                          items: [{
@@ -634,19 +634,24 @@ Ext.onReady(function(){
                               frame: true,
                               autoHeight: true,
                               bodyStyle: 'padding: 10px 10px 0 10px;',
-                              labelWidth: 80,
+                              labelWidth: 160,
                               defaults: {
                                   anchor: '95%'
                                   //allowBlank: false
                               },
                               items:[{
-                                   title:"Update Content",
+                                   title:"Update Content(update template information)",
                                    xtype:"fieldset",
                                    items:[{
+                                        xtype: 'textfield',
+                                        inputType: 'password',
+                                        id: 'update_password',
+                                        fieldLabel: 'Password'
+                                   },{
                                         xtype: 'fileuploadfield',
                                         id: 'spcsv',
                                         emptyText: 'Select an csv file',
-                                        fieldLabel: 'Sku and Price',
+                                        fieldLabel: 'Update Price By SKU',
                                         //hideLabel:true,
                                         name: 'spcsv',
                                         buttonText: '',
@@ -662,10 +667,11 @@ Ext.onReady(function(){
                                                   fp.getForm().submit({
                                                        url: 'service.php?action=importTemplateFromCSV&type=spcsv',
                                                        waitMsg: 'Uploading your csv...',
-                                                       success: function(fp, o){
-                                                            template_store.reload();
-                                                            importCsvWindow.close();
-                                                            Ext.MessageBox.alert('Success','Update template sku price success!');
+                                                       success: function(form, action){
+                                                            //template_store.reload();
+                                                            //importCsvWindow.close();
+                                                            Ext.MessageBox.alert('Notice', action.result.msg);
+                                                            //Ext.MessageBox.alert('Success','Update template sku price success!');
                                                        }
                                                   });
                                              }
@@ -674,7 +680,7 @@ Ext.onReady(function(){
                                         xtype: 'fileuploadfield',
                                         id: 'sqcsv',
                                         emptyText: 'Select an csv file',
-                                        fieldLabel: 'Sku and Qty',
+                                        fieldLabel: 'Update Qty By SKU',
                                         //hideLabel:true,
                                         name: 'sqcsv',
                                         buttonText: '',
@@ -690,10 +696,11 @@ Ext.onReady(function(){
                                                   fp.getForm().submit({
                                                        url: 'service.php?action=importTemplateFromCSV&type=sqcsv',
                                                        waitMsg: 'Uploading your csv...',
-                                                       success: function(fp, o){
-                                                            template_store.reload();
-                                                            importCsvWindow.close();
-                                                            Ext.MessageBox.alert('Success','Update template sku quantiry success!');
+                                                       success: function(form, action){
+                                                            //template_store.reload();
+                                                            //importCsvWindow.close();
+                                                            Ext.MessageBox.alert('Notice', action.result.msg);
+                                                            //Ext.MessageBox.alert('Success','Update template sku quantiry success!');
                                                        }
                                                   });
                                              }
@@ -702,7 +709,7 @@ Ext.onReady(function(){
                                         xtype: 'fileuploadfield',
                                         id: 'stpcsv',
                                         emptyText: 'Select an csv file',
-                                        fieldLabel: 'Sku and Title and Price',
+                                        fieldLabel: 'Update Price By SKU and Title',
                                         //hideLabel:true,
                                         name: 'stpcsv',
                                         buttonText: '',
@@ -718,19 +725,54 @@ Ext.onReady(function(){
                                                   fp.getForm().submit({
                                                        url: 'service.php?action=importTemplateFromCSV&type=stpcsv',
                                                        waitMsg: 'Uploading your csv...',
-                                                       success: function(fp, o){
-                                                            template_store.reload();
-                                                            importCsvWindow.close();
-                                                            Ext.MessageBox.alert('Success','Update template sku price success!');
+                                                       success: function(form, action){
+                                                            //template_store.reload();
+                                                            //importCsvWindow.close();
+                                                            Ext.MessageBox.alert('Notice', action.result.msg);
+                                                            //Ext.MessageBox.alert('Success','Update template sku price success!');
+                                                       }
+                                                  });
+                                             }
+                                        }
+                                   },{
+                                        xtype: 'fileuploadfield',
+                                        id: 'dtcsv',
+                                        emptyText: 'Select an csv file',
+                                        fieldLabel: 'Update Duration By TemplateID',
+                                        //hideLabel:true,
+                                        name: 'dtcsv',
+                                        buttonText: '',
+                                        buttonCfg: {
+                                            iconCls: 'upload-icon'
+                                        }
+                                   },{
+                                        xtype: 'button',
+                                        text: 'Upload',
+                                        handler: function(){
+                                             var fp = Ext.getCmp("csv-form");
+                                             if(fp.getForm().isValid()){
+                                                  fp.getForm().submit({
+                                                       url: 'service.php?action=importTemplateFromCSV&type=dtcsv',
+                                                       waitMsg: 'Uploading your csv...',
+                                                       success: function(form, action){
+                                                            //template_store.reload();
+                                                            //importCsvWindow.close();
+                                                            Ext.MessageBox.alert('Notice', action.result.msg);
+                                                            //Ext.MessageBox.alert('Success','Update template sku price success!');
                                                        }
                                                   });
                                              }
                                         }
                                    }]
                               },{
-                                   title:"Add TO Upload",
+                                   title:"Add TO Upload(change template to item)",
                                    xtype:"fieldset",
                                    items:[{
+                                        xtype: 'textfield',
+                                        inputType: 'password',
+                                        id: 'upload_password',
+                                        fieldLabel: 'Password'
+                                   },{
                                         xtype: 'fileuploadfield',
                                         id: 'stcsv',
                                         emptyText: 'Select an csv file',
@@ -750,9 +792,10 @@ Ext.onReady(function(){
                                                   fp.getForm().submit({
                                                        url: 'service.php?action=importTemplateFromCSV&type=stcsv',
                                                        waitMsg: 'Uploading your csv...',
-                                                       success: function(fp, o){
-                                                            importCsvWindow.close();
-                                                            Ext.MessageBox.alert('Success','add to waiting to upload success!');
+                                                       success: function(form, action){
+                                                            //importCsvWindow.close();
+                                                            Ext.MessageBox.alert('Notice', action.result.msg);
+                                                            //Ext.MessageBox.alert('Success','add to waiting to upload success!');
                                                        }
                                                   });
                                              }
@@ -777,9 +820,10 @@ Ext.onReady(function(){
                                                   fp.getForm().submit({
                                                        url: 'service.php?action=importTemplateFromCSV&type=tcsv',
                                                        waitMsg: 'Uploading your csv...',
-                                                       success: function(fp, o){
-                                                            importCsvWindow.close();
-                                                            Ext.MessageBox.alert('Success','add to waiting to upload success!');
+                                                       success: function(form, action){
+                                                            //importCsvWindow.close();
+                                                            Ext.MessageBox.alert('Notice', action.result.msg);
+                                                            //Ext.MessageBox.alert('Success','add to waiting to upload success!');
                                                        }
                                                   });
                                              }
@@ -1521,7 +1565,7 @@ Ext.onReady(function(){
                text: 'Change Status',
                icon: './images/cog_go.png',
                handler: function(){
-                    var status_array = ['new', 'waiting for approve', 'active', 'out of stock', 'under review', 'inactive'];
+                    var status_array = ['new', 'waiting for approve', 'active', 'out of stock', 'under review', 'inactive', 'forever inactive'];
                     var selections = template_status_grid.selModel.getSelections();
                     if(template_status_grid.selModel.getCount() == 0){
                          Ext.MessageBox.alert('Warning','Please select the template you want to preview.');
@@ -1957,7 +2001,12 @@ Ext.onReady(function(){
           
                case 5:
                     var status_name = "Inactive";
-                    Ext.getCmp('template-status-combo').getStore().loadData([[4,'Reactivation SKU']]);
+                    Ext.getCmp('template-status-combo').getStore().loadData([[4,'Reactivation SKU'], [6,'Forever Inactive']]);
+               break;
+          
+               case 6:
+                    var status_name = "Forever Inactive";
+                    Ext.getCmp('template-status-combo').getStore().loadData([]);
                break;
           }
           if(Ext.getCmp('template-status-tab')){
@@ -3192,6 +3241,13 @@ Ext.onReady(function(){
                               handler: function(){
                                    template_status_tab(5);
                               }
+                         },{
+                              xtype:'button',
+                              text: 'Forever Inactive',
+                              width:160,
+                              handler: function(){
+                                   template_status_tab(6);
+                              }
                          }],
                          listeners:{
                               expand: function(p){
@@ -3300,7 +3356,7 @@ Ext.onReady(function(){
                                    var wait_grid = new Ext.grid.EditorGridPanel({
                                         title: 'Waiting To Upload List',
                                         store: wait_store,
-                                        plugins: [wait_grid_editor],
+                                        //plugins: [wait_grid_editor],
                                         //autoHeight: true,
                                         width: 1024,
                                         height: 460,
@@ -3310,11 +3366,11 @@ Ext.onReady(function(){
                                              {header: "TID", width: 60, align: 'center', sortable: true, dataIndex: 'TemplateID'},
                                              {header: "Site", width: 30, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                                              {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
-                                             {header: "Title", width: 290, align: 'center', sortable: true, dataIndex: 'Title',
+                                             {header: "Title", width: 290, align: 'center', sortable: true, dataIndex: 'Title'/*,
                                                   editor: {
                                                        xtype: 'textfield',
                                                        allowBlank: false
-                                                  }
+                                                  }*/
                                              },
                                              {header: "ListingType", width: 70, align: 'center', sortable: true, dataIndex: 'ListingType'},
                                              {header: "Price", width: 50, align: 'center', sortable: true, dataIndex: 'Price'},

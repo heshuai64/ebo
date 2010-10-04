@@ -12,6 +12,7 @@ class Ebay{
     private $session;
     private $site_id; //US 0, UK 3, AU 15, FR 71
     private $account_id;
+    private $version = '679';
     
     public function __construct($account_id){
         $this->account_id = $account_id;
@@ -117,7 +118,7 @@ class Ebay{
                 $client = new eBaySOAP($this->session);
 
                 $CategorySiteID = $siteId;
-                $Version = '607';
+                $Version = $this->version;
                 $params = array('Version' => $Version, 'CategorySiteID' => $CategorySiteID);
                 $results = $client->GetCategories($params);
                 //----------   debug --------------------------------
@@ -152,7 +153,7 @@ class Ebay{
 	    $client = new eBaySOAP($this->session);
 
 	    $CategorySiteID = $categorySiteID;
-	    $Version = '607';
+	    $Version = $this->version;
 	    $DetailLevel = "ReturnAll";
 	 
 	    $params = array('Version' => $Version, 'DetailLevel' => $DetailLevel, 'CategorySiteID' => $CategorySiteID);
@@ -212,13 +213,15 @@ class Ebay{
 	    $userID = $row['name'];
 	    
 	    $this->configEbay();
-	}
+	}else{
+            echo "error, no account id.";
+        }
 	
 	try {
                 $client = new eBaySOAP($this->session);
 
                 $CategoryStructureOnly = true;
-                $Version = '607';
+                $Version = $this->version;
 		$UserID = $userID;
 		
                 $params = array('Version' => $Version, 'CategoryStructureOnly' => $CategoryStructureOnly, 'UserID' => $UserID);
@@ -231,7 +234,7 @@ class Ebay{
 		$sql = "delete from account_store_categories where AccountId = ".$this->account_id;
 		$result = mysql_query($sql, eBayListing::$database_connect);
 		
-                $this->saveFetchData("getStoreCategories-".$userID."-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+                $this->saveFetchData("getStoreCategories-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 		foreach($results->Store->CustomCategories->CustomCategory as $customCategory){
 		    $level = 1;
 		    $sql = "INSERT INTO `account_store_categories` (`CategoryID` , `CategoryParentID` ,`Name` ,`Order` ,`AccountId`) VALUES ('".$customCategory->CategoryID."','0','".$customCategory->Name."','".$customCategory->Order."','".$this->account_id."')";
@@ -297,7 +300,7 @@ class Ebay{
 	    $client = new eBaySOAP($this->session);
 	    
 	    $DetailLevel = 'ReturnAll';
-	    $Version = '607';
+	    $Version = $this->version;
 	    //$FeatureID = 'ListingDurations';
 	    $FeatureID = array('ConditionEnabled', 'ConditionValues');
             
@@ -337,6 +340,10 @@ class Ebay{
             
             ALTER TABLE `categories` ADD `ConditionEnabled` VARCHAR( 19 );
             */
+            $sql_1 = "delete from category_condition where site_id = ".$categorySiteID;
+            echo $sql_1."\n";
+            $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+            sleep(6);
             
             //file_put_contents("/tmp/getCategoryFeatures.txt", print_r($results, true));
             //exit;
@@ -344,10 +351,10 @@ class Ebay{
                 //echo $Category->CategoryID."\n";
                 //echo $Category->ConditionEnabled."\n";
                 //echo $xml->ConditionHelpURL."\n";
-
+                $xml = simplexml_load_string($Category->any);
                 //print_r($xml);
                 if(preg_match('/<ConditionEnabled>.*?<\/ConditionEnabled>/', $Category->any, $matches)){
-                    print_r($matches);
+                    //print_r($matches);
                     if(strpos($matches[0], "Disabled")){
                         $ConditionEnabled = "Disabled";
                     }elseif(strpos($matches[0], "Enabled")){
@@ -360,11 +367,7 @@ class Ebay{
                     $result = mysql_query($sql, eBayListing::$database_connect);
                 }
                 //print_r($xml);
-                $sql_1 = "delete from category_condition where site_id = ".$categorySiteID;
-                //echo $sql_1."\n";
-                //$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
                 
-                $xml = simplexml_load_string($Category->any);
                 foreach($xml->Condition as $x){
                     //echo $x->ID."\n";
                     //echo $x->DisplayName."\n";
@@ -386,7 +389,7 @@ class Ebay{
 	    //----------   debug --------------------------------
 	    //print "Request: \n".$client->__getLastRequest() ."\n";
 	    //print "Response: \n".$client->__getLastResponse()."\n";
-	    $this->saveFetchData("getCategoryFeatures-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+	    $this->saveFetchData("getCategoryFeatures-".$categorySiteID.".xml", $client->__getLastResponse());
         } catch (SOAPFault $f) {
             print $f; // error handling
         }
@@ -402,7 +405,7 @@ class Ebay{
 	
 	try {
                 $client = new eBaySOAP($this->session);
-                $Version = '607';
+                $Version = $this->version;
                 $DetailName = "ShippingServiceDetails";
              
                 $params = array('Version' => $Version, 'DetailName' => $DetailName);
@@ -544,7 +547,7 @@ class Ebay{
 	
 	try {
 	    $client = new eBaySOAP($this->session);
-	    $Version = '607';
+	    $Version = $this->version;
 	    $DetailName = "ShippingLocationDetails";
 	 
 	    $params = array('Version' => $Version, 'DetailName' => $DetailName);
@@ -613,7 +616,7 @@ class Ebay{
 	    echo $this->site_id;
 	    echo "\n";
 	    $client = new eBaySOAP($this->session);
-	    $Version = '607';
+	    $Version = $this->version;
 	    $DetailLevel = "ReturnAll";
 	 
 	    $params = array('Version' => $Version, 'DetailLevel' => $DetailLevel);
@@ -654,7 +657,7 @@ class Ebay{
 	
 	try {
 	    $client = new eBaySOAP($this->session);
-	    $Version = '607';
+	    $Version = $this->version;
 	    $DetailLevel = "ReturnAll";
 	 
 	    $params = array('Version' => $Version, 'DetailLevel' => $DetailLevel);
@@ -1084,7 +1087,7 @@ class Ebay{
 	try {
 	    $client = new eBaySOAP($this->session);
 
-	    $Version = '607';
+	    $Version = $this->version;
 	    $DetailLevel = "ReturnAll";
 	    
 	    $TotalNumberOfPages = 1;
@@ -1266,7 +1269,10 @@ class Ebay{
 	$sql_1 = "select TemplateID from items where Id = ".$itemId;
 	$result_1 = mysql_query($sql_1);
 	$row_1 = mysql_fetch_assoc($result_1);
-	    
+	
+        if(empty($row_1['TemplateID'])){
+            return 6;
+        }
 	$sql_2 = "select status from template where Id = ".$row_1['TemplateID'];
 	$result_2 = mysql_query($sql_2);
 	$row_2 = mysql_fetch_assoc($result_2);
@@ -1588,16 +1594,16 @@ class Ebay{
 	$row = mysql_fetch_assoc($result);
 	$this->configEbay($row['id']);
 	
-        if($this->getCondition($row['id'], $item['PrimaryCategoryCategoryID'])){
-            $item['ConditionID'] = 1000;
-        }
-        
 	try {
 	    $client = new eBaySOAP($this->session);
-	    $Version = '607';
+	    $Version = $this->version;
 	    
 	    $itemArray = array();
 	    
+            //if($this->getCondition($row['id'], $item['PrimaryCategoryCategoryID'])){
+                $itemArray['ConditionID'] = 1000;
+            //}
+        
 	    if(count($item['AttributeSetArray']) > 0){
 		$itemArray['AttributeSetArray'] = $item['AttributeSetArray'];
 	    }
@@ -1969,10 +1975,12 @@ class Ebay{
 	$this->configEbay($row['id']);
 	try {
 	    $client = new eBaySOAP($this->session);
-	    $Version = '607';
+	    $Version = $this->version;
 	    
 	    $itemArray = array();
 	    
+            $itemArray['ConditionID'] = 1000;
+            
 	    if(count($item['AttributeSetArray']) > 0){
 		$itemArray['AttributeSetArray'] = $item['AttributeSetArray'];
 	    }
@@ -2244,6 +2252,8 @@ class Ebay{
 		    break;
 		}
 		$this->log("relist", $row['Id'] . " template status is ".$status, "warn");
+                $sql_0 = "update items set Status = 20 where Id = '".$row['Id']."'";
+                $result_0 = mysql_query($sql_0);
 		continue;
 	    }
 	    
@@ -2345,7 +2355,7 @@ class Ebay{
 	    $row_1['ShippingServiceOptions'] = $ShippingServiceOptions;
 	    $row_1['InternationalShippingServiceOption'] = $InternationalShippingServiceOption;
 	    $row_1['PictureURL'] = $PictureURL;
-	    $row_1['ListingDuration'] = "Days_7";
+	    //$row_1['ListingDuration'] = "Days_7";
 	    //print_r($row_1);
 	    //exit;
 	    $this->reListItem($row_1);
@@ -2360,10 +2370,12 @@ class Ebay{
 	$this->configEbay($row['id']);
 	try {
 	    $client = new eBaySOAP($this->session);
-	    $Version = '607';
+	    $Version = $this->version;
 	    
 	    $itemArray = array();
-	    
+            
+	    $itemArray['ConditionID'] = 1000;
+            
 	    if(count($item['AttributeSetArray']) > 0){
 		$itemArray['AttributeSetArray'] = $item['AttributeSetArray'];
 	    }
@@ -2653,7 +2665,7 @@ class Ebay{
 	$this->configEbay($row['id']);
 	try {
 	    $client = new eBaySOAP($this->session);
-	    $Version = '607';
+	    $Version = $this->version;
 	
 	    $params = array('Version' => $Version,
 			    'ItemID' => $item['ItemID'],
@@ -2689,15 +2701,84 @@ class Ebay{
         }
     }
     
+    public function getToken(){
+	//echo "test";
+        session_start();
+        try {
+            $this->setAccount(1);
+            $this->configEbay();
+            
+            $this->session->token = NULL;
+            //print_r($this->session);
+            //exit;
+            $client = new eBaySOAP($this->session);
+            
+            $Version = $this->version;
+            $RuName = "Creasion-Creasion-02dd-4-qtossfvtu";
+            $params = array('Version' => $Version, 'RuName' => $RuName);
+            $results = $client->GetSessionID($params);
+            $_SESSION['SessionID'] = $results->SessionID;
+            if(!empty($results->SessionID)){
+                //$results->SessionID
+                //echo "https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Creasion-Creasion-1ca1-4-vldylhxcb&&sid=$results->SessionID";
+                //header("Location: https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&runame=".$RuName."&sid=".$results->SessionID);
+                header("Location: https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&RuName=".$RuName."&SessID=".$results->SessionID);
+                //var_dump("https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Creasion-Creasion-1ca1-4-vldylhxcb&&sid=$results->SessionID");
+                //----------   debug --------------------------------
+                //print "Request: \n".$client->__getLastRequest() ."\n";
+                //print "Response: \n".$client->__getLastResponse()."\n";
+            }else{
+                print_r($results);
+            }
+            //return $results;
+                
+        } catch (SOAPFault $f) {
+                print $f; // error handling
+        }
+    }
+    
+    public function saveToken(){
+        session_start();
+        try {
+            $this->setAccount(1);
+            $this->configEbay();
+            $this->session->token = NULL;
+            
+            $client = new eBaySOAP($this->session);
+            $Version = $this->version;
+            $params = array('Version' => $Version, 'SessionID' => $_SESSION['SessionID']);
+            $results = $client->FetchToken($params);
+           
+            print_r($results);
+            $_GET['ebaytkn'] = $results->eBayAuthToken;
+	    $_GET['tknexp'] = $results->HardExpirationTime;
+            //eBayAuthToken
+            //HardExpirationTime
+        } catch (SOAPFault $f) {
+                print $f; // error handling
+        }
+	
+	if(!empty($_GET['ebaytkn'])){
+            $sql = "insert into account (name,token,tokenExpiry,status) values ('".$_GET['username']."','".$_GET['ebaytkn']."','".$_GET['tknexp']."',1)";
+            //echo $sql;
+            $result = mysql_query($sql);
+            if($result){
+                    echo "<h1>Thank you, Success!</h1>";
+            }else{
+                    echo "<h1>Failure!</h1>";
+            }
+        }else{
+            echo "<h1>Failure!</h1>";
+        }
+    }
 }
 
-if(!class_exists('eBayListing')){
-    require_once '/export/eBayListing/service.php';
+if($argv[0] == "ebay.php"){
+    require_once '../service.php';
     $acton = $argv[1];
     echo $acton."\n";
     if(!empty($acton)){
-        //$service = new eBayListing();
-        $ebay = new Ebay($service->getAccount());
+        $ebay = new Ebay(1);
         $ebay->$acton();
     }
 }
