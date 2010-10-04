@@ -74,7 +74,8 @@ class Shipment{
     }
     
     private function getCompleteOrder(){
-        $sql = "select id,shippingMethod,ebayName,ebayEmail,ebayAddress1,ebayAddress2,ebayCity,ebayStateOrProvince,ebayPostalCode,ebayCountry,ebayPhone from qo_orders 
+        $sql = "select id,shippingMethod,ebayName,ebayEmail,ebayAddress1,ebayAddress2,ebayCity,ebayStateOrProvince,ebayPostalCode,ebayCountry,ebayPhone,
+        paypalName,paypalEmail,paypalAddress1,paypalAddress2,paypalCity,paypalStateOrProvince,paypalPostalCode,paypalCountry,paypalPhone from qo_orders 
         where status = 'P' and modifiedOn between '".$this->startTime."' and '".$this->endTime."'";
         $result = mysql_query($sql, Shipment::$database_connect);
         $i= 0;

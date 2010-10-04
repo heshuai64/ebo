@@ -65,14 +65,16 @@ var lang = {
         form_modified_date: "Modified Date",
         orders_status_json: {"M": "Incomplete Checkout", "W": "Waiting Payment", "E": "Pending for Payment Confirmation", "C": "Excess Payment", "V": "Investigate", "S": "Insufficient Payment", "P": "Completed Payment", "X": "Canceled"},
         orders_status: [["M", "Incomplete Checkout"], ["W", "Waiting Payment"], ["E", "Pending for Payment Confirmation"], ["C", "Excess Payment"], ["V", "Investigate"], ["S", "Insufficient Payment"], ["P", "Completed Payment"], ["X", "Canceled"]],
-        transactions_status_json: {"P": "Completed", "R": "Refunded", "V": "Reversed", "C": "Canceled Reversal", "X": "Canceled"},
-        transactions_status: [['P','Completed'],['R','Refunded'],['V','Reversed'],['C','Canceled Reversal'],['X','Canceled']],
+        transactions_status_json: {"P": "Completed", "R": "Refunded", "V": "Reversed", "C": "Canceled Reversal", "X": "Canceled", "A": "Pending For Refund", "J": "Completed Refund"},
+        transactions_status: [['P','Completed'],['R','Refunded'],['V','Reversed'],['C','Canceled Reversal'],['X','Canceled'],['A','Pending For Refund'],['J', 'Completed Refund']],
         currency: [['USD','USD'],['EUR','EUR'],['GBP','GBP'],['AUD','AUD'],['RMB','RMB'],['CAD','CAD']],
         shipping_method: [['B','Bulk'], ['R','Registered'], ['S','SpeedPost'], ['U','UPS']],
         shipments_status_json: {"N": "Ready", "H": "Hold", "W": "Await", "K": "Packed", "S": "Shipped", "X": "Cancel"},
         send_to_name: "Name",
         send_to_email: "Email",
         send_to_content: "Content",
-        shipment_reason: [['1', 'Normal'],['L', 'Lost in transit'],['D', 'Damaged item returned'],['F', 'Defective item returned'],['W', 'Wrong item returned'],['N', 'Normal item returned'],['B', 'Bounced back'],['M', 'Missing item']]
+        shipment_reason: [['1', 'Normal'],['L', 'Lost in transit'],['D', 'Damaged item returned'],['F', 'Defective item returned'],['W', 'Wrong item returned'],['N', 'Normal item returned'],['B', 'Bounced back'],['M', 'Missing item']],
+        transaction_reason: [['L', 'Lost in transit'], ['D', 'Damaged item returned'], ['P', 'Part missing'], ['F', 'Defective item returned'], ['W', 'Wrong item returned'], ['I', 'Item not same as description'], ['E', 'Extra money']],
+        transactions_reason_json: {'L': 'Lost in transit', 'D': 'Damaged item returned', 'P': 'Part missing', 'F': 'Defective item returned', 'W': 'Wrong item returned', 'I': 'Item not same as description', 'E': 'Extra money'}
     }
 };

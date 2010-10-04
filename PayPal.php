@@ -10,6 +10,7 @@ ini_set("memory_limit","256M");
         private $start_time;
 	private $end_time;
 	private $config;
+	private $account;
 	
         public function __construct(){
 	    $this->config = parse_ini_file(__DOCROOT__ . '/config.ini', true);
@@ -34,11 +35,15 @@ ini_set("memory_limit","256M");
 		mkdir($this->config['log']['paypal'].date("Ymd"), 0777);
 	    }
 	    
-            file_put_contents($this->config['log']['paypal'].date("Ymd")."/".$file_name."-".date("Y-m-d").".".$type, date("Y-m-d H:i:s")."   ".$content."\n", FILE_APPEND);
+	    if(!file_exists($this->config['log']['paypal'].date("Ymd")."/".$this->account)){
+		mkdir($this->config['log']['paypal'].date("Ymd")."/".$this->account, 0777);
+	    }
+
+            file_put_contents($this->config['log']['paypal'].date("Ymd")."/".$this->account."/".$file_name."-".date("Y-m-d").".".$type, date("Y-m-d H:i:s")."   ".$content."\n", FILE_APPEND);
         }
         
         private function getTransactionId(){
-            $type = 'TRA';
+            $type = 'TRB';
             $today = date("Ym");
             $sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
             $result = mysql_query($sql, PayPal::$database_connect);
@@ -681,10 +686,12 @@ ini_set("memory_limit","256M");
     
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_POST, 1);
-    
+	    //curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+	    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+	    
             // Set the API operation, version, and API signature in the request.
             $nvpreq = "METHOD=$methodName_&VERSION=$version&PWD=$API_Password&USER=$API_UserName&SIGNATURE=$API_Signature$nvpStr_";
-            //echo $nvpreq;
+            echo $nvpreq."\n";
             // Set the request as a POST FIELD for curl.
             curl_setopt($ch, CURLOPT_POSTFIELDS, $nvpreq);
     
@@ -837,7 +844,9 @@ ini_set("memory_limit","256M");
             }else{
 		$this->log('paypal_api', '<font color="red">TRANSACTIONID: '. $api_date['TRANSACTIONID']. ' Exist.</font><br>', "html");
 		$ordersId = $this->getOrderId($api_data['BUYERID'], $item_number_string);
-		$this->updateOrderAndShipment($ordersId, $api_date);
+		if(!empty($ordersId)){
+		    $this->updateOrderAndShipment($ordersId, $api_date);
+		}
             }
 	    
 	    $this->log('paypal_api', "<br><br>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++<br><br>", "html");
@@ -875,13 +884,14 @@ ini_set("memory_limit","256M");
         public function getAllSellerTransactions(){
             //$this->TransactionSearch("paintings.suppliersz_api1.gmail.com", "BQ3G47PGEUPFJYUW", "AFAonZoEN5Tlf1AdMI6LHryIRiuXAZmyV1n8z4H3aK3CTTmVXIajebfk", "2009-04-18 00:00:00", "2009-04-20 00:00:00");
 	    if(empty($this->start_time) && empty($this->end_time)){
-		$this->start_time = date("Y-m-d H:i:s", time() - (12 * 60 * 60));
+		$this->start_time = date("Y-m-d H:i:s", time() - (14 * 60 * 60));
 		$this->end_time   = date("Y-m-d H:i:s", time() - (8 * 60 * 60));
 	    }
 	    
 	    $api_acount = parse_ini_file(__DOCROOT__ . '/paypal.ini', true);
 	    
 	    foreach($api_acount as $acount){
+		$this->account = $acount['Username'];
 		$this->TransactionSearch($acount['Username'], $acount['Password'], $acount['Signature'], $this->start_time, $this->end_time);
 	    }
 	}
@@ -915,7 +925,7 @@ if(!empty($argv[1]) && $argv[1] == "API"){
     if(!empty($argv[2]) && !empty($argv[3])){
 	$PayPal->setAPITime($argv[2], $argv[3]);
     }
-    //$PayPal->setAPITime("2009-07-06 00:00:00", "2009-07-06 09:30:00");
+    //$PayPal->setAPITime("2010-09-23 00:00:00", "2010-09-23 14:30:00");
     $PayPal->getAllSellerTransactions();
 }
 /*

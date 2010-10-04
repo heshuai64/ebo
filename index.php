@@ -35,7 +35,7 @@ if(!class_exists('os')){
 <!-- SYSTEM DIALOGS AND CORE -->
 <script src="system/dialogs/colorpicker/ColorPicker.js"></script>
 <script src="system/core-min.js"></script>
-
+<script src="system/login/cookies.js"></script>
 <!-- QoDesk -->
 <script src="QoDesk.php"></script>
 </head>

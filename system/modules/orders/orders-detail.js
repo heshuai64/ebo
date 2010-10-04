@@ -4,9 +4,14 @@ Ext.onReady(function(){
                 totalProperty: 'totalCount',
                 idProperty: 'id',
                 autoLoad:true,
-                fields: ['id','itemId', 'itemTitle', 'skuId', 'quantity', 'skuStock', 'unitPriceCurrency', 'unitPriceValue'],
+                fields: ['id','itemId', 'itemTitle', 'skuId', 'quantity', 'skuStock', 'unitPriceCurrency', 'unitPriceValue', 'complaintsStatus'],
                 url:'connect.php?moduleId=qo-orders&action=getOrderDetail&id='+ordersId
             });
+            
+            function renderComplaintsStatus(v, p, r){
+                var x = ['N', 'Y'];
+                return x[v];
+            }
             
             var orderDetailGrid = new Ext.grid.EditorGridPanel({
                 autoHeight: true,
@@ -28,7 +33,7 @@ Ext.onReady(function(){
                 },{
                     header: "SKU",
                     dataIndex: 'skuId',
-                    width: 200,
+                    width: 160,
                     align: 'center',
                     sortable: true
                 },{
@@ -67,9 +72,17 @@ Ext.onReady(function(){
                     width: 90,
                     align: 'center',
                     sortable: true
+                },{
+                    header: "Complaints",
+                    dataIndex: 'complaintsStatus',
+                    renderer: renderComplaintsStatus,
+                    width: 90,
+                    align: 'center',
+                    sortable: true     
                 }],
                 bbar: [{
                         text: 'Add Detail',
+                        disabled: (get_cookie('qo-orders.addOrderDetail') == 0)?true:false,
                         handler: function(){
                             var add_order_detail_form = new Ext.FormPanel({
                                 labelAlign: 'top',
@@ -194,8 +207,9 @@ Ext.onReady(function(){
                             });
                             addOrderDetailWindow.show();
                         }
-                        },{
+                        },'-',{
                                     text: 'Revise Detail',
+                                    disabled: (get_cookie('qo-orders.updateOrderDetailInfo') == 0)?true:false,
                                     handler: function(){
                                                 var selections = orderDetailGrid.selModel.getSelections();
                                                 //console.log(selections[0].data.id);
@@ -335,7 +349,7 @@ Ext.onReady(function(){
                                                 });
                                                 reviseOrderDetailWindow.show();
                                     }
-                        },{
+                        }/*,{
                                     text: 'Split Items',
                                     handler: function(){
                                                 if(orderDetailGrid.selModel.getCount() == 0){
@@ -363,17 +377,6 @@ Ext.onReady(function(){
                                                                                         }, 
                                                                                         success: function(response){
                                                                                                 Ext.MessageBox.alert('Notification', response.responseText);
-                                                                                                /*
-                                                                                            var result=eval(response.responseText);
-                                                                                            switch(result){
-                                                                                            case 1:  // Success : simply reload
-                                                                                              orderDetailGridStore.reload();
-                                                                                              break;
-                                                                                            default:
-                                                                                              Ext.MessageBox.alert('Warning','Could not split.');
-                                                                                              break;
-                                                                                            }
-                                                                                                */
                                                                                         },
                                                                                         failure: function(response){
                                                                                             var result=response.responseText;
@@ -385,9 +388,15 @@ Ext.onReady(function(){
                                                             Ext.MessageBox.confirm('Confirmation', 'Split these items?', splitOrderDetail);
                                                 }
                                     }
-                        }/*,{
-                                    text: 'Complaints SKU',
+                        }*/,'-',{
+                                    text: '<font color="red"><b>Complaints SKU</b></font>',
                                     handler: function(){
+                                                var selections = orderDetailGrid.selModel.getSelections();
+                                                //console.log(selections[0].data.complaintsStatus);
+                                                if(selections[0].data.complaintsStatus == 1){
+                                                            Ext.MessageBox.alert('Warning','SKU have been complaints.');
+                                                            return 0;
+                                                }
                                                 if(orderDetailGrid.selModel.getCount() >= 1){
                                                     //Ext.MessageBox.confirm('Confirmation','Complaints this sku?', complaintsSku);
                                                     Ext.Msg.prompt('Complaints this sku', 'Please enter content:', function(btn, text){
@@ -396,32 +405,34 @@ Ext.onReady(function(){
                                                                 var selections = orderDetailGrid.selModel.getSelections();
                                                                 //console.log(selections);
                                                                 //var prez = [];
-                                                                var skus = "";
+                                                                var skus = selections[0].data.skuId;
+                                                                /*
                                                                 for(i = 0; i< orderDetailGrid.selModel.getCount(); i++){
                                                                     //prez.push(selections[i].data.id);
                                                                     //console.log(selections[i].data);
                                                                     skus += selections[i].data.skuId + ","
                                                                 }
                                                                 skus = skus.slice(0,-1);
+                                                                */
                                                                 //console.log(skus);
                                                                 //var encoded_array = Ext.encode(prez);
                                                                 Ext.Ajax.request({  
                                                                     waitMsg: 'Please Wait',
                                                                     url: 'service.php?action=complaints', 
                                                                     params: { 
-                                                                      //ids:  encoded_array
+                                                                      ordersDetailId:  selections[0].data.id,
                                                                       sku: skus,
                                                                       content: text
                                                                     }, 
                                                                     success: function(response){
                                                                         var result=eval(response.responseText);
                                                                         switch(result){
-                                                                        case 1:  // Success : simply reload
-                                                                          //orderDetailGridStore.reload();
-                                                                          break;
-                                                                        default:
-                                                                          Ext.MessageBox.alert('Warning','Please notice admin.');
-                                                                          break;
+                                                                           case 1:  // Success : simply reload
+                                                                                orderDetailGridStore.reload();
+                                                                           break;
+                                                                           default:
+                                                                                Ext.MessageBox.alert('Warning','Please notice admin.');
+                                                                           break;
                                                                         }
                                                                     },
                                                                     failure: function(response){
@@ -435,7 +446,7 @@ Ext.onReady(function(){
                                                     Ext.MessageBox.alert('Uh oh...','Please select a sku.');
                                                 }
                                     }
-                        },{
+                        },/*{
                             text: 'Delete Detail',
                             handler: function(){
                                 var deleteOrderDetail = function(btn){
@@ -498,16 +509,20 @@ Ext.onReady(function(){
                 totalProperty: 'totalCount',
                 idProperty: 'id',
                 autoLoad:true,
-                fields: ['id', 'txnId', 'amountCurrency', 'amountValue', 'status', 'transactionTime'],
+                fields: ['id', 'txnId', 'amountCurrency', 'amountValue', 'status', 'transactionTime', 'transactionReason'],
                 url:'connect.php?moduleId=qo-orders&action=getOrderTransaction&id='+ordersId
             });
             
             function renderTransactionStatus(v, p, r){
-                return lang.orders.orders_status_json[v];
+                return lang.orders.transactions_status_json[v];
             }
             
             function renderShipmentStatus(v, p, r){
                 return lang.orders.shipments_status_json[v];
+            }
+            
+            function renderTransactionReason(v, p, r){
+                return lang.orders.transactions_reason_json[v];       
             }
             
             var orderTransactionGrid = new Ext.grid.EditorGridPanel({
@@ -555,6 +570,13 @@ Ext.onReady(function(){
                     align: 'center',
                     sortable: true
                 },{
+                    header: "Reason",
+                    dataIndex: 'transactionReason',
+                    renderer: renderTransactionReason,
+                    width: 180,
+                    align: 'center',
+                    sortable: true
+                },{
                     header: "Status",
                     dataIndex: 'status',
                     renderer: renderTransactionStatus,
@@ -565,6 +587,7 @@ Ext.onReady(function(){
                 bbar: [{
                     text: 'Add Transaction',
                     //tooltip: 'Great tooltips...',
+                    disabled: (get_cookie('qo-orders.addOrderTransaction') == 0)?true:false,
                     handler: function(){
                                 var add_order_transaction_form = new Ext.FormPanel({
                                     labelAlign: 'top',
@@ -801,8 +824,9 @@ Ext.onReady(function(){
                                 })
                                 addOrderTransactionWindow.show();
                     }
-                },{
+                },'-',{
                     text: 'Map Transaction',
+                    disabled: (get_cookie('qo-orders.mapOrderTransaction') == 0)?true:false,
                     handler: function(){
                             var map_order_transaction_data_store = new Ext.data.JsonStore({
                                 root: 'records',
@@ -892,8 +916,9 @@ Ext.onReady(function(){
                             });    
                             map_order_transaction_window.show();
                     }
-                },{
+                },'-',{
                     text: 'Delete Transaction',
+                    disabled: (get_cookie('qo-orders.deleteOrderTransaction') == 0)?true:false,
                     handler: function(){
                         var deleteOrderTransaction = function(btn){
                             if(btn=='yes'){
@@ -936,6 +961,161 @@ Ext.onReady(function(){
                             Ext.MessageBox.alert('Uh oh...','You can\'t really delete something you haven\'t selected huh?');
                         }
                     }
+                },'-',{
+                        xtype: 'combo',
+                        //fieldLabel: "Reason",
+                        store: new Ext.data.SimpleStore({
+                            fields: ["id", "name"],
+                            data: lang.orders.transaction_reason
+                        }),		  
+                        mode: 'local',
+                        valueField: 'id',
+                        displayField: 'name',
+                        triggerAction: 'all',
+                        editable: false,
+                        name: 'transactionReason',
+                        hiddenName:'transactionReason',
+                        listeners: {
+                                    select: function(c, r, i){
+                                                if(Ext.isEmpty(get_cookie('qo-orders.addOrderRefund'))){
+                                                      Ext.getCmp("addOrderRefund").enable();    
+                                                }
+                                    }
+                        }
+                },{
+                        id: "addOrderRefund",
+                        text: 'Creat Refund',
+                        disabled: true,
+                        //disabled: (get_cookie('qo-orders.addOrderRefund') == 0)?true:false,
+                        handler: function(){
+                                    var add_order_refund_form = new Ext.FormPanel({
+                                                labelAlign: 'top',
+                                                bodyStyle:'padding:5px',
+                                                //width: 400,        
+                                                items: [{
+                                                            layout:"column",
+                                                            border:false,
+                                                            items:[{
+                                                                        columnWidth:0.5,
+                                                                        layout:"form",
+                                                                        border:false,
+                                                                        defaults:{
+                                                                            width:200
+                                                                        },
+                                                                        items:[{
+                                                                                    id: 'refundPayerEmail',
+                                                                                    xtype:"textfield",
+                                                                                    fieldLabel:"Email",
+                                                                                    name:"refundPayerEmail",
+                                                                                    allowBlank:false
+                                                                        }]
+                                                            },{
+                                                                        columnWidth:0.5,
+                                                                        layout:"form",
+                                                                        border:false,
+                                                                        defaults:{
+                                                                            width:200
+                                                                        },
+                                                                        items:[{
+                                                                                    layout:"column",
+                                                                                    border:false,
+                                                                                    items:[{
+                                                                                        columnWidth:0.3,
+                                                                                        layout:"form",
+                                                                                        border:false,
+                                                                                        items:[{
+                                                                                                xtype:'combo',
+                                                                                                store: new Ext.data.SimpleStore({
+                                                                                                    fields: ["amountCurrencyValue", "amountCurrencyName"],
+                                                                                                    data: lang.orders.currency
+                                                                                                }),
+                                                                                                listWidth: 60,
+                                                                                                width: 60,			  
+                                                                                                mode: 'local',
+                                                                                                displayField: 'amountCurrencyName',
+                                                                                                valueField: 'amountCurrencyValue',
+                                                                                                triggerAction: 'all',
+                                                                                                editable: false,
+                                                                                                fieldLabel: 'Amount',
+                                                                                                id: 'refundAmountCurrency',
+                                                                                                name: 'refundAmountCurrency',
+                                                                                                hiddenName:'refundAmountCurrency',
+                                                                                                allowBlank:false
+                                                                                            }]
+                                                                                        },{
+                                                                                            columnWidth:0.7,
+                                                                                            layout:"form",
+                                                                                            //hideLabels:true,
+                                                                                            border:false,
+                                                                                            items:[{
+                                                                                                xtype:"textfield",
+                                                                                                fieldLabel:"",
+                                                                                                width:100,
+                                                                                                id: 'refundAmountValue',
+                                                                                                name:"refundAmountValue",
+                                                                                                labelSeparator:"",
+                                                                                                allowBlank:false
+                                                                                              }]
+                                                                                        }]
+                                                                        }]            
+                                                            }]
+                                                }]
+                                    })
+                                    
+                                    var toolbar = orderTransactionGrid.getBottomToolbar();
+                                    //console.log(toolbar);
+                                    var addOrderRefundWindow = new Ext.Window({
+                                                title: 'Add '+ordersId+' Refund' ,
+                                                closable:true,
+                                                width: 500,
+                                                height: 200,
+                                                plain:true,
+                                                layout: 'fit',
+                                                items: add_order_refund_form,                                           
+                                                buttons: [{
+                                                            text: 'Save and Close',
+                                                            handler: function(){
+                                                                if(add_order_refund_form.getForm().isValid()){
+                                                                        Ext.Ajax.request({
+                                                                            waitMsg: 'Please wait...',
+                                                                            url: 'connect.php?moduleId=qo-orders&action=addOrderRefund',
+                                                                            params: {
+                                                                                    ordersId: ordersId,
+                                                                                    transactionReason: toolbar.items.items[6].value,
+                                                                                    payerEmail: document.getElementById('refundPayerEmail').value,
+                                                                                    amountCurrency: document.getElementById('refundAmountCurrency').value,
+                                                                                    amountValue: document.getElementById('refundAmountValue').value
+                                                                            },
+                                                                            success: function(response){
+                                                                                    var result = eval(response.responseText);
+                                                                                    switch (result) {
+                                                                                            case 1:
+                                                                                                    orderTransactionStore.reload();
+                                                                                                    addOrderRefundWindow.close();
+                                                                                                    break;
+                                                                                            default:
+                                                                                                    Ext.MessageBox.alert('Uh uh...', 'We couldn\'t save him...');
+                                                                                                    break;
+                                                                                    }
+                                                                            },
+                                                                            failure: function(response){
+                                                                                    var result = response.responseText;
+                                                                                    Ext.MessageBox.alert('error', 'could not connect to the database. retry later');
+                                                                            }
+                                                                        });
+                                                                }else{
+                                                                        Ext.MessageBox.alert('warning', 'please fill form.');
+                                                                }
+                                                            }
+                                                            },{
+                                                                        text: 'Cancel',
+                                                                        handler: function(){
+                                                                            addOrderRefundWindow.close();
+                                                                        }
+                                                            }]
+                                    })
+                                    addOrderRefundWindow.show();
+                        }
                 }]
             });
              
@@ -1002,10 +1182,20 @@ Ext.onReady(function(){
                                     editable: false,
                                     //id: 'shipmentReason',
                                     name: 'shipmentReason',
-                                    hiddenName:'shipmentReason'
+                                    hiddenName:'shipmentReason',
+                                    listeners: {
+                                    select: function(c, r, i){
+                                                if(Ext.isEmpty(get_cookie('qo-orders.addOrderShipment'))){
+                                                      Ext.getCmp("addOrderShipment").enable();    
+                                                }
+                                    }
+                        }
                         },{
+                        id: 'addOrderShipment',
                         text: 'Create Shipment',
                         //tooltip: 'Great tooltips...',
+                        disabled: true,
+                        //disabled: (get_cookie('qo-orders.addOrderShipment') == 0)?true:false,
                         handler: function(){
                                     var toolbar = orderShipmentGrid.getBottomToolbar();
                                     if(Ext.isEmpty(toolbar.items.items[0].value)){
@@ -1686,6 +1876,7 @@ Ext.onReady(function(){
                                 ],
                                 buttons: [{
                                     text: 'Save',
+                                    disabled: (get_cookie('qo-orders.updateOrder') == 0)?true:false,
                                     handler: function(){
                                         orderDetailForm.getForm().submit({
                                             url: "connect.php?moduleId=qo-orders&action=updateOrder",

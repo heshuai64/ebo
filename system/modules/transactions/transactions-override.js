@@ -279,12 +279,14 @@ Ext.override(QoDesk.Transactions, {
                           }],
                         buttons: [{
                             text: lang.transactions.submit,
+			    disabled: (get_cookie('qo-transactions.searchTransaction') == 0)?true:false,
                             handler: function(){
 				searchTransaction();
                                 win.close();
 			    }
                         },{
                             text: lang.transactions.create_transactions,
+			    disabled: (get_cookie('qo-transactions.createTransaction') == 0)?true:false,
                             handler: function(){
 				
 			    }

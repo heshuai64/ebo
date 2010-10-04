@@ -7,7 +7,7 @@ require_once __DOCCLASS__ . '/PHPExcel/IOFactory.php';
 
 class eBayBOExcel{
 	private static $database_connect;
-	const FILE_PATH = '/export/eBayBO/doc/';
+	const FILE_PATH = '/export/eBayBO/excel/';
 	private static $inventory_service;
 	private static $php_excel;
 	private $startTime;
@@ -300,19 +300,20 @@ class eBayBOExcel{
 		$this->php_excel->setActiveSheetIndex(0);
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, 'No');
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, 'Account');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, 'Shipment Id');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, 'Resend Reason');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 1, 'Country');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, 1, 'Shipping Method');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(6, 1, 'Sku');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(7, 1, 'Quantity');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(8, 1, 'Created Date');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(9, 1, 'Resent Date');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(10, 1, 'Cost');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(11, 1, 'Weight(KG)');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(12, 1, 'Postage');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, 'Buy Email');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, 'Shipment Id');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 1, 'Resend Reason');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, 1, 'Country');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(6, 1, 'Shipping Method');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(7, 1, 'Sku');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(8, 1, 'Quantity');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(9, 1, 'Created Date');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(10, 1, 'Resent Date');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(11, 1, 'Cost');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(12, 1, 'Weight(KG)');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(13, 1, 'Postage');
 		
-		$sql = "select s.id,o.sellerId,s.ordersId,s.shipmentReason,s.shipmentMethod,s.createdOn,s.modifiedOn,s.shipToCountry from qo_shipments as s left join qo_orders as o on s.ordersId = o.id where s.shipmentReason <> '' and s.shipmentReason <> '1' and s.modifiedOn between '".$start."' and '".$end."'";
+		$sql = "select s.id,o.sellerId,s.shipToEmail,s.ordersId,s.shipmentReason,s.shipmentMethod,s.createdOn,s.modifiedOn,s.shipToCountry from qo_shipments as s left join qo_orders as o on s.ordersId = o.id where s.shipmentReason <> '' and s.shipmentReason <> '1' and s.modifiedOn between '".$start."' and '".$end."'";
 		$result = mysql_query($sql, eBayBOExcel::$database_connect);
 		$i = 2;
 		while($row = mysql_fetch_assoc($result)){
@@ -341,6 +342,7 @@ class eBayBOExcel{
 			$sku = substr($sku, 0, -2);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $i-1);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['sellerId']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['shipToEmail']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['id']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $this->getShipmentReason($row['shipmentReason']));
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['shipToCountry']);
@@ -427,6 +429,7 @@ class eBayBOExcel{
 	}
 	
 	public function refundStatistics(){
+		/*
 		$this->php_excel->setActiveSheetIndex(0);
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, '卖家账户');
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, '买家邮箱地址');
@@ -450,6 +453,34 @@ class eBayBOExcel{
 		}
 		$writer = PHPExcel_IOFactory::createWriter($this->php_excel, 'Excel5');
 		$writer->save($this->getFilePath('refundStatistics.xls'));
+		*/
+		$this->php_excel->setActiveSheetIndex(0);
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, 'PayeeId');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, 'PayerEmail');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, 'Refund Currency');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, 'Refund Amount');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 1, 'Refund Reason');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, 1, 'Refund Remark');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(6, 1, 'Refund Date');
+		
+	
+		$sql = "select * from qo_transactions where status = 'J' and createdOn between '".$this->startTime."' and '".$this->endTime."'";
+		$result = mysql_query($sql, eBayBOExcel::$database_connect);
+		$i = 2;
+		while($row = mysql_fetch_assoc($result)){
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, $i, $row['payeeId']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, $i, $row['payerEmail']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, $i, $row['amountCurrency']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, $i, $row['amountValue']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, $i, $row['transactionReason']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, $i, $row['remarks']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(6, $i, $row['createdOn']);
+			$i++;
+		}
+		$writer = PHPExcel_IOFactory::createWriter($this->php_excel, 'Excel5');
+		$file_name = 'refund-list('.substr($this->startTime, 0, 10)." --".substr($this->endTime, 0, 10).').xls';
+		$writer->save(eBayBOExcel::FILE_PATH.$file_name);
+		echo '<a href="http://rich2010.3322.org:8888/eBayBO/excel/'.$file_name.'" >Download</a>';
 	}
 	
 	public function resentShipmentStatistics(){

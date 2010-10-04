@@ -15,7 +15,7 @@ Ext.override(QoDesk.Manage, {
 	}
 		
 	var userManage = function(){
-	    var active_data = [['1','是'],['0','否']];
+	    var active_data = [['1', lang.yes],['0', lang.no]];
 	    var userManageWin = desktop.getWindow('user-manage-win');
 	    var store = new Ext.data.JsonStore({
 		autoLoad: true,
@@ -25,13 +25,13 @@ Ext.override(QoDesk.Manage, {
 	    });
 	    
 	    var notifyWin = desktop.showNotification({
-		html: '加载用户信息中...', 
-		title: '请等待'
+		html: lang.loading, 
+		title: lang.waiting
 	    });
 	    
 	    var loadMemberInfComplete = function(S, r){
 		var group = S.reader.jsonData.result.group_info;
-		saveComplete(notifyWin, '完成', '加载用户信息成功.');
+		saveComplete(notifyWin, lang.complete, lang.load_user_info_complete);
 		//console.log(group);
 		
 		var showGroupName = function(val){
@@ -44,9 +44,9 @@ Ext.override(QoDesk.Manage, {
 		
 		var showActive = function(val){
 		    if(val == "1"){
-			return "是";
+			return lang.yes;
 		    }else{
-			return "否";
+			return lang.no;
 		    }
 		}
 	    
@@ -66,10 +66,10 @@ Ext.override(QoDesk.Manage, {
 				store: store,
 				columns:[
 					{id:'id', header: "id", width: 0, sortable: true, hidden:true, dataIndex: 'id'},
-					{header: "用户名", width: 75, sortable: true,  dataIndex: 'email_address'},
-					{header: "密码", width: 75, sortable: true, dataIndex: 'password'},
-					{header: "激活", width: 75, sortable: true, dataIndex: 'active', renderer: showActive},
-					{header: "组", width: 75, sortable: true, dataIndex: 'group_id', renderer: showGroupName}
+					{header: lang.user_name, width: 75, sortable: true,  dataIndex: 'email_address'},
+					{header: lang.password, width: 75, sortable: true, dataIndex: 'password'},
+					{header: lang.active, width: 75, sortable: true, dataIndex: 'active', renderer: showActive},
+					{header: lang.user_group, width: 75, sortable: true, dataIndex: 'group_id', renderer: showGroupName}
 				    ],
 				sm: new Ext.grid.RowSelectionModel({
 				    singleSelect: true,
@@ -80,7 +80,7 @@ Ext.override(QoDesk.Manage, {
 				    }
 				}),
 				height: 350,
-				title:'用户列表',
+				title: lang.user_list,
 				border: true,
 				listeners: {
 					render: function(g) {
@@ -108,14 +108,14 @@ Ext.override(QoDesk.Manage, {
 			    fieldLabel: 'Id',
 			    name: 'id'
 			},{
-			    fieldLabel: '用户名',
+			    fieldLabel: lang.user_name,
 			    name: 'email_address'
 			},{
-			    fieldLabel: '密码',
+			    fieldLabel: lang.password,
 			    name: 'password'
 			},{
 			    xtype:"combo",
-			    fieldLabel: '激活',
+			    fieldLabel: lang.active,
 			    mode: 'local',
 			    store: new Ext.data.SimpleStore({
 				fields: ['active_id', 'active_name'],
@@ -132,7 +132,7 @@ Ext.override(QoDesk.Manage, {
 			    hiddenName:'active'
 			},{
 			    xtype: 'combo',
-			    fieldLabel: '用户组',
+			    fieldLabel: lang.user_group,
 			    mode: 'local',
 			    store: new Ext.data.JsonStore({
 				fields: ['group_id', 'group_name'],
@@ -149,7 +149,7 @@ Ext.override(QoDesk.Manage, {
 			]
 		    }],
 		    buttons: [{
-			text: '添加用户',
+			text: lang.add_user,
 			handler: function(){
 			    var addUserForm = new Ext.FormPanel({
 				frame: true,
@@ -158,14 +158,14 @@ Ext.override(QoDesk.Manage, {
 				labelWidth:50,
 				defaultType: 'textfield',
 				items:[{
-					fieldLabel: '用户名',
+					fieldLabel: lang.user_name,
 					name: 'email_address'
 				    },{
-					fieldLabel: '密码',
+					fieldLabel: lang.password,
 					name: 'password'
 				    },{
 					xtype:"combo",
-					fieldLabel: '激活',
+					fieldLabel: lang.active,
 					mode: 'local',
 					store: new Ext.data.SimpleStore({
 					    fields: ['active_id', 'active_name'],
@@ -182,7 +182,7 @@ Ext.override(QoDesk.Manage, {
 					hiddenName:'active'
 				    },{
 					xtype: 'combo',
-					fieldLabel: '用户组',
+					fieldLabel: lang.user_group,
 					mode: 'local',
 					store: new Ext.data.JsonStore({
 					    fields: ['group_id', 'group_name'],
@@ -199,7 +199,7 @@ Ext.override(QoDesk.Manage, {
 					hiddenName:'group_id'
 				    }],
 				buttons: [{
-				    text: '保存',
+				    text: lang.save,
 				    handler: function(){
 					Ext.Ajax.request({
 					    waitMsg: 'Please wait...',
@@ -232,7 +232,7 @@ Ext.override(QoDesk.Manage, {
 			    });
 			    
 			    addUserWin = desktop.createWindow({
-				title:'添加用户',
+				title: lang.add_user,
 				width:260,
 				height:200,
 				iconCls: 'user-manage-icon',
@@ -246,11 +246,11 @@ Ext.override(QoDesk.Manage, {
 			    addUserWin.show();
 			}
 		    },{
-			text: '保存选中的用户',
+			text: lang.save_selected_user_info,
 			handler: function(){
 			    var notifyWin = desktop.showNotification({
-				    html: '保存用户信息中...'
-				    , title: '请等待'
+				    html: lang.saving,
+				    title: lang.waiting
 			    });
 			    var memberForm = Ext.getCmp("user-manage-form").getForm();
 			    
@@ -265,16 +265,16 @@ Ext.override(QoDesk.Manage, {
 				},
 				success: function(o){
 				    store.reload();
-				    saveComplete(notifyWin, '完成', '保存用户信息成功.');
+				    saveComplete(notifyWin, lang.complete, lang.save_user_inf_success);
 				},
 				failure: function(){
-				    saveComplete(notifyWin, 'Error', 'Lost connection to server.');
+				    saveComplete(notifyWin, lang.error, lang.connect_lost);
 				},
 				scope: this
 			    });
 			}
 		    },{
-			text: '删除选中用户',
+			text: lang.delete_selected_user,
 			handler: function(){
 			    Ext.Ajax.request({
 				waitMsg: 'Please wait...',
@@ -300,7 +300,7 @@ Ext.override(QoDesk.Manage, {
 			    });		
 			}
 		    },{
-			text: '关闭',
+			text: lang.close,
 			handler: function(){
 			    userManageWin.close();
 			}
@@ -309,7 +309,7 @@ Ext.override(QoDesk.Manage, {
 		if(!userManageWin){		
 		    userManageWin = desktop.createWindow({
 			id: 'user-manage-win',
-			title:'用户管理',
+			title: lang.user_manager,
 			width:600,
 			height:500,
 			iconCls: 'user-manage-icon',
@@ -331,7 +331,7 @@ Ext.override(QoDesk.Manage, {
 	}
 	
 	var groupManage = function(){
-	    var active_data = [['1','是'],['0','否']];
+	    var active_data = [['1', lang.yes], ['0', lang.no]];
 	    var groupManageWin = desktop.getWindow('group-manage-win');
 	    var store = new Ext.data.JsonStore({
 		autoLoad: true,
@@ -341,9 +341,9 @@ Ext.override(QoDesk.Manage, {
 	    
 	    var showActive = function(val){
 		if(val == "1"){
-		    return "是";
+		    return lang.yes;
 		}else{
-		    return "否";
+		    return lang.no;
 		}
 	    }
 	    
@@ -357,17 +357,17 @@ Ext.override(QoDesk.Manage, {
 		    hidden: true,
 		    sortable: true
 		},{
-		    header: "组名",
+		    header: lang.user_group_name,
 		    dataIndex: 'name',
 		    width: 90,
 		    sortable: true
 		},{
-		    header: "描述",
+		    header: lang.user_group_des,
 		    dataIndex: 'description',
 		    width: 200,
 		    sortable: true
 		},{
-		    header: "激活",
+		    header: lang.active,
 		    dataIndex: 'active',
 		    width: 50,
 		    renderer: showActive,
@@ -383,7 +383,7 @@ Ext.override(QoDesk.Manage, {
 		}),
 		//autoExpandColumn: 'company',
 		height: 350,
-		title:'用户组列表',
+		title: lang.user_group_list,
 		border: true,
 		listeners: {
 			render: function(g) {
@@ -421,14 +421,14 @@ Ext.override(QoDesk.Manage, {
 			fieldLabel: 'Id',
 			name: 'id'
 		    },{
-			fieldLabel: '组名',
+			fieldLabel: lang.user_group_name,
 			name: 'name'
 		    },{
-			fieldLabel: '描述',
+			fieldLabel: lang.user_group_des,
 			name: 'description'
 		    },{
 			xtype:"combo",
-			fieldLabel: '激活',
+			fieldLabel: lang.active,
 			mode: 'local',
 			store: new Ext.data.SimpleStore({
 			    fields: ['active_id', 'active_name'],
@@ -446,7 +446,7 @@ Ext.override(QoDesk.Manage, {
 		    }]
 		}],
 		buttons: [{
-		    text: '添加用户组',
+		    text: lang.add_user_group,
 		    handler: function(){
 			var addGroupForm = new Ext.FormPanel({
 			    frame: true,
@@ -455,15 +455,15 @@ Ext.override(QoDesk.Manage, {
 			    labelWidth:50,
 			    items:[{
 				xtype:"textfield",
-				fieldLabel: '组名',
+				fieldLabel: lang.user_group_name,
 				name: 'name'
 			    },{
 				xtype:"textfield",
-				fieldLabel: '描述',
+				fieldLabel: lang.user_group_des,
 				name: 'description'
 			    },{
 				xtype:"combo",
-				fieldLabel: '激活',
+				fieldLabel: lang.active,
 				mode: 'local',
 				store: new Ext.data.SimpleStore({
 				    fields: ['active_id', 'active_name'],
@@ -480,7 +480,7 @@ Ext.override(QoDesk.Manage, {
 				hiddenName:'active'
 			    }],
 			    buttons: [{
-				text: '保存',
+				text: lang.save,
 				handler: function(){
 				     Ext.Ajax.request({
 					waitMsg: 'Please wait...',
@@ -511,7 +511,7 @@ Ext.override(QoDesk.Manage, {
 			    }]
 			});
 			addGroupWin = desktop.createWindow({
-			    title:'添加用户组',
+			    title: lang.add_user_group,
 			    width:260,
 			    height:200,
 			    iconCls: 'group-manage-icon',
@@ -520,16 +520,16 @@ Ext.override(QoDesk.Manage, {
 			    constrainHeader:true,
 			    layout: 'fit',
 			    items:addGroupForm,
-			    taskbuttonTooltip: '<b>添加用户组</b><br />添加一个用户组'
+			    taskbuttonTooltip: lang.add_user_group_tooltip
 			});
 			addGroupWin.show();
 		    }
 		},{
-		    text: '保存选中的组',
+		    text: lang.save_selected_user_group_info,
 		    handler: function(){
 			var notifyWin = desktop.showNotification({
-				html: '保存信息中...',
-				title: '请等待'
+				html: lang.saving,
+				title: lang.waiting
 			});
 			var form = Ext.getCmp("group-manage-form").getForm();
 			Ext.Ajax.request({
@@ -542,20 +542,20 @@ Ext.override(QoDesk.Manage, {
 			    },
 			    success: function(o){
 				store.reload();
-				saveComplete(notifyWin, '完成', '保存用户组成功.');
+				saveComplete(notifyWin, lang.save, lang.save_user_group_info_success);
 			    },
 			    failure: function(){
-				saveComplete(notifyWin, 'Error', 'Lost connection to server.');
+				saveComplete(notifyWin, lang.error, lang.connect_lost);
 			    },
 			    scope: this
 			});
 		    }
 		},{
-		    text: '删除选中的组',
+		    text: lang.delete_selected_group,
 		    handler: function(){
 			var notifyWin = desktop.showNotification({
-				html: '删除中...',
-				title: '请等待'
+				html: lang.deleting,
+				title: lang.waiting
 			});
 			var form = Ext.getCmp("group-manage-form").getForm();
 			Ext.Ajax.request({
@@ -565,16 +565,16 @@ Ext.override(QoDesk.Manage, {
 			    },
 			    success: function(o){
 				store.reload();
-				saveComplete(notifyWin, '完成', '删除用户组成功.');
+				saveComplete(notifyWin, lang.complete, lang.delete_selected_group_success);
 			    },
 			    failure: function(){
-				saveComplete(notifyWin, 'Error', 'Lost connection to server.');
+				saveComplete(notifyWin, lang.error, lang.connect_lost);
 			    },
 			    scope: this
 			});
 		    }
 		},{
-		    text: '关闭',
+		    text: lang.close,
 		    handler: function(){
 			groupManageWin.close();
 		    }
@@ -582,16 +582,16 @@ Ext.override(QoDesk.Manage, {
 	    });
 	    
 	    var notifyWin = desktop.showNotification({
-		html: '加载用户组信息中...',
-		title: '请等待'
+		html: lang.loading,
+		title: lang.waiting
 	    });
 	    
 	    var loadGroupInfoComplete = function(){
 		if(!groupManageWin){
-		    saveComplete(notifyWin, '完成', '加载用户组信息成功.');
+		    saveComplete(notifyWin, lang.complete, load_user_group_complete);
 		    groupManageWin = desktop.createWindow({
 			id: 'group-manage-win',
-			title:'用户组管理',
+			title: lang.user_group_manager,
 			width:600,
 			height:500,
 			iconCls: 'group-manage-icon',
@@ -600,7 +600,7 @@ Ext.override(QoDesk.Manage, {
 			constrainHeader:true,
 			layout: 'fit',
 			items: gridForm,
-			taskbuttonTooltip: '<b>用户组管理</b><br />添加、修改、删除用户组'
+			taskbuttonTooltip: lang.user_group_manager_tooltip
 		    });
 		    groupManageWin.show();
 		}else{
@@ -614,8 +614,8 @@ Ext.override(QoDesk.Manage, {
 	    var privilegeManageWin = desktop.getWindow('privilege-manage-win');
 	    if(!privilegeManageWin){
 		var notifyWin = desktop.showNotification({
-			html: '加载权限信息中...',
-			title: '请等待'
+			html: lang.loading,
+			title: lang.waiting
 		});
 		
 		Ext.Ajax.request({
@@ -623,7 +623,7 @@ Ext.override(QoDesk.Manage, {
 			params: 'moduleId=qo-manage&action=getPrivilegeInfo',
 			success: function(o){
 				if(o && o.responseText){
-				    saveComplete(notifyWin, '完成', '加载权限信息成功.');
+				    saveComplete(notifyWin, lang.complete, lang.load_privilege_info_success);
 				    var data = eval(o.responseText);
 				    var groupHtml = "";
 				    var checked = "";
@@ -632,7 +632,7 @@ Ext.override(QoDesk.Manage, {
 				    
 				    privilegeManageWin = desktop.createWindow({
 					id: 'privilege-manage-win',
-					title:'权限管理',
+					title: lang.privilege_manager,
 					width:600,
 					height:500,
 					iconCls: 'privilege-manage-icon',
@@ -642,15 +642,15 @@ Ext.override(QoDesk.Manage, {
 					constrainHeader:true,
 					layout: 'fit',
 					html: formHtml,
-					taskbuttonTooltip: '<b>权限管理</b><br />设置权限于相应的功能'
+					taskbuttonTooltip: lang.privilege_manager_tooltip
 				    });
 				    privilegeManageWin.show(); 
 				}else{
-				    saveComplete(notifyWin, '失败', '加载组权限信息失败.');
+				    saveComplete(notifyWin, lang.failure, lang.load_privilege_info_failure);
 				}
 			},
 			failure: function(){
-				saveComplete(notifyWin, '失败', '不能连接服务器.');
+				saveComplete(notifyWin, lang.error, lang.connect_lost);
 			},
 			scope: this
 		});
@@ -664,8 +664,8 @@ Ext.override(QoDesk.Manage, {
 	    var groupPrivilegeManageWin = desktop.getWindow('group-privilege-manage-win');
 	    if(!groupPrivilegeManageWin){
 		var notifyWin = desktop.showNotification({
-			html: '加载组权限信息中...',
-			title: '请等待'
+			html: lang.loading,
+			title: lang.waiting
 		});
 				
 		Ext.Ajax.request({
@@ -673,7 +673,142 @@ Ext.override(QoDesk.Manage, {
 			params: 'moduleId=qo-manage&action=getGroupDomainPrivilege',
 			success: function(o){
 				if(o && o.responseText){
-				    saveComplete(notifyWin, '完成', '加载组权限信息成功.');
+				    
+				    groupPrivilegeDetailManage = function(t, gpi){
+					var temp = gpi.split("_");
+					var group_id = temp[0];
+					var privilege_id = temp[1];
+					
+					if(t.checked == true){
+					    var groupPrivilegeDetailManageWin = desktop.getWindow('group-privilege-detail-manage-win-'+gpi);
+					    if(!groupPrivilegeDetailManageWin){
+						var notifyWin = desktop.showNotification({
+							html: lang.loading,
+							title: lang.waiting
+						});
+						
+						Ext.Ajax.request({
+						    url: 'connect.php',
+						    params: 'moduleId=qo-manage&action=getGroupPrivilegeDetail&data='+gpi,
+						    success: function(o){
+							saveComplete(notifyWin, lang.complete, lang.load_group_privilege_detail_success);
+							
+							var data = eval(o.responseText);
+							var actionHtml = "";
+							for(i in data){
+							    if(Ext.isEmpty(data[i].description)){
+								continue;
+							    }
+							    checked = '';
+							    if(data[i].active == 1){
+								checked = 'checked="checked"';
+							    }
+							    actionHtml += '<div style="float: left; width: 180px;"><input class="privilege-action" id="'+data[i].id+'" '+checked+' type="checkbox" />' + data[i].description + '<img width="12px" src="resources/images/default/s.gif"/></div>';
+							    /*
+							    j = i + 1;
+							    if(j % 3 == 0){
+								actionHtml += "<br>";
+							    }
+							    */
+							}
+							
+							var actionFormHtml = '<form id="group-privilege-detail-form">'+actionHtml+'\
+							<div style="clear: left; text-align:center;">\
+							    <button id="active-select-all" type="button">'+lang.select_all+'</button>\
+							    <button id="active-unselect-all" type="button">'+lang.unselect_all+'</button>\
+							    <button id="active-save" type="button">'+lang.save+'</button>\
+							    <button id="active-close" type="button">'+lang.close+'</button>\
+							</div></form>';
+							
+							groupPrivilegeDetailManageWin = desktop.createWindow({
+							    id: 'group-privilege-detail-manage-win-'+gpi,
+							    title: lang.group_privilege_detail_manager,
+							    width:560,
+							    height:250,
+							    iconCls: 'group-privilege-manage-icon',
+							    shim:false,
+							    autoScroll: true,
+							    animCollapse:false,
+							    constrainHeader:true,
+							    layout: 'fit',
+							    html: actionFormHtml,
+							    taskbuttonTooltip: lang.group_privilege_detail_tooltip
+							});
+							groupPrivilegeDetailManageWin.show();
+							
+							var saveGroupPrivilegeDetailInfo = function(){
+							    var p = "";
+							    var test = function(p1){
+								if(p1.checked){
+								    p += p1.id + "=1,";
+								}else{
+								    p += p1.id + "=0,";
+								}
+							    }
+							   
+							    Ext.each(Ext.query("input[class=privilege-action]"), test);
+							    //console.log(p);
+							    
+							    Ext.Ajax.request({
+								waitMsg: 'Please wait...',
+								url: 'connect.php?moduleId=qo-manage&action=updateGroupPrivilegeDetail&group_id='+group_id+'&privilege_id='+privilege_id+'&data='+p,
+								success: function(response){
+								    var result = eval(response.responseText);
+								    switch (result) {
+									case 1:
+									    //Ext.MessageBox.alert('Success', 'Save Success!');
+									    groupPrivilegeDetailManageWin.close();
+									    break;
+									default:
+									    Ext.MessageBox.alert('Uh uh...', 'We couldn\'t save him...');
+									    break;
+								    }
+								},
+								failure: function(response){
+								    var result = response.responseText;
+								    Ext.MessageBox.alert('error', 'could not connect to the database. retry later');
+								}
+							    });		    
+							}
+							
+							var closeGroupPrivilegeDetailWindow = function(){
+							    groupPrivilegeDetailManageWin.close();
+							}
+							
+							var selectAllPrivilegeDetailInfo = function(){
+							    var test1 = function(p1){
+								p1.checked = "checked";
+							    }
+							    Ext.each(Ext.query("input[class=privilege-action]"), test1);
+							}
+							
+							var unselectAllPrivilegeDetailInfo = function(){
+							    var test1 = function(p1){
+								p1.checked = "";
+							    }
+							    Ext.each(Ext.query("input[class=privilege-action]"), test1);
+							}
+							
+							Ext.EventManager.addListener("active-select-all", "click", selectAllPrivilegeDetailInfo);
+							Ext.EventManager.addListener("active-unselect-all", "click", unselectAllPrivilegeDetailInfo);
+							Ext.EventManager.addListener("active-save", "click", saveGroupPrivilegeDetailInfo);
+							Ext.EventManager.addListener("active-close", "click", closeGroupPrivilegeDetailWindow);
+						    },
+						    failure: function(){
+							saveComplete(notifyWin, lang.error, lang.connect_lost);
+						    },
+						    scope: this
+						})
+						
+					    }else{
+						groupPrivilegeDetailManageWin.show();
+					    }
+					}else{
+					    
+					}
+				    }
+				    
+				    saveComplete(notifyWin, lang.complete, lang.load_group_privilege_detail_success);
 				    var data = eval(o.responseText);
 				    var groupHtml = "";
 				    //console.log(data[0].group_privilege);
@@ -720,7 +855,7 @@ Ext.override(QoDesk.Manage, {
 								    if(data[0].group_domain_privilege[k].is_allowed == "1"){
 									checked = 'checked="checked"';
 								    }
-								    groupHtml += '<input id="'+data[0].group[i].id+"_"+data[0].privilege[j].id+'" '+checked+' type="checkbox"/>      ' + data[0].privilege[j].name + '<img width="12px" src="resources/images/default/s.gif"/>'; 
+								    groupHtml += '<input class="group-privilege" id="'+data[0].group[i].id+"_"+data[0].privilege[j].id+'" '+checked+' type="checkbox" onclick="groupPrivilegeDetailManage(this, \''+data[0].group[i].id+"_"+data[0].privilege[j].id+'\')" />      ' + data[0].privilege[j].name + '<img width="12px" src="resources/images/default/s.gif"/>'; 
 							    }
 							}
 						    }
@@ -730,12 +865,12 @@ Ext.override(QoDesk.Manage, {
 					}
 				    }
 				    var formHtml = '<form id="group-privilege-form">'+groupHtml+'\
-						    <div style="text-align:center;"><button id="save" type="button">保存</button>\
-						         <button id="close" type="button">关闭</button>\
+						    <div style="text-align:center;"><button id="save" type="button">'+lang.save+'</button>\
+						         <button id="close" type="button">'+lang.close+'</button>\
 						    </div></form>';
 				    groupPrivilegeManageWin = desktop.createWindow({
 					id: 'group-privilege-manage-win',
-					title:'组权限管理',
+					title: lang.group_privilege_manager,
 					width:600,
 					height:500,
 					iconCls: 'group-privilege-manage-icon',
@@ -745,7 +880,7 @@ Ext.override(QoDesk.Manage, {
 					constrainHeader:true,
 					layout: 'fit',
 					html: formHtml,
-					taskbuttonTooltip: '<b>组权限管理</b><br />管理用户组的权限'
+					taskbuttonTooltip: lang.group_privilege_manager_tooltip
 				    });
 				    groupPrivilegeManageWin.show();
 				    
@@ -759,7 +894,7 @@ Ext.override(QoDesk.Manage, {
 						}
 					    }
 					   
-					    Ext.each(Ext.query("input"), test);
+					    Ext.each(Ext.query("input[class=group-privilege]"), test);
 					    //console.log(p);
 					    
 					    Ext.Ajax.request({
@@ -790,11 +925,11 @@ Ext.override(QoDesk.Manage, {
 				    Ext.EventManager.addListener("save", "click", saveGroupPrivilegeInfo);
 				    Ext.EventManager.addListener("close", "click", closeGroupPrivilegeWindow);
 				}else{
-				    saveComplete(notifyWin, '失败', '加载组权限信息失败.');
+				    saveComplete(notifyWin, lang.failure, lang.load_group_privilege_info_failure);
 				}
 			},
 			failure: function(){
-				saveComplete(notifyWin, '失败', '不能连接服务器.');
+				saveComplete(notifyWin, lang.error, lang.connect_lost);
 			},
 			scope: this
 		});
@@ -842,7 +977,7 @@ Ext.override(QoDesk.Manage, {
 					}
 				    }),
 				    height: 350,
-				    title:'eBay账户列表',
+				    title: lang.ebay_account_list,
 				    border: true,
 				    listeners: {
 					    render: function(g) {
@@ -927,7 +1062,7 @@ Ext.override(QoDesk.Manage, {
 			    }]
 		    }],
 			buttons: [{
-			    text: '保存选中的eBay账户',
+			    text: lang.save_selected_ebay_account_info,
 			    handler: function(){
 				Ext.Ajax.request({
 				    waitMsg: 'Please wait...',
@@ -963,7 +1098,7 @@ Ext.override(QoDesk.Manage, {
 				});		
 			    }
 			},{
-			    text: '添加eBay账户',
+			    text: lang.add_ebay_account,
 			    handler: function(){
 				var addEbaySellerForm = new Ext.FormPanel({
 				    frame: true,
@@ -1032,7 +1167,7 @@ Ext.override(QoDesk.Manage, {
 					name:"token"
 				    }],
 				    buttons: [{
-					text: '保存',
+					text: lang.save,
 					handler: function(){
 					     Ext.Ajax.request({
 						waitMsg: 'Please wait...',
@@ -1070,7 +1205,7 @@ Ext.override(QoDesk.Manage, {
 				    }]
 				});
 				addEbaySellerWin = desktop.createWindow({
-				    title:'添加eBay账户',
+				    title: lang.add_ebay_account,
 				    width:600,
 				    height:500,
 				    iconCls: 'ebay-manage-icon',
@@ -1079,12 +1214,12 @@ Ext.override(QoDesk.Manage, {
 				    constrainHeader:true,
 				    layout: 'fit',
 				    items:addEbaySellerForm,
-				    taskbuttonTooltip: '<b>添加eBay账户</b><br />添加eBay账户'
+				    taskbuttonTooltip: lang.add_ebay_account_tooltip
 				});
 				addEbaySellerWin.show();
 			    }
 			},{
-			    text: '删除账户',
+			    text: lang.delete_selected_ebay_account,
 			    handler: function(){
 				//console.log(Ext.getCmp("ebay-manage-grid").getSelectionModel().getSelected());
 				Ext.Ajax.request({
@@ -1111,7 +1246,7 @@ Ext.override(QoDesk.Manage, {
 				});		
 			    }
 			},{
-			    text: '关闭',
+			    text: lang.close,
 			    handler: function(){
 				ebayManageWin.close();
 			    }
@@ -1120,7 +1255,7 @@ Ext.override(QoDesk.Manage, {
 				
 		ebayManageWin = desktop.createWindow({
 		    id: 'ebay-manage-win',
-		    title:'eBay账户管理',
+		    title: lang.ebay_account_manager,
 		    width:720,
 		    height:500,
 		    iconCls: 'ebay-manage-icon',
@@ -1129,7 +1264,7 @@ Ext.override(QoDesk.Manage, {
 		    constrainHeader:true,
 		    layout: 'fit',
 		    items:ebayManageForm,
-		    taskbuttonTooltip: '<b>eBay账户管理</b><br />管理eBay帐号'
+		    taskbuttonTooltip: lang.ebay_account_manager_tooltip
 		});
 	    }
 	    ebayManageWin.show();
@@ -1147,14 +1282,14 @@ Ext.override(QoDesk.Manage, {
 	    });
 	    
 	    var notifyWin = desktop.showNotification({
-				   html: '加载信息中...', 
-				   title: '请等待'
+				   html: lang.loading, 
+				   title: lang.waiting
 			       });
 	     
 	    var loadComplete = function(S, r){
 		if(!ebayProxyManageWin){
 		    var seller = S.reader.jsonData.result.seller;
-		    saveComplete(notifyWin, '完成', '加载eBay代理信息成功.');
+		    saveComplete(notifyWin, lang.complete, lang.load_ebay_account_proxy_service_success);
 		    
 		    
 		    var gridForm = new Ext.FormPanel({
@@ -1173,9 +1308,9 @@ Ext.override(QoDesk.Manage, {
 				    store: store,
 				    columns:[
 					    {header: "id", width: 0, sortable: true,  dataIndex: 'id', hidden:true},
-					    {header: "eBay帐号", width: 135, sortable: true,  dataIndex: 'ebay_seller_id'},
-					    {header: "代理主机", width: 125, sortable: true, dataIndex: 'proxy_host'},
-					    {header: "代理端口", width: 40, sortable: true, dataIndex: 'proxy_port'}
+					    {header: lang.ebay_account, width: 135, sortable: true,  dataIndex: 'ebay_seller_id'},
+					    {header: lang.proxy_host, width: 125, sortable: true, dataIndex: 'proxy_host'},
+					    {header: lang.proxy_port, width: 40, sortable: true, dataIndex: 'proxy_port'}
 					],
 				    sm: new Ext.grid.RowSelectionModel({
 					singleSelect: true,
@@ -1213,7 +1348,7 @@ Ext.override(QoDesk.Manage, {
 				name:'id'
 				},{
 				xtype: 'combo',
-				fieldLabel: 'eBay帐号',
+				fieldLabel: lang.ebay_account,
 				mode: 'local',
 				store: new Ext.data.JsonStore({
 				    fields: ['ebay_seller_id', 'ebay_seller_name'],
@@ -1227,15 +1362,15 @@ Ext.override(QoDesk.Manage, {
 				name: 'ebay_seller_id',
 				hiddenName:'ebay_seller_id'
 			    },{
-				fieldLabel: '代理主机',
+				fieldLabel: lang.proxy_host,
 				name: 'proxy_host'
 			    },{
-				fieldLabel: '代理端口',
+				fieldLabel: lang.proxy_port,
 				name: 'proxy_port'
 			    }]
 			}],
 			buttons: [{
-			    text: '添加eBay代理',
+			    text: lang.add_proxy_service,
 			    handler: function(){
 				var add_ebay_proxy_form =  form = new Ext.FormPanel({
 				    labelAlign: 'top',
@@ -1243,7 +1378,7 @@ Ext.override(QoDesk.Manage, {
 				    defaultType: 'textfield',
 				    items: [{
 					    xtype: 'combo',
-					    fieldLabel: 'eBay帐号',
+					    fieldLabel: lang.ebay_account,
 					    mode: 'local',
 					    store: new Ext.data.JsonStore({
 						fields: ['ebay_seller_id', 'ebay_seller_name'],
@@ -1257,17 +1392,17 @@ Ext.override(QoDesk.Manage, {
 					    name: 'ebay_seller_id',
 					    hiddenName:'ebay_seller_id'
 					},{
-					    fieldLabel: '代理主机',
+					    fieldLabel: lang.proxy_host,
 					    name: 'proxy_host'
 					},{
-					    fieldLabel: '代理端口',
+					    fieldLabel: lang.proxy_port,
 					    name: 'proxy_port'
 					}]
 				})
 				
 				var addeBayProxyWindow = desktop.createWindow({
 				    id: 'add_ebay_proxy_win',
-				    title: '添加eBay代理' ,
+				    title: lang.add_proxy_service,
 				    closable:true,
 				    width: 400,
 				    height: 300,
@@ -1275,9 +1410,9 @@ Ext.override(QoDesk.Manage, {
 				    plain:true,
 				    layout: 'fit',
 				    items: add_ebay_proxy_form,
-				    taskbuttonTooltip: '<b>添加eBay代理</b><br />添加代理并绑定到相应的eBay账户',
+				    taskbuttonTooltip: lang.add_ebay_proxy_tooltip,
 				    buttons: [{
-					text: '保存',
+					text: lang.save,
 					handler: function(){
 					    Ext.Ajax.request({
 						waitMsg: 'Please wait...',
@@ -1306,7 +1441,7 @@ Ext.override(QoDesk.Manage, {
 					    });		
 					}
 				    },{
-					text: '关闭',
+					text: lang.close,
 					handler: function(){
 					      addeBayProxyWindow.close();
 					}
@@ -1316,11 +1451,11 @@ Ext.override(QoDesk.Manage, {
 				console.log(addeBayProxyWindow);
 			    }
 			},{
-			    text: '保存选中的eBay代理',
+			    text: lang.save_selected_ebay_proxy,
 			    handler: function(){
 				var notifyWin = desktop.showNotification({
-					html: '保存信息中...',
-					title: '请等待'
+					html: lang.saving,
+					title: lang.waiting
 				});
 				var form = Ext.getCmp("ebay-proxy-manage-form").getForm();
 				Ext.Ajax.request({
@@ -1333,20 +1468,20 @@ Ext.override(QoDesk.Manage, {
 				    },
 				    success: function(o){
 					store.reload();
-					saveComplete(notifyWin, '完成', '保存eBay代理成功.');
+					saveComplete(notifyWin, lang.complete, lang.save_selected_ebay_proxy_success);
 				    },
 				    failure: function(){
-					saveComplete(notifyWin, 'Error', 'Lost connection to server.');
+					saveComplete(notifyWin, lang.error, lang.connect_lost);
 				    },
 				    scope: this
 				});
 			    }
 			},{
-			    text: '删除选中的eBay代理',
+			    text: lang.delete_selected_ebay_proxy,
 			    handler: function(){
 				var notifyWin = desktop.showNotification({
-					html: '删除中...',
-					title: '请等待'
+					html: lang.deleting,
+					title: lang.waiting
 				});
 				var form = Ext.getCmp("ebay-proxy-manage-form").getForm();
 				Ext.Ajax.request({
@@ -1356,16 +1491,16 @@ Ext.override(QoDesk.Manage, {
 				    },
 				    success: function(o){
 					store.reload();
-					saveComplete(notifyWin, '完成', '删除eBay代理成功.');
+					saveComplete(notifyWin, lang.complete, lang.delete_selected_ebay_proxy_success);
 				    },
 				    failure: function(){
-					saveComplete(notifyWin, 'Error', 'Lost connection to server.');
+					saveComplete(notifyWin, lang.error, lang.connect_lost);
 				    },
 				    scope: this
 				});
 			    }
 			},{
-			    text: '关闭窗口',
+			    text: lang.close,
 			    handler: function(){
 				ebayProxyManageWin.close();
 			    }
@@ -1373,7 +1508,7 @@ Ext.override(QoDesk.Manage, {
 		    });
 		    ebayProxyManageWin = desktop.createWindow({
 				    id: 'ebay-proxy-manage-win',
-				    title:'eBay代理管理',
+				    title: lang.ebay_proxy_manager,
 				    width:600,
 				    height:500,
 				    iconCls: 'ebay-proxy-icon',
@@ -1382,7 +1517,7 @@ Ext.override(QoDesk.Manage, {
 				    constrainHeader:true,
 				    layout: 'fit',
 				    items: gridForm,
-				    taskbuttonTooltip: '<b>eBay代理管理</b><br />设置eBay帐户获取订单所经过的代理服务器'
+				    taskbuttonTooltip: lang.ebay_proxy_manager_tooltip
 				});
 		    ebayProxyManageWin.show();
 		}else{
@@ -1396,7 +1531,7 @@ Ext.override(QoDesk.Manage, {
 			
             win = desktop.createWindow({
                 id: 'manage-win',
-                title:'系统管理',
+                title: lang.system_manager,
                 width:340,
                 height:200,
                 iconCls: 'manage-icon',
@@ -1404,12 +1539,12 @@ Ext.override(QoDesk.Manage, {
                 animCollapse:false,
                 constrainHeader:true,
 		layout: 'fit',
-                html: '<div class="manage-button"><div class="user-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">用户管理</div></div>\
-		       <div class="manage-button"><div class="group-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">用户组管理</div></div>\
-		       <div class="manage-button"><div class="group-privilege-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">组权限管理</div></div>\
-		       <div class="manage-button"><div class="ebay-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">eBay帐号管理</div></div>\
-		       <div class="manage-button"><div class="ebay-proxy"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">eBay代理管理</div></div>',
-                taskbuttonTooltip: '<b>系统管理</b><br />用户、组、权限、eBay管理'
+                html: '<div class="manage-button"><div class="user-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">'+lang.user_manager+'</div></div>\
+		       <div class="manage-button"><div class="group-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">'+lang.user_group_manager+'</div></div>\
+		       <div class="manage-button"><div class="group-privilege-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">'+lang.group_privilege_manager+'</div></div>\
+		       <div class="manage-button"><div class="ebay-manage"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">'+lang.ebay_account_manager+'</div></div>\
+		       <div class="manage-button"><div class="ebay-proxy"><img src="resources/images/default/s.gif"/></div><div class="manage-button-des">'+lang.ebay_proxy_manager+'</div></div>',
+                taskbuttonTooltip: lang.system_manager_tooltip
             });
 	    Ext.EventManager.on(Ext.DomQuery.select("div[@class='user-manage']")[0], "click", userManage);
 	    Ext.EventManager.on(Ext.DomQuery.select("div[@class='group-manage']")[0], "click", groupManage);

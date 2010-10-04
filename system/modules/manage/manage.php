@@ -95,6 +95,11 @@ class QoManage {
                 qo_groups_id = '".$b[0]."' and qo_privileges_id = '".$b[1]."'";
                 //echo $sql;
                 $result = mysql_query($sql);
+                
+                if($a[1] == 0){
+                    $sql_1 = "delete from qo_groups_has_module_actions where groups_id = ".$b[0]." and privilege_id = ".$b[1];
+                    $result_1 = mysql_query($sql_1);
+                }
             }
             echo "1";
         }
@@ -200,7 +205,64 @@ class QoManage {
             $result = mysql_query($sql);
             echo $result;
         }
-				
+	
+        public function getGroupPrivilegeDetail(){
+            $temp = explode("_", $_POST['data']);
+            $groups_id = $temp[0];
+            $privileges_id = $temp[1];
+            $sql = "select ma.id,ma.name,ma.description from qo_privileges_has_module_actions as phma left join 
+            qo_modules_actions as ma on phma.qo_modules_actions_id = ma.id where phma.qo_privileges_id = ".$privileges_id;
+            //echo $sql;
+            $result = mysql_query($sql);
+            $array = array();
+            while($row = mysql_fetch_assoc($result)){
+                $sql_1 = "select count(*) as num from qo_groups_has_module_actions where active = 1 and groups_id = ".$groups_id." and privilege_id = ".$privileges_id." and modules_actions_id = ".$row['id'];
+                $result_1 = mysql_query($sql_1);
+                $row_1 = mysql_fetch_assoc($result_1);
+                $row['active'] = $row_1['num'];
+                $array[] = $row;
+            }
+            echo json_encode($array);
+            mysql_free_result($result);
+        }
+        
+        public function updateGroupPrivilegeDetail(){
+            $gpd = explode(",", $_GET['data']);
+            $groups_id = $_GET['group_id'];
+            $privilege_id = $_GET['privilege_id'];
+            
+            $sql = "delete from qo_groups_has_module_actions where groups_id = ".$groups_id." and privilege_id = ".$privilege_id;
+            $result = mysql_query($sql);
+            
+            foreach($gpd as $gp){
+                $a = explode("=", $gp);
+                $sql = "insert into qo_groups_has_module_actions (groups_id,privilege_id,modules_actions_id,active) values (".$groups_id.",".$privilege_id.",".$a[0].",".$a[1].")";
+                //echo $sql."\n";
+                $result = mysql_query($sql);
+            }
+            echo "1";
+        }
 }
+
+/*
+ INSERT INTO `ebaybo`.`qo_modules_actions` (
+`id` ,
+`qo_modules_id` ,
+`name` ,
+`description`
+)
+VALUES (
+NULL , '9', 'updateGroupPrivilegeDetail', '更新组权限详情'
+);
+
+INSERT INTO `ebaybo`.`qo_privileges_has_module_actions` (
+`id` ,
+`qo_privileges_id` ,
+`qo_modules_actions_id`
+)
+VALUES (
+NULL , '3', '76'
+);
+*/
 
 ?>

@@ -467,7 +467,7 @@ class QoShipments {
                 
 		if($row['status'] == "N"){
 			if($this->connect_inventory){
-				$sql_4 = "select shipmentsId,skuId,quantity from qo_shipments_detail where shipmentsId = '".$_POST['id']."'";
+				$sql_4 = "select shipmentsId,skuId,sum(quantity) as quantity from qo_shipments_detail where shipmentsId = '".$_POST['id']."' group by skuId";
 				$result_4 = mysql_query($sql_4);
 				$flag = true;
 				while($row_4 = mysql_fetch_assoc($result_4)){

@@ -44,8 +44,8 @@ class QoOrders {
             return $orderId;
         }
 	
-	private function getTransactionId(){
-            $type = 'TRM';
+	private function getTransactionId($type = 'TRM'){
+            //$type = 'TRM';
             $today = date("Ym");
             $sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
             $result = mysql_query($sql);
@@ -429,10 +429,10 @@ class QoOrders {
 			$sql_1 = "select skuId,skuTitle,itemId,itemTitle,quantity,barCode from qo_orders_detail where ordersId = '".$_POST['id']."'";
 			$result_1 = mysql_query($sql_1);
 			while($row_1 = mysql_fetch_assoc($result_1)){
-				$sql_1 = "insert into qo_shipments_detail (shipmentsId,skuId,skuTitle,itemId,itemTitle,quantity,barCode) values
+				$sql_2 = "insert into qo_shipments_detail (shipmentsId,skuId,skuTitle,itemId,itemTitle,quantity,barCode) values
 				('".$shipmentId."','".$row_1['skuId']."','".mysql_escape_string($row_1['skuTitle'])."','".$row_1['itemId']."','".mysql_escape_string($row_1['itemTitle'])."',
 				'".$row_1['quantity']."','".$row_1['barCode']."')";
-				$result_1 = mysql_query($sql_1);
+				$result_2 = mysql_query($sql_2);
 				//$this->log("addOrderShipment", "insert qo_shipments_detail: ".$sql_1);
 			}
 		}
@@ -493,7 +493,7 @@ class QoOrders {
 	}
 	
 	public function getOrderTransaction(){
-		$sql = "select t.id,t.txnId,t.transactionTime,t.amountCurrency,t.amountValue,t.status from qo_transactions as t left join qo_orders_transactions as ot on t.id = ot.	transactionsId  where ot.ordersId ='".$_GET['id']."'";
+		$sql = "select t.id,t.txnId,t.transactionTime,t.amountCurrency,t.amountValue,t.status,t.transactionReason from qo_transactions as t left join qo_orders_transactions as ot on t.id = ot.	transactionsId  where ot.ordersId ='".$_GET['id']."'";
 		$result = mysql_query($sql);
 		$order_transaction_array = array();
 		while($row = mysql_fetch_assoc($result)){
@@ -537,6 +537,31 @@ class QoOrders {
 			mysql_free_result($result);
 		}
 		echo json_encode($data);
+	}
+	
+	public function addOrderRefund(){
+		$sql = "select sellerId from qo_orders where id = '".$_POST['ordersId']."'";
+		$result = mysql_query($sql);
+		$row = mysql_fetch_assoc($result);
+		$sellerId = $row['sellerId'];
+		
+		$transactionId = $this->getTransactionId('TRR');
+		$sql = "insert into qo_transactions (id,transactionReason,amountCurrency,amountValue,status,createdBy,createdOn,payeeId,payerEmail) values (
+		'".$transactionId."','".$_POST['transactionReason']."',
+		'".$_POST['amountCurrency']."','".$_POST['amountValue']."','A',
+		'".$this->os->session->get_member_name()."','".date("Y-m-d H:i:s")."','".$sellerId."',
+		'".$_POST['payerEmail']."')";
+		$result = mysql_query($sql);
+		if($result){
+			$sql = "insert into qo_orders_transactions (ordersId,transactionsId,status,amountPayCurrency,amountPayValue,
+			createdBy,createdOn) values ('".$_POST['ordersId']."','".$transactionId."',
+			'A','".$_POST['amountCurrency']."','".$_POST['amountValue']."',
+			'".$this->os->session->get_member_name()."','".date("Y-m-d H:i:s")."')";
+			$result = mysql_query($sql);
+			echo $result;
+		}else{
+			echo $result;
+		}
 	}
 	
 	public function __destruct(){

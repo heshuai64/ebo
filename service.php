@@ -1,5 +1,6 @@
 <?php
 define ('__DOCROOT__', '/export/eBayBO');
+//define ('__DOCROOT__', '.');
 define ('__DOCCLASS__', __DOCROOT__ . '/class');
 
 class Service{
@@ -183,7 +184,7 @@ class Service{
     }
     
     private function sendEmail($seller, $buyer, $subjet, $toContent){
-        include(__DOCCLASS__ . "/class.phpmailer.php");
+        //include(__DOCCLASS__ . "/class.phpmailer.php");
         $mail  = new PHPMailer();
         $mail->PluginDir = __DOCCLASS__ . "/";
         $mail->IsSMTP();
@@ -231,6 +232,8 @@ class Service{
     }
     
     public function sendXamsShipmentEmail(){
+        include(__DOCCLASS__ . "/class.phpmailer.php");
+        include(__DOCCLASS__ . "/class.smtp.php");
         global $argv;
         //$day = date("Y-m-d");
         $day   = date("Y-m-d", time() - (1 * 24 * 60 * 60));
@@ -284,7 +287,7 @@ class Service{
         
             case 12:
                 $sql = "select id,ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where shippedOn like '".$day12."%' and emailStatus = 0 and status = 'S'";
-                //echo $sql;
+                //echo $sql."\n";
                 $result = mysql_query($sql);
                 while($row = mysql_fetch_assoc($result)){
                     
@@ -313,6 +316,9 @@ class Service{
                         
                     }
                     
+                    if($row['shipToEmail'] == "Invalid Request"){
+                        continue;
+                    }
                     $buyer = array('name'=> $row['shipToName'], 'email'=> $row['shipToEmail']);
                     $subjet = "Have you receive the order?";
                     $send_result = $this->sendEmail($seller, $buyer, $subjet, $toContent);
@@ -466,6 +472,7 @@ class Service{
     }
     
     public function sendOutstandingEmail(){
+        include(__DOCCLASS__ . "/class.phpmailer.php");
         $config = parse_ini_file(__DOCROOT__ . '/email_template.ini', true);
         
         $day   = date("Y-m-d", time() - (3 * 24 * 60 * 60));
@@ -484,9 +491,10 @@ class Service{
             //$buyer = array('name'=> "heshuai", 'email'=> "heshuai64@gmail.com");
             $buyer = array('name'=> $row['shipToName'], 'email'=> $row['shipToEmail']);
             $subjet = "important notice regarding yr ebay purchase";
-            $send_result = $this->sendEmail($seller, $buyer, $subjet, $toContent);
+            //$send_result = $this->sendEmail($seller, $buyer, $subjet, $toContent);
             //var_dump($send_result);
             //exit;
+            $send_result = true;
             if($send_result){
                 $sql_3 = "update qo_shipments set emailStatus = 1,status = 'H' where id = '".$row['id']."'";
                 $result_3 = mysql_query($sql_3);
@@ -664,12 +672,12 @@ class Service{
             $skuTitle = $service_result->skuTitle;
             $skuWeight = $service_result->skuWeight;
             $skuStock = $service_result->skuStock;
+            $skuLowestPrice = $service_result->skuLowestPrice;
             
             if(!empty($service_result)){
-                $sql_1 = "update qo_orders_detail set skuTitle = '".mysql_escape_string($skuTitle)."',skuCost = '".$skuCost."',skuWeight = '".$skuWeight."',skuStock='".$skuStock."',skuInfoStatus = 1 where id = '".$row['id']."'";
+                $sql_1 = "update qo_orders_detail set skuTitle = '".mysql_escape_string($skuTitle)."',skuCost = '".$skuCost."',skuLowestPrice='".$skuLowestPrice."',skuWeight = '".$skuWeight."',skuStock='".$skuStock."',skuInfoStatus = 1 where id = '".$row['id']."'";
                 $result_1 = mysql_query($sql_1, Service::$database_connect);
-                //echo $sql_1;
-            	//echo "\n";
+                //echo $sql_1."\n";
             }else{
                 $this->log("updateSkuInfo", "ordersDetailId: ".$row['id']."<br> sku: ".$row['skuId']." no in inventory system<br>");
             }
@@ -717,6 +725,9 @@ class Service{
     }
     
     public function complaints(){
+        $sql = "update qo_orders_detail set complaintsStatus = 1 where id = ".$_POST['ordersDetailId'];
+        $result = mysql_query($sql, Service::$database_connect);
+        
         $postargs = "";
         foreach($_POST as $key=>$value){
             $postargs .= $key."=".$value."&";
