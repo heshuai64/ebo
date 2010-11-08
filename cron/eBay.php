@@ -338,8 +338,9 @@ class eBay{
         //$sql = "select id from qo_orders where sellerId= '".$sellerId."' and buyerId = '".$transaction->Buyer->UserID."' and 
         //status = 'W' and grandTotalCurrency = '".$transaction->AmountPaid->currencyID."'";
         //ebay order don't add
+	$sevenDayAgo = date("Y-m-d H:i:s", time() - (7 * 24 * 60 * 60));
         $sql = "select o.id from qo_orders as o left join qo_orders_detail as od on o.id =od.ordersId where o.sellerId= '".$sellerId."' and o.buyerId = '".$transaction->Buyer->UserID."' and 
-        o.status = 'W' and o.grandTotalCurrency = '".$transaction->AmountPaid->currencyID."' and od.ebayOrderId = ''";
+        o.status = 'W' and o.grandTotalCurrency = '".$transaction->AmountPaid->currencyID."' and od.ebayOrderId = '' and o.createdOn > '".$sevenDayAgo."'";
         
         $result = mysql_query($sql, eBay::$database_connect);
         $row = mysql_fetch_assoc($result);

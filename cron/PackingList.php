@@ -11,6 +11,7 @@ class PackingList{
     private $startTime;
     private $endTime;
     private $shipment = array();
+    private $type;
     
     public function __construct(){
         $config = parse_ini_file(__DOCROOT__ . '/config.ini', true);
@@ -43,7 +44,8 @@ class PackingList{
     public function general(){
         $this->startTime = date("Y-m-d 09:10:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
         $this->endTime   = date("Y-m-d 09:10:00");
-        $this->getPackingList();
+        $this->getPackingList('single');
+        $this->getPackingList('multi');
     }
     
     public function morning(){
@@ -106,9 +108,27 @@ class PackingList{
         //echo "\n";
         //echo $this->endTime;
         //exit;
-        $sql = "select s.id,s.envelope,o.shippingMethod,o.buyerId,s.shipToName,s.shipToAddressLine1,s.shipToAddressLine2,s.shipToCity,s.shipToStateOrProvince,s.shipToPostalCode,s.shipToCountry,s.shipToPhoneNo 
-        from qo_shipments as s left join qo_orders as o on s.ordersId=o.id where s.shipmentMethod <> 'R' and s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N'";
-        $result = mysql_query($sql, PackingList::$database_connect);
+        switch($this->type){
+            case "single":
+                $sql = "select s.id,s.envelope,o.shippingMethod,o.buyerId,s.shipToName,s.shipToAddressLine1,s.shipToAddressLine2,s.shipToCity,s.shipToStateOrProvince,s.shipToPostalCode,s.shipToCountry,s.shipToPhoneNo,sum(sd.quantity) as sdQuantity 
+                from qo_shipments as s left join qo_shipments_detail as sd on s.id = sd.shipmentsId left join qo_orders as o on s.ordersId=o.id where s.shipmentMethod <> 'R' and s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N' group by sd.shipmentsId having sdQuantity = 1 order by sd.skuId,s.id";
+                $result = mysql_query($sql, PackingList::$database_connect);
+            break;
+        
+            case "multi":
+                $sql = "select s.id,s.envelope,o.shippingMethod,o.buyerId,s.shipToName,s.shipToAddressLine1,s.shipToAddressLine2,s.shipToCity,s.shipToStateOrProvince,s.shipToPostalCode,s.shipToCountry,s.shipToPhoneNo,sum(sd.quantity) as sdQuantity 
+                from qo_shipments as s left join qo_shipments_detail as sd on s.id = sd.shipmentsId left join qo_orders as o on s.ordersId=o.id where s.shipmentMethod <> 'R' and s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N' group by sd.shipmentsId having sdQuantity > 1 order by sd.skuId,s.id";
+                $result = mysql_query($sql, PackingList::$database_connect);
+            break;
+        
+            default:
+                $sql = "select s.id,s.envelope,o.shippingMethod,o.buyerId,s.shipToName,s.shipToAddressLine1,s.shipToAddressLine2,s.shipToCity,s.shipToStateOrProvince,s.shipToPostalCode,s.shipToCountry,s.shipToPhoneNo 
+                from qo_shipments as s left join qo_shipments_detail as sd on s.id = sd.shipmentsId left join qo_orders as o on s.ordersId=o.id where s.shipmentMethod <> 'R' and s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N' order by sd.skuId,s.id";
+                $result = mysql_query($sql, PackingList::$database_connect);
+            break;
+        }
+        
+        echo $sql."\n";
         
         $i = 0;
         while($row = mysql_fetch_assoc($result)){
@@ -194,6 +214,10 @@ class PackingList{
     }
     
     private function generateFile($fileName, $content){
+        if(count($this->shipment) == 0){
+            return 0;
+        }
+        
         if(!file_exists(self::FILE_PATH.date("Ym"))){
             mkdir(self::FILE_PATH.date("Ym"), 0777);
         }
@@ -202,7 +226,7 @@ class PackingList{
             mkdir(self::FILE_PATH.date("Ym")."/".date("d"), 0777);
         }
         
-        $fileName = self::FILE_PATH.date("Ym")."/".date("d").'/'.$fileName.'.html';
+        $fileName = self::FILE_PATH.date("Ym")."/".date("d").'/'.$this->type.'_'.$fileName.'.html';
         
         if (!$handle = fopen($fileName, 'w')) {
             echo "not open file $fileName";
@@ -217,7 +241,8 @@ class PackingList{
         fclose($handle);
     }
     
-    public function getPackingList(){
+    public function getPackingList($type = ''){
+        $this->type = $type;
         $this->getSellerSell();
         $this->getSellSku();
         /*
@@ -249,6 +274,7 @@ class PackingList{
             $this->generateFile($sellerId, $content);
         }
         */
+        unset($this->shipment);
     }
     
     public function __destruct(){
