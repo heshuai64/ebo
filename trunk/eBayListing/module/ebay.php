@@ -1,7 +1,9 @@
 <?php
+ini_set('memory_limit', '128M');
+set_time_limit('1800');
 
 class Ebay{
-    const LOG_DIR = '/export/eBayListing/log/';
+    const LOG_DIR = '/export/eBayListing/log/eBay/';
     
     private $startTime;
     private $endTime;
@@ -156,24 +158,29 @@ class Ebay{
 	    $Version = $this->version;
 	    $DetailLevel = "ReturnAll";
 	 
-	    $params = array('Version' => $Version, 'DetailLevel' => $DetailLevel, 'CategorySiteID' => $CategorySiteID);
+	    $params = array('Version' => $Version, 'DetailLevel' => $DetailLevel, 'WarningLevel' => 'High', 'CategorySiteID' => $CategorySiteID, 'ViewAllNodes' => true);
 	    $results = $client->GetCategories($params);
 	    //----------   debug --------------------------------
 	    //print "Request: \n".$client->__getLastRequest() ."\n";
 	    //print "Response: \n".$client->__getLastResponse()."\n";
-            $sql_0 = "delete from categories where CategorySiteID = ".$CategorySiteID;
-            echo $sql_0."\n";
-            $result_0 = mysql_query($sql_0, eBayListing::$database_connect);
-            
-	    $this->saveFetchData("getCategories-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
-	    foreach($results->CategoryArray->Category as $category){
-		$sql = "insert into categories (CategoryID,CategoryLevel,CategoryName,CategoryParentID,LeafCategory,BestOfferEnabled,AutoPayEnabled,CategorySiteID) values 
-		('".$category->CategoryID."','".$category->CategoryLevel."','".$category->CategoryName."','".$category->CategoryParentID."',
-		'".$category->LeafCategory."','".$category->BestOfferEnabled."','".$category->AutoPayEnabled."','".$CategorySiteID."')";
-		echo $sql."\n";
-		$result = mysql_query($sql, eBayListing::$database_connect);
+	    print_r($results->Errors);
+            if(!empty($results->CategoryArray)){
+		$sql_0 = "delete from categories where CategorySiteID = ".$CategorySiteID;
+		echo $sql_0."\n";
+		$result_0 = mysql_query($sql_0, eBayListing::$database_connect);
+		
+		//$this->saveFetchData("getCategories-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		foreach($results->CategoryArray->Category as $category){
+		    $sql = "insert into categories (CategoryID,CategoryLevel,CategoryName,CategoryParentID,LeafCategory,BestOfferEnabled,AutoPayEnabled,SellerGuaranteeEligible,CategorySiteID) values 
+		    ('".$category->CategoryID."','".$category->CategoryLevel."','".$category->CategoryName."','".$category->CategoryParentID."',
+		    '".$category->LeafCategory."','".$category->BestOfferEnabled."','".$category->AutoPayEnabled."','".$category->SellerGuaranteeEligible."','".$CategorySiteID."')";
+		    echo $sql."\n";
+		    $result = mysql_query($sql, eBayListing::$database_connect);
+		}
+	    }else{
+		echo "failure.\n";
 	    }
-                
+	       
         } catch (SOAPFault $f) {
                 print $f; // error handling
         }
@@ -1749,6 +1756,11 @@ class Ebay{
 	    $itemArray['ShippingTermsInDescription'] = true;
 	    
 	    $itemArray['Site'] = $item['Site'];
+	    
+	    if($item['Site'] == 'Germany' && $item['Motors']){
+		$itemArray['MotorsGermanySearchable'] = true;
+	    }
+	    
 	    $itemArray['SKU'] = $item['SKU'];
 	    if(!empty($item['StartPrice']) && $item['StartPrice'] != 0){
 		$itemArray['StartPrice'] = $item['StartPrice'];
@@ -2749,26 +2761,36 @@ class Ebay{
             $params = array('Version' => $Version, 'SessionID' => $_SESSION['SessionID']);
             $results = $client->FetchToken($params);
            
-            print_r($results);
+            //print_r($results);
             $_GET['ebaytkn'] = $results->eBayAuthToken;
 	    $_GET['tknexp'] = $results->HardExpirationTime;
             //eBayAuthToken
             //HardExpirationTime
+	    if(!empty($_GET['ebaytkn'])){
+		$sql_1 = "select count(*) as num from account where name = '".$_GET['username']."'";
+		$result_1 = mysql_query($sql_1);
+		$row_1 = mysql_fetch_assoc($result_1);
+		if($row_1['num'] == 0){   
+		    $sql = "insert into account (name,token,tokenExpiry,status) values ('".$_GET['username']."','".$_GET['ebaytkn']."','".$_GET['tknexp']."',1)";
+		    //echo $sql;
+		    $result = mysql_query($sql);
+		}else{
+		    $sql = "update account set token = '".$_GET['ebaytkn']."',tokenExpiry = '".$_GET['tknexp']."' where name = '".$_GET['username']."'";
+		    //echo $sql;
+		    $result = mysql_query($sql);
+		}
+		
+		if($result){
+			echo "<h1>Thank you, Success!</h1>";
+		}else{
+			echo "<h1>Failure!</h1>";
+		}
+	    }else{
+		echo "<h1>Failure!</h1>";
+	    }
+	    
         } catch (SOAPFault $f) {
                 print $f; // error handling
-        }
-	
-	if(!empty($_GET['ebaytkn'])){
-            $sql = "insert into account (name,token,tokenExpiry,status) values ('".$_GET['username']."','".$_GET['ebaytkn']."','".$_GET['tknexp']."',1)";
-            //echo $sql;
-            $result = mysql_query($sql);
-            if($result){
-                    echo "<h1>Thank you, Success!</h1>";
-            }else{
-                    echo "<h1>Failure!</h1>";
-            }
-        }else{
-            echo "<h1>Failure!</h1>";
         }
     }
 }

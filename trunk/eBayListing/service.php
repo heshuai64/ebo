@@ -2490,6 +2490,7 @@ class eBayListing{
 		return 0;
 	    }
 	}
+	
 	$sql = "select id,role,pagination from account where name = '".$_POST['name']."' and password = '".$_POST['password']."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
@@ -2982,6 +2983,7 @@ if(!empty($argv[2])){
 $ebay_service = array(/*'getAllCategories', 'getStoreCategories', 'getAllStoreCategories', 'getCategoryFeatures',
 		      'getAllSiteShippingServiceDetails', 'getAllSiteShippingLocationDetails', 'getShippingLocation',
 		      'getAllCategory2CS', 'getAllAttributesCS',*/
+		      'getCategories',
 		      'getStoreCategories',
 		      'getAllSellerList',
 		      'uploadItem', 'modifyActiveItem', 'reUploadItem', 'endListingItem',
