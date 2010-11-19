@@ -420,7 +420,7 @@ Ext.onReady(function(){
         reader:new Ext.data.JsonReader({
             }, ['Id','AutoPay','BuyItNowPrice','CategoryMappingAllowed','Country','Currency','Description','DispatchTimeMax','ListingDuration','ListingType','Location','PaymentMethods','PayPalEmailAddress',
                 'PostalCode','PrimaryCategoryCategoryID','PrimaryCategoryCategoryName','Quantity','ReturnPolicyDescription','ReturnPolicyReturnsAcceptedOption','ReturnPolicyReturnsAcceptedOption','ReturnPolicyReturnsWithinOption',
-                'ReturnPolicyShippingCostPaidByOption','ReservePrice','CurrentPrice','ListingStatus','ScheduleTime','SecondaryCategoryCategoryID','SecondaryCategoryCategoryName','Site','SiteID','SKU','StartPrice',
+                'ReturnPolicyShippingCostPaidByOption','ReservePrice','CurrentPrice','ListingStatus','ScheduleTime','SecondaryCategoryCategoryID','SecondaryCategoryCategoryName','Site','Motors','SiteID','SKU','StartPrice',
                 'StoreCategory2ID','StoreCategory2Name','StoreCategoryID','StoreCategoryName','SubTitle','Title','UserID','BoldTitle','Border','Featured','Highlight','HomePageFeatured','GalleryTypeFeatured','GalleryTypeGallery','GalleryTypePlus','GalleryURL',
                 'picture_1','picture_2','picture_3','picture_4','picture_5','picture_6','picture_7','picture_8',
                 'picture_9','picture_10','PhotoDisplay',
@@ -441,9 +441,9 @@ Ext.onReady(function(){
         items:[{
                 layout:"column",
                 border:false,
-                width: 300,
+                width: 400,
                 items:[{
-                    columnWidth:0.5,
+                    columnWidth:0.3,
                     layout:"form",
                     defaults:{
                         width: 100,
@@ -490,6 +490,7 @@ Ext.onReady(function(){
                                 
                                     case "Germany":
                                         currencyCombo.setValue("EUR");
+                                        Ext.getCmp("Motors").show();
                                     break;
                                 }
                                 Ext.getCmp("SiteID").setValue(r.data.name);
@@ -497,7 +498,7 @@ Ext.onReady(function(){
                         }
                     }]
                 },{
-                    columnWidth:0.5,
+                    columnWidth:0.3,
                     layout:"form",
                     defaults:{
                         width: 80,
@@ -505,6 +506,17 @@ Ext.onReady(function(){
                     },
                     border:false,
                     items: currencyCombo
+                },{
+                    columnWidth:0.3,
+                    layout:"form",
+                    border:false,
+                    items: {
+                        xtype:"checkbox",
+                        boxLabel:"Motors",
+                        id:'Motors',
+                        name:'Motors',
+                        hidden: true
+                    }
                 }]
             },{
                 xtype:"hidden",
@@ -3214,6 +3226,11 @@ Ext.onReady(function(){
                 
                     case "France":
                         categoryStore.setBaseParam('SiteID', 71);
+                    break;
+                
+                    case "Germany":
+                        categoryStore.setBaseParam('SiteID', 77);
+                        Ext.getCmp("Motors").show();
                     break;
                 }
                 
