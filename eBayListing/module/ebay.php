@@ -22,6 +22,8 @@ class Ebay{
     
     private function log($type, $content, $level = 'normal'){
 	//print_r($_COOKIE);
+	$content = str_replace("<", "[", $content);
+	$content = str_replace(">", "]", $content);
 	$sql = "insert into log (level,type,content,account_id) values('".$level."','".$type."','".mysql_real_escape_string($content)."','".$this->account_id."')";
 	//echo $sql;
 	$result = mysql_query($sql, eBayListing::$database_connect);
@@ -149,6 +151,10 @@ class Ebay{
 	    $this->setAccount(1);
 	    $this->configEbay($argv[2]);
 	    $categorySiteID = $argv[2];
+	}else{
+	    $this->setAccount(1);
+	    $this->configEbay(0);
+	    $categorySiteID = 0;
 	}
 	
         try {
@@ -172,7 +178,7 @@ class Ebay{
 		//$this->saveFetchData("getCategories-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 		foreach($results->CategoryArray->Category as $category){
 		    $sql = "insert into categories (CategoryID,CategoryLevel,CategoryName,CategoryParentID,LeafCategory,BestOfferEnabled,AutoPayEnabled,SellerGuaranteeEligible,CategorySiteID) values 
-		    ('".$category->CategoryID."','".$category->CategoryLevel."','".$category->CategoryName."','".$category->CategoryParentID."',
+		    ('".$category->CategoryID."','".$category->CategoryLevel."','".mysql_real_escape_string($category->CategoryName)."','".$category->CategoryParentID."',
 		    '".$category->LeafCategory."','".$category->BestOfferEnabled."','".$category->AutoPayEnabled."','".$category->SellerGuaranteeEligible."','".$CategorySiteID."')";
 		    echo $sql."\n";
 		    $result = mysql_query($sql, eBayListing::$database_connect);

@@ -474,23 +474,32 @@ Ext.onReady(function(){
                                 switch(r.data.name){
                                     case "US":
                                        currencyCombo.setValue("USD");
+                                       Ext.getCmp("Motors").hide();
                                     break;
                                 
                                     case "UK":
                                        currencyCombo.setValue("GBP");
+                                       Ext.getCmp("Motors").hide();
                                     break;
                                 
                                     case "Australia":
                                         currencyCombo.setValue("AUD");
+                                        Ext.getCmp("Motors").hide();
                                     break;
                                 
                                     case "France":
                                         currencyCombo.setValue("EUR");
+                                        Ext.getCmp("Motors").hide();
                                     break;
                                 
                                     case "Germany":
                                         currencyCombo.setValue("EUR");
                                         Ext.getCmp("Motors").show();
+                                    break;
+                                
+                                    default:
+                                        currencyCombo.setValue("USD");
+                                        Ext.getCmp("Motors").hide();
                                     break;
                                 }
                                 Ext.getCmp("SiteID").setValue(r.data.name);
@@ -749,6 +758,7 @@ Ext.onReady(function(){
                                 store: categoryStore,
                                 displayField:'name',
                                 //typeAhead: false,
+                                minChars: 3,
                                 loadingText: 'Searching...',
                                 pageSize:20,
                                 listeners:{

@@ -707,6 +707,7 @@ Ext.onReady(function(){
                                 store: categoryStore,
                                 displayField:'name',
                                 //typeAhead: false,
+                                minChars: 3,
                                 loadingText: 'Searching...',
                                 pageSize:20,
                                 listeners:{
