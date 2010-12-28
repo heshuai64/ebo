@@ -342,6 +342,9 @@ class eBay{
         $sql = "select o.id from qo_orders as o left join qo_orders_detail as od on o.id =od.ordersId where o.sellerId= '".$sellerId."' and o.buyerId = '".$transaction->Buyer->UserID."' and 
         o.status = 'W' and o.grandTotalCurrency = '".$transaction->AmountPaid->currencyID."' and od.ebayOrderId = '' and o.createdOn > '".$sevenDayAgo."'";
         
+	echo $sql."<br>\n";
+	echo "<font color='green'>checkSameBuyExist</font><br>\n";
+	
         $result = mysql_query($sql, eBay::$database_connect);
         $row = mysql_fetch_assoc($result);
         return $row['id'];
@@ -584,7 +587,8 @@ class eBay{
 		//grandTotalCurrency='".$grandTotalCurrency."',grandTotalValue='".$grandTotalValue."',
 		
 		$sql = "update qo_orders set 
-		paymentMethod='".$paymentMethod."',sellerId='".$sellerId."',buyerId='".$buyerId."',ebayName='".mysql_real_escape_string($ebayName)."',
+		paymentMethod='".$paymentMethod."',sellerId='".$sellerId."',buyerId='".$buyerId."',
+		shippingFeeCurrency='".$shippingFeeCurrency."',shippingFeeValue='".$shippingFeeValue."',ebayName='".mysql_real_escape_string($ebayName)."',
 		ebayEmail='".$ebayEmail."',ebayAddress1='".mysql_real_escape_string($ebayAddress1)."',ebayAddress2='".mysql_real_escape_string($ebayAddress2)."',
 		ebayCity='".mysql_real_escape_string($ebayCity)."',ebayStateOrProvince='".mysql_real_escape_string($ebayStateOrProvince)."',
 		ebayPostalCode='".$ebayPostalCode."',ebayCountry='".mysql_real_escape_string($ebayCountry)."',ebayPhone='".$ebayPhone."',
@@ -963,27 +967,38 @@ class eBay{
             $params = array('Version' => $Version, 'SessionID' => $_SESSION['SessionID']);
             $results = $client->FetchToken($params);
            
-            print_r($results);
+            //print_r($results);
             $_GET['ebaytkn'] = $results->eBayAuthToken;
 	    $_GET['tknexp'] = $results->HardExpirationTime;
             //eBayAuthToken
             //HardExpirationTime
+	    
+		if(!empty($_GET['ebaytkn'])){
+			$sql_1 = "select count(*) as num from qo_ebay_seller where id = '".$_GET['username']."'";
+			$result_1 = mysql_query($sql_1, eBay::$database_connect);
+			$row_1 = mysql_fetch_assoc($result_1);
+			if($row_1['num'] == 0){
+				$sql = "insert into qo_ebay_seller (id,token,tokenExpiry) values ('".$_GET['username']."','".$_GET['ebaytkn']."','".$_GET['tknexp']."')";
+				//echo $sql;
+				$result = mysql_query($sql, eBay::$database_connect);
+			}else{
+				$sql = "update qo_ebay_seller set token = '".$_GET['ebaytkn']."',tokenExpiry = '".$_GET['tknexp']."' where id = '".$_GET['username']."'";
+				//echo $sql;
+				$result = mysql_query($sql, eBay::$database_connect);
+			}
+			
+			if($result){
+				echo "<h1>Thank you, Success!</h1>";
+			}else{
+				echo "<h1>Failure!</h1>";
+			}
+		}else{
+			echo "<h1>Failure!</h1>";
+		}
         } catch (SOAPFault $f) {
                 print $f; // error handling
         }
 	
-	if(!empty($_GET['ebaytkn'])){
-		$sql = "insert into qo_ebay_seller (id,token,tokenExpiry) values ('".$_GET['username']."','".$_GET['ebaytkn']."','".$_GET['tknexp']."')";
-		//echo $sql;
-		$result = mysql_query($sql, eBay::$database_connect);
-		if($result){
-			echo "<h1>Thank you, Success!</h1>";
-		}else{
-			echo "<h1>Failure!</h1>";
-		}
-	}else{
-		echo "<h1>Failure!</h1>";
-	}
     }
     
     private function errorLog($text){
@@ -1061,7 +1076,7 @@ if(!empty($GLOBALS['HTTP_RAW_POST_DATA'])){
 				$eBay->setStartTime($_GET['start']);
 				$eBay->setEndTime($_GET['end']);
 			}else{
-				$eBay->setStartTime(date("Y-m-d H:i:s", time() - (12 * 60 * 60)));
+				$eBay->setStartTime(date("Y-m-d H:i:s", time() - (11 * 60 * 60)));
 				$eBay->setEndTime(date("Y-m-d H:i:s", time() - (8 * 60 * 60)));
 			}
 			$eBay->getAllEbayTransaction($id);

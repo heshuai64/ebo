@@ -2981,8 +2981,9 @@ if(!empty($argv[2])){
 }
 */
 $ebay_service = array(/*'getAllCategories', 'getStoreCategories', 'getAllStoreCategories', 'getCategoryFeatures',
-		      'getAllSiteShippingServiceDetails', 'getAllSiteShippingLocationDetails', 'getShippingLocation',
+		      'getAllSiteShippingLocationDetails', 'getShippingLocation',
 		      'getAllCategory2CS', 'getAllAttributesCS',*/
+		      'getAllSiteShippingServiceDetails',
 		      'getCategories',
 		      'getStoreCategories',
 		      'getAllSellerList',

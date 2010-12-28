@@ -928,12 +928,15 @@ class Item{
         $id = $_GET['item_id'];
         
 	if(!empty($_GET['status'])){
+	    /*
             if($_GET['status'] == 4){
                 $id = $this->copyItem($id, $_GET['status']);
                 //$id = $this->copyItem($id, 6);
             }else{
                 $status .= ",Status = '".$_GET['status']."'";
             }
+	    */
+	    $status .= ",Status = '".$_GET['status']."'";
 	}
 	
 	session_start();

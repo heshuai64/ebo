@@ -123,6 +123,41 @@ class Shipment{
         file_put_contents($this->config['log']['shipments']."CreateShipment-".date("YmdH").".log", date("Y-m-d H:i:s")."   ".$content."\n", FILE_APPEND);
     }
     
+    private function splitOrders2Shipments($orders){
+        for($i = 0; $i < count($orders['detail']; $i++){
+            foreach($orders['detail'] as $datail ){
+                for($i = 0; $i < $datail['quantity']; $i++){
+                    $this->createSingleShipment($orders, $datail);     
+                }
+            }
+        }
+    }
+    
+    private function createSingleShipment($orders, $orders){
+        if($orders['shippingMethod'] == 'R'){
+            $shipmentId = $this->getShipmentId('SHR');
+        }else{
+            $shipmentId = $this->getShipmentId();
+        }
+            
+        $sql = "insert into qo_shipments (id,ordersId,status,shipmentMethod,remarks,shippingFeeCurrency,shippingFeeValue,shipToName,
+        shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,
+        shipToCountry,shipToPhoneNo,createdBy,createdOn,modifiedBy,modifiedOn) values ('".$shipmentId."','".$orders['id']."',
+        'N','".$orders['shippingMethod']."','".$orders['remarks']."','".$orders['shippingFeeCurrency']."','".$orders['shippingFeeValue']."','".mysql_escape_string($orders['ebayName'])."',
+        '".mysql_escape_string($orders['ebayEmail'])."','".mysql_escape_string($orders['ebayAddress1'])."','".mysql_escape_string($orders['ebayAddress2'])."','".mysql_escape_string($orders['ebayCity'])."',
+        '".mysql_escape_string($orders['ebayStateOrProvince'])."','".mysql_escape_string($orders['ebayPostalCode'])."','".mysql_escape_string($orders['ebayCountry'])."','".$orders['ebayPhone']."',
+        'System','".date("Y-m-d H:i:s")."','System','".date("Y-m-d H:i:s")."')";
+        $this->log($sql);
+        $result = mysql_query($sql, Shipment::$database_connect);
+        if($result){
+            $sql_1 = "insert into qo_shipments_detail (shipmentsId,skuId,skuTitle,itemId,itemTitle,quantity,barCode) values
+            ('".$shipmentId."','".$datail['skuId']."','".mysql_escape_string($datail['skuTitle'])."','".$datail['itemId']."','".mysql_escape_string($datail['itemTitle'])."',
+            '1','".$datail['barCode']."')";
+            $this->log($sql_1);
+            $result_1 = mysql_query($sql_1, Shipment::$database_connect);
+        } 
+    }
+    
     public function createShipment(){
         //echo $this->startTime;
         //echo "\n";
@@ -131,6 +166,8 @@ class Shipment{
         $this->getCompleteOrder();
         //print_r($this->complete_orders);
         foreach($this->complete_orders as $orders){
+            $this->splitOrders2Shipments($orders);
+            /*
             $sql_0 = "select count(*) as num from qo_shipments where ordersId = '".$orders['id']."'";
             $result_0 = mysql_query($sql_0, Shipment::$database_connect);
             $row_0 = mysql_fetch_assoc($result_0);
@@ -161,6 +198,7 @@ class Shipment{
                     }
                 }
             }
+            */
         }
     }
     

@@ -519,7 +519,7 @@ ini_set("memory_limit","256M");
 	    $oitemNumber = $item_number_string;
                 
             $sql = "select id from qo_orders where buyerId='".$buyerId."' and status = 'W' and createdOn > '".$sevenDayAgo."' order by createdOn desc";
-            $this->log('paypal_api', "getyOrderId id: ".$sql."<br>", "html");
+            $this->log('paypal_api', "getOrderId id: ".$sql."<br>", "html");
             $result = mysql_query($sql, PayPal::$database_connect);
             while ($row = mysql_fetch_assoc($result)) {
                 $sql_1 = "select itemId from qo_orders_detail where ordersId='".$row['id']."'";
@@ -795,20 +795,21 @@ ini_set("memory_limit","256M");
   	    $payerAddressLine2 = $api_date['SHIPTOSTREET2'];
             
 	    if($status == "V"){
-		$sql = "select count(*) as num from qo_transactions where txnId='".$api_date['TRANSACTIONID']."' and status = 'V'";
+		$sql = "select id from qo_transactions where txnId='".$api_date['TRANSACTIONID']."' and status = 'V'";
 		$result = mysql_query($sql, PayPal::$database_connect);
 		$row = mysql_fetch_assoc($result);
 	    }elseif($status == "C"){
-		$sql = "select count(*) as num from qo_transactions where txnId='".$api_date['TRANSACTIONID']."' and status = 'C'";
+		$sql = "select id from qo_transactions where txnId='".$api_date['TRANSACTIONID']."' and status = 'C'";
 		$result = mysql_query($sql, PayPal::$database_connect);
 		$row = mysql_fetch_assoc($result);
 	    }else{
-		$sql = "select count(*) as num from qo_transactions where txnId='".$api_date['TRANSACTIONID']."'";
+		$sql = "select id from qo_transactions where txnId='".$api_date['TRANSACTIONID']."'";
 		$result = mysql_query($sql, PayPal::$database_connect);
 		$row = mysql_fetch_assoc($result);
 	    }
+	    $this->log('paypal_api', "getTransactionId: ".$sql."<br>", "html");
 	    
-	    if($row['num'] == 0){
+	    if(empty($row['id'])){
                 $transactionId = $this->getTransactionId();
 		$payeeId = $this->getPayeeIdFromEmail($api_date['RECEIVEREMAIL']);
 		
@@ -842,11 +843,22 @@ ini_set("memory_limit","256M");
                 
 		$this->matchOrder($api_date, $item_number_string, $transactionId);
             }else{
-		$this->log('paypal_api', '<font color="red">TRANSACTIONID: '. $api_date['TRANSACTIONID']. ' Exist.</font><br>', "html");
-		$ordersId = $this->getOrderId($api_data['BUYERID'], $item_number_string);
+		$sql_1 = "select o.id from qo_orders as o left join qo_orders_transactions as ot on o.id = ot.ordersId where o.buyerId='".$api_date['BUYERID']."' and o.status = 'W' and o.createdOn > '".date("Y-m-d H:i:s", time() - (7 * 24 * 60 * 60))."' and ot.transactionsId = '".$row['id']."'";
+		$this->log('paypal_api', "getOrderId: ".$sql_1."<br>", "html");
+		$result_1 = mysql_query($sql_1, PayPal::$database_connect);
+		$row_1 = mysql_fetch_assoc($result_1);
+		if(!empty($row_1['ordersId'])){
+		    $this->log('paypal_api', '<font color="red"> '. $row_1['ordersId'] . '|'. $row['id'] . '|'. $api_date['TRANSACTIONID']. ' Exist.</font><br>', "html");
+		    $this->updateOrderAndShipment($row_1['ordersId'], $api_date);
+		}
+		
+		/*
+		$this->log('paypal_api', '<font color="red">TRANSACTIONID: '. $row['id'] . '|'. $api_date['TRANSACTIONID']. ' Exist.</font><br>', "html");
+		$ordersId = $this->getOrderId($api_date['BUYERID'], $item_number_string);
 		if(!empty($ordersId)){
 		    $this->updateOrderAndShipment($ordersId, $api_date);
 		}
+		*/
             }
 	    
 	    $this->log('paypal_api', "<br><br>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++<br><br>", "html");
@@ -877,25 +889,83 @@ ini_set("memory_limit","256M");
         }
         
 	public function setAPITime($start_time, $end_time){
-	    $this->start_time = $start_time;
-	    $this->end_time = $end_time;
+	    if(strlen($start_time) == 10 && $end_time == 10){
+		$this->start_time = $start_time . " 00:00:00";
+		$this->end_time = $end_time . " 00:00:00";
+	    }else{
+		$this->start_time = $start_time;
+		$this->end_time = $end_time;
+	    }
 	}
 	
         public function getAllSellerTransactions(){
             //$this->TransactionSearch("paintings.suppliersz_api1.gmail.com", "BQ3G47PGEUPFJYUW", "AFAonZoEN5Tlf1AdMI6LHryIRiuXAZmyV1n8z4H3aK3CTTmVXIajebfk", "2009-04-18 00:00:00", "2009-04-20 00:00:00");
-	    if(empty($this->start_time) && empty($this->end_time)){
-		$this->start_time = date("Y-m-d H:i:s", time() - (14 * 60 * 60));
-		$this->end_time   = date("Y-m-d H:i:s", time() - (8 * 60 * 60));
-	    }
-	    
 	    $api_acount = parse_ini_file(__DOCROOT__ . '/paypal.ini', true);
 	    
-	    foreach($api_acount as $acount){
-		$this->account = $acount['Username'];
-		$this->TransactionSearch($acount['Username'], $acount['Password'], $acount['Signature'], $this->start_time, $this->end_time);
+	    if(empty($this->start_time) && empty($this->end_time)){
+		$this->start_time = date("Y-m-d H:i:s", time() - (13 * 60 * 60));
+		$this->end_time   = date("Y-m-d H:i:s", time() - (9 * 60 * 60));
+		
+		
+		foreach($api_acount as $acount){
+		    echo $acount['Username']."\n";
+		    echo $this->start_time."\n";
+		    echo $this->end_time."\n";
+		    echo "\n";
+		    
+		    //continue;
+		    $this->account = $acount['Username'];
+		    $this->TransactionSearch($acount['Username'], $acount['Password'], $acount['Signature'], $this->start_time, $this->end_time);
+		}
+		
+	    }else{
+		$start_timestamp = strtotime($this->start_time);
+		$end_timestamp = strtotime($this->end_time);
+		
+		for($i = $start_timestamp; $i < $end_timestamp; $i += 24 * 60 *  60){
+		    foreach($api_acount as $acount){
+			echo $acount['Username']."\n";
+			echo date("Y-m-d H:i:s", $i)."\n";
+			echo date("Y-m-d H:i:s", $i + 24 * 60 *  60)."\n";
+			echo "\n";
+			//sleep(5);
+			
+			//continue;
+			$this->account = $acount['Username'];
+			$this->TransactionSearch($acount['Username'], $acount['Password'], $acount['Signature'], date("Y-m-d H:i:s", $i), date("Y-m-d H:i:s", $i + 24 * 60 *  60));
+		    }
+		    
+		}
 	    }
 	}
         
+	public function getSellerTransactions($user_name){
+	    //$this->start_time .= " 00:00:00";
+	    //$this->end_time .= " 00:00:00";
+	    
+	    $start_timestamp = strtotime($this->start_time);
+	    //echo $start_timestamp."\n";
+	    //echo date("Y-m-d H:i:s", $start_timestamp)."\n";
+	    $end_timestamp = strtotime($this->end_time);
+	    //echo $end_timestamp."\n";
+	    //echo date("Y-m-d H:i:s", $end_timestamp)."\n";
+	    
+	    $api_acount = parse_ini_file(__DOCROOT__ . '/paypal.ini', true);
+	    for($i = $start_timestamp; $i < $end_timestamp; $i += 24 * 60 *  60){
+		foreach($api_acount as $acount){
+		    if($user_name == $acount['Username']){
+			echo date("Y-m-d H:i:s", $i)."\n";
+			echo date("Y-m-d H:i:s", $i + 24 * 60 *  60)."\n";
+			echo "\n";
+			sleep(5);
+			$this->account = $acount['Username'];
+			$this->TransactionSearch($acount['Username'], $acount['Password'], $acount['Signature'], date("Y-m-d H:i:s", $i), date("Y-m-d H:i:s", $i + 24 * 60 *  60));
+		    }
+		}
+		
+	    }
+	}
+	
         public function __destruct(){
             mysql_close(PayPal::$database_connect);
         }
@@ -907,6 +977,7 @@ if(!empty($_POST)){
     $PayPal->ipn();
 }
 
+/*
 if(!empty($_GET['action'])){
     $PayPal = new PayPal();
     switch($_GET['action']){
@@ -919,14 +990,24 @@ if(!empty($_GET['action'])){
         break;
     }
 }
-
+*/
 if(!empty($argv[1]) && $argv[1] == "API"){
     $PayPal = new PayPal();
-    if(!empty($argv[2]) && !empty($argv[3])){
-	$PayPal->setAPITime($argv[2], $argv[3]);
+    
+    if(!empty($argv[2]) && $argv[2] == "Today"){
+	$PayPal->setAPITime(date("Y-m-d H:i:s", time() - (32 * 60 * 60)), date("Y-m-d H:i:s", time() - (8 * 60 * 60)));
+	$PayPal->getAllSellerTransactions();
+    }else{
+	if(!empty($argv[2]) && !empty($argv[3])){
+	    $PayPal->setAPITime($argv[2], $argv[3]);
+	}
+	//$PayPal->setAPITime("2010-09-23 00:00:00", "2010-09-23 14:30:00");
+	if(!empty($argv[4])){
+	    $PayPal->getSellerTransactions($argv[4]);
+	}else{
+	    $PayPal->getAllSellerTransactions();
+	}
     }
-    //$PayPal->setAPITime("2010-09-23 00:00:00", "2010-09-23 14:30:00");
-    $PayPal->getAllSellerTransactions();
 }
 /*
 paintings.suppliersz_api1.gmail.com

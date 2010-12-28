@@ -80,7 +80,7 @@ class eBayBOExcel{
 		}
 	    }
     
-	private function getFilePath($fileName){
+	private function getFilePath($fileName, $debug = false){
 		if(!file_exists(self::FILE_PATH.date("Ym"))){
 		    mkdir(self::FILE_PATH.date("Ym"), 0777);
 		}
@@ -89,7 +89,7 @@ class eBayBOExcel{
 		    mkdir(self::FILE_PATH.date("Ym")."/".date("d"), 0777);
 		}
 		
-		$fileName = self::FILE_PATH.date("Ym")."/".date("d").'/'.$fileName;
+		$fileName = self::FILE_PATH.date("Ym")."/".date("d").'/'.(($debug)?'debug-':'').$fileName;
 		return $fileName;
 	}
 	
@@ -249,30 +249,33 @@ class eBayBOExcel{
 		
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, date("Y-m-d")." picking list");
 		$this->php_excel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-		$this->php_excel->getActiveSheet()->mergeCells('A1:F1');
+		$this->php_excel->getActiveSheet()->mergeCells('A1:G1');
 		
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 2, 'No');
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, 2, 'Sku');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, 2, 'Short Description');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 2, 'Quantity');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 2, '');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, 2, 'Stock');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, 2, 'Locator Number');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 2, 'Short Description');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 2, 'Quantity');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, 2, '');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(6, 2, 'Stock');
 		
 		$i = 3;
 		while($row = mysql_fetch_assoc($result)){
+			$request = eBayBOExcel::$inventory_service."?action=getSkuInfo&data=".urlencode($row['skuId']);
+                        $json_result = json_decode($this->getService($request));
+			
 			$j = 0;			
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $i-1);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['skuId']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $json_result->locatorNumber);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['skuTitle']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['quantity']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, '');
-			$request = eBayBOExcel::$inventory_service."?action=getSkuInfo&data=".urlencode($row['skuId']);
-                        $json_result = json_decode($this->getService($request));
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $json_result->skuStock);
 			$i++;
 		}
 		
-		$this->php_excel->getActiveSheet()->getStyle('A1:F'.($i-1))->applyFromArray(
+		$this->php_excel->getActiveSheet()->getStyle('A1:G'.($i-1))->applyFromArray(
 			array('borders' => array('allborders'=>array('style' => PHPExcel_Style_Border::BORDER_THIN),
 						),
 			)

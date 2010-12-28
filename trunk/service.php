@@ -640,13 +640,9 @@ class Service{
         }
     }
     
-    public function getTodayShipShipmentSku(){
-        $startTime = date("Y-m-d 09:10:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
-        $endTime = date("Y-m-d 09:10:00");
-        $array = array();
-        
+    public function getReadyShipShipmentSku(){
         $sql = "select sd.skuId,sum(sd.quantity) as quantity from qo_shipments as s left join qo_shipments_detail as sd 
-        on s.id = sd.shipmentsId where s.modifiedOn between '".$startTime."' and '".$endTime."' and s.status = 'N' group by sd.skuId";
+        on s.id = sd.shipmentsId where s.status = 'N' group by sd.skuId";
         $result = mysql_query($sql, Service::$database_connect);
         while($row = mysql_fetch_assoc($result)){
             $array[] = $row;
