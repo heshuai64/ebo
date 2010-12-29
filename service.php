@@ -650,6 +650,40 @@ class Service{
         echo json_encode($array);
     }
     
+    public function getSkuFlow(){
+        $three_day_ago = date("Y-m-d", time() - ((3 * 24 * 60 * 60)));
+        $one_week_ago = date("Y-m-d", time() - ((7 * 24 * 60 * 60)));
+        $two_week_ago = date("Y-m-d", time() - ((14 * 24 * 60 * 60)));
+	$three_week_ago = date("Y-m-d", time() - ((21 * 24 * 60 * 60)));
+        $today = date("Y-m-d");
+        $array = array();
+        
+        $sql = "select od.skuId,sum(od.quantity) as flow from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.status = 'P' and o.createdOn between '".$three_day_ago."' and '".$today."' and od.quantity < 20 group by od.skuId";
+        $result = mysql_query($sql, Service::$database_connect);
+        while($row = mysql_fetch_assoc($result)){
+            $array['three_day'][] = $row;
+        }
+        
+        $sql = "select od.skuId,sum(od.quantity) as flow from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.status = 'P' and o.createdOn between '".$one_week_ago."' and '".$today."' and od.quantity < 20 group by od.skuId";
+        $result = mysql_query($sql, Service::$database_connect);
+        while($row = mysql_fetch_assoc($result)){
+            $array['one_week'][] = $row;
+        }
+        
+        $sql = "select od.skuId,sum(od.quantity) as flow from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.status = 'P' and o.createdOn between '".$two_week_ago."' and '".$one_week_ago."' and od.quantity < 20 group by od.skuId";
+        $result = mysql_query($sql, Service::$database_connect);
+        while($row = mysql_fetch_assoc($result)){
+            $array['two_week'][] = $row;
+        }
+        
+        $sql = "select od.skuId,sum(od.quantity) as flow from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.status = 'P' and o.createdOn between '".$three_week_ago."' and '".$two_week_ago."' and od.quantity < 20 group by od.skuId";
+        $result = mysql_query($sql, Service::$database_connect);
+        while($row = mysql_fetch_assoc($result)){
+            $array['three_week'][] = $row;
+        }
+        echo json_encode($array);
+    }
+    
     public function updateSkuCost(){
         $sql = "select id,skuId from qo_orders_detail where skuCostStatus = 0";
         $result = mysql_query($sql, Service::$database_connect);
