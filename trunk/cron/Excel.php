@@ -249,15 +249,16 @@ class eBayBOExcel{
 		
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, date("Y-m-d")." picking list");
 		$this->php_excel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-		$this->php_excel->getActiveSheet()->mergeCells('A1:G1');
+		$this->php_excel->getActiveSheet()->mergeCells('A1:H1');
 		
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 2, 'No');
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, 2, 'Sku');
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, 2, 'Locator Number');
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 2, 'Short Description');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 2, 'Quantity');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, 2, '');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(6, 2, 'Stock');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 2, 'Chinese Description');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, 2, 'Quantity');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(6, 2, '');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(7, 2, 'Stock');
 		
 		$i = 3;
 		while($row = mysql_fetch_assoc($result)){
@@ -269,13 +270,14 @@ class eBayBOExcel{
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['skuId']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $json_result->locatorNumber);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['skuTitle']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $json_result->skuChineseTitle);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['quantity']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, '');
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $json_result->skuStock);
 			$i++;
 		}
 		
-		$this->php_excel->getActiveSheet()->getStyle('A1:G'.($i-1))->applyFromArray(
+		$this->php_excel->getActiveSheet()->getStyle('A1:H'.($i-1))->applyFromArray(
 			array('borders' => array('allborders'=>array('style' => PHPExcel_Style_Border::BORDER_THIN),
 						),
 			)
