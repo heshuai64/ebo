@@ -217,7 +217,7 @@ class eBay{
 	//file_put_contents("/export/eBayBO/log/".$file_name, $data);
     }
     
-    private function GetSellerTransactions($ModTimeFrom, $ModTimeTo, $sellerId, $dev, $app, $cert, $token, $proxy_host, $proxy_port){
+    private function GetSellerTransactions($ModTimeFrom, $ModTimeTo, $sellerId, $dev, $app, $cert, $token, $proxy_host, $proxy_port, $page_number = 1){
         /*
 	$sql = "select token from qo_ebay_seller where id = '".$sellerId."'";
         $result = mysql_query($sql, eBay::$database_connect);
@@ -235,7 +235,7 @@ class eBay{
                 $DetailLevel = "ReturnAll";
                 $IncludeContainingOrder = true;
                 $IncludeFinalValueFee = true;
-                $Pagination = array('EntriesPerPage'=> $EntriesPerPage, 'PageNumber'=> 1);
+                $Pagination = array('EntriesPerPage'=> $EntriesPerPage, 'PageNumber'=> $page_number);
              
                 $params = array('Version' => $Version, 'DetailLevel' => $DetailLevel, 'Pagination' => $Pagination, 'IncludeContainingOrder' => $IncludeContainingOrder, 'IncludeFinalValueFee' => $IncludeFinalValueFee, 'ModTimeFrom' => $ModTimeFrom, 'ModTimeTo' => $ModTimeTo);
                 $results = $client->GetSellerTransactions($params);
@@ -490,7 +490,7 @@ class eBay{
         $quantity = $transaction->QuantityPurchased;
         
         $sql = "insert into qo_orders_detail (ordersId,skuId,itemId,itemTitle,quantity,unitPriceCurrency,unitPriceValue,ebayTranctionId,ebayOrderId,finalValueFee) values 
-        ('".$orderId."','".$transaction->Item->SKU."','".$transaction->Item->ItemID."','".$transaction->Item->Title."','".$quantity."','".$unitPriceCurrency."','".$unitPriceValue."','".$transaction->TransactionID."','".$transaction->ContainingOrder->OrderID."','".$transaction->FinalValueFee->_."')";
+        ('".$orderId."','".$transaction->Item->SKU."','".$transaction->Item->ItemID."','".mysql_real_escape_string($transaction->Item->Title)."','".$quantity."','".$unitPriceCurrency."','".$unitPriceValue."','".$transaction->TransactionID."','".$transaction->ContainingOrder->OrderID."','".$transaction->FinalValueFee->_."')";
         $result = mysql_query($sql, eBay::$database_connect);
         if (!$result) {
             $this->errorLog("createOrderDetailFromEbayOrder: sql error ($sql) from DB: " . mysql_error(eBay::$database_connect));
@@ -729,20 +729,8 @@ class eBay{
 	}
     }
     
-    public function createOrderFromEbay($ModTimeFrom, $ModTimeTo, $sellerId, $dev, $app, $cert, $token, $proxy_host, $proxy_port){
-        $result = $this->GetSellerTransactions($ModTimeFrom, $ModTimeTo, $sellerId, $dev, $app, $cert, $token, $proxy_host, $proxy_port);
-        //print_r($result);
-        $TotalNumberOfPages = $result->PaginationResult->TotalNumberOfPages;
-	$TotalNumberOfEntries = $result->PaginationResult->TotalNumberOfEntries;
-        echo "<br>\n<br>\n<br>\n<br>\n".date("Y-m-d H:i:s")."------------------------------------------- ".$sellerId." Start ----------------------------------------------------------";
-	echo "<br>\n<br>\n";
-	echo date("Y-m-d H:i:s")."  createOrderFromEbay from ".$sellerId.", total number: ".$TotalNumberOfEntries.", total page: ".$TotalNumberOfPages."<br>\n<br>\n";
-	
-	if($TotalNumberOfEntries == 0){
-		return 0;
-	}
-	
-        if(is_array($result->TransactionArray->Transaction)){
+    private function createOrderFromEbaySub($result){
+	if(is_array($result->TransactionArray->Transaction)){
 		foreach ($result->TransactionArray->Transaction as $transaction){
 			//CompleteStatus  Incomplete > Complete
 			//CheckoutStatus CheckoutIncomplete > CheckoutComplete
@@ -786,6 +774,28 @@ class eBay{
 			$this->updateOrderFromEbay($ordersId, $result->Seller->UserID, $result->TransactionArray->Transaction);
 		}
         }
+    }
+    
+    public function createOrderFromEbay($ModTimeFrom, $ModTimeTo, $sellerId, $dev, $app, $cert, $token, $proxy_host, $proxy_port){
+        $result = $this->GetSellerTransactions($ModTimeFrom, $ModTimeTo, $sellerId, $dev, $app, $cert, $token, $proxy_host, $proxy_port);
+        //print_r($result);
+        $TotalNumberOfPages = $result->PaginationResult->TotalNumberOfPages;
+	$TotalNumberOfEntries = $result->PaginationResult->TotalNumberOfEntries;
+        echo "<br>\n<br>\n<br>\n<br>\n".date("Y-m-d H:i:s")."------------------------------------------- ".$sellerId." Start ----------------------------------------------------------";
+	echo "<br>\n<br>\n";
+	echo date("Y-m-d H:i:s")."  createOrderFromEbay from ".$sellerId.", total number: ".$TotalNumberOfEntries.", total page: ".$TotalNumberOfPages."<br>\n<br>\n";
+	
+	if($TotalNumberOfEntries == 0){
+		return 0;
+	}
+        $this->createOrderFromEbaySub($result);
+	
+	if($TotalNumberOfPages > 1){
+		for($i=2; $i <= $TotalNumberOfPages; $i++){
+			$result = $this->GetSellerTransactions($ModTimeFrom, $ModTimeTo, $sellerId, $dev, $app, $cert, $token, $proxy_host, $proxy_port, $i);
+			$this->createOrderFromEbaySub($result);
+		}
+	}
 	echo "<br>\n<br>\n<br>\n<br>\n".date("Y-m-d H:i:s")."------------------------------------------- ".$sellerId." End ----------------------------------------------------------";
     }
     

@@ -621,6 +621,29 @@ class eBayBOExcel{
 		}
 	}
 	
+	public function downloadCustomerInfo(){
+		$this->php_excel->setActiveSheetIndex(0);
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, 'eBay ID');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, '邮箱地址');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, 'eBay 账户');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, '购买时间');
+		
+		
+		$sql = "select sellerId,buyerId,ebayEmail,createdOn from qo_orders where createdOn between '2010-09-01' and '2010-11-01' group by buyerId";	
+		$result = mysql_query($sql, eBayBOExcel::$database_connect);
+		$i = 2;
+		while($row = mysql_fetch_assoc($result)){
+			$j = 0;			
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['buyerId']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['ebayEmail']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['sellerId']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['createdOn']);
+			$i++;
+		}
+		$writer = PHPExcel_IOFactory::createWriter($this->php_excel, 'Excel5');
+		$writer->save('/tmp/customer_info.xls');
+	}
+	
 	public function __destruct(){
 		mysql_close(eBayBOExcel::$database_connect);
 	}

@@ -200,28 +200,27 @@ class Cron{
             //$Site = $argv[2];
             switch(date("H")){
                 case "02":
+		    $day = date("D");
                     $Site = "Australia";
                     $sql_1 = "select Id,scheduleTemplateName,accountId from template where scheduleTemplateName <> '' and status = 2 and Site = 'Australia'";
                 break;
             
                 case "12":
+		    $day = date("D", time() + 24 * 60 *60);
                     $Site = "US";
-                    $sql_1 = "select Id,scheduleTemplateName,accountId from template where scheduleTemplateName <> '' and status = 2 and Site = 'US'";
+                    $sql_1 = "select Id,scheduleTemplateName,accountId from template where scheduleTemplateName <> '' and status = 2 and (Site = 'US' or Site = 'eBayMotors')";
                 break;
             
                 case "17":
+		    $day = date("D", time() + 24 * 60 *60);
                     $Site = "UK";
                     $sql_1 = "select Id,scheduleTemplateName,accountId from template where scheduleTemplateName <> '' and status = 2 and Site = 'UK'";
                 break;
             
                 case "18":
+		    $day = date("D", time() + 24 * 60 *60);
                     $Site = "Germany";
                     $sql_1 = "select Id,scheduleTemplateName,accountId from template where scheduleTemplateName <> '' and status = 2 and (Site = 'Germany' or Site = 'France')";
-                break;
-            
-                case "21":
-                    $Site = "US";
-                    $sql_1 = "select Id,scheduleTemplateName,accountId from template where scheduleTemplateName <> '' and status = 2 and Site = 'US'";
                 break;
             }
             
@@ -230,11 +229,11 @@ class Cron{
             $result_1 = mysql_query($sql_1, Cron::$database_connect);
             $i = 0;
             while($row_1 = mysql_fetch_assoc($result_1)){
-                $sql_2 = "select * from schedule_template where name = '".$row_1['scheduleTemplateName']."' and account_id = '".$row_1['accountId']."'";
+                $sql_2 = "select day,time from schedule_template where name = '".$row_1['scheduleTemplateName']."' and account_id = '".$row_1['accountId']."'";
                 $this->log("calculateListingSchedule-".$Site.".html", $sql_2."<br>");
                 $result_2 = mysql_query($sql_2, Cron::$database_connect);
                 while($row_2 = mysql_fetch_assoc($result_2)){
-                    if(date("D") == $row_2['day']){
+                    if($day == $row_2['day']){
                         print_r($row_2);
                         $local_time = $template->getSiteTime($Site, $today, $row_2['time']);
                         //$item_id = $template->changeTemplateToItem($row_1['Id'], $local_time, $today . " " .$row_2['time'], 1);

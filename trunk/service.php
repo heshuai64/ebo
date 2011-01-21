@@ -237,7 +237,7 @@ class Service{
         global $argv;
         //$day = date("Y-m-d");
         $day   = date("Y-m-d", time() - (1 * 24 * 60 * 60));
-        $day12 = date("Y-m-d", time() - (13 * 24 * 60 * 60));
+        $day12 = date("Y-m-d", time() - (19 * 24 * 60 * 60));
         $day22 = date("Y-m-d", time() - (23 * 24 * 60 * 60));
 
         switch($argv[2]){
@@ -788,6 +788,16 @@ class Service{
             $array[] = $row;
         }
         echo json_encode($array);
+    }
+    
+    public function getGoogleAccount(){
+        $array = array();
+        $sql = "select id,password from qo_google_account";
+        $result = mysql_query($sql, Service::$database_connect);
+        while($row = mysql_fetch_assoc($result)){
+            $array[] = $row;
+        }
+        echo json_encode($array);    
     }
     
     /*

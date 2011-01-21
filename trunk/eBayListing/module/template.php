@@ -5,6 +5,9 @@ class Template{
     private $lowest_price;
     
     public function __construct($account_id=0){
+	if(!class_exists('eBayListing')){
+	    require_once __DOCROOT__.'/service.php';
+	}
         $this->account_id = $account_id;
         $this->lowest_price = eBayListing::$install['lowest_price'];
     }
@@ -67,6 +70,7 @@ class Template{
     }
     
     public function getSiteTime($site, $date, $time, $num = 0, $interval = 0){
+	/*
 	switch($site){
 	    case "US":
 		$time = date("Y-m-d H:i:s", strtotime("+12 hour ".$date.' '.$time) + ($num * $interval * 60));
@@ -88,6 +92,8 @@ class Template{
 		$time = date("Y-m-d H:i:s", strtotime("+6 hour ".$date.' '.$time) + ($num * $interval * 60));
 	    break;
 	}
+	*/
+	$time = date("Y-m-d H:i:s", strtotime(eBayListing::$time_zone[$site]." hour ".$date.' '.$time) + ($num * $interval * 60));
 	return $time;
     }
     
@@ -683,56 +689,10 @@ class Template{
 	
 	if(count($ids) > 1){
 	    foreach($ids as $id){
-		$sql = "select Site from template where Id = '".$id."'";
-		$result = mysql_query($sql, eBayListing::$database_connect);
-		$row = mysql_fetch_assoc($result);
-		    
-		switch($row['Site']){
-		    case "US":
-			$localTime = date("Y-m-d H:i:s", strtotime("-12 hour ".$now));
-		    break;
-		
-		    case "UK":
-			$localTime = date("Y-m-d H:i:s", strtotime("-7 hour ".$now));
-		    break;
-		
-		    case "Australia":
-			$localTime = date("Y-m-d H:i:s", strtotime("+2 hour ".$now));
-		    break;
-		
-		    case "France":
-			$localTime = date("Y-m-d H:i:s", strtotime("-6 hour ".$now));
-		    break;
-		}
-	    
-		//$temp .= $id. " : ". $now . "<br>";	
-		$item_id  .= $this->changeTemplateToItem($id, $now, $localTime, 1) . ", ";
+		$item_id  .= $this->changeTemplateToItem($id, $now, "", 1) . ", ";
 	    }
 	}else{
-	    $sql = "select Site from template where Id = '".$_POST['ids']."'";
-	    $result = mysql_query($sql, eBayListing::$database_connect);
-	    $row = mysql_fetch_assoc($result);
-	    //var_dump($row);
-	    switch($row['Site']){
-		case "US":
-		    $localTime = date("Y-m-d H:i:s", strtotime("-12 hour ".$now));
-		break;
-	    
-		case "UK":
-		    $localTime = date("Y-m-d H:i:s", strtotime("-7 hour ".$now));
-		break;
-	    
-		case "Australia":
-		    $localTime = date("Y-m-d H:i:s", strtotime("+2 hour ".$now));
-		break;
-	    
-		case "France":
-		    $localTime = date("Y-m-d H:i:s", strtotime("-6 hour ".$now));
-		break;
-	    }
-		
-	    //$temp .= $_POST['ids']. " : ". $now . "<br>";
-	    $item_id  = $this->changeTemplateToItem($_POST['ids'], $now, $localTime, 1). ", ";
+	    $item_id  = $this->changeTemplateToItem($_POST['ids'], $now, "", 1). ", ";
 	}
 	
 	$item_id = substr($item_id, 0, -2);

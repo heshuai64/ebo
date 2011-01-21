@@ -309,6 +309,7 @@ class QoShipments {
                         $request = $this->inventory_service_address."?action=getSkuInfo&data=".urlencode($row['skuId']);
                         $json_result = json_decode($this->getService($request));
                         $shipment_detail_array[$i]['skuStock'] = $json_result->skuStock;
+			$shipment_detail_array[$i]['skuChineseTitle'] = $json_result->skuChineseTitle;
 			$i++;
 		}
 		echo json_encode(array('totalCount'=>$i, 'records'=>$shipment_detail_array));

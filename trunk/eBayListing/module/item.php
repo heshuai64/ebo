@@ -33,6 +33,10 @@ class Item{
     
     private function getSiteTime($site, $date, $time, $num = 0, $interval = 0){
 	switch($site){
+	    case "eBayMotors":
+		$time = date("Y-m-d H:i:s", strtotime("+12 hour ".$date.' '.$time) + ($num * $interval * 60));
+	    break;
+	
 	    case "US":
 		$time = date("Y-m-d H:i:s", strtotime("+12 hour ".$date.' '.$time) + ($num * $interval * 60));
 	    break;
@@ -1580,7 +1584,7 @@ class Item{
     public function batchReviseItem(){
         $sql = "update items set status = 3,";   
         if(!empty($_POST['batch_price'])){
-            $sql .= " BuyItNowPrice = ".$_POST['batch_price'].",";
+            $sql .= " StartPrice = ".$_POST['batch_price'].",";
         }
         
         if(!empty($_POST['batch_title'])){

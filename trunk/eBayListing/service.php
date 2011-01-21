@@ -38,6 +38,7 @@ class eBayListing{
     public static $service;
     public static $exchange_rate;
     public static $install;
+    public static $time_zone;
     //const GATEWAY_SOAP = 'https://api.sandbox.ebay.com/wsapi';
     //const GATEWAY_SOAP = 'https://api.ebay.com/wsapi';
     
@@ -73,6 +74,7 @@ class eBayListing{
 	eBayListing::$service = $this->config['service'];
 	eBayListing::$exchange_rate = $this->config['exchange_rate'];
 	eBayListing::$install = $this->config['install'];
+	eBayListing::$time_zone = $this->config['time_zone'];
 	
         if (!eBayListing::$database_connect) {
             echo "Unable to connect to DB: " . mysql_error(eBayListing::$database_connect);
