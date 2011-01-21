@@ -777,12 +777,12 @@ class Ebay{
     }
     
     private function checkItem($itemId){
-	$sql = "select count(*) as count from items where ItemID = '".$itemId."'";
+	$sql = "select count(*) as num from items where ItemID = '".$itemId."'";
 	//echo $sql;
 	//echo "<br>\n";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
-	return $row['count'];
+	return $row['num'];
     }
     
     private function eBayInsertItem($item, $userId){
@@ -842,7 +842,7 @@ class Ebay{
 	
 	$StoreCategoryName = $this->getStoreCategoryPathById($this->account_id, $item->Storefront->StoreCategoryID);
 	$StoreCategory2Name = $this->getStoreCategoryPathById($this->account_id, $item->Storefront->StoreCategory2ID);
-	
+	/*
 	$sql = "insert into items (ItemID,AutoPay,BuyItNowPrice,Country,Currency,Description,DispatchTimeMax,StartTime,
 	EndTime,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,
 	ReturnPolicyDescription,ReturnPolicyRefundOption,ReturnPolicyReturnsAcceptedOption,ReturnPolicyReturnsWithinOption,ReturnPolicyShippingCostPaidByOption,
@@ -859,7 +859,8 @@ class Ebay{
 	'".mysql_escape_string($item->SellingStatus->ListingStatus)."','".mysql_escape_string($item->ShippingDetails->ShippingType)."','".mysql_escape_string($item->Site)."',
 	'".mysql_escape_string($item->SKU)."','".mysql_escape_string($item->StartPrice)."','".mysql_escape_string($StoreCategory2ID)."','".$StoreCategory2Name."',
 	'".mysql_escape_string($StoreCategoryID)."','".$StoreCategoryName."','".htmlentities($item->Title, ENT_QUOTES)."','".mysql_escape_string($userId)."',".$accountId.",".$GalleryTypeFeatured.",".$GalleryTypeGallery.",".$GalleryTypePlus.",'".$item->PictureDetails->GalleryURL."','".$Status."')";
-	
+	*/
+	echo "insert closed!";
 	echo $sql;
 	echo "<br>\n";
 	$result = mysql_query($sql, eBayListing::$database_connect);
@@ -919,7 +920,7 @@ class Ebay{
 	
 	$StoreCategoryName = $this->getStoreCategoryPathById($this->account_id, $item->Storefront->StoreCategoryID);
 	$StoreCategory2Name = $this->getStoreCategoryPathById($this->account_id, $item->Storefront->StoreCategory2ID);
-	
+	/*
 	$sql = "update items set AutoPay='".mysql_escape_string($item->AutoPay)."',
 	BuyItNowPrice='".mysql_escape_string($item->BuyItNowPrice)."',Country='".mysql_escape_string($item->Country)."',
 	Currency='".mysql_escape_string($item->Currency)."',
@@ -940,6 +941,10 @@ class Ebay{
 	StoreCategoryID='".mysql_escape_string($item->Storefront->StoreCategoryID)."',StoreCategoryName='".mysql_escape_string($StoreCategoryName)."',Title='".htmlentities($item->Title, ENT_QUOTES)."',
 	UserID='".mysql_escape_string($userId)."',Status='".$Status."',
 	GalleryTypeFeatured=".$GalleryTypeFeatured.",GalleryTypeGallery=".$GalleryTypeGallery.",GalleryTypePlus=".$GalleryTypePlus.",GalleryURL='".$item->PictureDetails->GalleryURL."' where ItemID = '".$item->ItemID."'";
+	*/
+	$sql = "update items set QuantitySold='".mysql_escape_string($item->SellingStatus->QuantitySold)."',
+	ListingStatus='".mysql_escape_string($item->SellingStatus->ListingStatus)."',
+	UserID='".mysql_escape_string($userId)."',Status='".$Status."' where ItemID = '".$item->ItemID."'"; 
 	//echo $sql;
 	//echo "<br>";
 	//debugLog("eBay-update-item-track.log", $sql);
@@ -1053,42 +1058,39 @@ class Ebay{
 	}
     }
     //http://127.0.0.1:6666/eBayBO/eBaylisting/service.php?action=getSellerList&EndTimeFrom=2009-05-29&EndTimeTo=2009-05-30
-    public function getSellerList(){
-	global $argv;
-	if(!empty($argv[2]) && !empty($argv[3]) && !empty($argv[4]) && !empty($argv[5])){
-	    $sql = "select id from account where name = '".$argv[2]."'";
+    public function getSellerList($type, $start="", $end="", $account=""){
+	if(!empty($type) && !empty($start) && !empty($end) && !empty($account)){
+	    $sql = "select id from account where name = '".$account."'";
 	    $result = mysql_query($sql, eBayListing::$database_connect);
 	    $row = mysql_fetch_assoc($result);
 	    
 	    $this->setAccount($row['id']);
 	    $this->configEbay();
 	    
-	    $type = $argv[3];
 	    if($type == "Start"){
-		$StartTimeFrom  = $argv[4];
-		$StartTimeTo    = $argv[5];
+		$StartTimeFrom  = $start;
+		$StartTimeTo    = $end;
 	    }elseif($type == "End"){
-		$EndTimeFrom = $argv[4];
-		$EndTimeTo   = $argv[5];
+		$EndTimeFrom = $start;
+		$EndTimeTo   = $end;
 	    }
 	    
-	}elseif(!empty($argv[2])){
-	    $type = $argv[2];
+	}elseif(!empty($type)){
 	    if($type == "Start"){
-		if(!empty($argv[3]) && !empty($argv[4])){
-		    $StartTimeFrom  = $argv[3];
-		    $StartTimeTo    = $argv[4];
+		if(!empty($start) && !empty($end)){
+		    $StartTimeFrom  = $start." 00:00:00";
+		    $StartTimeTo    = $end." 00:00:00";
 		}else{
-		    $StartTimeFrom  = date("Y-m-d H:i:s", time() - (12 * 60 * 60) - 30);
-		    $StartTimeTo    = date("Y-m-d H:i:s", time() - (8 * 60 * 50) + 30);
+		    $StartTimeFrom  = date("Y-m-d H:i:s", time() - (12 * 60 * 60));
+		    $StartTimeTo    = date("Y-m-d H:i:s", time() - (8 * 60 * 60));
 		}
 	    }elseif($type == "End"){
-		if(!empty($argv[3]) && !empty($argv[4])){
-		    $EndTimeFrom = $argv[3];
-		    $EndTimeTo   = $argv[4];
+		if(!empty($start) && !empty($end)){
+		    $EndTimeFrom = $start." 00:00:00";
+		    $EndTimeTo   = $end." 00:00:00";
 		}else{
-		    $EndTimeFrom = date("Y-m-d H:i:s", time() - (12 * 60 * 60) - 30);
-		    $EndTimeTo   = date("Y-m-d H:i:s", time() - (8 * 60 * 50) + 30);
+		    $EndTimeFrom = date("Y-m-d H:i:s", time() - (12 * 60 * 60));
+		    $EndTimeTo   = date("Y-m-d H:i:s", time() - (8 * 60 * 60));
 		}
 	    }
 	}
@@ -1133,7 +1135,7 @@ class Ebay{
 		    foreach($results->ItemArray->Item as $item){
 			if($this->checkItem($item->ItemID) == 0){
 			    $id = $this->eBayInsertItem($item, $results->Seller->UserID);
-			    
+			    /*
 			    //ShippingServiceOptions
 			    if(is_array($item->ShippingDetails->ShippingServiceOptions)){
 				//$this->deleteShippingServiceOptions($id);
@@ -1161,6 +1163,7 @@ class Ebay{
 			    }
 			    
 			    $this->insertPictureUrl($id, $item->PictureDetails->PictureURL);
+			    */
 			}else{
 			    $id = $this->eBayUpdateItem($item, $results->Seller->UserID);
 			    
@@ -1194,7 +1197,7 @@ class Ebay{
 		    //one item
 		    if($this->checkItem($results->ItemArray->Item->ItemID) == 0){
 		    	$id = $this->eBayInsertItem($results->ItemArray->Item, $results->Seller->UserID);
-			
+			/*
 			//ShippingServiceOptions
 			if(is_array($results->ItemArray->Item->ShippingDetails->ShippingServiceOptions)){
 			    //$this->deleteShippingServiceOptions($id);
@@ -1222,6 +1225,7 @@ class Ebay{
 			}
 			
 			$this->insertPictureUrl($id, $results->ItemArray->Item->PictureDetails->PictureURL);
+			*/
 		    }else{
 			$id = $this->eBayUpdateItem($results->ItemArray->Item, $results->Seller->UserID);
 			
@@ -1260,6 +1264,8 @@ class Ebay{
     }
     
     public function getAllSellerList(){
+	global $argv;
+	print_r($argv);
 	$sql = "select id,token from account where status = 1";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while($row = mysql_fetch_assoc($result)){
@@ -1272,7 +1278,7 @@ class Ebay{
 	    */
 	    $this->setAccount($row['id']);
 	    $this->configEbay();
-	    $this->getSellerList();
+	    $this->getSellerList($argv[2], $argv[3], $argv[4], $argv[5]);
 	}
     }
     
@@ -1291,6 +1297,14 @@ class Ebay{
 	$row_2 = mysql_fetch_assoc($result_2);
 	
 	return $row_2['status'];
+    }
+    
+    private function getTemplateActiveItemCount($templateId){
+	$sql = "select count(*) as num from items where Status = 2 and TemplateID = ".$templateId;
+	$result = mysql_query($sql);
+	$row = mysql_fetch_assoc($result);
+	file_put_contents("/tmp/getTemplateActiveItemCount-".date("Ymd").".log", $sql."\n".$row['num']."\n\n");
+	return $row['num'];
     }
     //-------------------------- Upload  -----------------------------------------------------------------
     private function getCondition($CategorySiteID, $CategoryID){
@@ -1321,7 +1335,7 @@ class Ebay{
 	$from = date("Y-m-d H:i:s", time() - 60);
 	$to = date("Y-m-d H:i:s", time() + 30);
 	
-	$sql = "select Id,AccountId,SKU from items where Status = 1 and ScheduleTime between '".$from."' and '".$to."'";
+	$sql = "select Id,AccountId,TemplateID,SKU from items where Status = 1 and ScheduleTime between '".$from."' and '".$to."'";
 	//$sql = "select Id,AccountId from items where Status = 1";
 	
 	$result = mysql_query($sql);
@@ -1349,6 +1363,8 @@ class Ebay{
 		$this->log("upload", $row['Id'] . " template status is ".$status, "warn");
 		continue;
 	    }
+	    
+	    $this->getTemplateActiveItemCount($row['TemplateID']);
 	    
 	    $sql_0 = "update items set Status = 10 where Id = '".$row['Id']."'";
 	    $result_0 = mysql_query($sql_0);
@@ -1680,6 +1696,7 @@ class Ebay{
 		$itemArray['PostalCode'] = $item['PostalCode'];
 	    }
 	    $itemArray['PrimaryCategory']['CategoryID'] = $item['PrimaryCategoryCategoryID'];
+	    $itemArray['PrivateListing'] = true;
 	    $itemArray['Quantity'] = $item['Quantity'];
 	    
 	    if(!empty($item['ReturnPolicyReturnsAcceptedOption'])){
@@ -2062,6 +2079,7 @@ class Ebay{
 		$itemArray['PostalCode'] = $item['PostalCode'];
 	    }
 	    $itemArray['PrimaryCategory']['CategoryID'] = $item['PrimaryCategoryCategoryID'];
+	    $itemArray['PrivateListing'] = true;
 	    $itemArray['Quantity'] = $item['Quantity'];
 	    
 	    

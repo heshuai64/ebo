@@ -922,17 +922,17 @@ ini_set("memory_limit","256M");
 		$start_timestamp = strtotime($this->start_time);
 		$end_timestamp = strtotime($this->end_time);
 		
-		for($i = $start_timestamp; $i < $end_timestamp; $i += 24 * 60 *  60){
+		for($i = $start_timestamp; $i < $end_timestamp; $i += 12 * 60 *  60){
 		    foreach($api_acount as $acount){
 			echo $acount['Username']."\n";
 			echo date("Y-m-d H:i:s", $i)."\n";
-			echo date("Y-m-d H:i:s", $i + 24 * 60 *  60)."\n";
+			echo date("Y-m-d H:i:s", $i + 12 * 60 *  60)."\n";
 			echo "\n";
 			//sleep(5);
 			
 			//continue;
 			$this->account = $acount['Username'];
-			$this->TransactionSearch($acount['Username'], $acount['Password'], $acount['Signature'], date("Y-m-d H:i:s", $i), date("Y-m-d H:i:s", $i + 24 * 60 *  60));
+			$this->TransactionSearch($acount['Username'], $acount['Password'], $acount['Signature'], date("Y-m-d H:i:s", $i), date("Y-m-d H:i:s", $i + 12 * 60 *  60));
 		    }
 		    
 		}
@@ -951,19 +951,75 @@ ini_set("memory_limit","256M");
 	    //echo date("Y-m-d H:i:s", $end_timestamp)."\n";
 	    
 	    $api_acount = parse_ini_file(__DOCROOT__ . '/paypal.ini', true);
-	    for($i = $start_timestamp; $i < $end_timestamp; $i += 24 * 60 *  60){
+	    for($i = $start_timestamp; $i < $end_timestamp; $i += 12 * 60 *  60){
 		foreach($api_acount as $acount){
 		    if($user_name == $acount['Username']){
-			echo date("Y-m-d H:i:s", $i)."\n";
-			echo date("Y-m-d H:i:s", $i + 24 * 60 *  60)."\n";
+			echo date("Y-m-d\TH:i:s\Z", $i)."\n";
+			echo date("Y-m-d\TH:i:s\Z", $i + 12 * 60 *  60)."\n";
 			echo "\n";
 			sleep(5);
 			$this->account = $acount['Username'];
-			$this->TransactionSearch($acount['Username'], $acount['Password'], $acount['Signature'], date("Y-m-d H:i:s", $i), date("Y-m-d H:i:s", $i + 24 * 60 *  60));
+			$this->TransactionSearch($acount['Username'], $acount['Password'], $acount['Signature'], date("Y-m-d\TH:i:s\Z", $i), date("Y-m-d\TH:i:s\Z", $i + 12 * 60 *  60));
 		    }
 		}
 		
 	    }
+	}
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	public function getSellerTransactionsFromCSV(){
+	    $row = 0;
+	    if (($handle = fopen("test.csv", "r")) !== FALSE) {
+		while (($data = fgetcsv($handle)) !== FALSE) {
+		    if($row == 0){
+			$row++;
+			continue;
+		    }
+		    $i = 0;
+		    $transaction_array[$row]['Date'] = $data[$i++];
+		    $transaction_array[$row]['Time'] = $data[$i++];
+		    $transaction_array[$row]['Time_Zone'] = $data[$i++];
+		    $transaction_array[$row]['Name'] = $data[$i++];
+		    $transaction_array[$row]['Type'] = $data[$i++];
+		    $transaction_array[$row]['Status'] = $data[$i++];
+		    $transaction_array[$row]['Gross'] = $data[$i++];
+		    $transaction_array[$row]['Fee'] = $data[$i++];
+		    $transaction_array[$row]['Net'] = $data[$i++];
+		    $transaction_array[$row]['From_Email_Address'] = $data[$i++];
+		    $transaction_array[$row]['To_Email_Address'] = $data[$i++];
+		    $transaction_array[$row]['Transaction_ID'] = $data[$i++];
+		    $transaction_array[$row]['Counterparty_Status'] = $data[$i++];
+		    $transaction_array[$row]['Address_Status'] = $data[$i++];
+		    $transaction_array[$row]['Item_Title'] = $data[$i++];
+		    $transaction_array[$row]['Item_ID'] = $data[$i++];
+		    $transaction_array[$row]['Shipping_and_Handling_Amount'] = $data[$i++];
+		    $transaction_array[$row]['Insurance_Amount'] = $data[$i++];
+		    $transaction_array[$row]['Sales_Tax'] = $data[$i++];
+		    $transaction_array[$row]['Option_1_Name'] = $data[$i++];
+		    $transaction_array[$row]['Option_1_Value'] = $data[$i++];
+		    $transaction_array[$row]['Option_2_Name'] = $data[$i++];
+		    $transaction_array[$row]['Option_2_Value'] = $data[$i++];
+		    $transaction_array[$row]['Auction_Site'] = $data[$i++];
+		    $transaction_array[$row]['Buyer_ID'] = $data[$i++];
+		    $transaction_array[$row]['Item_URL'] = $data[$i++];
+		    $transaction_array[$row]['Closing_Date'] = $data[$i++];
+		    $transaction_array[$row]['Escrow_Id'] = $data[$i++];
+		    $transaction_array[$row]['Invoice_Id'] = $data[$i++];
+		    $transaction_array[$row]['Reference_Txn_ID'] = $data[$i++];
+		    $transaction_array[$row]['Invoice_Number'] = $data[$i++];
+		    $transaction_array[$row]['Custom_Number'] = $data[$i++];
+		    $transaction_array[$row]['Receipt_ID'] = $data[$i++];
+		    $transaction_array[$row]['Balance'] = $data[$i++];
+		    $transaction_array[$row]['Address_Line_1'] = $data[$i++];
+		    $transaction_array[$row]['Address_Line_2/District/Neighborhood'] = $data[$i++];
+		    $transaction_array[$row]['Town/City'] = $data[$i++];
+		    $transaction_array[$row]['State/Province/Region/County/Territory/Prefecture/Republic'] = $data[$i++];
+		    $transaction_array[$row]['Zip/Postal_Code'] = $data[$i++];
+		    $transaction_array[$row]['Country'] = $data[$i++];
+		    $transaction_array[$row]['Contact_Phone_Number'] = $data[$i++];
+		    $row++;
+		}
+		fclose($handle);
+	    }    
 	}
 	
         public function __destruct(){

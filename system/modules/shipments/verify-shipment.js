@@ -3,7 +3,7 @@ Ext.onReady(function(){
             root: 'records',
             totalProperty: 'totalCount',
             idProperty: 'id',
-            fields: ['id', 'sellerId', 'shipmentMethod', 'skuId', 'skuTitle', 'skuStock', 'itemId', 'itemTitle', 'quantity', 'galleryURL'],
+            fields: ['id', 'sellerId', 'shipmentMethod', 'skuId', 'skuTitle', 'skuChineseTitle', 'skuStock', 'itemId', 'itemTitle', 'quantity', 'galleryURL'],
             url:'connect.php?moduleId=qo-shipments&action=verifyShipment'
         });
         
@@ -12,7 +12,7 @@ Ext.onReady(function(){
         }
         
         function renderShipmentInfo(v, p, r){
-            return String.format(' {0} X {1} <br> {2}', r.data.skuId , r.data.quantity, r.data.itemTitle);
+            return String.format(' {0} X {1} <br/> {2} <br/> {3}', r.data.skuId , r.data.quantity, r.data.itemTitle, r.data.skuChineseTitle);
         }
         
         function renderShipmentMethod(v, p, r){

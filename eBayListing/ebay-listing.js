@@ -4,8 +4,8 @@ Ext.onReady(function(){
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      
-     var path = "/eBayBO/eBayListing/";
-     //var path = "/eBayListing/";
+     //var path = "/eBayBO/eBayListing/";
+     var path = "/eBayListing/";
      
      /*
      var cp = new Ext.state.CookieProvider({
@@ -2371,11 +2371,12 @@ Ext.onReady(function(){
                icon: "./images/building_edit.png",
                handler: function(){
                     var selections = activity_grid.selModel.getSelections();
+                    /*
                     if(activity_grid.selModel.getCount() <= 1){
                          Ext.MessageBox.alert('Warning','Please select the mulit items.');
                          return 0;
                     }
-                    
+                    */
                     var ids = "";
                     for(var i = 0; i< activity_grid.selModel.getCount(); i++){
                          ids += selections[i].data.Id + ","
