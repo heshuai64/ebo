@@ -901,7 +901,7 @@ Ext.onReady(function(){
           },'-',{
                text: 'Export',
                icon: './images/plugin_go.png',
-               tooltip:'Export to CSV',
+               tooltip:'Export Template to Excel',
                handler: function(){
                     var  exportWindow = new Ext.Window({
                          title: 'Please select the export conditions' ,
@@ -949,6 +949,16 @@ Ext.onReady(function(){
                                    triggerAction: 'all',
                                    editable: false,
                                    selectOnFocus:true
+                              },{
+                                   id:'TemplateStatus',
+                                   fieldLabel:'Status',
+                                   xtype: 'combo',
+                                   store:['New', 'Waiting For Approve', 'Active', 'Out Of Stock', 'Under Review', 'Inactive', 'Forever Inactive'],
+                                   triggerAction: 'all',
+                                   editable: false,
+                                   selectOnFocus:true,
+                                   listWidth:100,
+                                   width:100
                               }
                          ],
                          buttons: [{
@@ -956,7 +966,8 @@ Ext.onReady(function(){
                                         handler: function(){
                                              window.open("service.php?action=exportTemplateToExcel&"+Ext.urlEncode({'SKU': Ext.getCmp('SKU').getValue(), 'Title': Ext.getCmp('Title').getValue(),
                                                           'ListingType': Ext.getCmp('ListingType').getValue(), 'ListingDuration': Ext.getCmp('ListingDuration').getValue(),
-                                                          'TemplateCategory': Ext.getCmp('TemplateCategory').getValue()}),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=100, height=100");  
+                                                          'TemplateCategory': Ext.getCmp('TemplateCategory').getValue(),
+                                                          'TemplateStatus': Ext.getCmp('TemplateStatus').getValue()}),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=100, height=100");  
                                              exportWindow.close();
                                         }
                                    },{
