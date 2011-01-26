@@ -54,15 +54,15 @@ class Template{
     	}
     }
     
-    private function getSkuPicture($sku=''){
-	if(!empty($sku)){
-	    $_POST['sku'] = $sku;
+    private function getSkuPicture($sku='', $internal=false){
+	if($internal == false){
+	    $sku = $_POST['sku'];
 	}
 	$sql = "select picture_1,picture_2,picture_3,picture_4,picture_5 from account_sku_picture 
-	where account_id = '".$this->account_id."' and sku = '".$_POST['sku']."'";
+	where account_id = '".$this->account_id."' and sku = '".$sku."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_array($result, MYSQL_NUM);
-	if(!empty($sku)){
+	if($internal){
 	    return $row['picture_1'];
 	}else{
 	    echo json_encode($row);
@@ -2915,7 +2915,8 @@ class Template{
     }
     
     public function exportTemplateToExcel(){
-	set_time_limit(600);
+	//set_time_limit(600);
+	ini_set("memory_limit","256M");
 	require_once './Classes/PHPExcel.php';
 	require_once './Classes/PHPExcel/IOFactory.php';
 
@@ -2962,8 +2963,14 @@ class Template{
 	    $where .= "and Id in (".substr($template_id, 0, -1).")";
 	}
 	
+	if(!empty($_GET['TemplateStatus'])){
+	    $status = eBayListing::$template_status[strtolower(str_replace(" ", "_", $_GET['TemplateStatus']))];
+	    $where .= " and status = ".$status;
+	}
+	
 	$sql = "select Id,SKU,Title,Description,ListingDuration,ListingType,BuyItNowPrice,StartPrice from template where accountId = '".$this->account_id."'" . $where;
 	//echo $sql."<br>";
+	//exit;
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$i = 2;
 	while($row = mysql_fetch_assoc($result)){
@@ -2977,7 +2984,7 @@ class Template{
 	    $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['Title']);
 	    $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, html_entity_decode($row['Description'], ENT_QUOTES));
 	    $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['StartPrice']);
-	    $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $this->getSkuPicture($row['SKU']));
+	    $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $this->getSkuPicture($row['SKU'], true));
 	    //$data .= '"'.$row['SKU'].'","'.$row['Title'].'","'.$row['StartPrice'].'"'."\n";
 	    $i++;
 	}
@@ -2993,7 +3000,7 @@ class Template{
 	header("Cache-Control: must-revalidate, post-check=0, pre-check=0");     
 	header("Pragma: no-cache");     
     
-	$writer = PHPExcel_IOFactory::createWriter($objExcel, 'Excel2007');
+	$writer = PHPExcel_IOFactory::createWriter($objExcel, 'Excel5');
 	$writer->save('php://output');	//echo $data;
 	/*
 	header("Content-type: application/x-msdownload");
