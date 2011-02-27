@@ -19,6 +19,7 @@ class Template{
         4: under review
         5: inactive
         6: forever inactive
+        7: forever listing
     */
     
     private function getCategoryPathById($SiteID, $CategoryID){
@@ -1625,12 +1626,15 @@ class Template{
 	$id = $_GET['template_id'];
 	//StartTime,EndTime
 	//$PaymentMethods = ($_POST['PayPalPayment'] == 1)?'PayPal':'';
+    
+	//
+	$foreverListingChinaTime = substr($this->getSiteTime($_POST['Site'], "1983-11-16", $_POST['ForeverListingTime']), 11, 5);
 
 	$sql = "update template set 
 	BuyItNowPrice='".$_POST['BuyItNowPrice']."',Country='CN',Currency='".$_POST['Currency']."',
 	Description='".htmlentities($_POST['Description'], ENT_QUOTES)."',
 	ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',PaymentMethods='PayPal',
-	PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',
+	PayPalEmailAddress='".$_POST['PayPalEmailAddress']."',ForeverListingTime='".$_POST['ForeverListingTime']."',ForeverListingChinaTime='".$foreverListingChinaTime."',
 	PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
 	SecondaryCategoryCategoryID='".$_POST['SecondaryCategoryCategoryID']."',SecondaryCategoryCategoryName='".$_POST['SecondaryCategoryCategoryName']."',
 	Quantity='".@$_POST['Quantity']."',ReservePrice='".@$_POST['ReservePrice']."',
@@ -2915,7 +2919,7 @@ class Template{
     }
     
     public function exportTemplateToExcel(){
-	//set_time_limit(600);
+	set_time_limit(600);
 	ini_set("memory_limit","256M");
 	require_once './Classes/PHPExcel.php';
 	require_once './Classes/PHPExcel/IOFactory.php';
@@ -2937,7 +2941,7 @@ class Template{
 	}
 	
 	if(!empty($_GET['Title'])){
-	    $where .= " and Title like '%".$_GET['Title']."%'";
+	    $where .= " and Title = '".$_GET['Title']."'";
 	}
 	
 	if(!empty($_GET['ListingType'])){
