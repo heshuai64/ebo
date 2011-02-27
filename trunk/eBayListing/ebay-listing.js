@@ -1576,7 +1576,7 @@ Ext.onReady(function(){
                text: 'Change Status',
                icon: './images/cog_go.png',
                handler: function(){
-                    var status_array = ['new', 'waiting for approve', 'active', 'out of stock', 'under review', 'inactive', 'forever inactive'];
+                    var status_array = ['new', 'waiting for approve', 'active', 'out of stock', 'under review', 'inactive', 'forever inactive', 'forever listing'];
                     var selections = template_status_grid.selModel.getSelections();
                     if(template_status_grid.selModel.getCount() == 0){
                          Ext.MessageBox.alert('Warning','Please select the template you want to preview.');
@@ -1997,7 +1997,7 @@ Ext.onReady(function(){
                case 2:
                     var status_name = "Active";
                     if(!Ext.isEmpty(Ext.getCmp('template-status-combo'))){
-                         Ext.getCmp('template-status-combo').getStore().loadData([[5,'Freeze SKU']]);
+                         Ext.getCmp('template-status-combo').getStore().loadData([[5,'Freeze SKU'], [7,'Forever Listing']]);
                     }
                break;
           
@@ -2018,6 +2018,11 @@ Ext.onReady(function(){
                case 6:
                     var status_name = "Forever Inactive";
                     Ext.getCmp('template-status-combo').getStore().loadData([]);
+               break;
+          
+               case 7:
+                    var status_name = "Forever Listing";
+                    Ext.getCmp('template-status-combo').getStore().loadData([[5,'Freeze SKU']]);
                break;
           }
           if(Ext.getCmp('template-status-tab')){
@@ -3259,6 +3264,13 @@ Ext.onReady(function(){
                               width:160,
                               handler: function(){
                                    template_status_tab(6);
+                              }
+                         },{
+                              xtype:'button',
+                              text: '<font color="red">Forever Listing</font>',
+                              width:160,
+                              handler: function(){
+                                   template_status_tab(7);
                               }
                          }],
                          listeners:{

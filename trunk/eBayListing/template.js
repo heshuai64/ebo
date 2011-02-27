@@ -367,7 +367,7 @@ Ext.onReady(function(){
                 'StoreCategory2ID','StoreCategory2Name','StoreCategoryID','StoreCategoryName','SubTitle','Title','UserID','BoldTitle','Border','Featured','Highlight','HomePageFeatured','GalleryTypeFeatured','GalleryTypeGallery','GalleryTypePlus','GalleryURL',
                 'picture_1','picture_2','picture_3','picture_4','picture_5','picture_6','picture_7','picture_8',
                 'picture_9','picture_10','template_category_id','PhotoDisplay',
-                'accountId','UseStandardFooter','ScheduleStartDate','ScheduleEndDate','scheduleTemplateName','shippingTemplateName',
+                'accountId','UseStandardFooter','ForeverListingTime','ScheduleStartDate','ScheduleEndDate','scheduleTemplateName','shippingTemplateName',
                 'ShippingServiceCost1','ShippingServiceAdditionalCost1','ShippingServiceCost2','ShippingServiceAdditionalCost2','ShippingServiceCost3','ShippingServiceAdditionalCost3',
                 'InternationalShippingServiceCost1','InternationalShippingServiceAdditionalCost1','InternationalShippingServiceCost2','InternationalShippingServiceAdditionalCost2',
                 'InternationalShippingServiceCost3','InternationalShippingServiceAdditionalCost3','StandardStyleTemplateId','LowPrice'
@@ -1488,7 +1488,7 @@ Ext.onReady(function(){
                             }]
                         }]
                     }*/]
-                  },{
+                  },/*{
                     xtype:"panel",
                     title:"Schedule Template",
                     layout:"form",
@@ -1623,7 +1623,13 @@ Ext.onReady(function(){
                                     }]
                             }]
                     }]
-                  },{
+                  },*/{
+                        xtype:"timefield",
+                        id:"ForeverListingTime",
+                        fieldLabel:"Forever Listing Time",
+                        name:"ForeverListingTime",
+                        format:"H:i"
+                        },{
                         xtype:"textfield",
                         fieldLabel:"<font color='red'>SKU</font>",
                         id:"SKU",
