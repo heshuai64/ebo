@@ -440,12 +440,12 @@ class Template{
     }
     
     //-----------------------  Template change to item ------------------------------------
-    private function changeTemplateToItem($template_id, $time = '', $local_time = '', $status = 0){
+    public function changeTemplateToItem($template_id, $time = '', $local_time = '', $status = 0){
 	$sql_0 = "select * from template where Id = '".$template_id."' and accountId = '".$this->account_id."'";
 	$result_0 = mysql_query($sql_0, eBayListing::$database_connect);
 	$row_0 = mysql_fetch_assoc($result_0);
 	
-        if($row_0['status'] !=2 && $row_0['status'] !=3){
+        if($row_0['status'] !=2 && $row_0['status'] !=3 && $row_0['status'] !=7){
             if($this->batch){
                 return 'template('.$template_id.') status error.';
             }else{
