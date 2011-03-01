@@ -149,7 +149,7 @@ class QoShipments {
             }
             
             if(!empty($_POST['shippedOnFrom'])){
-                    $where .= " and s.shippedOn < '".$_POST['shippedOnFrom']."'";
+                    $where .= " and s.shippedOn > '".$_POST['shippedOnFrom']."'";
             }
             
             if(!empty($_POST['shippedOnTo'])){
