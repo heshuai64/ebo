@@ -195,7 +195,6 @@ class Cron{
         //global $argv;
         if(in_array(date("H"), array('02', '12', '17' ,'18'))){
             require_once __DOCROOT__ . '/module/template.php';
-            $template = new Template();
             $today = date("Y-m-d");
             //$Site = $argv[2];
             switch(date("H")){
@@ -234,6 +233,7 @@ class Cron{
                 $result_2 = mysql_query($sql_2, Cron::$database_connect);
                 while($row_2 = mysql_fetch_assoc($result_2)){
                     if($day == $row_2['day']){
+			$template = new Template($row_1['accountId']);
                         print_r($row_2);
                         $local_time = $template->getSiteTime($Site, $today, $row_2['time']);
                         //$item_id = $template->changeTemplateToItem($row_1['Id'], $local_time, $today . " " .$row_2['time'], 1);
@@ -249,6 +249,53 @@ class Cron{
                 $i++;
             }
         }
+    }
+    
+    public function calculateForeverListingSchedule(){
+	echo date("H")."\n";
+	if(in_array(date("H"), array('02', '12', '17' ,'18'))){
+            require_once __DOCROOT__ . '/module/template.php';
+            $today = date("Y-m-d");
+            //$Site = $argv[2];
+            switch(date("H")){
+                case "02":
+		    $day = date("Y-m-d", time() + 24 * 60 *60);
+                    $Site = "Australia";
+                    $sql_1 = "select Id,accountId,ForeverListingTime,ForeverListingChinaTime from template where status = 7 and Site = 'Australia'";
+                break;
+            
+                case "12":
+		    $day = date("Y-m-d", time() + 24 * 60 *60);
+                    $Site = "US";
+                    $sql_1 = "select Id,accountId,ForeverListingTime,ForeverListingChinaTime from template where status = 7 and (Site = 'US' or Site = 'eBayMotors')";
+                break;
+            
+                case "17":
+		    $day = date("Y-m-d", time() + 24 * 60 *60);
+                    $Site = "UK";
+                    $sql_1 = "select Id,accountId,ForeverListingTime,ForeverListingChinaTime from template where status = 7 and Site = 'UK'";
+                break;
+            
+                case "18":
+		    $day = date("Y-m-d", time() + 24 * 60 *60);
+                    $Site = "Germany";
+                    $sql_1 = "select Id,accountId,ForeverListingTime,ForeverListingChinaTime from template where status = 7 and (Site = 'Germany' or Site = 'France')";
+                break;
+            }
+	    
+	    //$sql_1 = "select scheduleTemplateName,accountId from template where status = 2 and Site = '".$Site."'";
+            $this->log("calculateForeverListingSchedule-".$Site.".html", $sql_1."<br>");
+            $result_1 = mysql_query($sql_1, Cron::$database_connect);
+            $i = 0;
+            while($row_1 = mysql_fetch_assoc($result_1)){
+		$template = new Template($row_1['accountId']);
+		$china_time = $day." ".$row_1['ForeverListingChinaTime'];
+		$local_time = $day." ".$row_1['ForeverListingTime'];
+		$item_id = $template->changeTemplateToItem($row_1['Id'], $china_time, $local_time, 1);
+		$this->log("calculateForeverListingSchedule-".$Site.".html", "t:".$row_1['Id']." ==> i:".$item_id.". BeiJing:".$china_time.", ".$Site.": ".$local_time."<br>");
+		$this->log("calculateForeverListingSchedule-".$Site.".html", "<br><font color='red'>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
+	    }
+	}
     }
     
     public function dealSkuStatusMessage(){

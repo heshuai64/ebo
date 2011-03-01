@@ -1303,7 +1303,7 @@ class Ebay{
 	$sql = "select count(*) as num from items where Status = 2 and TemplateID = ".$templateId;
 	$result = mysql_query($sql);
 	$row = mysql_fetch_assoc($result);
-	file_put_contents("/tmp/getTemplateActiveItemCount-".date("Ymd").".log", $sql."\n".$row['num']."\n\n");
+	//file_put_contents("/tmp/getTemplateActiveItemCount-".date("Ymd").".log", $sql."\n".$row['num']."\n\n");
 	return $row['num'];
     }
     //-------------------------- Upload  -----------------------------------------------------------------
@@ -1342,7 +1342,7 @@ class Ebay{
 	while($row = mysql_fetch_assoc($result)){
 	    $this->setAccount($row['AccountId']);
 	    $template_status = $this->getItemTemplateStatus($row['Id']);
-	    if($template_status !=2 && $template_status != 3){
+	    if($template_status !=2 && $template_status != 3 && $template_status != 7){
 		switch($template_status){
 		    case 0:
 			$status = "new";
@@ -1359,12 +1359,19 @@ class Ebay{
 		    case 5:
 			$status = "inactive";
 		    break;
+		
+		    case 6:
+			$status = "forever inactive";
+		    break;
 		}
 		$this->log("upload", $row['Id'] . " template status is ".$status, "warn");
 		continue;
 	    }
 	    
-	    $this->getTemplateActiveItemCount($row['TemplateID']);
+	    if($this->getTemplateActiveItemCount($row['TemplateID']) > 0){
+		$this->log("upload", $row['Id'] . " has active listings", "warn");
+		continue;
+	    }
 	    
 	    $sql_0 = "update items set Status = 10 where Id = '".$row['Id']."'";
 	    $result_0 = mysql_query($sql_0);
