@@ -1907,6 +1907,10 @@ class Template{
 	    $update .= "Site = '".$_POST['Site']."',";
 	}
 	
+	if(!empty($_POST['ForeverListingTime']) && $_POST['ForeverListingTime'] != 'Multi Value'){
+	    $update .= "ForeverListingTime = '".$_POST['ForeverListingTime']."',";
+	}
+	
 	if(!empty($_POST['SKU']) && $_POST['SKU'] != 'Multi Value'){
 	    $update .= "SKU = '".$_POST['SKU']."',";
 	}
