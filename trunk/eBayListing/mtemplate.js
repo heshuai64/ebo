@@ -1408,6 +1408,18 @@ Ext.onReady(function(){
                             }]
                     }]
                   },{
+                        xtype:"timefield",
+                        id:"ForeverListingTime",
+                        fieldLabel:"Forever Listing Time",
+                        name:"ForeverListingTime",
+                        format:"H:i"
+                        },{
+                        xtype:"textfield",
+                        fieldLabel:"<font color='red'>SKU</font>",
+                        id:"SKU",
+                        name:"SKU",
+                        readOnly: true
+                    },{
                         xtype:"textfield",
                         fieldLabel:"<font color='red'>SKU</font>",
                         emptyText: "Multi Value",
