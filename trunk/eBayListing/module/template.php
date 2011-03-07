@@ -3419,7 +3419,7 @@ class Template{
         $totalCount = $row['count'];
         
         $array = array();
-        $sql = "select Id,Site,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ListingDuration,shippingTemplateName,status from template where accountId = '".$this->account_id."' and status = ".$_POST['status']. $where . " order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
+        $sql = "select Id,Site,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ForeverListingTime,ListingDuration,shippingTemplateName,status from template where accountId = '".$this->account_id."' and status = ".$_POST['status']. $where . " order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
         $result = mysql_query($sql, eBayListing::$database_connect);
         while($row = mysql_fetch_assoc($result)){
             $array[] = $row;
