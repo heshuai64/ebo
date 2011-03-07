@@ -288,9 +288,17 @@ class Cron{
             $result_1 = mysql_query($sql_1, Cron::$database_connect);
             $i = 0;
             while($row_1 = mysql_fetch_assoc($result_1)){
+		$sql_2= "select count(*) as num from items where TemplateID = ".$row_1['Id'];
+		$result_2 = mysql_query($sql_2, Cron::$database_connect);
+		$row_2 = mysql_fetch_assoc($result_2);
+		if($row_2['num'] > 0){
+		    $this->log("calculateForeverListingSchedule-".$Site.".html", $row_1['Id']." has active listings.<br>");
+		    continue;
+		}
 		$template = new Template($row_1['accountId']);
-		$china_time = $day." ".$row_1['ForeverListingChinaTime'];
 		$local_time = $day." ".$row_1['ForeverListingTime'];
+		$china_time = $day." ".substr($template->getSiteTime($Site, "1983-11-16", $row_1['ForeverListingTime']), 11, 5);
+		//$china_time = $day." ".$row_1['ForeverListingChinaTime'];
 		$item_id = $template->changeTemplateToItem($row_1['Id'], $china_time, $local_time, 1);
 		$this->log("calculateForeverListingSchedule-".$Site.".html", "t:".$row_1['Id']." ==> i:".$item_id.". BeiJing:".$china_time.", ".$Site.": ".$local_time."<br>");
 		$this->log("calculateForeverListingSchedule-".$Site.".html", "<br><font color='red'>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
@@ -355,7 +363,7 @@ class Cron{
                 $consumer->ack($msg);
                 $sku_array = explode(",", $msg->map['sku']);
                 foreach($sku_array as $sku){
-                    $sql = "update template set status = 3 where SKU = '".$sku."'";
+                    $sql = "update template set status = 3 where SKU = '".$sku."' and status = 6";
                     echo $sql."\n";
                     $result = mysql_query($sql, Cron::$database_connect);
                 }

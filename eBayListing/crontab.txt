@@ -1,0 +1,14 @@
+#eBayBO
+*/1   * * * * (cd /export/eBayListing; php -q service.php uploadItem >> /export/eBayListing/log/uploadItem/`date +\%Y\%m\%d`.log)
+*/5   * * * * (cd /export/eBayListing; php -q service.php modifyActiveItem >> /export/eBayListing/log/modifyActiveItem/`date +\%Y\%m\%d`.log)
+*/6   * * * * (cd /export/eBayListing; php -q service.php reUploadItem     >> /export/eBayListing/log/reUploadItem/`date +\%Y\%m\%d`.log)
+*/2  * * * * (cd /export/eBayListing; php -q service.php endListingItem   >> /export/eBayListing/log/endListingItem/`date +\%Y\%m\%d`.log)
+
+30   */2 * * * (cd /export/eBayListing; php -q service.php getAllSellerList Start > /dev/null)
+0   */2 * * * (cd /export/eBayListing; php -q service.php getAllSellerList End > /dev/null)
+
+10 12 * * * (cd /export/eBayListing; php -q Cron.php calculateTemplateData    >> /export/eBayListing/log/calculateTemplateData/`date +\%Y\%m\%d`.log)
+*/5 * * * * (cd /export/eBayListing; php -q Cron.php dealSkuStatusMessage     >> /export/eBayListing/log/dealSkuStatusMessage/`date +\%Y\%m\%d`.log)
+*/5 * * * * (cd /export/eBayListing; php -q Cron.php dealSkuOutOfStockMessage >> /export/eBayListing/log/dealSkuOutOfStockMessage/`date +\%Y\%m\%d`.log)
+0 */1 * * * (cd /export/eBayListing; php -q Cron.php calculateListingSchedule)
+0 */1 * * * (cd /export/eBayListing; php -q Cron.php calculateForeverListingSchedule)

@@ -1474,7 +1474,7 @@ Ext.onReady(function(){
           totalProperty: 'totalCount',
           idProperty: 'id',
           //autoLoad:true,
-          fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'shippingTemplateName', 'Quantity', 'ListingDuration', 'ListingType', 'Category'],
+          fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'shippingTemplateName', 'Quantity', 'ListingDuration', 'ListingType', 'Category', 'ForeverListingTime'],
           sortInfo: {
                field: 'Id',
                direction: 'ASC'
@@ -1506,7 +1506,7 @@ Ext.onReady(function(){
                          allowBlank: false
                     }
                },
-               {header: "Listing Type", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
+               {header: "Listing Type", width: 80, align: 'center', sortable: true, dataIndex: 'ListingType'},
                {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price',
                     editor: {
                          xtype: 'numberfield',
@@ -1553,6 +1553,8 @@ Ext.onReady(function(){
                          editable: false,
                          selectOnFocus:true
                     }
+               },{
+                   header: "Forever Time", width: 80, align: 'center', sortable: true, dataIndex: 'ForeverListingTime'
                }
           ],
           tbar:[{

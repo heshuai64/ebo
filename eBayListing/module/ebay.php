@@ -12,7 +12,7 @@ class Ebay{
     //private $env = "sandbox";
     
     private $session;
-    private $site_id; //US 0, UK 3, AU 15, FR 71
+    private $site_id; //US 0, UK 3, AU 15, FR 71, DE 77
     private $account_id;
     private $version = '679';
     
@@ -212,20 +212,20 @@ class Ebay{
 	global $argv;
 	if(!empty($argv[2])){
 	    $userID = $argv[2];
-	    $sql = "select id from account where name = '".$userID."'";
+	    $sql = "select id,site from account where name = '".$userID."'";
 	    $result = mysql_query($sql, eBayListing::$database_connect);
 	    $row = mysql_fetch_assoc($result);
 	
 	    $this->setAccount($row['id']);
-	    $this->configEbay();
+	    $this->configEbay($row['site']);
 	}else if(!empty($this->account_id)){
 	    
-	    $sql = "select name from account where id = ".$this->account_id;
+	    $sql = "select name,site from account where id = ".$this->account_id;
 	    $result = mysql_query($sql, eBayListing::$database_connect);
 	    $row = mysql_fetch_assoc($result);
 	    $userID = $row['name'];
 	    
-	    $this->configEbay();
+	    $this->configEbay($row['site']);
 	}else{
             echo "error, no account id.";
         }
@@ -292,7 +292,7 @@ class Ebay{
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while ($row = mysql_fetch_assoc($result)){
 	    $this->setAccount($row['id']);
-	    $this->configEbay();
+	    //$this->configEbay();
 	    $this->getStoreCategories($row['name']);
 	}
     }
