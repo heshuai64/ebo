@@ -89,26 +89,29 @@ class Item{
 	require_once './Classes/PHPExcel.php';
 	require_once './Classes/PHPExcel/IOFactory.php';
         
+	$j = 0;
         $objExcel = new PHPExcel();
         $objExcel->setActiveSheetIndex(0);
-        $objExcel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, 'Item ID');
-	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, 'SKU');
-	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, 'Item Title');
-        $objExcel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, 'Item Description');
-	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(4, 1, 'Insertion Fee');
-	$objExcel->getActiveSheet()->setCellValueByColumnAndRow(5, 1, 'Start Time');
-        $objExcel->getActiveSheet()->setCellValueByColumnAndRow(6, 1, 'End Time');
-        $objExcel->getActiveSheet()->setCellValueByColumnAndRow(7, 1, 'Duration');
-        $objExcel->getActiveSheet()->setCellValueByColumnAndRow(8, 1, 'Qty');
-        $objExcel->getActiveSheet()->setCellValueByColumnAndRow(9, 1, 'Slod Qty');
-        $objExcel->getActiveSheet()->setCellValueByColumnAndRow(10, 1, 'Price');
-        $objExcel->getActiveSheet()->setCellValueByColumnAndRow(11, 1, 'Listing Type');
+	$objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, 1, 'Template ID');
+        $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, 1, 'Item ID');
+	$objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, 1, 'SKU');
+	$objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, 1, 'Item Title');
+        $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, 1, 'Item Description');
+	$objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, 1, 'Insertion Fee');
+	$objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, 1, 'Start Time');
+        $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, 1, 'End Time');
+        $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, 1, 'Duration');
+        $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, 1, 'Qty');
+        $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, 1, 'Slod Qty');
+        $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, 1, 'Price');
+        $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, 1, 'Listing Type');
         
-        $sql = "select ItemID,SKU,Title,Description,ListingType,InsertionFee,ListingFee,Quantity,QuantitySold,ListingDuration,StartTime,EndTime,StartPrice,BuyItNowPrice from items where Status = 2 and accountId = '".$this->account_id."'";
+        $sql = "select TemplateID,ItemID,SKU,Title,Description,ListingType,InsertionFee,ListingFee,Quantity,QuantitySold,ListingDuration,StartTime,EndTime,StartPrice,BuyItNowPrice from items where Status = 2 and accountId = '".$this->account_id."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
         $i = 2;
 	while($row = mysql_fetch_assoc($result)){
 	    $j = 0;
+	    $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['TemplateID']);
             $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['ItemID']);
             $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['SKU']);
 	    $objExcel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['Title']);
