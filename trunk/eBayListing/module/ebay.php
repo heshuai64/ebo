@@ -247,7 +247,8 @@ class Ebay{
 		$sql = "delete from account_store_categories where AccountId = ".$this->account_id;
 		$result = mysql_query($sql, eBayListing::$database_connect);
 		
-                $this->saveFetchData("getStoreCategories-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		$this->saveFetchData("getStoreCategoriesRequest-".date("Y-m-d H:i:s").".xml", $client->__getLastRequest());
+                $this->saveFetchData("getStoreCategoriesResponse-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 		foreach($results->Store->CustomCategories->CustomCategory as $customCategory){
 		    $level = 1;
 		    $sql = "INSERT INTO `account_store_categories` (`CategoryID` , `CategoryParentID` ,`Name` ,`Order` ,`AccountId`) VALUES ('".$customCategory->CategoryID."','0','".$customCategory->Name."','".$customCategory->Order."','".$this->account_id."')";
@@ -955,9 +956,20 @@ class Ebay{
 	echo "<br>\n";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	
-	$sql = "select Id from items where ItemID = '".$item->ItemID."'";
+	$sql = "select Id,TemplateID from items where ItemID = '".$item->ItemID."'";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$row = mysql_fetch_assoc($result);
+	
+	//get template status for forever listing
+	$sql_1 = "select status from template where Id = ".$row['TemplateID'];
+	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	$row_1 = mysql_fetch_assoc($result_1);
+	if($row_1 == 7){
+	    require_once "template.php";
+	    $template = new Template();
+	    $item_id = $template->changeTemplateToItem($row['TemplateID'], '', date("Y-m-d H:i:s", time() + 2 * 60), 1);
+	    $this->log("template", "TemplateID: ".$row['TemplateID']." auto change to item upload(forever listing status).");
+	}
 	return $row['Id'];
     }
     
@@ -1060,21 +1072,13 @@ class Ebay{
     //http://127.0.0.1:6666/eBayBO/eBaylisting/service.php?action=getSellerList&EndTimeFrom=2009-05-29&EndTimeTo=2009-05-30
     public function getSellerList($type, $start="", $end="", $account=""){
 	if(!empty($type) && !empty($start) && !empty($end) && !empty($account)){
-	    $sql = "select id from account where name = '".$account."'";
-	    $result = mysql_query($sql, eBayListing::$database_connect);
-	    $row = mysql_fetch_assoc($result);
-	    
-	    $this->setAccount($row['id']);
-	    $this->configEbay();
-	    
 	    if($type == "Start"){
-		$StartTimeFrom  = $start;
-		$StartTimeTo    = $end;
+		$StartTimeFrom  = $start." 00:00:00";
+		$StartTimeTo    = $end." 00:00:00";
 	    }elseif($type == "End"){
-		$EndTimeFrom = $start;
-		$EndTimeTo   = $end;
+		$EndTimeFrom = $start." 00:00:00";
+		$EndTimeTo   = $end." 00:00:00";
 	    }
-	    
 	}elseif(!empty($type)){
 	    if($type == "Start"){
 		if(!empty($start) && !empty($end)){
@@ -1089,10 +1093,17 @@ class Ebay{
 		    $EndTimeFrom = $start." 00:00:00";
 		    $EndTimeTo   = $end." 00:00:00";
 		}else{
-		    $EndTimeFrom = date("Y-m-d H:i:s", time() - (12 * 60 * 60));
-		    $EndTimeTo   = date("Y-m-d H:i:s", time() - (8 * 60 * 60));
+		    if(date("H") == 0 || date("H") == 12){
+			$EndTimeFrom = date("Y-m-d H:i:s", time() - (32 * 60 * 60));
+			$EndTimeTo   = date("Y-m-d H:i:s", time() - (8 * 60 * 60));
+		    }else{
+			$EndTimeFrom = date("Y-m-d H:i:s", time() - (12 * 60 * 60));
+			$EndTimeTo   = date("Y-m-d H:i:s", time() - (8 * 60 * 60));
+		    }
 		}
 	    }
+	}else{
+	    echo "no set type!\n";
 	}
 	
 	//print_r(array("Start"=> array("From"=>$StartTimeFrom, "To"=>$StartTimeTo), "End"=> array("From"=>$EndTimeFrom, "To"=>$EndTimeTo)));
@@ -1119,7 +1130,7 @@ class Ebay{
 		}elseif($type == "End"){
 		    $params = array('Version' => $Version, 'DetailLevel' => $DetailLevel, 'Pagination' => $Pagination, 'EndTimeFrom' => $EndTimeFrom, 'EndTimeTo' => $EndTimeTo);
 		}
-		//print_r($params);
+		print_r($params);
 		$results = $client->GetSellerList($params);
 		//print_r($results);
 
@@ -1265,8 +1276,18 @@ class Ebay{
     
     public function getAllSellerList(){
 	global $argv;
-	print_r($argv);
-	$sql = "select id,token from account where status = 1";
+	//print_r($argv);
+	
+	$type = $argv[2];
+	$start = $argv[3];
+	$end = $argv[4];
+	$account = $argv[5];
+	
+	if(!empty($account)){
+	    $sql = "select id,name,token from account where name = '".$account."' and status = 1";
+	}else{
+	    $sql = "select id,name,token from account where status = 1";
+	}
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while($row = mysql_fetch_assoc($result)){
 	    /*
@@ -1276,9 +1297,10 @@ class Ebay{
 	    $this->session = $this->configEbay($row['token'], $row_1['host'], $row_1['port']);
 	    $this->getSellerList();
 	    */
+	    echo "Start fetch [".$row['name']."] from ".$start." to ".$end." by ".$type."\n";
 	    $this->setAccount($row['id']);
 	    $this->configEbay();
-	    $this->getSellerList($argv[2], $argv[3], $argv[4], $argv[5]);
+	    $this->getSellerList($type, $start, $end, $account);
 	}
     }
     
@@ -1402,7 +1424,8 @@ class Ebay{
 	    if(strlen($row_1['Title']) > 55){
                 $row_1['Title'] = substr($row_1['Title'], 0, 55);
             }
-            
+            $row_1['Title'] = utf8_encode($row_1['Title']);
+	    
 	    $sql_2 = "select * from shipping_service_options where ItemID = '".$row['Id']."'";
 	    $result_2 = mysql_query($sql_2);
 	    $ShippingServiceOptions = array();
@@ -2324,6 +2347,7 @@ class Ebay{
 	    
 	    $row_1['Description'] = utf8_encode($row_1['Description']);
 	    $row_1['Title'] = html_entity_decode($row_1['Title'], ENT_QUOTES);
+	    $row_1['Title'] = utf8_encode($row_1['Title']);
 	    
 	    $sql_2 = "select * from shipping_service_options where ItemID = '".$row['Id']."'";
 	    $result_2 = mysql_query($sql_2);
