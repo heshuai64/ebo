@@ -1419,12 +1419,12 @@ class Ebay{
 	    }
 	    
 	    
-	    $row_1['Description'] = utf8_encode($row_1['Description']);
+	    //$row_1['Description'] = utf8_encode($row_1['Description']);
 	    $row_1['Title'] = html_entity_decode($row_1['Title'], ENT_QUOTES);
-	    if(strlen($row_1['Title']) > 55){
-                $row_1['Title'] = substr($row_1['Title'], 0, 55);
+	    if(mb_strlen($row_1['Title'], "utf8") > 55){
+                $row_1['Title'] = mb_substr($row_1['Title'], 0, 55, "utf8");
             }
-            $row_1['Title'] = utf8_encode($row_1['Title']);
+            //$row_1['Title'] = utf8_encode($row_1['Title']);
 	    
 	    $sql_2 = "select * from shipping_service_options where ItemID = '".$row['Id']."'";
 	    $result_2 = mysql_query($sql_2);
@@ -1948,9 +1948,12 @@ class Ebay{
 		$row_1['Description'] = html_entity_decode($row_1['Description'], ENT_QUOTES);
 	    }
 	    
-	    $row_1['Description'] = utf8_encode($row_1['Description']);
+	    //$row_1['Description'] = utf8_encode($row_1['Description']);
 	    $row_1['Title'] = html_entity_decode($row_1['Title'], ENT_QUOTES);
-	    $row_1['Title'] = utf8_encode($row_1['Title']);
+	    //$row_1['Title'] = utf8_encode($row_1['Title']);
+	    if(mb_strlen($row_1['Title'], "utf8") > 55){
+                $row_1['Title'] = mb_substr($row_1['Title'], 0, 55, "utf8");
+            }
 	    
 	    $sql_2 = "select * from shipping_service_options where ItemID = '".$row['Id']."'";
 	    $result_2 = mysql_query($sql_2);
@@ -2345,9 +2348,9 @@ class Ebay{
 		$row_1['Description'] = html_entity_decode($row_1['Description'], ENT_QUOTES);
 	    }
 	    
-	    $row_1['Description'] = utf8_encode($row_1['Description']);
+	    //$row_1['Description'] = utf8_encode($row_1['Description']);
 	    $row_1['Title'] = html_entity_decode($row_1['Title'], ENT_QUOTES);
-	    $row_1['Title'] = utf8_encode($row_1['Title']);
+	    //$row_1['Title'] = utf8_encode($row_1['Title']);
 	    
 	    $sql_2 = "select * from shipping_service_options where ItemID = '".$row['Id']."'";
 	    $result_2 = mysql_query($sql_2);
