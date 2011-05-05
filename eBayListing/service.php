@@ -2988,7 +2988,7 @@ $ebay_service = array(/*'getAllCategories', 'getStoreCategories', 'getAllStoreCa
 		      'getAllSiteShippingLocationDetails', 'getShippingLocation',
 		      'getAllCategory2CS', 'getAllAttributesCS',*/
 		      'getAllSiteShippingServiceDetails',
-		      'getCategories',
+		      'getAllCategories','getCategories',
 		      'getStoreCategories',
 		      'getAllSellerList',
 		      'uploadItem', 'modifyActiveItem', 'reUploadItem', 'endListingItem',

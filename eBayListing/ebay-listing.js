@@ -4,8 +4,8 @@ Ext.onReady(function(){
      var inventory_service_address = "/inventory/service.php";
      Ext.QuickTips.init();
      
-     //var path = "/eBayBO/eBayListing/";
-     var path = "/eBayListing/";
+     var path = "/eBayBO/eBayListing/";
+     //var path = "/eBayListing/";
      
      /*
      var cp = new Ext.state.CookieProvider({
@@ -953,7 +953,7 @@ Ext.onReady(function(){
                                    id:'TemplateStatus',
                                    fieldLabel:'Status',
                                    xtype: 'combo',
-                                   store:['New', 'Waiting For Approve', 'Active', 'Out Of Stock', 'Under Review', 'Inactive', 'Forever Inactive'],
+                                   store:['New', 'Waiting For Approve', 'Active', 'Out Of Stock', 'Under Review', 'Inactive', 'Forever Inactive', 'Forever Listing'],
                                    triggerAction: 'all',
                                    editable: false,
                                    selectOnFocus:true,

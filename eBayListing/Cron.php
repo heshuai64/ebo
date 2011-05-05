@@ -288,7 +288,7 @@ class Cron{
             $result_1 = mysql_query($sql_1, Cron::$database_connect);
             $i = 0;
             while($row_1 = mysql_fetch_assoc($result_1)){
-		$sql_2= "select count(*) as num from items where TemplateID = ".$row_1['Id'];
+		$sql_2= "select count(*) as num from items where Status = 2 and TemplateID = ".$row_1['Id'];
 		$result_2 = mysql_query($sql_2, Cron::$database_connect);
 		$row_2 = mysql_fetch_assoc($result_2);
 		if($row_2['num'] > 0){

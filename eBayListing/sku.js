@@ -435,6 +435,13 @@ Ext.onReady(function(){
                                         Ext.getCmp("ReservePrice").setRawValue(currency_symbol.France);
                                         //Ext.getCmp("currency-icon").setIconClass("currency-euro");
                                     break;
+                                
+                                    default:
+                                        currencyCombo.setValue("USD");
+                                        Ext.getCmp("StartPrice").setRawValue(currency_symbol.US);
+                                        Ext.getCmp("BuyItNowPrice").setRawValue(currency_symbol.US);
+                                        Ext.getCmp("ReservePrice").setRawValue(currency_symbol.US);
+                                    break;
                                 }
                                 Ext.getCmp("SiteID").setValue(r.data.name);
                                 
