@@ -4389,7 +4389,7 @@ Ext.onReady(function(){
                                         var store = new Ext.data.JsonStore({
                                              root: 'result',
                                              autoLoad: true,
-                                             fields: ['id', 'name', 'password', 'token', 'tokenExpiry', 'status'],
+                                             fields: ['id', 'name', 'password', 'accountLocation', 'token', 'tokenExpiry', 'status'],
                                              url:'service.php?action=getAlleBayAccount'
                                         });
                                          
@@ -4465,6 +4465,16 @@ Ext.onReady(function(){
                                                                }]
                                                            }]
                                                        },{
+                                                            fieldLabel:'Location',
+                                                            xtype:"combo",
+                                                            store:['US', 'UK', 'Australia', 'Germany'],
+                                                            triggerAction: 'all',
+                                                            editable: false,
+                                                            selectOnFocus:true,
+                                                            listWidth:100,
+                                                            width:100,
+                                                            name:"accountLocation"
+                                                       },{
                                                          xtype:"textarea",
                                                          fieldLabel:"Token",
                                                          height:200,
@@ -4482,6 +4492,7 @@ Ext.onReady(function(){
                                                                  id: ebayManageForm.form.findField('id').getValue(),
                                                                  name: ebayManageForm.form.findField('name').getValue(),
                                                                  password: ebayManageForm.form.findField('password').getValue(),
+                                                                 accountLocation: ebayManageForm.form.findField('accountLocation').getValue(),
                                                                  token: ebayManageForm.form.findField('token').getValue(),
                                                                  tokenExpiry: ebayManageForm.form.findField('tokenExpiry').getValue(),
                                                                  status: ebayManageForm.form.findField('status').getValue()
