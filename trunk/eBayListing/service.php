@@ -1,6 +1,6 @@
 <?php
-//define ('__DOCROOT__', '/export/eBayListing');
-define ('__DOCROOT__', '.');
+define ('__DOCROOT__', '/export/eBayListing');
+//define ('__DOCROOT__', '.');
 require_once __DOCROOT__ . '/eBaySOAP.php';
 
 function debugLog($file_name, $data){
@@ -2579,7 +2579,7 @@ class eBayListing{
     }
 	
     public function updateeBayAccount(){
-	$sql = "update account set name='".$_POST['name']."',password='".$_POST['password']."',
+	$sql = "update account set name='".$_POST['name']."',password='".$_POST['password']."',accountLocation='".$_POST['accountLocation']."',
 	token='".$_POST['token']."',tokenExpiry='".$_POST['tokenExpiry']."',status='".$_POST['status']."' where id = '".$_POST['id']."'";
 	$result = mysql_query($sql);
 	//echo $sql;

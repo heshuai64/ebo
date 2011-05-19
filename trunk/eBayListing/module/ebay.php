@@ -1495,11 +1495,32 @@ class Ebay{
 		}
 	    }
 	    
+	    $sql_7 = "select accountLocation from account where id = ".$row_1['accountId'];
+	    $result_7 = mysql_query($sql_7);
+	    $row_7 = mysql_fetch_assoc($result_7);
+	    $accountLocation = $row_7['accountLocation'];
+	    
 	    $row_1['AttributeSetArray'] = $AttributeSetArray;
 	    $row_1['ShippingServiceOptions'] = $ShippingServiceOptions;
 	    $row_1['InternationalShippingServiceOption'] = $InternationalShippingServiceOption;
 	    $row_1['PictureURL'] = $PictureURL;
-	    
+	    if(!empty($accountLocation)){
+		$row_1['Location'] = $accountLocation;
+		switch($accountLocation){
+		    case "US":
+			$row_1['Country'] = "United States";
+		    break;
+			
+		    case "UK":
+			$row_1['Country'] = "United Kingdom";
+		    break;
+		
+		    default:
+			$row_1['Country'] = $accountLocation;
+		    break;
+		}
+	    }
+
 	    //print_r($row_1);
 	    //exit;
 	    $this->addItem($row_1);
@@ -1698,7 +1719,9 @@ class Ebay{
 	    if(!empty($item['Location'])){
 		$itemArray['Location'] = $item['Location'];
 	    }
-	    $itemArray['Country'] = 'HK';
+	    if(empty($item['Country']) || $item['Country'] == 'CN' || $item['Country'] == 'HK'){
+		$itemArray['Country'] = 'HK';
+	    }
 	    
 	    $itemArray['PaymentMethods'] = $item['PaymentMethods'];
 	    $itemArray['PayPalEmailAddress'] = $item['PayPalEmailAddress'];
@@ -2483,7 +2506,9 @@ class Ebay{
 	    if(!empty($item['Location'])){
 		$itemArray['Location'] = $item['Location'];
 	    }
-	    $itemArray['Country'] = 'HK';
+	    if(empty($item['Country']) || $item['Country'] == 'CN' || $item['Country'] == 'HK'){
+		$itemArray['Country'] = 'HK';
+	    }
 	    
 	    $itemArray['PaymentMethods'] = $item['PaymentMethods'];
 	    $itemArray['PayPalEmailAddress'] = $item['PayPalEmailAddress'];
