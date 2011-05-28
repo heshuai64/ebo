@@ -1505,18 +1505,31 @@ class Ebay{
 	    $row_1['InternationalShippingServiceOption'] = $InternationalShippingServiceOption;
 	    $row_1['PictureURL'] = $PictureURL;
 	    if(!empty($accountLocation)){
-		$row_1['Location'] = $accountLocation;
+		$row_1['Country'] = $accountLocation;
 		switch($accountLocation){
 		    case "US":
-			$row_1['Country'] = "United States";
+			$row_1['Location'] = 'United States';
 		    break;
 			
 		    case "UK":
-			$row_1['Country'] = "United Kingdom";
+			$row_1['Country'] = 'GB';
+			$row_1['Location'] = 'United Kingdom';
 		    break;
 		
-		    default:
-			$row_1['Country'] = $accountLocation;
+		    case "HK":
+			$row_1['Location'] = 'Hong Kong';
+		    break;
+		    
+		    case "DE":
+			$row_1['Location'] = 'Germany';
+		    break;
+		
+		    case "AU":
+			$row_1['Location'] = 'Australia';
+		    break;
+		
+		    case "FR":
+			$row_1['Location'] = 'France';
 		    break;
 		}
 	    }
@@ -2047,11 +2060,44 @@ class Ebay{
 		}
 	    }
 	    
+	    $sql_7 = "select accountLocation from account where id = ".$row_1['accountId'];
+	    $result_7 = mysql_query($sql_7);
+	    $row_7 = mysql_fetch_assoc($result_7);
+	    $accountLocation = $row_7['accountLocation'];
+	    
 	    $row_1['AttributeSetArray'] = $AttributeSetArray;
 	    $row_1['ShippingServiceOptions'] = $ShippingServiceOptions;
 	    $row_1['InternationalShippingServiceOption'] = $InternationalShippingServiceOption;
 	    $row_1['PictureURL'] = $PictureURL;
-	    
+	    if(!empty($accountLocation)){
+		$row_1['Country'] = $accountLocation;
+		switch($accountLocation){
+		    case "US":
+			$row_1['Location'] = 'United States';
+		    break;
+			
+		    case "UK":
+			$row_1['Country'] = 'GB';
+			$row_1['Location'] = 'United Kingdom';
+		    break;
+		
+		    case "HK":
+			$row_1['Location'] = 'Hong Kong';
+		    break;
+		    
+		    case "DE":
+			$row_1['Location'] = 'Germany';
+		    break;
+		
+		    case "AU":
+			$row_1['Location'] = 'Australia';
+		    break;
+		
+		    case "FR":
+			$row_1['Location'] = 'France';
+		    break;
+		}
+	    }
 	    //print_r($row_1);
 	    //exit;
 	    $this->reviseItem($row_1);
@@ -2444,10 +2490,44 @@ class Ebay{
 		}
 	    }
 	    
+	    $sql_7 = "select accountLocation from account where id = ".$row_1['accountId'];
+	    $result_7 = mysql_query($sql_7);
+	    $row_7 = mysql_fetch_assoc($result_7);
+	    $accountLocation = $row_7['accountLocation'];
+	    
 	    $row_1['AttributeSetArray'] = $AttributeSetArray;
 	    $row_1['ShippingServiceOptions'] = $ShippingServiceOptions;
 	    $row_1['InternationalShippingServiceOption'] = $InternationalShippingServiceOption;
 	    $row_1['PictureURL'] = $PictureURL;
+	    if(!empty($accountLocation)){
+		$row_1['Country'] = $accountLocation;
+		switch($accountLocation){
+		    case "US":
+			$row_1['Location'] = 'United States';
+		    break;
+			
+		    case "UK":
+			$row_1['Country'] = 'GB';
+			$row_1['Location'] = 'United Kingdom';
+		    break;
+		
+		    case "HK":
+			$row_1['Location'] = 'Hong Kong';
+		    break;
+		    
+		    case "DE":
+			$row_1['Location'] = 'Germany';
+		    break;
+		
+		    case "AU":
+			$row_1['Location'] = 'Australia';
+		    break;
+		
+		    case "FR":
+			$row_1['Location'] = 'France';
+		    break;
+		}
+	    }
 	    //$row_1['ListingDuration'] = "Days_7";
 	    //print_r($row_1);
 	    //exit;

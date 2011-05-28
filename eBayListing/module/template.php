@@ -1338,7 +1338,12 @@ class Template{
 	$row['Description'] = html_entity_decode($row['Description'], ENT_QUOTES);
 	$row['Title'] = html_entity_decode($row['Title'], ENT_QUOTES);
         if($this->lowest_price){
-            $row['LowPrice'] = eBayListing::getSkuLowPriceS($row['SKU'], $row['Currency']);
+	    $sql_0 = "select accountLocation from account where id = ".$this->account_id;
+	    $result_0 = mysql_query($sql_0, eBayListing::$database_connect);
+	    $row_0 = mysql_fetch_assoc($result_0);
+	    $accountLocation = $row_0['accountLocation'];
+	    
+            $row['LowPrice'] = eBayListing::getSkuLowPriceS($row['SKU'], $row['Currency'], $accountLocation);
         }else{
             $row['LowPrice'] = 0;
         }
@@ -1458,34 +1463,14 @@ class Template{
             return 0;
         }
     }
-    /*
-    public function getTemplateLowPrice(){
-        $sql = "select SKU,ShippingServiceCost1,shippingTemplateName from template where Id = ".$_GET['id'];
-        //echo $sql."\n";
-        $result = mysql_query($sql, eBayListing::$database_connect);
-        $row = mysql_fetch_assoc($result);
-            
-        if(empty($_GET['shippingCost'])){
-            $shippingCost1 = $this->getTemplateShippingCost1($row['ShippingServiceCost1'], $row['shippingTemplateName']);
-        }else{
-            $shippingCost1 = $_GET['shippingCost'];
-        }
-        
-        $skuLowPrice = eBayListing::getSkuLowPriceS($row['SKU'], $_GET['currency']);
-        $lowPrice =  $skuLowPrice - $shippingCost1;
-            
-        if($_GET['type'] == "auction"){
-            if($_GET['price'] > 0.01 && $_GET['price'] < 0.99){
-                $lowPrice += 0.1;
-            }elseif($_GET['price'] > 1 && $_GET['price'] < 9.9){
-                $lowPrice += 0.25;
-            }
-        }
-        
-        echo $lowPrice;
-    }
-    */
+
     public function getTemplateLowPrice($Internal = false){
+	$sql = "select accountLocation from account where id = ".$this->account_id;
+	$result = mysql_query($sql, eBayListing::$database_connect);
+        $row = mysql_fetch_assoc($result);
+	$accountLocation = $row['accountLocation'];
+	
+	
         if(!empty($_REQUEST)){
             $sku = $_REQUEST['SKU'];
             
@@ -1514,7 +1499,7 @@ class Template{
 
         $ShippingServiceCost1 = $this->getTemplateShippingCost1($ShippingServiceCost1, $shippingTemplateName);
         if($this->lowest_price){
-            $skuLowPrice = eBayListing::getSkuLowPriceS($sku, $currency);
+            $skuLowPrice = eBayListing::getSkuLowPriceS($sku, $currency, $accountLocation);
         }else{
             $skuLowPrice = 0;
         }

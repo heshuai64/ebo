@@ -274,16 +274,21 @@ class eBayListing{
         return json_decode($json);
     }
     
-    public static function getSkuLowPriceS($sku='', $currency=''){
+    public static function getSkuLowPriceS($sku='', $currency='', $location=''){
 	$rate = eBayListing::getExchangeRateS($currency);
-        $json_object = eBayListing::getInventoryServiceS("?action=getSkuLowestPrice&sku=".$sku);
+        $json_object = eBayListing::getInventoryServiceS("?action=getSkuLowestPrice&sku=".$sku."&location=".$location);
         $l_price = $json_object->L / $rate;
         //echo round($l_price, 2);
         return round($l_price, 2);
     }
     
     public function getSkuLowPrice(){
-	echo eBayListing::getSkuLowPriceS($_GET['sku'], $_GET['currency']);
+	$sql = "select accountLocation from account where id = ".$this->account_id;
+	$result = mysql_query($sql, eBayListing::$database_connect);
+        $row = mysql_fetch_assoc($result);
+	$accountLocation = $row['accountLocation'];
+	
+	echo eBayListing::getSkuLowPriceS($_GET['sku'], $_GET['currency'], $accountLocation);
     }
     
     private function getShippingCost1ByTemplateName($shippingTemplate){
@@ -300,7 +305,13 @@ class eBayListing{
     }
     
     public function getSkuLowSoldPrice(){
-	$skuLowPrice = eBayListing::getSkuLowPriceS($_GET['sku'], $_GET['currency']);
+	$sql = "select accountLocation from account where id = ".$this->account_id;
+	$result = mysql_query($sql, eBayListing::$database_connect);
+        $row = mysql_fetch_assoc($result);
+	$accountLocation = $row['accountLocation'];
+    
+	
+	$skuLowPrice = eBayListing::getSkuLowPriceS($_GET['sku'], $_GET['currency'], $accountLocation);
 	$shippingCost1 = $this->getShippingCost1ByTemplateName($_GET['shippingTemplate']);
 	$lowPrice = $skuLowPrice - $shippingCost1;
 	
