@@ -4467,7 +4467,7 @@ Ext.onReady(function(){
                                                        },{
                                                             fieldLabel:'Location',
                                                             xtype:"combo",
-                                                            store:['US', 'UK', 'Australia', 'Germany'],
+                                                            store:['HK', 'US', 'UK', 'AU', 'DE', 'FR'],
                                                             triggerAction: 'all',
                                                             editable: false,
                                                             selectOnFocus:true,
