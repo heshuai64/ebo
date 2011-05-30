@@ -1,0 +1,36 @@
+*/3 * * * * w3m -no-cookie -dump "http://heshuai64:5333533@members.3322.org/dyndns/update?system=dyndns&hostname=rich2010.3322.org"
+#*/3 * * * * w3m -no-cookie -dump "http://heshuai64:5333533@members.3322.org/dyndns/update?system=dyndns&hostname=heshuai64.3322.org"
+
+0 */1 * * *   (cd /export/eBayBO/; php -q /export/eBayBO/cron/eBay.php getAllSellerList >> /tmp/getAllSellerList.html)
+30 */1 * * *  (cd /export/eBayBO/; php -q /export/eBayBO/cron/eBay.php getAllEbayTransaction >> /export/eBayBO/log/Orders/`date +\%Y\%m\%d`.html)
+50 */1 * * *  (cd /export/eBayBO/; php -q /export/eBayBO/PayPal.php API)
+59 23 * * *  (cd /export/eBayBO/; php -q /export/eBayBO/PayPal.php API Today)
+*/2 * * * *   (cd /export/eBayBO/; php -q /export/eBayBO/service.php updateSkuInfo)
+
+#Shipment, Packing List
+58 8 * * *  (cd /export/eBayBO/; php -q /export/eBayBO/service.php updateShippingMethod)
+#0  9 * * *  (cd /export/eBayBO/; php -q /export/eBayBO/cron/Shipment.php >> /tmp/createShipment.html)
+0  9 * * *  (cd /export/eBayBO/; php -q /export/eBayBO/cron/Shipment.php general >> /tmp/createShipment.html)
+5  9 * * *  (cd /export/eBayBO/; php -q /export/eBayBO/service.php updateShipmentEnvelope)
+10 9 * * *  (cd /export/eBayBO/; php -q /export/eBayBO/cron/PackingList.php general >> /tmp/generatePackingList)
+
+#Generate Excel
+10 9 * * *  (cd /export/eBayBO/; php -q /export/eBayBO/cron/Excel.php registerShipment)
+10 9 * * *  (cd /export/eBayBO/; php -q /export/eBayBO/cron/Excel.php shipmentList)
+10 9 * * *  (cd /export/eBayBO/; php -q /export/eBayBO/cron/Excel.php pickingList)
+55 23 * * * (cd /export/eBayBO/; php -q /export/eBayBO/cron/Excel.php refundStatistics)
+
+#check
+#10 */2 * * * (cd /export/eBayBO/; php -q /export/eBayBO/check.php checkAllProxy >> /export/eBayBO/log/check/checkAllProxy-`date +\%Y\%m\%d`.html)
+
+
+0  23 * * *  (cd /export/eBayBO/; php -q /export/eBayBO/cron/Shipment.php synceBayShipped >> /tmp/synceBayShipped-`date +\%Y\%m\%d`.log)
+#send email
+0 7 * * * (cd /export/eBayBO/; php -q /export/eBayBO/service.php sendOutstandingEmail >> /tmp/sendOutstandingEmail-`date +\%Y\%m\%d`.log)
+
+#0  21 * * * (cd /export/eBayBO/; php -q /export/eBayBO/service.php sendXamsShipmentEmail 1  >> /tmp/send_1-`date +\%Y\%m\%d`.log)
+#20 21 * * * (cd /export/eBayBO/; php -q /export/eBayBO/service.php sendXamsShipmentEmail 12 >> /tmp/send_12-`date +\%Y\%m\%d`.log)
+#40 21 * * * (cd /export/eBayBO/; php -q /export/eBayBO/service.php sendXamsShipmentEmail 22 >> /tmp/send_22-`date +\%Y\%m\%d`.log)
+
+30 23 * * *  (cd /export/eBayBO/; php -q /export/eBayBO/cron/DataCollection.php skuShip >> /tmp/skuShip-`date +\%Y\%m\%d`.log)
+0  1  * * *  (cd /export/eBayBO/; php -q /export/eBayBO/cron/DataCollection.php skuSale >> /tmp/skuSale-`date +\%Y\%m\%d`.log)

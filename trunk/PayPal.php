@@ -1,6 +1,9 @@
 <?php
 define ('__DOCROOT__', '/export/eBayBO');
+define ('FETCH_HOUR' , 6);
+
 ini_set("memory_limit","256M");
+set_time_limit(600);
 
     class PayPal{
         private static $database_connect;
@@ -43,7 +46,7 @@ ini_set("memory_limit","256M");
         }
         
         private function getTransactionId(){
-            $type = 'TRB';
+            $type = 'TRC';
             $today = date("Ym");
             $sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
             $result = mysql_query($sql, PayPal::$database_connect);
@@ -428,8 +431,13 @@ ini_set("memory_limit","256M");
                 '".mysql_real_escape_string($_POST['address_city'])."','".mysql_real_escape_string($_POST['address_state'])."',
                 '".$_POST['address_zip']."','".$_POST['address_country']."','".$item_number_string."')";
                 
+		$e = 0;
                 $result = mysql_query($sql, PayPal::$database_connect);
                 while($result == false){
+		    if($e > 5){
+			$this->log('ipn_deal', "<font color='red'>addEbayTransaction: Insert Trasaction while Error!</font>");
+			return false;
+		    }
                     sleep(rand(0,10));
                     $transactionId = $this->getTransactionId();
                     $sql = "insert into qo_transactions (id,txnId,transactionTime,amountCurrency,amountValue,status,remarks,createdBy,createdOn,payeeId,
@@ -442,6 +450,7 @@ ini_set("memory_limit","256M");
                     '".$_POST['address_zip']."','".$_POST['address_country']."','".$item_number_string."')";
                 
                     $result = mysql_query($sql, PayPal::$database_connect);
+		    $e++;
 		}
                 $this->log('ipn_deal', "addEbayTransaction: ".$sql);
             }
@@ -807,7 +816,7 @@ ini_set("memory_limit","256M");
 		$result = mysql_query($sql, PayPal::$database_connect);
 		$row = mysql_fetch_assoc($result);
 	    }
-	    $this->log('paypal_api', "getTransactionId: ".$sql."<br>", "html");
+	    $this->log('paypal_api', "addTransactionFromAPI: ".$sql."<br>", "html");
 	    
 	    if(empty($row['id'])){
                 $transactionId = $this->getTransactionId();
@@ -825,7 +834,12 @@ ini_set("memory_limit","256M");
 		$this->log('paypal_api', "addTransactionFromAPI: ".$sql."<br>", "html");
                 $result = mysql_query($sql, PayPal::$database_connect);
 		
+		$e = 0;
                 while($result == false){
+		    if($e > 5){
+			$this->log('paypal_api', "<font color='red'>addTransactionFromAPI: Insert trasaction while error!</font>");
+			return false;
+		    }
                     sleep(rand(0,10));
                     $transactionId = $this->getTransactionId();
                     $sql = "insert into qo_transactions (id,txnId,transactionTime,amountCurrency,amountValue,status,remarks,createdBy,createdOn,payeeId,
@@ -839,6 +853,7 @@ ini_set("memory_limit","256M");
                 
 		    $this->log('paypal_api', "<font color='red'>addTransactionFromAPI failure, Repeat: ".$sql."</font><br>", "html");
                     $result = mysql_query($sql, PayPal::$database_connect);
+		    $e++;
 		}
                 
 		$this->matchOrder($api_date, $item_number_string, $transactionId);
@@ -922,17 +937,17 @@ ini_set("memory_limit","256M");
 		$start_timestamp = strtotime($this->start_time);
 		$end_timestamp = strtotime($this->end_time);
 		
-		for($i = $start_timestamp; $i < $end_timestamp; $i += 12 * 60 *  60){
+		for($i = $start_timestamp; $i < $end_timestamp; $i += FETCH_HOUR * 60 *  60){
 		    foreach($api_acount as $acount){
 			echo $acount['Username']."\n";
 			echo date("Y-m-d H:i:s", $i)."\n";
-			echo date("Y-m-d H:i:s", $i + 12 * 60 *  60)."\n";
+			echo date("Y-m-d H:i:s", $i + FETCH_HOUR * 60 *  60)."\n";
 			echo "\n";
 			//sleep(5);
 			
 			//continue;
 			$this->account = $acount['Username'];
-			$this->TransactionSearch($acount['Username'], $acount['Password'], $acount['Signature'], date("Y-m-d H:i:s", $i), date("Y-m-d H:i:s", $i + 12 * 60 *  60));
+			$this->TransactionSearch($acount['Username'], $acount['Password'], $acount['Signature'], date("Y-m-d H:i:s", $i), date("Y-m-d H:i:s", $i + FETCH_HOUR * 60 *  60));
 		    }
 		    
 		}
@@ -951,15 +966,15 @@ ini_set("memory_limit","256M");
 	    //echo date("Y-m-d H:i:s", $end_timestamp)."\n";
 	    
 	    $api_acount = parse_ini_file(__DOCROOT__ . '/paypal.ini', true);
-	    for($i = $start_timestamp; $i < $end_timestamp; $i += 12 * 60 *  60){
+	    for($i = $start_timestamp; $i < $end_timestamp; $i += FETCH_HOUR * 60 *  60){
 		foreach($api_acount as $acount){
 		    if($user_name == $acount['Username']){
 			echo date("Y-m-d\TH:i:s\Z", $i)."\n";
-			echo date("Y-m-d\TH:i:s\Z", $i + 12 * 60 *  60)."\n";
+			echo date("Y-m-d\TH:i:s\Z", $i + FETCH_HOUR * 60 *  60)."\n";
 			echo "\n";
 			sleep(5);
 			$this->account = $acount['Username'];
-			$this->TransactionSearch($acount['Username'], $acount['Password'], $acount['Signature'], date("Y-m-d\TH:i:s\Z", $i), date("Y-m-d\TH:i:s\Z", $i + 12 * 60 *  60));
+			$this->TransactionSearch($acount['Username'], $acount['Password'], $acount['Signature'], date("Y-m-d\TH:i:s\Z", $i), date("Y-m-d\TH:i:s\Z", $i + FETCH_HOUR * 60 *  60));
 		    }
 		}
 		
