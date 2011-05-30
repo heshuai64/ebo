@@ -229,7 +229,7 @@ class Ebay{
 	}else{
             echo "error, no account id.";
         }
-	
+	echo $userID."\n";
 	try {
                 $client = new eBaySOAP($this->session);
 
@@ -246,13 +246,14 @@ class Ebay{
                 //print "Response: \n".$client->__getLastResponse()."\n";
 		$sql = "delete from account_store_categories where AccountId = ".$this->account_id;
 		$result = mysql_query($sql, eBayListing::$database_connect);
+		echo $sql."\n";
 		
 		$this->saveFetchData("getStoreCategoriesRequest-".date("Y-m-d H:i:s").".xml", $client->__getLastRequest());
                 $this->saveFetchData("getStoreCategoriesResponse-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 		foreach($results->Store->CustomCategories->CustomCategory as $customCategory){
 		    $level = 1;
 		    $sql = "INSERT INTO `account_store_categories` (`CategoryID` , `CategoryParentID` ,`Name` ,`Order` ,`AccountId`) VALUES ('".$customCategory->CategoryID."','0','".$customCategory->Name."','".$customCategory->Order."','".$this->account_id."')";
-		    //echo $sql."<br>\n";
+		    echo $sql."\n";
 		    $result = mysql_query($sql, eBayListing::$database_connect);
 		    
 		    //two level
@@ -263,7 +264,7 @@ class Ebay{
 			foreach($twoChildCategories as $twoChildCategory){ 
 			    $level = 2;
 			    $sql = "INSERT INTO `account_store_categories` (`CategoryID` , `CategoryParentID` ,`Name` ,`Order` ,`AccountId`) VALUES ('".$twoChildCategory->CategoryID."','".$twoCategoryParentID."','".$twoChildCategory->Name."','".$twoChildCategory->Order."','".$this->account_id."')";
-			    //echo $sql."<br>\n";
+			    echo $sql."\n";
 			    $result = mysql_query($sql, eBayListing::$database_connect);
 			    
 			    //three leve
@@ -274,7 +275,7 @@ class Ebay{
 				foreach($threeChildCategories as $threeChildCategory){
 				    $level = 3;
 				    $sql = "INSERT INTO `account_store_categories` (`CategoryID` , `CategoryParentID` ,`Name` ,`Order` ,`AccountId`) VALUES ('".$threeChildCategory->CategoryID."','".$threeCategoryParentID."','".$threeChildCategory->Name."','".$threeChildCategory->Order."','".$this->account_id."')";
-				    //echo $sql."<br>\n";
+				    echo $sql."\n";
 				    $result = mysql_query($sql, eBayListing::$database_connect);
 				}
 			    }

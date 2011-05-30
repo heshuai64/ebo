@@ -541,8 +541,16 @@ class Service{
     }
     
     public function updateShippingMethod(){
+        $a = explode(",", $this->config['shippingMethod']['R']);
+        foreach($a as $b){
+            $c = explode("|", $b);
+            $registered_conditions[$c[0]] = $c[1];
+        }
+        //print_r($registered_conditions);
+        //exit;
+        
         //$sql = "select id,ebayCountry from qo_orders where id = 'ORD200905A0138'";
-        $sql = "select id,ebayCountry from qo_orders where shippingMethodStatus = 0";
+        $sql = "select id,ebayCountry,grandTotalCurrency,grandTotalValue from qo_orders where shippingMethodStatus = 0";
         $result = mysql_query($sql, Service::$database_connect);
         //var_dump($result);
         //exit;
@@ -550,6 +558,7 @@ class Service{
         while($row = mysql_fetch_assoc($result)){
             $id = $row['id'];
             $ebayCountry = $row['ebayCountry'];
+            $total_quantity = 0;
             
             //$sku_string = "";
             $sql_1 = "select skuId,quantity from qo_orders_detail where ordersId = '".$row['id']."'";
@@ -559,23 +568,29 @@ class Service{
             while($row_1 = mysql_fetch_assoc($result_1)){
                 $sku_array[] = $row_1;
                 //$sku_string .= $row_1['skuId'].",";
+                $total_quantity += $row_1['quantity'];
             }
             
-            $data_array = array('id'=>$id, 'country'=>$ebayCountry, 'sku_array'=>$sku_array);
-            //print_r($data_array);
-            $data_json = json_encode($data_array);
-            //print_r($data_json);
-            //$sku_string = substr($sku_string, 0, -1);
-            //$json_result = $this->getService($request."?skuString=".$sku_string."&country=".$row['ebayCountry']);
-            //echo $data_json;
-            //echo "<br>";
-            $json_result = $this->getService($this->inventory_service."?action=getShippingMethodBySku&data=".urlencode($data_json));
-            //echo $json_result;
-            //echo "<br>";
-            $this->log("updateShippingMethod", "ordersId: ".$id.", sku: ".print_r($sku_array, true).", inventory system return: ".$json_result."<br>");
-            $service_result = json_decode($json_result);
-            //var_dump($service_result);
-            $shippingMethod = $service_result->shippingMethod;
+            if($total_quantity >= 20 || $row['grandTotalValue'] >= $registered_conditions[$row['grandTotalCurrency']]){
+                $this->log("updateShippingMethod", "<font color='red'>ordersId: ".$id.", ".$total_quantity."|".$row['grandTotalCurrency'].$row['grandTotalValue']."</font><br>");
+                $shippingMethod = "R";
+            }else{
+                $data_array = array('id'=>$id, 'country'=>$ebayCountry, 'sku_array'=>$sku_array);
+                //print_r($data_array);
+                $data_json = json_encode($data_array);
+                //print_r($data_json);
+                //$sku_string = substr($sku_string, 0, -1);
+                //$json_result = $this->getService($request."?skuString=".$sku_string."&country=".$row['ebayCountry']);
+                //echo $data_json;
+                //echo "<br>";
+                $json_result = $this->getService($this->inventory_service."?action=getShippingMethodBySku&data=".urlencode($data_json));
+                //echo $json_result;
+                //echo "<br>";
+                $this->log("updateShippingMethod", "ordersId: ".$id.", sku: ".print_r($sku_array, true).", inventory system return: ".$json_result."<br>");
+                $service_result = json_decode($json_result);
+                //var_dump($service_result);
+                $shippingMethod = $service_result->shippingMethod;
+            }
             
             if(!empty($shippingMethod)){
                 $sql_2 = "update qo_orders set shippingMethodStatus = 1, shippingMethod='".$shippingMethod."' where id = '".$id."'";
@@ -851,6 +866,39 @@ class Service{
                                    'message'=> 'bad user or password!')
                              );
             //echo "{success: false, message: 'bad user or password!'}";
+        }
+    }
+    
+    public function getShippingAddressBySku(){
+        $sql = "select s.* from qo_shipments as s left join qo_shipments_detail as sd on s.id = sd.shipmentsId where s.status = 'N' and s.printStatus = 0 and s.modifiedOn like '".$_GET['date']."%' and sd.skuId = '".$_GET['sku']."' order by s.id";
+        $result = mysql_query($sql, Service::$database_connect);
+        $row = mysql_fetch_assoc($result);
+        echo json_encode($row);
+    }
+    
+    public function syncShipmentPrintStatus(){
+        //$sql = "update qo_shipments as s,qo_shipments_detail as sd set s.printStatus=1,s.printOn='' where s.id = sd.shipmentsId and sd.skuId = '".$_GET['sku']."'";
+        $sql = "update qo_shipments set status='K',printStatus=1,printOn=now(),printBy='".$_GET['by']."',packedOn=now(),packedBy='".$_GET['by']."' where id = '".$_GET['shipmentId']."'";
+        $result = mysql_query($sql, Service::$database_connect);
+    }
+    
+    public function getNeedSyncStock(){
+        $array = array();
+        $sql = "select s.id as shipmentId,sd.skuId,sd.quantity from qo_shipments as s left join qo_shipments_detail as sd on s.id = sd.shipmentsId where s.status = 'S' and s.syncStockStatus = 0";
+        $result = mysql_query($sql, Service::$database_connect);
+        while($row = mysql_fetch_assoc($result)){
+            $array[] = $row;
+        }
+        echo json_encode($array);
+    }
+    
+    public function updateShipmentSyncStockStatus(){
+        $sql = "update qo_shipments set syncStockStatus = 1 where id = '".$_GET['shipmentId']."'";
+        $result = mysql_query($sql, Service::$database_connect);
+        if($result){
+            echo "HS:success";
+        }else{
+            echo "HS:failure";
         }
     }
     

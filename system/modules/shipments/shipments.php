@@ -466,7 +466,7 @@ class QoShipments {
 		$sku_str = "";
                 $quantiry_str = "";
                 
-		if($row['status'] == "N"){
+		if($row['status'] == "N" || $row['status'] == "K"){
 			if($this->connect_inventory){
 				$sql_4 = "select shipmentsId,skuId,sum(quantity) as quantity from qo_shipments_detail where shipmentsId = '".$_POST['id']."' group by skuId";
 				$result_4 = mysql_query($sql_4);
@@ -490,10 +490,10 @@ class QoShipments {
                         if($service_result_1){
                             //update shipment status
                             if(!empty($_POST['postalReferenceNo'])){
-                                    $sql_3 = "update qo_shipments set status='S',postalReferenceNo='".$_POST['postalReferenceNo']."',shippedBy='".$this->os->session->get_member_name()."',shippedOn='".date("Y-m-d H:i:s")."' where id='".$_POST['id']."'";
+                                    $sql_3 = "update qo_shipments set syncStockStatus=1,status='S',postalReferenceNo='".$_POST['postalReferenceNo']."',shippedBy='".$this->os->session->get_member_name()."',shippedOn='".date("Y-m-d H:i:s")."' where id='".$_POST['id']."'";
                                     $result_3 = mysql_query($sql_3);
                             }else{
-                                    $sql_3 = "update qo_shipments set status='S',shippedBy='".$this->os->session->get_member_name()."',shippedOn='".date("Y-m-d H:i:s")."' where id='".$_POST['id']."'";
+                                    $sql_3 = "update qo_shipments set syncStockStatus=1,status='S',shippedBy='".$this->os->session->get_member_name()."',shippedOn='".date("Y-m-d H:i:s")."' where id='".$_POST['id']."'";
                                     $result_3 = mysql_query($sql_3);
                             }
                         }

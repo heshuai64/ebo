@@ -407,6 +407,15 @@ class eBay{
 	return substr($any, $p_s + 16, $p_e - $p_s - 16);
     }
     
+    private function extractionSku($sku){
+	if(strpos($sku, ",")){
+		$temp = explode("_", $sku);
+		return $temp[0];
+	}else{
+		return $sku;
+	}
+    }
+    
     private function createOrderDetailFromEbayTransaction($orderId, $transaction){
         /*
         switch($item->ListingType){
@@ -428,7 +437,8 @@ class eBay{
         //$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_ / $transaction->Item->SellingStatus->QuantitySold;
 	$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_;
         $quantity = $transaction->QuantityPurchased;
-        
+        $transaction->Item->SKU = $this->extractionSku($transaction->Item->SKU);
+	
         $sql = "insert into qo_orders_detail (ordersId,skuId,itemId,itemTitle,quantity,unitPriceCurrency,unitPriceValue,ebayTranctionId,finalValueFee) values 
         ('".$orderId."','".$transaction->Item->SKU."','".$transaction->Item->ItemID."','".mysql_real_escape_string($transaction->Item->Title)."','".$quantity."','".$unitPriceCurrency."','".$unitPriceValue."','".$transaction->TransactionID."','".$transaction->FinalValueFee->_."')";
         $result = mysql_query($sql, eBay::$database_connect);
@@ -451,7 +461,8 @@ class eBay{
         //$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_ / $transaction->Item->SellingStatus->QuantitySold;
 	$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_;
         $quantity = $transaction->QuantityPurchased;
-        
+        $transaction->Item->SKU = $this->extractionSku($transaction->Item->SKU);
+	
         //consider order status
         if(empty($transaction->ContainingOrder)){
             $sql = "insert into qo_orders_detail (ordersId,skuId,itemId,itemTitle,quantity,unitPriceCurrency,unitPriceValue,ebayTranctionId) values 
@@ -488,7 +499,8 @@ class eBay{
         //$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_ / $transaction->Item->SellingStatus->QuantitySold;
 	$unitPriceValue = $transaction->Item->SellingStatus->CurrentPrice->_;
         $quantity = $transaction->QuantityPurchased;
-        
+        $transaction->Item->SKU = $this->extractionSku($transaction->Item->SKU);
+	
         $sql = "insert into qo_orders_detail (ordersId,skuId,itemId,itemTitle,quantity,unitPriceCurrency,unitPriceValue,ebayTranctionId,ebayOrderId,finalValueFee) values 
         ('".$orderId."','".$transaction->Item->SKU."','".$transaction->Item->ItemID."','".mysql_real_escape_string($transaction->Item->Title)."','".$quantity."','".$unitPriceCurrency."','".$unitPriceValue."','".$transaction->TransactionID."','".$transaction->ContainingOrder->OrderID."','".$transaction->FinalValueFee->_."')";
         $result = mysql_query($sql, eBay::$database_connect);
@@ -674,7 +686,21 @@ class eBay{
 	}
     }
     
+    private function checkOrderTotalAmount($ordersId){
+	echo "--------------------checkOrderTotalAmount-----------------------.<br>";
+	$sql = "select o.grandTotalValue as a1,(sum(od.unitPriceValue * od.quantity) + o.shippingFeeValue + o.insuranceValue - o.discountValue) as a2 from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.id = '".$ordersId."' group by od.ordersId";
+	echo $sql."<br>";
+	$result = mysql_query($sql, eBay::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	if($row['a1'] != $row['a2']){
+		$sql = "update qo_orders set grandTotalValue = ".$row['a2']." where id = '".$ordersId."'";
+		echo $sql."<br>";
+		$result = mysql_query($sql, eBay::$database_connect);
+	}
+    }
+    
     private function mapEbayTransaction($ordersId, $transaction){
+	$this->checkOrderTotalAmount($ordersId);
 	$sql = "select status from qo_orders where id = '".$ordersId."'";
 	$result = mysql_query($sql, eBay::$database_connect);
 	$row = mysql_fetch_assoc($result);
