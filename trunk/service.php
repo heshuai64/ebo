@@ -673,25 +673,31 @@ class Service{
         $today = date("Y-m-d");
         $array = array();
         
-        $sql = "select od.skuId,sum(od.quantity) as flow from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.status = 'P' and o.createdOn between '".$three_day_ago."' and '".$today."' and od.quantity < 20 group by od.skuId";
+        $sql_0 = "select sd.skuId,sum(sd.quantity) as flow from qo_shipments as s left join qo_shipments_detail as sd on s.id = sd.shipmentsId where s.status = 'S' and s.shippedOn between '%s' and '%s' and sd.quantity < 20 group by sd.skuId";
+
+        $sql = sprintf($sql_0, $three_day_ago, $today);
+        //echo $sql."\n";
         $result = mysql_query($sql, Service::$database_connect);
         while($row = mysql_fetch_assoc($result)){
             $array['three_day'][] = $row;
         }
         
-        $sql = "select od.skuId,sum(od.quantity) as flow from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.status = 'P' and o.createdOn between '".$one_week_ago."' and '".$today."' and od.quantity < 20 group by od.skuId";
+        $sql = sprintf($sql_0, $one_week_ago, $today);
+        //echo $sql."\n";
         $result = mysql_query($sql, Service::$database_connect);
         while($row = mysql_fetch_assoc($result)){
             $array['one_week'][] = $row;
         }
         
-        $sql = "select od.skuId,sum(od.quantity) as flow from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.status = 'P' and o.createdOn between '".$two_week_ago."' and '".$one_week_ago."' and od.quantity < 20 group by od.skuId";
+        $sql = sprintf($sql_0, $two_week_ago, $one_week_ago);;
+        //echo $sql."\n";
         $result = mysql_query($sql, Service::$database_connect);
         while($row = mysql_fetch_assoc($result)){
             $array['two_week'][] = $row;
         }
         
-        $sql = "select od.skuId,sum(od.quantity) as flow from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.status = 'P' and o.createdOn between '".$three_week_ago."' and '".$two_week_ago."' and od.quantity < 20 group by od.skuId";
+        $sql = sprintf($sql_0, $three_week_ago, $two_week_ago);;
+        //echo $sql."\n";
         $result = mysql_query($sql, Service::$database_connect);
         while($row = mysql_fetch_assoc($result)){
             $array['three_week'][] = $row;
