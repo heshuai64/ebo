@@ -1,6 +1,6 @@
 <?php
-define ('__DOCROOT__', '/export/eBayListing');
-//define ('__DOCROOT__', '.');
+//define ('__DOCROOT__', '/export/eBayListing');
+define ('__DOCROOT__', '.');
 require_once __DOCROOT__ . '/eBaySOAP.php';
 
 function debugLog($file_name, $data){
@@ -274,9 +274,9 @@ class eBayListing{
         return json_decode($json);
     }
     
-    public static function getSkuLowPriceS($sku='', $currency='', $location=''){
+    public static function getSkuLowPriceS($sku='', $currency='', $location='', $site=''){
 	$rate = eBayListing::getExchangeRateS($currency);
-        $json_object = eBayListing::getInventoryServiceS("?action=getSkuLowestPrice&sku=".$sku."&location=".$location);
+        $json_object = eBayListing::getInventoryServiceS("?action=getSkuLowestPrice&sku=".$sku."&location=".$location."&site=".$site);
         $l_price = $json_object->L / $rate;
         //echo round($l_price, 2);
         return round($l_price, 2);
@@ -311,33 +311,20 @@ class eBayListing{
 	$accountLocation = $row['accountLocation'];
     
 	
-	$skuLowPrice = eBayListing::getSkuLowPriceS($_GET['sku'], $_GET['currency'], $accountLocation);
-	$shippingCost1 = $this->getShippingCost1ByTemplateName($_GET['shippingTemplate']);
+	$skuLowPrice = eBayListing::getSkuLowPriceS($_REQUEST['sku'], $_REQUEST['currency'], $accountLocation, $_REQUEST['site']);
+	$shippingCost1 = $this->getShippingCost1ByTemplateName($_REQUEST['shippingTemplate']);
 	$lowPrice = $skuLowPrice - $shippingCost1;
 	
-	if($_GET['type'] == "auction"){
-            if($_GET['price'] > 0.01 && $_GET['price'] < 0.99){
+	if($_REQUEST['type'] == "auction"){
+            if($_REQUEST['price'] > 0.01 && $_REQUEST['price'] < 0.99){
                 $lowPrice += 0.1;
-            }elseif($_GET['price'] > 1 && $_GET['price'] < 9.9){
+            }elseif($_REQUEST['price'] > 1 && $_REQUEST['price'] < 9.9){
                 $lowPrice += 0.25;
             }
         }
         
         echo $lowPrice;
     }
-    
-    //-----------------  Template --------------------------------------------------------------------------
-    /*
-    ALTER TABLE `items` ADD `UseStandardFooter` BOOL NOT NULL ;
-    ALTER TABLE `template` ADD `UseStandardFooter` BOOL NOT NULL ;
-    ALTER TABLE `template` ADD `InsuranceOption` ENUM( "", "IncludedInShippingHandling", "NotOffered", "Optional", "Required" ) NOT NULL AFTER `ShippingServiceOptionsType` ;
-    ALTER TABLE `template` ADD `InsuranceFee` DECIMAL( 10, 2 ) NOT NULL AFTER `InsuranceOption` ;
-    ALTER TABLE `template` ADD `InternationalInsurance` ENUM( "", "IncludedInShippingHandling", "NotOffered", "Optional", "Required" ) NOT NULL AFTER `InternationalShippingServiceOptionType` ;
-    ALTER TABLE `template` ADD `InternationalInsuranceFee` DECIMAL( 10, 2 ) NOT NULL AFTER `InternationalInsurance` ;
-    
-    ALTER TABLE `template` CHANGE `ReturnPolicyReturnsAcceptedOption` `ReturnPolicyReturnsAcceptedOption` ENUM( '', 'ReturnsAccepted', 'ReturnsNotAccepted' ) NOT NULL; 
-    ALTER TABLE `items` CHANGE `ReturnPolicyReturnsAcceptedOption` `ReturnPolicyReturnsAcceptedOption` ENUM( '', 'ReturnsAccepted', 'ReturnsNotAccepted' ) NOT NULL; 
-    */
     
     public function saveSkuPicture(){
 	$sql_1 = "select count(*) as num from account_sku_picture where account_id = '".$this->account_id."' and sku = '".$_POST['sku']."'";

@@ -1686,7 +1686,7 @@ Ext.onReady(function(){
                                         blur: function(t){
                                             if(global_config.LP){
                                                 Ext.Ajax.request({
-                                                    url: 'service.php?action=getTemplateLowPrice&id=' + template_id + '&SKU=' + Ext.getCmp("SKU").getValue() + '&type=auction&Currency=' + currencyCombo.getValue() + '&price=' + t.getValue() + '&ShippingServiceCost1=' + Ext.getCmp('ShippingServiceCost1').getValue() + '&shippingTemplateName='+shippingTemplateCombo.getValue(),
+                                                    url: 'service.php?action=getTemplateLowPrice&id=' + template_id + '&SKU=' + Ext.getCmp("SKU").getValue() + '&type=auction&Currency=' + currencyCombo.getValue() + '&price=' + t.getValue() + '&ShippingServiceCost1=' + Ext.getCmp('ShippingServiceCost1').getValue() + '&shippingTemplateName='+shippingTemplateCombo.getValue() + '&site=' + Ext.getCmp("SiteID").getValue(),
                                                     success: function(a, b){
                                                         Ext.getCmp("StartPrice").minValue = a.responseText;
                                                     }
@@ -1703,7 +1703,7 @@ Ext.onReady(function(){
                                         blur: function(t){
                                             if(global_config.LP){
                                                 Ext.Ajax.request({
-                                                    url: 'service.php?action=getTemplateLowPrice&id=' + template_id + '&SKU=' + Ext.getCmp("SKU").getValue() + '&type=fix&Currency=' + currencyCombo.getValue() + '&price=' + t.getValue() + '&ShippingServiceCost1=' + Ext.getCmp('ShippingServiceCost1').getValue() + '&shippingTemplateName='+shippingTemplateCombo.getValue(),
+                                                    url: 'service.php?action=getTemplateLowPrice&id=' + template_id + '&SKU=' + Ext.getCmp("SKU").getValue() + '&type=fix&Currency=' + currencyCombo.getValue() + '&price=' + t.getValue() + '&ShippingServiceCost1=' + Ext.getCmp('ShippingServiceCost1').getValue() + '&shippingTemplateName='+shippingTemplateCombo.getValue() + '&site=' + Ext.getCmp("SiteID").getValue(),
                                                     success: function(a, b){
                                                         Ext.getCmp("BuyItNowPrice").minValue = a.responseText;
                                                     }

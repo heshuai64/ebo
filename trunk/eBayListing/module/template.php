@@ -891,7 +891,7 @@ class Template{
             $price = min($_POST['StartPrice'], $_POST['BuyItNowPrice']);
         }
         
-        if($price < $this->getTemplateLowPrice(true)){
+        if($price < $this->getTemplateLowPrice($_POST['Site'], true)){
             echo '{success: false, errors: {message:""},
                     msg: "Price + Shipping Too low!"}';
             return 0;
@@ -1343,7 +1343,7 @@ class Template{
 	    $row_0 = mysql_fetch_assoc($result_0);
 	    $accountLocation = $row_0['accountLocation'];
 	    
-            $row['LowPrice'] = eBayListing::getSkuLowPriceS($row['SKU'], $row['Currency'], $accountLocation);
+            $row['LowPrice'] = eBayListing::getSkuLowPriceS($row['SKU'], $row['Currency'], $accountLocation, $row['Site']);
         }else{
             $row['LowPrice'] = 0;
         }
@@ -1464,7 +1464,7 @@ class Template{
         }
     }
 
-    public function getTemplateLowPrice($Internal = false){
+    public function getTemplateLowPrice($site = 'US', $Internal = false){
 	$sql = "select accountLocation from account where id = ".$this->account_id;
 	$result = mysql_query($sql, eBayListing::$database_connect);
         $row = mysql_fetch_assoc($result);
@@ -1499,7 +1499,7 @@ class Template{
 
         $ShippingServiceCost1 = $this->getTemplateShippingCost1($ShippingServiceCost1, $shippingTemplateName);
         if($this->lowest_price){
-            $skuLowPrice = eBayListing::getSkuLowPriceS($sku, $currency, $accountLocation);
+            $skuLowPrice = eBayListing::getSkuLowPriceS($sku, $currency, $accountLocation, $site);
         }else{
             $skuLowPrice = 0;
         }
@@ -1550,7 +1550,7 @@ class Template{
             $price = min($_POST['StartPrice'], $_POST['BuyItNowPrice']);
         }
         
-        if($price < $this->getTemplateLowPrice(true)){
+        if($price < $this->getTemplateLowPrice($_POST['Site'], true)){
             echo '{success: false, errors: {message:""},
                     msg: "Price + Shipping Too low!"}';
             return 0;

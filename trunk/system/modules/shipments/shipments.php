@@ -306,8 +306,8 @@ class QoShipments {
 			$shipment_detail_array[$i]['shipmentMethod'] = $row_1['shipmentMethod'];
 			$shipment_detail_array[$i]['sellerId'] = $row_2['sellerId'];
                         
-                        $request = $this->inventory_service_address."?action=getSkuInfo&data=".urlencode($row['skuId']);
-                        $json_result = json_decode($this->getService($request));
+                        //$request = $this->inventory_service_address."?action=getSkuInfo&data=".urlencode($row['skuId']);
+                        //$json_result = json_decode($this->getService($request));
                         $shipment_detail_array[$i]['skuStock'] = $json_result->skuStock;
 			$shipment_detail_array[$i]['skuChineseTitle'] = $json_result->skuChineseTitle;
 			$i++;
