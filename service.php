@@ -883,9 +883,19 @@ class Service{
     }
     
     public function syncShipmentPrintStatus(){
-        //$sql = "update qo_shipments as s,qo_shipments_detail as sd set s.printStatus=1,s.printOn='' where s.id = sd.shipmentsId and sd.skuId = '".$_GET['sku']."'";
-        $sql = "update qo_shipments set status='K',printStatus=1,printOn=now(),printBy='".$_GET['by']."',packedOn=now(),packedBy='".$_GET['by']."' where id = '".$_GET['shipmentId']."'";
+        $shipmentId = $_GET['shipmentId'];
+        $sql = "select s.shipmentMethod,sd.skuId,sd.quantity from qo_shipments as s,qo_shipments_detail as sd where s.id = sd.shipmentsId and id = '".$shipmentId."'";
         $result = mysql_query($sql, Service::$database_connect);
+        $row = mysql_fetch_assoc($result);
+        
+        $call_service = $this->getService($this->inventory_service."?action=clientSkuTackOut&sku=".$row['skuId']."&quantity=".$row['quantity']."&shipment_id=".$shipmentId."&shipment_method=".$row['shipmentMethod'];
+        if(strpos($call_service, "success"){
+            //$sql = "update qo_shipments as s,qo_shipments_detail as sd set s.printStatus=1,s.printOn='' where s.id = sd.shipmentsId and sd.skuId = '".$_GET['sku']."'";
+            $sql = "update qo_shipments set status='S',printStatus=1,printOn=now(),printBy='".$_GET['by']."',packedOn=now(),packedBy='".$_GET['by']."' where id = '".$_GET['shipmentId']."'";
+            $result = mysql_query($sql, Service::$database_connect);
+        }else{
+            echo "";
+        }
     }
     
     public function getNeedSyncStock(){

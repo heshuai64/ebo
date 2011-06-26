@@ -4,6 +4,7 @@ define ('__DOCCLASS__', __DOCROOT__ . '/class');
 
 require_once __DOCCLASS__ . '/PHPExcel.php';
 require_once __DOCCLASS__ . '/PHPExcel/IOFactory.php';
+ini_set("memory_limit","256M");
 
 class eBayBOExcel{
 	private static $database_connect;
@@ -626,10 +627,12 @@ class eBayBOExcel{
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, 'eBay ID');
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, '邮箱地址');
 		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, 'eBay 账户');
-		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, '购买时间');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, '国家');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 1, '购买时间');
 		
 		
-		$sql = "select sellerId,buyerId,ebayEmail,createdOn from qo_orders where createdOn between '2010-09-01' and '2010-11-01' group by buyerId";	
+		$sql = "select sellerId,buyerId,ebayEmail,ebayCountry,createdOn from qo_orders where createdOn between '".$this->startTime."' and '".$this->endTime."' group by buyerId";	
+		echo $sql."\n";
 		$result = mysql_query($sql, eBayBOExcel::$database_connect);
 		$i = 2;
 		while($row = mysql_fetch_assoc($result)){
@@ -637,6 +640,7 @@ class eBayBOExcel{
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['buyerId']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['ebayEmail']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['sellerId']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['ebayCountry']);
 			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['createdOn']);
 			$i++;
 		}

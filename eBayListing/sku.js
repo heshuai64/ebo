@@ -456,16 +456,23 @@ Ext.onReady(function(){
                                     })
                                 }
                                 
+                                /*
                                 if(global_config.LP){
-                                    Ext.Ajax.request({
-                                        url: 'service.php?action=getSkuLowPrice&currency=' + currencyCombo.getValue() + '&sku=' + sku,
-                                        success: function(a, b){
-                                            //console.log(a);
-                                            //document.getElementById("Description").value = a.responseText;
-                                            Ext.getCmp("LowPrice").setValue(a.responseText);
-                                        }
-                                    })
+                                    if(Ext.isEmpty(shippingTemplateCombo.getValue())){
+                                        Ext.Msg.alert('Warning', 'Please first select shipping template.');
+                                    }else{
+                                        Ext.Ajax.request({
+                                            //url: 'service.php?action=getSkuLowPrice&currency=' + currencyCombo.getValue() + '&sku=' + sku + '&site=' + Ext.getCmp("SiteID").getValue(),
+                                            url: 'service.php?action=getSkuLowSoldPrice&sku=' + sku + '&type=auction&currency=' + currencyCombo.getValue() + '&price=' + t.getValue() + '&shippingTemplate=' + shippingTemplateCombo.getValue(),
+                                            success: function(a, b){
+                                                //console.log(a);
+                                                //document.getElementById("Description").value = a.responseText;
+                                                Ext.getCmp("LowPrice").setValue(a.responseText);
+                                            }
+                                        })
+                                    }
                                 }
+                                */
                             }
                         }
                     }]
@@ -1624,8 +1631,9 @@ Ext.onReady(function(){
                                                     Ext.Msg.alert('Warning', 'Please first select shipping template.');
                                                 }else{
                                                     Ext.Ajax.request({
-                                                        url: 'service.php?action=getSkuLowSoldPrice&sku=' + sku + '&type=auction&currency=' + currencyCombo.getValue() + '&price=' + t.getValue() + '&shippingTemplate=' + shippingTemplateCombo.getValue(),
+                                                        url: 'service.php?action=getSkuLowSoldPrice&sku=' + sku + '&type=auction&currency=' + currencyCombo.getValue() + '&price=' + t.getValue() + '&shippingTemplate=' + shippingTemplateCombo.getValue() + '&site=' + Ext.getCmp("SiteID").getValue(),
                                                         success: function(a, b){
+                                                            Ext.getCmp("LowPrice").setValue(a.responseText);
                                                             Ext.getCmp("StartPrice").minValue = a.responseText;
                                                         }
                                                     })
@@ -1671,8 +1679,9 @@ Ext.onReady(function(){
                                                     Ext.Msg.alert('Warning', 'Please first select shipping template.');
                                                 }else{
                                                     Ext.Ajax.request({
-                                                        url: 'service.php?action=getSkuLowSoldPrice&sku=' + sku + '&type=fix&currency=' + currencyCombo.getValue() + '&price=' + t.getValue() + '&shippingTemplate=' + shippingTemplateCombo.getValue(),
+                                                        url: 'service.php?action=getSkuLowSoldPrice&sku=' + sku + '&type=fix&currency=' + currencyCombo.getValue() + '&price=' + t.getValue() + '&shippingTemplate=' + shippingTemplateCombo.getValue() + '&site=' + Ext.getCmp("SiteID").getValue(),
                                                         success: function(a, b){
+                                                            Ext.getCmp("LowPrice").setValue(a.responseText);
                                                             Ext.getCmp("BuyItNowPrice").minValue = a.responseText;
                                                         }
                                                     })

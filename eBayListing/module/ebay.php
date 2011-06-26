@@ -22,11 +22,28 @@ class Ebay{
     
     private function log($type, $content, $level = 'normal'){
 	//print_r($_COOKIE);
-	$content = str_replace("<", "[", $content);
-	$content = str_replace(">", "]", $content);
+	//$content = str_replace("<", "[", $content);
+	//$content = str_replace(">", "]", $content);
 	$sql = "insert into log (level,type,content,account_id) values('".$level."','".$type."','".mysql_real_escape_string($content)."','".$this->account_id."')";
 	//echo $sql;
 	$result = mysql_query($sql, eBayListing::$database_connect);
+    }
+    
+    private function parseEbayResponse($type, $item, $results){
+	$temp = '';
+	if(is_array($results->Errors)){
+	    foreach($results->Errors as $error){
+		$error->LongMessage = str_replace("<", "[", $error->LongMessage);
+		$error->LongMessage = str_replace(">", "]", $error->LongMessage);
+		$temp .= "<font color='red'>".$error->SeverityCode."</font>: ".$error->LongMessage."<br>";
+	    }
+	    $temp .= $results->Message;
+	}else{
+	    $results->Errors->LongMessage = str_replace("<", "[", $results->Errors->LongMessage);
+	    $results->Errors->LongMessage = str_replace(">", "]", $results->Errors->LongMessage);
+	    $temp .= "<font color='red'>".$results->Errors->ShortMessage."</font>: ".$results->Errors->LongMessage."<br>";
+	}
+	$this->log($type, "Item ID: ".$item['Id'] .", Template ID: ".$item['TemplateID']."<br>" . $temp, (empty($results->ItemID)?"error":"warn"));
     }
     
     public  function setAccount($account_id){
@@ -278,9 +295,25 @@ class Ebay{
 				    echo $sql."\n";
 				    $result = mysql_query($sql, eBayListing::$database_connect);
 				}
+			    }elseif(!empty($twoChildCategory->ChildCategory)){
+				$threeCategoryParentID = $twoChildCategory->CategoryID;
+				$threeChildCategory = $twoChildCategory->ChildCategory;
+				
+				$level = 3;
+				$sql = "INSERT INTO `account_store_categories` (`CategoryID` , `CategoryParentID` ,`Name` ,`Order` ,`AccountId`) VALUES ('".$threeChildCategory->CategoryID."','".$threeCategoryParentID."','".$threeChildCategory->Name."','".$threeChildCategory->Order."','".$this->account_id."')";
+				echo $sql."\n";
+				$result = mysql_query($sql, eBayListing::$database_connect);
 			    }
 			}
 			
+		    }elseif(!empty($customCategory->ChildCategory)){
+			$twoCategoryParentID = $customCategory->CategoryID;
+			$twoChildCategory = $customCategory->ChildCategory;
+			
+			$level = 2;
+			$sql = "INSERT INTO `account_store_categories` (`CategoryID` , `CategoryParentID` ,`Name` ,`Order` ,`AccountId`) VALUES ('".$twoChildCategory->CategoryID."','".$twoCategoryParentID."','".$twoChildCategory->Name."','".$twoChildCategory->Order."','".$this->account_id."')";
+			echo $sql."\n";
+			$result = mysql_query($sql, eBayListing::$database_connect);
 		    }
 		}
                 
@@ -1763,7 +1796,9 @@ class Ebay{
 		$itemArray['PostalCode'] = $item['PostalCode'];
 	    }
 	    $itemArray['PrimaryCategory']['CategoryID'] = $item['PrimaryCategoryCategoryID'];
-	    $itemArray['PrivateListing'] = true;
+	    if($item['Site'] != "Germany"){
+		$itemArray['PrivateListing'] = true;
+	    }
 	    $itemArray['Quantity'] = $item['Quantity'];
 	    
 	    if(!empty($item['ReturnPolicyReturnsAcceptedOption'])){
@@ -1881,19 +1916,7 @@ class Ebay{
 		$sql_0 = "update items set Status = 1 where Id = '".$item['Id']."'";
 		$result_0 = mysql_query($sql_0);
 		
-		if(is_array($results->Errors)){
-		    $temp = '';
-		    foreach($results->Errors as $error){
-			echo $error->ShortMessage." : ";
-			echo $error->LongMessage."<br>";
-			$temp .= $error->LongMessage;
-		    }
-		    $this->log("upload", $item['Id'] ." " . $temp, (empty($results->ItemID)?"error":"warn"));
-		}else{
-		    echo $results->Errors->ShortMessage." : ";
-		    echo $results->Errors->LongMessage."<br>";
-		    $this->log("upload", $item['Id'] ." " . $results->Errors->LongMessage, (empty($results->ItemID)?"error":"warn"));
-		}
+		$this->parseEbayResponse("upload", $item, $results);
 		
 		if(!empty($results->ItemID)){
 		    foreach($results->Fees->Fee as $fee){
@@ -2182,7 +2205,9 @@ class Ebay{
 		$itemArray['PostalCode'] = $item['PostalCode'];
 	    }
 	    $itemArray['PrimaryCategory']['CategoryID'] = $item['PrimaryCategoryCategoryID'];
-	    $itemArray['PrivateListing'] = true;
+	    if($item['Site'] != "Germany"){
+		$itemArray['PrivateListing'] = true;
+	    }
 	    $itemArray['Quantity'] = $item['Quantity'];
 	    
 	    
@@ -2321,19 +2346,8 @@ class Ebay{
 		//$sql_0 = "update items set Status = 3 where Id = '".$item['Id']."'";
 		//$result_0 = mysql_query($sql_0);
 		
-		if(is_array($results->Errors)){
-		    $temp = '';
-		    foreach($results->Errors as $error){
-			echo $error->ShortMessage." : ";
-			echo $error->LongMessage."<br>";
-			$temp .= $error->LongMessage;
-		    }
-		    $this->log("revise", $item['Id'] ." " . $temp, "error");
-		}else{
-		    echo $results->Errors->ShortMessage." : ";
-		    echo $results->Errors->LongMessage."<br>";
-		    $this->log("revise", $item['Id'] ." " . $results->Errors->LongMessage, "error");
-		}
+		$this->parseEbayResponse("revise", $item, $results);
+		
 		if(!empty($results->ItemID)){
 		    $sql = "update items set Status='2' where Id = '".$item['Id']."'";
 		    echo $sql;
@@ -2617,6 +2631,9 @@ class Ebay{
 		$itemArray['PostalCode'] = $item['PostalCode'];
 	    }
 	    $itemArray['PrimaryCategory']['CategoryID'] = $item['PrimaryCategoryCategoryID'];
+	    if($item['Site'] != "Germany"){
+		$itemArray['PrivateListing'] = true;
+	    }
 	    $itemArray['Quantity'] = $item['Quantity'];
 	
 	    if(!empty($item['ReturnPolicyReturnsAcceptedOption'])){
@@ -2729,19 +2746,7 @@ class Ebay{
 		//$sql_0 = "update items set Status = 4 where Id = '".$item['Id']."'";
 		//$result_0 = mysql_query($sql_0);
 		
-		if(is_array($results->Errors)){
-		    $temp = '';
-		    foreach($results->Errors as $error){
-			echo $error->ShortMessage." : ";
-			echo $error->LongMessage."<br>";
-			$temp .= $error->LongMessage;
-		    }
-		    $this->log("relist", $item['Id'] ." " . $temp, (empty($results->ItemID)?"error":"warn"));
-		}else{
-		    echo $results->Errors->ShortMessage." : ";
-		    echo $results->Errors->LongMessage."<br>";
-		    $this->log("relist", $item['Id'] ." " . $results->Errors->LongMessage, (empty($results->ItemID)?"error":"warn"));
-		}
+		$this->parseEbayResponse("relist", $item, $results);
 		
 		if(!empty($results->ItemID)){
 		    foreach($results->Fees->Fee as $fee){
@@ -2850,19 +2855,7 @@ class Ebay{
 	    $results = $client->EndItem($params);
 	    
 	    if(!empty($results->Errors)){
-		if(is_array($results->Errors)){
-		    $temp = '';
-		    foreach($results->Errors as $error){
-			echo $error->ShortMessage." : ";
-			echo $error->LongMessage."<br>";
-			$temp .= $error->LongMessage;
-		    }
-		    $this->log("end", $item['Id'] ." " . $temp, (empty($results->ItemID)?"error":"warn"));
-		}else{
-		    echo $results->Errors->ShortMessage." : ";
-		    echo $results->Errors->LongMessage."<br>";
-		    $this->log("end", $item['Id'] ." " . $results->Errors->LongMessage, (empty($results->ItemID)?"error":"warn"));
-		}
+		$this->parseEbayResponse("end", $item, $results);
 	    }elseif($results->Ack == "Success"){
 		$sql_2 = "update items set Status = 9,EndTime = '".$results->EndTime."' where Id = '".$item['Id']."'";
 		echo $sql_2."<br>";
