@@ -296,8 +296,9 @@ class Cron{
 		    continue;
 		}
 		$template = new Template($row_1['accountId']);
-		$local_time = $day." ".$row_1['ForeverListingTime'];
+		//$local_time = $day." ".$row_1['ForeverListingTime'];
 		$china_time = $day." ".substr($template->getSiteTime($Site, "1983-11-16", $row_1['ForeverListingTime']), 11, 5);
+		$local_time = $template->getLocalTimeByChinaTime($Site, $china_time);
 		//$china_time = $day." ".$row_1['ForeverListingChinaTime'];
 		$item_id = $template->changeTemplateToItem($row_1['Id'], $china_time, $local_time, 1);
 		$this->log("calculateForeverListingSchedule-".$Site.".html", "t:".$row_1['Id']." ==> i:".$item_id.". BeiJing:".$china_time.", ".$Site.": ".$local_time."<br>");
