@@ -37,13 +37,13 @@ class Ebay{
 		$error->LongMessage = str_replace(">", "]", $error->LongMessage);
 		$temp .= "<font color='red'>".$error->SeverityCode."</font>: ".$error->LongMessage."<br>";
 	    }
-	    $temp .= $results->Message;
+	    //$temp .= $results->Message;
 	}else{
 	    $results->Errors->LongMessage = str_replace("<", "[", $results->Errors->LongMessage);
 	    $results->Errors->LongMessage = str_replace(">", "]", $results->Errors->LongMessage);
 	    $temp .= "<font color='red'>".$results->Errors->ShortMessage."</font>: ".$results->Errors->LongMessage."<br>";
 	}
-	$this->log($type, "Item ID: ".$item['Id'] .", Template ID: ".$item['TemplateID']."<br>" . $temp, (empty($results->ItemID)?"error":"warn"));
+	$this->log($type, "System Item ID: ".$item['Id'] .", System Template ID: ".$item['TemplateID']."<br>" . $temp, (empty($results->ItemID)?"error":"warn"));
     }
     
     public  function setAccount($account_id){

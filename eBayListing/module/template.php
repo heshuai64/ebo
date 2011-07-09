@@ -98,6 +98,16 @@ class Template{
 	return $time;
     }
     
+    public function getLocalTimeByChinaTime($site, $date_time){
+	if(strpos(eBayListing::$time_zone[$site], "+")){
+	    $time_difference = str_replace("+", "-");
+	}else{
+	    $time_difference = str_replace("-", "+");
+	}
+	$time = date("Y-m-d H:i:s", strtotime($time_difference." hour ".$date_time));
+	return $time;
+    }
+    
     private function log($type, $content, $level = 'normal'){
 	//print_r($_COOKIE);
 	$sql = "insert into log (level,type,content,account_id) values('".$level."','".$type."','".mysql_real_escape_string($content)."','".$this->account_id."')";
