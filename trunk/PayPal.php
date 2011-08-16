@@ -696,7 +696,7 @@ set_time_limit(600);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_POST, 1);
 	    //curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-	    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+	    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 60);
 	    
             // Set the API operation, version, and API signature in the request.
             $nvpreq = "METHOD=$methodName_&VERSION=$version&PWD=$API_Password&USER=$API_UserName&SIGNATURE=$API_Signature$nvpStr_";

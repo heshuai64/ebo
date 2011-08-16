@@ -1,6 +1,9 @@
 <?php
-//define ('__DOCROOT__', '/export/eBayListing');
-define ('__DOCROOT__', '.');
+ini_set('memory_limit', '256M');
+set_time_limit('1800');
+
+define ('__DOCROOT__', '/export/eBayListing');
+//define ('__DOCROOT__', '.');
 require_once __DOCROOT__ . '/eBaySOAP.php';
 
 function debugLog($file_name, $data){
@@ -1598,12 +1601,16 @@ $ebay_service = array(/*'getCategoryFeatures',
 		      'getAllCategories','getCategories',
 		      'getAllStoreCategories','getStoreCategories',
 		      'getAllSellerList',
-		      'uploadItem', 'modifyActiveItem', 'reUploadItem', 'endListingItem',
+		      'uploadItem', 'uploadItemThread', 'modifyActiveItem', 'reUploadItem', 'endListingItem',
 		      'getToken', 'saveToken');   
 //$service->setAccount(1);
 $service = new eBayListing();
 $acton = (!empty($_GET['action'])?$_GET['action']:$argv[1]);
-if(isset($_GET['action']) && strpos($acton, 'Template')){
+if(in_array($acton, $ebay_service)){
+    require_once 'module/ebay.php';
+    $ebay = new Ebay($service->getAccount());
+    $ebay->$acton();
+}elseif(isset($_GET['action']) && strpos($acton, 'Template')){
     require_once 'module/template.php';
     $template = new Template($service->getAccount());
     $template->$acton();
@@ -1611,10 +1618,6 @@ if(isset($_GET['action']) && strpos($acton, 'Template')){
     require_once 'module/item.php';
     $item = new Item($service->getAccount());
     $item->$acton();
-}elseif(in_array($acton, $ebay_service)){
-    require_once 'module/ebay.php';
-    $ebay = new Ebay($service->getAccount());
-    $ebay->$acton();
 }else{
     if(method_exists($service, $acton)){
 	$service->$acton();

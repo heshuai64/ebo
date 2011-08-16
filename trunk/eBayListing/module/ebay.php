@@ -1,6 +1,4 @@
 <?php
-ini_set('memory_limit', '128M');
-set_time_limit('1800');
 
 class Ebay{
     const LOG_DIR = '/export/eBayListing/log/eBay/';
@@ -18,6 +16,15 @@ class Ebay{
     
     public function __construct($account_id){
         $this->account_id = $account_id;
+    }
+    
+    private function debug($message){
+	$sql = "select name from account where id = ".$this->account_id;
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	$account_name = $row['name'];
+	
+	file_put_contents(Ebay::LOG_DIR."ebay.log.".date("YmdH"), date("H:i:s")."---".$account_name.":".$message."\n", FILE_APPEND);
     }
     
     private function log($type, $content, $level = 'normal'){
@@ -1362,6 +1369,17 @@ class Ebay{
 	//file_put_contents("/tmp/getTemplateActiveItemCount-".date("Ymd").".log", $sql."\n".$row['num']."\n\n");
 	return $row['num'];
     }
+    
+    private function updateItemStatus($itemId, $status){
+	$sql = "update items set Status = ".$status." where Id = ".$itemId;
+	$result = mysql_query($sql);
+    }
+    
+    private function checkItemDesEncoding($itemId, $des){
+    	$encoding = mb_detect_encoding($des);	
+    	$this->debug($itemId." encoding is ".$encoding);
+    }
+    
     //-------------------------- Upload  -----------------------------------------------------------------
     private function getCondition($CategorySiteID, $CategoryID){
         $sql = "select CategoryID,CategoryParentID,ConditionEnabled from categories where CategorySiteID = ".$CategorySiteID." and CategoryID = ".$CategoryID;
@@ -1391,13 +1409,16 @@ class Ebay{
 	$from = date("Y-m-d H:i:s", time() - 60);
 	$to = date("Y-m-d H:i:s", time() + 30);
 	
-	$sql = "select Id,AccountId,TemplateID,SKU from items where Status = 1 and ScheduleTime between '".$from."' and '".$to."'";
+	$sql = "select Id,AccountId,TemplateID,SKU,ScheduleTime from items where Status = 1 and ScheduleTime between '".$from."' and '".$to."'";
 	//$sql = "select Id,AccountId from items where Status = 1";
+	$this->debug($sql);
+	$readyUploadItem = array();
 	
 	$result = mysql_query($sql);
 	while($row = mysql_fetch_assoc($result)){
 	    $this->setAccount($row['AccountId']);
 	    $template_status = $this->getItemTemplateStatus($row['Id']);
+	    $this->debug("".$row['Id']."|".$row['TemplateID']."|".$row['ScheduleTime']."|".$template_status);
 	    if($template_status !=2 && $template_status != 3 && $template_status != 7){
 		switch($template_status){
 		    case 0:
@@ -1420,22 +1441,32 @@ class Ebay{
 			$status = "forever inactive";
 		    break;
 		}
-		$this->log("upload", $row['Id'] . " template status is ".$status, "warn");
+		$this->updateItemStatus($row['Id'], 30);
+		$this->debug("status ".$status);
+		$this->log("upload", "System Item ID:".$row['Id'].", Template ID:".$row['TemplateID'].". template status is ".$status, "warn");
 		continue;
 	    }
 	    
 	    if($this->getTemplateActiveItemCount($row['TemplateID']) > 0){
-		$this->log("upload", $row['Id'] . " has active listings", "warn");
+		$this->updateItemStatus($row['Id'], 31);
+		$this->debug("has active listings");
+		$this->log("upload", "System Item ID:".$row['Id'].", Template ID:".$row['TemplateID'].". has active listings", "warn");
 		continue;
 	    }
 	    
 	    $sql_0 = "update items set Status = 10 where Id = '".$row['Id']."'";
 	    $result_0 = mysql_query($sql_0);
-	    
+		
+	    $readyUploadItem[] = $row['Id'];
+	}
+	
+	foreach($readyUploadItem as $id){
+		$row['Id'] = $id;
 	    //$row['item_id'] = 98;
 	    $sql_1 = "select * from items where Id = '".$row['Id']."'";
 	    $result_1 = mysql_query($sql_1);
 	    $row_1 = mysql_fetch_assoc($result_1);
+	    $this->setAccount($row_1['accountId']);
 	    
 	    if($row_1['UseStandardFooter']){
 		$sql_0 = "select * from account_sku_picture where account_id = '".$row_1['accountId']."' and sku = '".$row_1['SKU']."'";
@@ -1452,6 +1483,7 @@ class Ebay{
 		$row_1['Description'] = html_entity_decode($row_1['Description'], ENT_QUOTES);
 	    }
 	    
+	    $this->checkItemDesEncoding($row_1['Id'], $row_1['Description']);
 	    
 	    //$row_1['Description'] = utf8_encode($row_1['Description']);
 	    $row_1['Title'] = html_entity_decode($row_1['Title'], ENT_QUOTES);
@@ -1914,7 +1946,7 @@ class Ebay{
 	    
 	    if(!empty($results->Errors)){
 		$sql_0 = "update items set Status = 1 where Id = '".$item['Id']."'";
-		$result_0 = mysql_query($sql_0);
+		//$result_0 = mysql_query($sql_0);
 		
 		$this->parseEbayResponse("upload", $item, $results);
 		
@@ -1963,7 +1995,7 @@ class Ebay{
 	    
 	    if(!empty($results->faultcode)){
 		$sql_0 = "update items set Status = 1 where Id = '".$item['Id']."'";
-		$result_0 = mysql_query($sql_0);
+		//$result_0 = mysql_query($sql_0);
 		$this->log("upload", $item['Id'] ." " . $results->faultcode . ": " . $results->faultstring, "error");
 
 	    }
