@@ -25,6 +25,11 @@ class Item{
 	13: ending
 	
 	20: relist template error
+	
+	can not upload
+	30: reason is status
+	31: has active listings
+	32: ebay return error
     */
     private function getService($request){
         $json = file_get_contents(Template::INVENTORY_SERVICE.$request);
