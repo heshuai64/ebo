@@ -201,25 +201,25 @@ class Cron{
                 case "02":
 		    $day = date("D");
                     $Site = "Australia";
-                    $sql_1 = "select Id,scheduleTemplateName,accountId from template where scheduleTemplateName <> '' and status = 2 and Site = 'Australia'";
+                    $sql_1 = "select Id,scheduleTemplateName,accountId from template where ListingType = 'Chinese' and scheduleTemplateName <> '' and status = 2 and Site = 'Australia'";
                 break;
             
                 case "12":
 		    $day = date("D", time() + 24 * 60 *60);
                     $Site = "US";
-                    $sql_1 = "select Id,scheduleTemplateName,accountId from template where scheduleTemplateName <> '' and status = 2 and (Site = 'US' or Site = 'eBayMotors')";
+                    $sql_1 = "select Id,scheduleTemplateName,accountId from template where ListingType = 'Chinese' and scheduleTemplateName <> '' and status = 2 and (Site = 'US' or Site = 'eBayMotors')";
                 break;
             
                 case "17":
 		    $day = date("D", time() + 24 * 60 *60);
                     $Site = "UK";
-                    $sql_1 = "select Id,scheduleTemplateName,accountId from template where scheduleTemplateName <> '' and status = 2 and Site = 'UK'";
+                    $sql_1 = "select Id,scheduleTemplateName,accountId from template where ListingType = 'Chinese' and scheduleTemplateName <> '' and status = 2 and Site = 'UK'";
                 break;
             
                 case "18":
 		    $day = date("D", time() + 24 * 60 *60);
                     $Site = "Germany";
-                    $sql_1 = "select Id,scheduleTemplateName,accountId from template where scheduleTemplateName <> '' and status = 2 and (Site = 'Germany' or Site = 'France')";
+                    $sql_1 = "select Id,scheduleTemplateName,accountId from template where ListingType = 'Chinese' and scheduleTemplateName <> '' and status = 2 and (Site = 'Germany' or Site = 'France')";
                 break;
             }
             
@@ -236,7 +236,7 @@ class Cron{
 			$template = new Template($row_1['accountId']);
                         print_r($row_2);
                         $local_time = $template->getSiteTime($Site, $today, $row_2['time']);
-                        //$item_id = $template->changeTemplateToItem($row_1['Id'], $local_time, $today . " " .$row_2['time'], 1);
+                        $item_id = $template->changeTemplateToItem($row_1['Id'], $local_time, $today . " " .$row_2['time'], 0);
                         $this->log("calculateListingSchedule-".$Site.".html", "t:".$row_1['Id']." ==> i:".$item_id.". BeiJing:".$local_time.", ".$Site.": ".$today . " " .$row_2['time']."<br>");
                         $this->log("calculateListingSchedule-".$Site.".html", "<br><font color='red'>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
                     }
