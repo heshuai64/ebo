@@ -1377,7 +1377,9 @@ class Ebay{
     
     private function checkItemDesEncoding($itemId, $des){
     	$encoding = mb_detect_encoding($des);	
-    	$this->debug($itemId." encoding is ".$encoding);
+    	$chinese_character = preg_match('/\p{Han}/u', $des);
+    	$chinese_punctuation = preg_match('/，。：；‘’“”（）【】《》！？/u', $des);
+    	$this->debug($itemId." encoding is ".$encoding."[".$chinese_character."|".$chinese_punctuation."]");
     }
     
     //-------------------------- Upload  -----------------------------------------------------------------

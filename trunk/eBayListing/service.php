@@ -2,8 +2,8 @@
 ini_set('memory_limit', '256M');
 set_time_limit('1800');
 
-define ('__DOCROOT__', '/export/eBayListing');
-//define ('__DOCROOT__', '.');
+//define ('__DOCROOT__', '/export/eBayListing');
+define ('__DOCROOT__', '.');
 require_once __DOCROOT__ . '/eBaySOAP.php';
 
 function debugLog($file_name, $data){

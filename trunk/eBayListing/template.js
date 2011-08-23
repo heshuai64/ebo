@@ -1488,7 +1488,7 @@ Ext.onReady(function(){
                             }]
                         }]
                     }*/]
-                  },/*{
+                  },{
                     xtype:"panel",
                     title:"Schedule Template",
                     layout:"form",
@@ -1623,7 +1623,7 @@ Ext.onReady(function(){
                                     }]
                             }]
                     }]
-                  },*/{
+                  },{
                         xtype:"timefield",
                         id:"ForeverListingTime",
                         fieldLabel:"Forever Listing Time",
