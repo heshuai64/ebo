@@ -706,7 +706,7 @@ Ext.onReady(function(){
                         xtype:"textfield",
                         fieldLabel:"Title",
                         name:"Title",
-                        maxLength: 55,
+                        maxLength: 80,
                         allowBlank:false,
                         enableKeyEvents:true,
                         listeners: {
