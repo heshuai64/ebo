@@ -839,6 +839,53 @@ class eBayListing{
 	mysql_free_result($result);
     }
     
+    public function getCategoryCondition(){
+	$sql_0 = "select id from site where name = '".$_POST['site_id']."'";
+	$result_0 = mysql_query($sql_0, eBayListing::$database_connect);
+	$row_0 = mysql_fetch_assoc($result_0);
+	
+	$i = 0;
+	$ox = true;
+	do{
+	    $sql = "select cc.condition_id,cc.condition_display_name from category_condition as cc where cc.site_id = ".$row_0['id']." and cc.category_id = ".$_POST['category_id'];
+	    //echo $sql."\n";
+	    $result = mysql_query($sql, eBayListing::$database_connect);
+	    $array = array();
+	    $num_rows = mysql_num_rows($result);
+	    if($num_rows == 0){
+		$sql_1 = "select CategoryLevel,CategoryName,CategoryParentID from categories where CategoryID = ".$_POST['category_id'];
+		$result_1 = mysql_query($sql_1 , eBayListing::$database_connect);
+		$row_1 = mysql_fetch_assoc($result_1);
+		//echo $row_1['CategoryName']."\n";
+		$_POST['category_id'] = $row_1['CategoryParentID'];
+		if($row_1['CategoryLevel'] == 1){
+		    $ox = false;
+		}
+	    }else{
+		$ox = false;
+	    }
+	    
+	    $i++;
+	    if($i > 10){
+		exit;
+	    }
+	}while($ox);
+	
+	if($ox == false){
+	    //$sql_2 = "select CategoryLevel,CategoryParentID from categories where CategoryID = ".$_POST['category_id'];
+	    //echo $sql."\n";
+	    $result_2 = mysql_query($sql , eBayListing::$database_connect);
+	    $i = 0;
+	    $array = array();
+	    while ($row_2 = mysql_fetch_assoc($result_2)){
+		$array[$i]['id'] = $row_2['condition_id'];
+		$array[$i]['name'] = $row_2['condition_display_name'];
+		$i++;
+	    }
+	    echo json_encode($array);
+	}
+    }
+    
     public function updateFields(){
 	switch($_POST['table']){
 	    case "items":
@@ -1594,8 +1641,8 @@ if(!empty($argv[2])){
     $service = new eBayListing();
 }
 */
-$ebay_service = array(/*'getCategoryFeatures',
-		      'getAllSiteShippingLocationDetails', 'getShippingLocation',
+$ebay_service = array('getCategoryFeatures',
+		      /*'getAllSiteShippingLocationDetails', 'getShippingLocation',
 		      'getAllCategory2CS', 'getAllAttributesCS',*/
 		      'getAllSiteShippingServiceDetails',
 		      'getAllCategories','getCategories',

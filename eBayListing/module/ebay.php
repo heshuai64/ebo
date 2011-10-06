@@ -152,11 +152,15 @@ class Ebay{
                 //----------   debug --------------------------------
                 //print "Request: \n".$client->__getLastRequest() ."\n";
                 //print "Response: \n".$client->__getLastResponse()."\n";
-		$this->saveFetchData("checkCategoriesVersion-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		$this->saveFetchData("checkCategoriesVersion-".$siteId."[".$categoryVersion."]-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		echo $siteId.":".$categoryVersion." >> ".$results->CategoryVersion."\n";
 		
 		if($categoryVersion < $results->CategoryVersion){
+		    $this->updateTempalteCategoryByCategoryMap($siteId, $categoryVersion);
+		    //return false;
+		
 		    $sql = "update site set categoryVersion = '".$results->CategoryVersion."' where id = '".$siteId."'";
-		    echo $sql;
+		    echo $sql."\n";
 		    $result = mysql_query($sql, eBayListing::$database_connect);
 		    return true;
 		}else{
@@ -168,6 +172,40 @@ class Ebay{
         }
     }
     
+    private function updateTempalteCategoryByCategoryMap($siteId, $CategoryVersion){
+	try {
+		if(empty($categoryVersion)){
+		    $sql_0 = "select categoryVersion,name from site where id = ".$siteId;
+		    $result_0 = mysql_query($sql_0, eBayListing::$database_connect);
+		    $row_0 = mysql_fetch_assoc($result_0);
+		    $CategoryVersion = $row_0['categoryVersion'];
+		    $siteName = $row_0['name'];
+		}
+		
+		echo $siteId."[".$CategoryVersion."]\n";
+		
+		$this->configEbay($siteId);
+		$client = new eBaySOAP($this->session);
+                $Version = $this->version;
+                $params = array('Version' => $Version, 'DetailLevel' => 'ReturnAll', 'CategoryVersion' => $CategoryVersion);
+                $results = $client->GetCategoryMappings($params);
+                //----------   debug --------------------------------
+                //print "Request: \n".$client->__getLastRequest() ."\n";
+                //print "Response: \n".$client->__getLastResponse()."\n";
+		$this->saveFetchData("GetCategoryMappings-".$siteId."[".$CategoryVersion."]-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		
+		foreach($results->CategoryMapping as $CategoryMapping){
+		    $sql_1 = "update template set PrimaryCategoryCategoryID = ".$CategoryMapping->id." where Site = '".$siteName."' and PrimaryCategoryCategoryID = ".$CategoryMapping->oldID;
+		    //echo $sql_1."\n";
+		    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+		    $num_rows = mysql_num_rows($result_1);
+		    echo $siteName.": have ".$num_rows." count ".$CategoryMapping->oldID." update to ".$CategoryMapping->id."\n";
+		}
+		sleep(10);
+        } catch (SOAPFault $f) {
+                print $f; // error handling
+        }
+    }
     
     public function getCategories($categorySiteID = 0){
 	global $argv;
@@ -177,8 +215,8 @@ class Ebay{
 	    $categorySiteID = $argv[2];
 	}else{
 	    $this->setAccount(1);
-	    $this->configEbay(0);
-	    $categorySiteID = 0;
+	    $this->configEbay($categorySiteID);
+	    //$categorySiteID = 0;
 	}
 	
         try {
@@ -204,8 +242,9 @@ class Ebay{
 		    $sql = "insert into categories (CategoryID,CategoryLevel,CategoryName,CategoryParentID,LeafCategory,BestOfferEnabled,AutoPayEnabled,SellerGuaranteeEligible,CategorySiteID) values 
 		    ('".$category->CategoryID."','".$category->CategoryLevel."','".mysql_real_escape_string($category->CategoryName)."','".$category->CategoryParentID."',
 		    '".$category->LeafCategory."','".$category->BestOfferEnabled."','".$category->AutoPayEnabled."','".$category->SellerGuaranteeEligible."','".$CategorySiteID."')";
-		    echo $sql."\n";
+		    //echo $sql."\n";
 		    $result = mysql_query($sql, eBayListing::$database_connect);
+		    echo $CategorySiteID.":".$category->CategoryName."[".$category->CategoryID."]\n";
 		}
 	    }else{
 		echo "failure.\n";
@@ -223,11 +262,12 @@ class Ebay{
 	$sql = "select id,name,categoryVersion from site where status = 1";
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	while ($row = mysql_fetch_assoc($result)){
-	    $service_result = $this->checkCategoriesVersion($row['id'], $row['categoryVersion']);
+	    //$service_result = $this->checkCategoriesVersion($row['id'], $row['categoryVersion']);
+	    $service_result = true;
 	    if($service_result){
 		$this->getCategories($row['id']);
 	    }else{
-		echo $row['name']." categories no change<br>";
+		echo $row['name']." categories no change\n";
 	    }
 	}
     }
@@ -398,7 +438,7 @@ class Ebay{
             $sql_1 = "delete from category_condition where site_id = ".$categorySiteID;
             echo $sql_1."\n";
             $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-            sleep(6);
+            //sleep(6);
             
             //file_put_contents("/tmp/getCategoryFeatures.txt", print_r($results, true));
             //exit;
@@ -406,6 +446,7 @@ class Ebay{
                 //echo $Category->CategoryID."\n";
                 //echo $Category->ConditionEnabled."\n";
                 //echo $xml->ConditionHelpURL."\n";
+		/*
                 $xml = simplexml_load_string($Category->any);
                 //print_r($xml);
                 if(preg_match('/<ConditionEnabled>.*?<\/ConditionEnabled>/', $Category->any, $matches)){
@@ -435,6 +476,19 @@ class Ebay{
                     echo $sql_2."\n";
                     $result_2 = mysql_query($sql_2, eBayListing::$database_connect);
                 }
+		*/
+		
+		$sql = "update categories set ConditionEnabled = '".$Category->ConditionEnabled."' where CategorySiteID = ".$categorySiteID." and CategoryID = ".$Category->CategoryID;
+		echo $sql."\n";
+		$result = mysql_query($sql, eBayListing::$database_connect);
+		
+		foreach($Category->ConditionValues->Condition as $Condition){
+		    $sql_1 = "insert into category_condition (site_id,category_id,condition_id,condition_display_name,condition_help_url) values 
+                    ('".$categorySiteID."','".$Category->CategoryID."','".$Condition->ID."','".$Condition->DisplayName."','".$Category->ConditionValues->ConditionHelpURL."')";
+                    echo $sql_1."\n";
+                    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+		    //exit;
+		}
             }
             
             if(!empty($results->SiteDefaults)){
@@ -1489,8 +1543,8 @@ class Ebay{
 	    
 	    //$row_1['Description'] = utf8_encode($row_1['Description']);
 	    $row_1['Title'] = html_entity_decode($row_1['Title'], ENT_QUOTES);
-	    if(mb_strlen($row_1['Title'], "utf8") > 55){
-                $row_1['Title'] = mb_substr($row_1['Title'], 0, 55, "utf8");
+	    if(mb_strlen($row_1['Title'], "utf8") > 80){
+                $row_1['Title'] = mb_substr($row_1['Title'], 0, 80, "utf8");
             }
             //$row_1['Title'] = utf8_encode($row_1['Title']);
 	    
@@ -1762,14 +1816,20 @@ class Ebay{
 	    $itemArray = array();
 	    
             //if($this->getCondition($row['id'], $item['PrimaryCategoryCategoryID'])){
-                $itemArray['ConditionID'] = 1000;
+                //$itemArray['ConditionID'] = 1000;
             //}
-        
+	    
+	    if(!empty($item['ConditionID'])){
+		$itemArray['ConditionID'] = $item['ConditionID'];
+	    }else{
+		$itemArray['ConditionID'] = 1000;
+	    }
+	    
 	    if(count($item['AttributeSetArray']) > 0){
 		$itemArray['AttributeSetArray'] = $item['AttributeSetArray'];
 	    }
 	    
-	    if(!empty($item['BuyItNowPrice']) && $item['BuyItNowPrice'] != 0 && $itemArray['BuyItNowPrice'] > $itemArray['StartPrice']){
+	    if(!empty($item['BuyItNowPrice']) && $item['BuyItNowPrice'] > $item['StartPrice']){
 		$itemArray['BuyItNowPrice'] = $item['BuyItNowPrice'];
 	    }
 	    $itemArray['CategoryMappingAllowed'] = true;
@@ -1921,7 +1981,7 @@ class Ebay{
 	    }
 	    
 	    $itemArray['SKU'] = $item['SKU'];
-	    if(!empty($item['StartPrice']) && $item['StartPrice'] != 0){
+	    if(!empty($item['StartPrice'])){
 		$itemArray['StartPrice'] = $item['StartPrice'];
 	    }
 	    if(!empty($item['StoreCategoryID'])){
@@ -2045,8 +2105,8 @@ class Ebay{
 	    //$row_1['Description'] = utf8_encode($row_1['Description']);
 	    $row_1['Title'] = html_entity_decode($row_1['Title'], ENT_QUOTES);
 	    //$row_1['Title'] = utf8_encode($row_1['Title']);
-	    if(mb_strlen($row_1['Title'], "utf8") > 55){
-                $row_1['Title'] = mb_substr($row_1['Title'], 0, 55, "utf8");
+	    if(mb_strlen($row_1['Title'], "utf8") > 80){
+                $row_1['Title'] = mb_substr($row_1['Title'], 0, 80, "utf8");
             }
 	    
 	    $sql_2 = "select * from shipping_service_options where ItemID = '".$row['Id']."'";

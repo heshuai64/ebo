@@ -236,6 +236,12 @@ Ext.onReady(function(){
         url:'service.php?action=getAllCountries'
     })
     
+    var conditionStore = new Ext.data.JsonStore({
+        //autoLoad :true,
+        fields: ['id', 'name'],
+        url:'service.php?action=getCategoryCondition'
+    })
+    
     var currencyCombo = new Ext.form.ComboBox({
         readOnly:true,
         labelAlign:"left",
@@ -370,14 +376,14 @@ Ext.onReady(function(){
                 'accountId','UseStandardFooter','ForeverListingTime','ScheduleStartDate','ScheduleEndDate','scheduleTemplateName','shippingTemplateName',
                 'ShippingServiceCost1','ShippingServiceAdditionalCost1','ShippingServiceCost2','ShippingServiceAdditionalCost2','ShippingServiceCost3','ShippingServiceAdditionalCost3',
                 'InternationalShippingServiceCost1','InternationalShippingServiceAdditionalCost1','InternationalShippingServiceCost2','InternationalShippingServiceAdditionalCost2',
-                'InternationalShippingServiceCost3','InternationalShippingServiceAdditionalCost3','StandardStyleTemplateId','LowPrice'
+                'InternationalShippingServiceCost3','InternationalShippingServiceAdditionalCost3','StandardStyleTemplateId','LowPrice','ConditionID'
         ]),
         items:[{
                 layout:"column",
                 border:false,
-                width: 400,
+                width: 600,
                 items:[{
-                    columnWidth:0.3,
+                    columnWidth:0.25,
                     layout:"form",
                     defaults:{
                         width: 100,
@@ -441,7 +447,7 @@ Ext.onReady(function(){
                         }
                     }]
                 },{
-                    columnWidth:0.3,
+                    columnWidth:0.25,
                     layout:"form",
                     defaults:{
                         width: 80,
@@ -450,7 +456,41 @@ Ext.onReady(function(){
                     border:false,
                     items: currencyCombo
                 },{
-                    columnWidth:0.3,
+                    columnWidth:0.25,
+                    layout:"form",
+                    border:false,
+                    items: {
+                        xtype:"combo",
+                        labelAlign:"left",
+                        fieldLabel:"Condition",
+                        mode: 'local',
+                        store: conditionStore,
+                        valueField:'id',
+                        displayField:'name',
+                        triggerAction: 'all',
+                        editable: false,
+                        selectOnFocus:true,
+                        listWidth: 120,
+                        width: 120,
+                        name: 'ConditionID',
+                        //allowBlank: false,
+                        hiddenName:'ConditionID',
+                        listeners: {
+                            focus: function(t){
+                                var SiteID = Ext.getCmp("SiteID").getValue();
+                                var PrimaryCategoryCategoryID = Ext.getCmp("PrimaryCategoryCategoryID").getValue();
+                                if(Ext.isEmpty(SiteID) || Ext.isEmpty(PrimaryCategoryCategoryID)){
+                                    Ext.Msg.alert('Warn', 'Please first choice Site and Category.');
+                                }else{
+                                    conditionStore.setBaseParam('site_id', SiteID);
+                                    conditionStore.setBaseParam('category_id', PrimaryCategoryCategoryID);
+                                    conditionStore.load();
+                                }
+                            }
+                        }
+                    }
+                },{
+                    columnWidth:0.25,
                     layout:"form",
                     border:false,
                     items: {

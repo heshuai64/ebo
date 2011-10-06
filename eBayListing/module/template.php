@@ -1647,7 +1647,7 @@ class Template{
         InternationalShippingServiceCost1=".(($_POST['InternationalShippingServiceCost1']=="")?'NULL':$_POST['InternationalShippingServiceCost1']).",InternationalShippingServiceAdditionalCost1=".(($_POST['InternationalShippingServiceAdditionalCost1']=="")?'NULL':$_POST['InternationalShippingServiceAdditionalCost1']).",
         InternationalShippingServiceCost2=".(($_POST['InternationalShippingServiceCost2']=="")?'NULL':$_POST['InternationalShippingServiceCost2']).",InternationalShippingServiceAdditionalCost2=".(($_POST['InternationalShippingServiceAdditionalCost2']=="")?'NULL':$_POST['InternationalShippingServiceAdditionalCost2']).",
         InternationalShippingServiceCost3=".(($_POST['InternationalShippingServiceCost3']=="")?'NULL':$_POST['InternationalShippingServiceCost3']).",InternationalShippingServiceAdditionalCost3=".(($_POST['InternationalShippingServiceAdditionalCost3']=="")?'NULL':$_POST['InternationalShippingServiceAdditionalCost3']).",
-        StandardStyleTemplateId=".(empty($_POST['StandardStyleTemplateId'])?'NULL':"'".$_POST['StandardStyleTemplateId']."'").",status=0 where Id = '".$id."'";
+        StandardStyleTemplateId=".(empty($_POST['StandardStyleTemplateId'])?'NULL':"'".$_POST['StandardStyleTemplateId']."'").",ConditionID='".$_POST['ConditionID']."',status=0 where Id = '".$id."'";
 	
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	//echo $sql;
