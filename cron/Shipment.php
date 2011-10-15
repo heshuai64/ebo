@@ -61,7 +61,9 @@ class Shipment{
     
     private function getCompleteOrder(){
         $sql = "select id,shippingMethod,ebayName,ebayEmail,ebayAddress1,ebayAddress2,ebayCity,ebayStateOrProvince,ebayPostalCode,ebayCountry,ebayPhone from qo_orders 
-        where (sellerId <> 'aphroditestore' or (sellerId = 'aphroditestore' and shippingMethod <> 'B')) and status = 'P' and modifiedOn between '".$this->startTime."' and '".$this->endTime."'";
+        where (sellerId not in (".$this->config['shipment']['split_seller'].") or (sellerId in (".$this->config['shipment']['split_seller'].") and shippingMethod <> 'B')) and status = 'P' and modifiedOn between '".$this->startTime."' and '".$this->endTime."'";
+        echo $sql."\n";
+        //exit;
         $result = mysql_query($sql, Shipment::$database_connect);
         $i= 0;
         while($row = mysql_fetch_assoc($result)){
