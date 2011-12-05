@@ -15,12 +15,16 @@ if (($handle = fopen("Inactive.csv", "r")) !== FALSE) {
         $result = mysql_query($sql);
     }
 }
-*/
+
 $status = 5;
 $sql = "update template set status = ".$status." where SKU in (".file_get_contents("../inventory/temp1.txt").")";
 echo $sql."\n";
 $result = mysql_query($sql);
 mysql_close($link);
+*/
+
+echo mysql_real_escape_string(html_entity_decode("&amp;"));
+
 exit;
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">

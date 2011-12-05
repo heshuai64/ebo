@@ -434,6 +434,74 @@ class eBayBOExcel{
 		$writer->save($this->getFilePath('register.xls'));
 	}
 	
+	public function postLinkBulkShipment(){
+		$start = $this->startTime;
+		$end = $this->endTime;
+		
+		$this->php_excel->setActiveSheetIndex(0);
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, '序号');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, '参考号');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, '外包装件数');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, '重量');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 1, '中转渠道');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, 1, '寄件人公司或人名');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(6, 1, '寄件人地址');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(7, 1, '收件人邮箱');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(8, 1, '收件人电话');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(9, 1, '收件人公司名');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(10, 1, '收件人姓名');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(11, 1, '收件人地址');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(12, 1, '到达国家');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(13, 1, '申报品名1');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(14, 1, '数量1');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(15, 1, '币种');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(16, 1, '报价1');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(17, 1, '申报品名2');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(18, 1, '数量2');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(19, 1, '报价2');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(20, 1, '总值');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(21, 1, '是否保险');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(22, 1, '自定义配货信息1');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(23, 1, '自定义配货信息2');
+		//$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(24, 1, 'Shipment ID');
+		//$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(25, 1, 'Shipment URL');
+		
+		$sql = "select id,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,
+		shipToStateOrProvince,shipToPostalCode,shipToCountry,shipToPhoneNo from qo_shipments where status = 'N' and modifiedOn between '".$start."' and '".$end."' and shipmentMethod = 'P' ";
+		$result = mysql_query($sql, eBayBOExcel::$database_connect);
+		$i = 2;
+		while($row = mysql_fetch_assoc($result)){
+			$sql_1 = "select countries_iso_code_2 from qo_countries where countries_name = '".$row['shipToCountry']."'";
+			$result_1 = mysql_query($sql_1, eBayBOExcel::$database_connect);
+			$row_1 = mysql_fetch_assoc($result_1);
+			
+			$address = $row['shipToAddressLine1']."\n".
+			(!empty($row['shipToAddressLine2'])?$row['shipToAddressLine2']."\n":'').
+			(!empty($row['shipToCity'])?$row['shipToCity']."\n":'').
+			(!empty($row['shipToStateOrProvince'])?$row['shipToStateOrProvince']."\n":'').
+			(!empty($row['shipToPostalCode'])?$row['shipToPostalCode']:'');
+			
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, $i, $i-1);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, $i, $row['id']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, $i, '新加坡小包挂号');
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, $i, 'Richart');
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(8, $i, (($row['shipToPhoneNo'] != 'Invalid Request')?$row['shipToPhoneNo']:''));
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(10, $i, $row['shipToName']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(11, $i, $address);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(12, $i, $row_1['countries_iso_code_2']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(13, $i, 'Computer Parts');
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(14, $i, 1);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(15, $i, 'USD');
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(16, $i, 30);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(20, $i, 30);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(21, $i, 'N');
+			//$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(25, $i, "http://heshuai64.3322.org/eBayBO/cron/image.php?code=code39&o=1&t=30&r=1&text=".$row['id']."&f1=Arial.ttf&f2=8&a1=&a2=&a3=");
+			$i++;
+		}
+		$writer = PHPExcel_IOFactory::createWriter($this->php_excel, 'Excel5');
+		$writer->save($this->getFilePath('postLink(Bulk).xls'));
+	}
+	
 	public function refundStatistics(){
 		/*
 		$this->php_excel->setActiveSheetIndex(0);

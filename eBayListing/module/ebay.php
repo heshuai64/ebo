@@ -382,7 +382,7 @@ class Ebay{
     public function getCategoryFeatures(){
         global $argv;
 	try {
-            if(!empty($argv[2])){
+            if(isset($argv[2])){
                 $this->setAccount(1);
                 $this->configEbay($argv[2]);
                 $categorySiteID = $argv[2];
@@ -400,8 +400,11 @@ class Ebay{
 	    $FeatureID = array('ConditionEnabled', 'ConditionValues');
             
 	    $params = array('DetailLevel' => $DetailLevel, 'Version' => $Version, 'FeatureID' => $FeatureID, ' ViewAllNodes' => true);
+	    if(!empty($argv[3])){
+		$params['CategoryID'] = $argv[3];
+	    }
 	    $results = $client->GetCategoryFeatures($params);
-	    //print_r($results);
+	    print_r($results);
 	    
 	    /*
 	    print_r($results->SiteDefaults->ListingDuration);
@@ -435,9 +438,12 @@ class Ebay{
             
             ALTER TABLE `categories` ADD `ConditionEnabled` VARCHAR( 19 );
             */
-            $sql_1 = "delete from category_condition where site_id = ".$categorySiteID;
-            echo $sql_1."\n";
-            $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	    
+	    if(empty($argv[3])){
+		$sql_1 = "delete from category_condition where site_id = ".$categorySiteID;
+		echo $sql_1."\n";
+		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	    }
             //sleep(6);
             
             //file_put_contents("/tmp/getCategoryFeatures.txt", print_r($results, true));
@@ -479,14 +485,14 @@ class Ebay{
 		*/
 		
 		$sql = "update categories set ConditionEnabled = '".$Category->ConditionEnabled."' where CategorySiteID = ".$categorySiteID." and CategoryID = ".$Category->CategoryID;
-		echo $sql."\n";
+		//echo $sql."\n";
 		$result = mysql_query($sql, eBayListing::$database_connect);
 		
 		foreach($Category->ConditionValues->Condition as $Condition){
 		    $sql_1 = "insert into category_condition (site_id,category_id,condition_id,condition_display_name,condition_help_url) values 
                     ('".$categorySiteID."','".$Category->CategoryID."','".$Condition->ID."','".$Condition->DisplayName."','".$Category->ConditionValues->ConditionHelpURL."')";
                     echo $sql_1."\n";
-                    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+                    //$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 		    //exit;
 		}
             }
@@ -502,6 +508,19 @@ class Ebay{
         } catch (SOAPFault $f) {
             print $f; // error handling
         }
+    }
+    
+    public function getCategorySpecifics(){
+	$this->setAccount(1);
+        $this->configEbay(3);
+	$client = new eBaySOAP($this->session);
+	$Version = $this->version;
+	
+	$params = array('Version' => $Version, 'CategorySpecificsFileInfo' => true);
+	
+	$results = $client->GetCategorySpecifics($params);
+	print_r($results);
+	$this->saveFetchData("getCategorySpecifics.xml", $client->__getLastResponse());
     }
     
     //-----------------   GeteBayDetails     ------------------------------------------
@@ -1534,7 +1553,7 @@ class Ebay{
 		$row_01 = mysql_fetch_assoc($result_01);
 		
 		$row_1['Description'] = str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
-						    array(html_entity_decode($row_1['Title'], ENT_QUOTES), $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'], ENT_QUOTES)), html_entity_decode($row_01['content'], ENT_QUOTES));
+						    array(html_entity_decode($row_1['Title'], ENT_QUOTES), $row_1['SKU'], (!empty($row_0['picture_1']))?'<img src="'.$row_0['picture_1'].'" />':'', (!empty($row_0['picture_2']))?'<img src="'.$row_0['picture_2'].'" />':'', (!empty($row_0['picture_3']))?'<img src="'.$row_0['picture_3'].'" />':'', (!empty($row_0['picture_4']))?'<img src="'.$row_0['picture_4'].'" />':'', (!empty($row_0['picture_5']))?'<img src="'.$row_0['picture_5'].'" />':'', html_entity_decode($row_1['Description'])), html_entity_decode($row_01['content'], ENT_QUOTES));
 	    }else{
 		$row_1['Description'] = html_entity_decode($row_1['Description'], ENT_QUOTES);
 	    }
@@ -1824,11 +1843,11 @@ class Ebay{
 	    }else{
 		$itemArray['ConditionID'] = 1000;
 	    }
-	    
+	    /*
 	    if(count($item['AttributeSetArray']) > 0){
 		$itemArray['AttributeSetArray'] = $item['AttributeSetArray'];
 	    }
-	    
+	    */
 	    if(!empty($item['BuyItNowPrice']) && $item['BuyItNowPrice'] > $item['StartPrice']){
 		$itemArray['BuyItNowPrice'] = $item['BuyItNowPrice'];
 	    }
@@ -1838,6 +1857,15 @@ class Ebay{
 	    $itemArray['Description'] = $item['Description'];
 	    if(!empty($item['DispatchTimeMax'])){
 		$itemArray['DispatchTimeMax'] = $item['DispatchTimeMax'];
+	    }
+	    if(!empty($item['ItemSpecifics'])){
+		$i = 0;
+		$item['ItemSpecifics'] = json_decode($item['ItemSpecifics']);
+		foreach($item['ItemSpecifics'] as $key=>$value){
+		    $itemArray['ItemSpecifics']['NameValueList'][$i]['Name'] = $key;
+		    $itemArray['ItemSpecifics']['NameValueList'][$i]['Value'] = $value;
+		    $i++;
+		}
 	    }
 	    $itemArray['ListingDuration'] = $item['ListingDuration'];
 	    

@@ -175,7 +175,7 @@ Ext.onReady(function(){
                 }, ['id','txnId','transactionTime','amountCurrency','amountValue','status','remarks',
                     'createdBy','createdOn','modifiedBy','modifiedOn','payeeId','payerId','payerName',
                     'payerEmail','payerAddressLine1','payerAddressLine2','payerCity','payerStateOrProvince',
-                    'payerPostalCode','payerCountry','itemId',
+                    'payerPostalCode','payerCountry','itemId'
             ]),
             items:[{
                 layout:"column",

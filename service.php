@@ -156,7 +156,12 @@ class Service{
     }
     
     private function log($file_name, $data){
-        file_put_contents($this->config['log']['service'].$file_name."-".date("Y-m-d").".html", $data, FILE_APPEND);
+        /*
+        if(!file_exists($this->config['log']['service'].date("Ymd"))){
+            mkdir($this->config['log']['service'].date("Ymd"), 0777);
+        }
+        */
+        file_put_contents($this->config['log']['service'].date("Ymd")."-".$file_name.".html", $data, FILE_APPEND);
         //echo $data;   
     }
     
@@ -276,11 +281,11 @@ class Service{
                     if($send_result){
                         $sql_3 = "update qo_shipments set emailStatus = 1 where id = '".$row['id']."'";
                         $result_3 = mysql_query($sql_3);
-                        $this->log("email/1_sendXmasShpmentEmail", $sellerId. ": ".$row['id']." Send <br>".$toContent."<br> To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
+                        $this->log("1_sendXmasShpmentEmail", $sellerId. ": ".$row['id']." Send <br>".$toContent."<br> To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
                     }else{
-                        $this->log("email/1_sendXmasShpmentEmail", "<font color='red'>".$sellerId. ": " .$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
+                        $this->log("1_sendXmasShpmentEmail", "<font color='red'>".$sellerId. ": " .$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
                     }
-                    $this->log("email/1_sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
+                    $this->log("1_sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
                     //exit;
                 }
             break;
@@ -325,11 +330,11 @@ class Service{
                     if($send_result){
                         $sql_3 = "update qo_shipments set emailStatus = 1 where id = '".$row['id']."'";
                         $result_3 = mysql_query($sql_3);
-                        $this->log("email/12_sendXmasShpmentEmail", $sellerId. ": ".$row['id']." Send <br>".$toContent."<br> To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
+                        $this->log("12_sendXmasShpmentEmail", $sellerId. ": ".$row['id']." Send <br>".$toContent."<br> To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
                     }else{
-                        $this->log("email/12_sendXmasShpmentEmail", "<font color='red'>".$sellerId. ": ".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
+                        $this->log("12_sendXmasShpmentEmail", "<font color='red'>".$sellerId. ": ".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
                     }      
-                    $this->log("email/12_sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
+                    $this->log("12_sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
                     //exit;
                 }
             break;
@@ -355,11 +360,11 @@ class Service{
                     if($send_result){
                         $sql_3 = "update qo_shipments set emailStatus = 1 where id = '".$row['id']."'";
                         $result_3 = mysql_query($sql_3);
-                        $this->log("email/22_sendXmasShpmentEmail", $sellerId. ": ".$row['id']." Send <br>".$toContent."<br> To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
+                        $this->log("22_sendXmasShpmentEmail", $sellerId. ": ".$row['id']." Send <br>".$toContent."<br> To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
                     }else{
-                        $this->log("email/22_sendXmasShpmentEmail", "<font color='red'>".$sellerId. ": ".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
+                        $this->log("22_sendXmasShpmentEmail", "<font color='red'>".$sellerId. ": ".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
                     }
-                    $this->log("email/22_sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
+                    $this->log("22_sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
                     //exit;
                 }
             break;
@@ -389,7 +394,7 @@ class Service{
             $sellerId = $row_2['sellerId'];
             $seller = $this->getSellerEmailAccountAndPassword($sellerId);
             
-            $this->log("email/sendShipShpmentEmail", "seller: ".print_r($seller, true)."<br>");
+            $this->log("sendShipShpmentEmail", "seller: ".print_r($seller, true)."<br>");
             $address =  $row['shipToName'].'<br>'.
                         $row['shipToAddressLine1'].'<br>'.
                         (!empty($row['shipToAddressLine2'])?$row['shipToAddressLine2'].'<br>':'').
@@ -452,18 +457,18 @@ class Service{
             
             if(!$mail->Send()) {
                 //file_put_contents("/tmp/1.log", $mail->ErrorInfo, FILE_APPEND);
-                $this->log("email/sendShipShpmentEmail", "<font color='red'>Send Email Failure: " . $mail->ErrorInfo."</font><br>");
+                $this->log("sendShipShpmentEmail", "<font color='red'>Send Email Failure: " . $mail->ErrorInfo."</font><br>");
                 echo "Mailer Error: " . $mail->ErrorInfo."!";
                 echo "\n";
             } else {
                 $sql_3 = "update qo_shipments set emailStatus = 1 where id = '".$row['id']."'";
                 $result_3 = mysql_query($sql_3);
-                $this->log("email/sendShipShpmentEmail", $sql_3."<br>Send Email Success<br>");
+                $this->log("sendShipShpmentEmail", $sql_3."<br>Send Email Success<br>");
                 echo $row['id']." send email success!";
                 echo "\n";
                 //file_put_contents("/tmp/1.log", "Success!", FILE_APPEND);
             }
-            $this->log("email/sendShipShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
+            $this->log("sendShipShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
             sleep(1);
             //exit;
         }
@@ -498,11 +503,11 @@ class Service{
             if($send_result){
                 $sql_3 = "update qo_shipments set emailStatus = 1,status = 'H' where id = '".$row['id']."'";
                 $result_3 = mysql_query($sql_3);
-                $this->log("email/outstandingEmail", $sellerId. ": ".$row['id']." Send <br>".$toContent."<br> To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
+                $this->log("outstandingEmail", $sellerId. ": ".$row['id']." Send <br>".$toContent."<br> To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
             }else{
-                $this->log("email/outstandingEmail", "<font color='red'>".$sellerId. ": ".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
+                $this->log("outstandingEmail", "<font color='red'>".$sellerId. ": ".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
             }
-            $this->log("email/outstandingEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
+            $this->log("outstandingEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
             //exit;
         }
     }
@@ -517,6 +522,17 @@ class Service{
             $c = explode("|", $b);
             $registered_conditions[$c[0]] = $c[1];
         }
+        $tmp = explode(",", $this->config['shippingMethod']['E']);
+        foreach($tmp as $tmp1){
+            $tmp2 = explode("|", $tmp1);
+            $eyoubao_country[$tmp2[0]] = $tmp2[1];
+        }
+        $tmp = explode(",", $this->config['shippingMethod']['P']);
+        foreach($tmp as $tmp1){
+            $tmp2 = explode("|", $tmp1);
+            $postlink_bulk_country[$tmp2[0]] = $tmp2[1];
+        }
+        
         //print_r($registered_conditions);
         //exit;
         
@@ -543,8 +559,14 @@ class Service{
             }
             
             if($total_quantity >= 20 || $row['grandTotalValue'] >= $registered_conditions[$row['grandTotalCurrency']]){
-                $this->log("updateShippingMethod", "<font color='red'>ordersId: ".$id.", ".$total_quantity."|".$row['grandTotalCurrency'].$row['grandTotalValue']."</font><br>");
+                $this->log("updateShippingMethod", "<font color='red'>[R]ordersId: ".$id.", ".$total_quantity."|".$row['grandTotalCurrency'].$row['grandTotalValue']."</font><br>");
                 $shippingMethod = "R";
+            }elseif($total_quantity > 1 && array_key_exists($row['ebayCountry'], $eyoubao_country) && $row['grandTotalCurrency'] > $eyoubao_country[$row['ebayCountry']]){
+                $this->log("updateShippingMethod", "<font color='red'>[E]ordersId: ".$id.", ".$row['ebayCountry']."|".$row['grandTotalCurrency'].$row['grandTotalValue']."</font><br>");
+                $shippingMethod = "E";   
+            }elseif($total_quantity > 1 && array_key_exists($row['ebayCountry'], $postlink_bulk_country) && $row['grandTotalCurrency'] > $postlink_bulk_country[$row['ebayCountry']]){
+                $this->log("updateShippingMethod", "<font color='red'>[P]ordersId: ".$id.", ".$row['ebayCountry']."|".$row['grandTotalCurrency'].$row['grandTotalValue']."</font><br>");
+                $shippingMethod = "P";   
             }else{
                 $data_array = array('id'=>$id, 'country'=>$ebayCountry, 'sku_array'=>$sku_array);
                 //print_r($data_array);
@@ -847,22 +869,40 @@ class Service{
     }
     
     public function getShippingAddressBySku(){
-        $sql = "select s.* from qo_shipments as s left join qo_shipments_detail as sd on s.id = sd.shipmentsId where s.status = 'N' and s.printStatus = 0 and s.modifiedOn like '".$_GET['date']."%' and sd.skuId = '".$_GET['sku']."' order by s.id";
+        $sql = "select s.* from qo_orders as o,qo_shipments as s,qo_shipments_detail as sd where o.id = s.ordersId and s.id = sd.shipmentsId 
+        and o.sellerId in (".$this->config['shipment']['split_seller'].")";//and s.modifiedOn like '".$_GET['date']."%'
+        $sql .= " and o.shippingMethod = 'B' and s.status = 'N' and s.printStatus = 0 and sd.skuId = '".$_GET['sku']."' order by s.id";
+        //and s.modifiedOn like '".$_GET['date']."%' 
+        $this->log("getShippingAddressBySku", date("H:i:s").": ".$sql."<br>");
         $result = mysql_query($sql, Service::$database_connect);
         $row = mysql_fetch_assoc($result);
+        
+        if(!empty($row['id']) && empty($_GET['debug'])){
+            $sql_1 = "update qo_shipments set printStatus = 1 where id = '".$row['id']."'";
+            $this->log("getShippingAddressBySku", date("H:i:s").": ".$sql_1."<br>");
+            $result_1 = mysql_query($sql_1, Service::$database_connect);
+        }
+        
+        //$this->log("getShippingAddressBySku", date("H:i:s").":  result| ".print_r(array($result, $result_1), true)."<br><br>");
+        $this->log("getShippingAddressBySku", $_GET['sku']." -- ".print_r($row, true)."<br><br>");
         echo json_encode($row);
     }
     
     public function syncShipmentPrintStatus(){
+        if(!empty($_GET['debug'])){
+            echo "HS:success";
+            return 1;
+        }
         $shipmentId = $_GET['shipmentId'];
         $sql = "select s.shipmentMethod,sd.skuId,sd.quantity from qo_shipments as s,qo_shipments_detail as sd where s.id = sd.shipmentsId and s.id = '".$shipmentId."'";
+        //$this->log("syncShipmentPrintStatus", date("H:i:s")."   |   ".$sql."<br>");
         $result = mysql_query($sql, Service::$database_connect);
         $row = mysql_fetch_assoc($result);
         
         $call_service = $this->getService($this->inventory_service."?action=clientSkuTackOut&sku=".$row['skuId']."&quantity=".$row['quantity']."&shipment_id=".$shipmentId."&shipment_method=".$row['shipmentMethod']);
         if(strpos($call_service, "success")){
             //$sql = "update qo_shipments as s,qo_shipments_detail as sd set s.printStatus=1,s.printOn='' where s.id = sd.shipmentsId and sd.skuId = '".$_GET['sku']."'";
-            $sql = "update qo_shipments set status='S',printStatus=1,printOn=now(),printBy='".$_GET['by']."',shippedOn=now(),shippedBy='".$_GET['by']."' where id = '".$_GET['shipmentId']."'";
+            $sql = "update qo_shipments set status='S',printStatus=2,printOn=now(),printBy='".$_GET['by']."',shippedOn=now(),shippedBy='".$_GET['by']."' where id = '".$_GET['shipmentId']."'";
             $result = mysql_query($sql, Service::$database_connect);
             $this->log("syncShipmentPrintStatus", date("H:i:s")."   |  success! shipmentId: ".$shipmentId.", sku: ".$row['skuId'].", quantity: ".$row['quantity'].", by: ".$_GET['by']."<br>");
         }else{

@@ -111,19 +111,19 @@ class PackingList{
         switch($this->type){
             case "single":
                 $sql = "select s.id,s.envelope,o.shippingMethod,o.buyerId,s.shipToName,s.shipToAddressLine1,s.shipToAddressLine2,s.shipToCity,s.shipToStateOrProvince,s.shipToPostalCode,s.shipToCountry,s.shipToPhoneNo,sum(sd.quantity) as sdQuantity 
-                from qo_shipments as s left join qo_shipments_detail as sd on s.id = sd.shipmentsId left join qo_orders as o on s.ordersId=o.id where s.shipmentMethod <> 'R' and s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N' group by sd.shipmentsId having sdQuantity = 1 order by sd.skuId,s.id";
+                from qo_shipments as s left join qo_shipments_detail as sd on s.id = sd.shipmentsId left join qo_orders as o on s.ordersId=o.id where s.shipmentMethod <> 'R' and s.shipmentMethod <> 'P' and s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N' group by sd.shipmentsId having sdQuantity = 1 order by sd.skuId,s.id";
                 $result = mysql_query($sql, PackingList::$database_connect);
             break;
         
             case "multi":
                 $sql = "select s.id,s.envelope,o.shippingMethod,o.buyerId,s.shipToName,s.shipToAddressLine1,s.shipToAddressLine2,s.shipToCity,s.shipToStateOrProvince,s.shipToPostalCode,s.shipToCountry,s.shipToPhoneNo,sum(sd.quantity) as sdQuantity 
-                from qo_shipments as s left join qo_shipments_detail as sd on s.id = sd.shipmentsId left join qo_orders as o on s.ordersId=o.id where s.shipmentMethod <> 'R' and s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N' group by sd.shipmentsId having sdQuantity > 1 order by sd.skuId,s.id";
+                from qo_shipments as s left join qo_shipments_detail as sd on s.id = sd.shipmentsId left join qo_orders as o on s.ordersId=o.id where s.shipmentMethod <> 'R' and s.shipmentMethod <> 'P' and s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N' group by sd.shipmentsId having sdQuantity > 1 order by sd.skuId,s.id";
                 $result = mysql_query($sql, PackingList::$database_connect);
             break;
         
             default:
                 $sql = "select s.id,s.envelope,o.shippingMethod,o.buyerId,s.shipToName,s.shipToAddressLine1,s.shipToAddressLine2,s.shipToCity,s.shipToStateOrProvince,s.shipToPostalCode,s.shipToCountry,s.shipToPhoneNo 
-                from qo_shipments as s left join qo_shipments_detail as sd on s.id = sd.shipmentsId left join qo_orders as o on s.ordersId=o.id where s.shipmentMethod <> 'R' and s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N' order by sd.skuId,s.id";
+                from qo_shipments as s left join qo_shipments_detail as sd on s.id = sd.shipmentsId left join qo_orders as o on s.ordersId=o.id where s.shipmentMethod <> 'R' and s.shipmentMethod <> 'P' and s.modifiedOn between '$this->startTime' and '$this->endTime' and s.status = 'N' order by sd.skuId,s.id";
                 $result = mysql_query($sql, PackingList::$database_connect);
             break;
         }

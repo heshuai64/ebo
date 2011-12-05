@@ -68,7 +68,7 @@ var lang = {
         transactions_status_json: {"P": "Completed", "R": "Refunded", "V": "Reversed", "C": "Canceled Reversal", "X": "Canceled", "A": "Pending For Refund", "J": "Completed Refund"},
         transactions_status: [['P','Completed'],['R','Refunded'],['V','Reversed'],['C','Canceled Reversal'],['X','Canceled'],['A','Pending For Refund'],['J', 'Completed Refund']],
         currency: [['USD','USD'],['EUR','EUR'],['GBP','GBP'],['AUD','AUD'],['RMB','RMB'],['CAD','CAD']],
-        shipping_method: [['B','Bulk'], ['R','Registered'], ['S','SpeedPost'], ['U','UPS']],
+        shipping_method: [['B','Bulk'], ['R','Registered'], ['S','SpeedPost'], ['U','UPS'], ['E', 'E You Bao'], ['P', 'Post Link(Bulk)']],
         shipments_status_json: {"N": "Ready", "H": "Hold", "W": "Await", "K": "Packed", "S": "Shipped", "X": "Cancel"},
         send_to_name: "Name",
         send_to_email: "Email",

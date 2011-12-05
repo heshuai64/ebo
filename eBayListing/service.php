@@ -2,8 +2,8 @@
 ini_set('memory_limit', '256M');
 set_time_limit('1800');
 
-//define ('__DOCROOT__', '/export/eBayListing');
-define ('__DOCROOT__', '.');
+define ('__DOCROOT__', '/export/eBayListing');
+//define ('__DOCROOT__', '.');
 require_once __DOCROOT__ . '/eBaySOAP.php';
 
 function debugLog($file_name, $data){
@@ -777,6 +777,97 @@ class eBayListing{
 	}
     }
     
+    // --------------------- Custom Item Specifics --------------------------------------------
+    public function getCustomSpecifics(){
+	session_start();
+	$sql = "select id from site where name = '".$_GET['SiteID']."'";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	$SiteID = $row['id'];
+	
+	$_GET['CategoryID'] = 1217;
+	$sql = "select id,Name,ValidationRulesSelectionMode from name_recommendation where SiteID = ".$SiteID." and CategoryID = ".$_GET['CategoryID'];
+	//echo $sql."\n";
+	$result = mysql_query($sql);
+	
+	$array = array();
+	$i = 0;
+	while($row = mysql_fetch_array($result, MYSQL_ASSOC)){
+	    switch($row['ValidationRulesSelectionMode']){
+		case "FreeText":
+		    $array['Attribute'][$i]['xtype'] = "combo";
+		    $array['Attribute'][$i]['name'] = $row['Name'];
+		    $array['Attribute'][$i]['hiddenName'] = $row['Name'];
+		    $array['Attribute'][$i]['editable'] = true;
+		    $array['Attribute'][$i]['store'] = "{xtype: 'arraystore', fields: ['id','name'], data: [";
+		    $sql_1 = "select ValueRecommendationValue from value_recommendation where NameRecommendationId = ".$row['id'];
+		    //echo $sql_1."\n";
+		    $result_1 = mysql_query($sql_1);
+		    while($row_1 = mysql_fetch_array($result_1, MYSQL_ASSOC)){
+			$array['Attribute'][$i]['store'] .= "['" .$row_1['ValueRecommendationValue'] . "','" . $row_1['ValueRecommendationValue'] ."'],";
+		    }
+		    $array['Attribute'][$i]['store'] = substr($array['Attribute'][$i]['store'], 0, -1);
+		    $array['Attribute'][$i]['store'] .= "]";
+		    $array['Attribute'][$i]['store'] .= "}";
+		break;
+	    
+		case "SelectionOnly":
+		    $array['Attribute'][$i]['xtype'] = "combo";
+		    $array['Attribute'][$i]['name'] = $row['Name'];
+		    $array['Attribute'][$i]['hiddenName'] = $row['Name'];
+		    $array['Attribute'][$i]['editable'] = false;
+		    $array['Attribute'][$i]['store'] = "{xtype: 'arraystore', fields: ['id','name'], data: [";
+		    $sql_1 = "select ValueRecommendationValue from value_recommendation where NameRecommendationId = ".$row['id'];
+		    //echo $sql_1."\n";
+		    $result_1 = mysql_query($sql_1);
+		    while($row_1 = mysql_fetch_array($result_1, MYSQL_ASSOC)){
+			$array['Attribute'][$i]['store'] .= "['" .$row_1['ValueRecommendationValue'] . "','" . $row_1['ValueRecommendationValue'] ."'],";
+		    }
+		    $array['Attribute'][$i]['store'] = substr($array['Attribute'][$i]['store'], 0, -1);
+		    $array['Attribute'][$i]['store'] .= "]";
+		    $array['Attribute'][$i]['store'] .= "}";
+		break;
+	    }
+	    $i++;
+	}
+	echo json_encode($array);
+    }
+    
+    public function loadCustomSpecifics(){
+	if(!empty($_GET['sku'])){
+	    $id = $_GET['sku'];
+	}elseif(!empty($_GET['template_id'])){
+	    $id = $_GET['template_id'];
+	}elseif(!empty($_GET['item_id'])){
+	    $id = $_GET['item_id'];
+	}
+	session_start();
+	if(!empty($_SESSION['CustomSpecifics'][$id])){
+	    echo '['.json_encode($_SESSION['CustomSpecifics'][$id]).']';
+	}
+	//print_r($_SESSION['AttributeSet']);
+    }
+    
+    public function saveCustomSpecifics(){
+	if(!empty($_GET['sku'])){
+	    $id = $_GET['sku'];
+	}elseif(!empty($_GET['template_id'])){
+	    $id = $_GET['template_id'];
+	}elseif(!empty($_GET['item_id'])){
+	    $id = $_GET['item_id'];
+	}
+	session_start();
+	unset($_SESSION['CustomSpecifics'][$id]);
+	//print_r($_POST);
+	foreach($_POST as $key=>$value){
+	    if(!empty($value)){
+		$_SESSION['CustomSpecifics'][$id][$key] = $value;
+	    }
+	}
+	//print_r($_SESSION['CustomSpecifics']);
+	echo '{success: true}';
+    }
+    
     //---------------------------------------------------------------------------------
     public function loadReturnPolicyReturns(){
 	if(!empty($_GET['sku'])){
@@ -848,12 +939,13 @@ class eBayListing{
 	$ox = true;
 	do{
 	    $sql = "select cc.condition_id,cc.condition_display_name from category_condition as cc where cc.site_id = ".$row_0['id']." and cc.category_id = ".$_POST['category_id'];
-	    //echo $sql."\n";
+	    echo $sql."\n";
 	    $result = mysql_query($sql, eBayListing::$database_connect);
 	    $array = array();
 	    $num_rows = mysql_num_rows($result);
 	    if($num_rows == 0){
-		$sql_1 = "select CategoryLevel,CategoryName,CategoryParentID from categories where CategoryID = ".$_POST['category_id'];
+		$sql_1 = "select CategoryLevel,CategoryName,CategoryParentID from categories where CategorySiteID = ".$row_0['id']." and CategoryID = ".$_POST['category_id'];
+		echo $sql_1."\n";
 		$result_1 = mysql_query($sql_1 , eBayListing::$database_connect);
 		$row_1 = mysql_fetch_assoc($result_1);
 		//echo $row_1['CategoryName']."\n";
@@ -1641,7 +1733,7 @@ if(!empty($argv[2])){
     $service = new eBayListing();
 }
 */
-$ebay_service = array('getCategoryFeatures',
+$ebay_service = array('getCategoryFeatures', 'getCategorySpecifics',
 		      /*'getAllSiteShippingLocationDetails', 'getShippingLocation',
 		      'getAllCategory2CS', 'getAllAttributesCS',*/
 		      'getAllSiteShippingServiceDetails',
