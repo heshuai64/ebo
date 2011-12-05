@@ -446,7 +446,7 @@ Ext.onReady(function(){
                                                     Ext.MessageBox.alert('Uh oh...','Please select a sku.');
                                                 }
                                     }
-                        },/*{
+                        }/*{
                             text: 'Delete Detail',
                             handler: function(){
                                 var deleteOrderDetail = function(btn){

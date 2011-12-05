@@ -499,7 +499,7 @@ class Template{
 	StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 	Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 	GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,
-	InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,Status,StandardStyleTemplateId,UseStandardFooter) select '".$template_id."',AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
+	InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,Status,StandardStyleTemplateId,UseStandardFooter,ItemSpecifics) select '".$template_id."',AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 	Description,'".$row_8['DispatchTimeMax']."',ListingDuration,ListingType,'".$row_8['Location']."','PayPal','".$row_9['PayPalEmailAddress']."',
 	'".$row_8['PostalCode']."',PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,
 	'".$row_8['ReturnPolicyDescription']."','".$row_8['ReturnPolicyRefundOption']."','".$row_8['ReturnPolicyReturnsAcceptedOption']."','".$row_8['ReturnPolicyReturnsWithinOption']."','".$row_8['ReturnPolicyShippingCostPaidByOption']."',
@@ -507,7 +507,7 @@ class Template{
 	StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 	Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 	GalleryURL,PhotoDisplay,'".$row_8['ShippingServiceOptionsType']."','".$row_8['InsuranceOption']."','".$row_8['InsuranceFee']."',
-	'".$row_8['InternationalShippingServiceOptionType']."','".$row_8['InternationalInsurance']."','".$row_8['InternationalInsuranceFee']."','".$status."',StandardStyleTemplateId,UseStandardFooter from template where Id = '".$template_id."'";
+	'".$row_8['InternationalShippingServiceOptionType']."','".$row_8['InternationalInsurance']."','".$row_8['InternationalInsuranceFee']."','".$status."',StandardStyleTemplateId,UseStandardFooter,ItemSpecifics from template where Id = '".$template_id."'";
 	
 	//echo $sql_1."\n";
 	//debugLog("tempalteChangeToItem.txt", $sql_1);
@@ -524,7 +524,7 @@ class Template{
         $sql_31 = "select * from s_template where template_id = '".$row_8['id']."'";
         $result_31 = mysql_query($sql_31, eBayListing::$database_connect);
         while($row_31 = mysql_fetch_assoc($result_31)){
-            if(!empty($row_0['ShippingServiceCost'.$row_31['ShippingServicePriority']]) && $row_0['ShippingServiceCost'.$row_31['ShippingServicePriority']] > 0){
+            if(isset($row_0['ShippingServiceCost'.$row_31['ShippingServicePriority']])/* && $row_0['ShippingServiceCost'.$row_31['ShippingServicePriority']] > 0*/){
                 $sql_3 = "insert into shipping_service_options (ItemID,FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority) select '".$item_id."',FreeShipping,ShippingService,'".$row_0['ShippingServiceCost'.$row_31['ShippingServicePriority']]."','".$row_0['ShippingServiceAdditionalCost'.$row_31['ShippingServicePriority']]."',ShippingServicePriority from s_template where id = '".$row_31['id']."'";
                 $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
             }elseif(empty($row_0['ShippingServiceCost1'])){
@@ -537,7 +537,7 @@ class Template{
         $sql_41 = "select * from i_s_template where template_id = '".$row_8['id']."'";
         $result_41 = mysql_query($sql_41, eBayListing::$database_connect);
         while($row_41 = mysql_fetch_assoc($result_41)){
-            if(!empty($row_0['InternationalShippingServiceCost'.$row_41['ShippingServicePriority']]) && $row_0['InternationalShippingServiceCost'.$row_41['ShippingServicePriority']] > 0){
+            if(isset($row_0['InternationalShippingServiceCost'.$row_41['ShippingServicePriority']])/* && $row_0['InternationalShippingServiceCost'.$row_41['ShippingServicePriority']] > 0*/){
                 $sql_4 = "insert into international_shipping_service_option (ItemID,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority,ShipToLocation) select '".$item_id."',ShippingService,'".$row_0['InternationalShippingServiceCost'.$row_41['ShippingServicePriority']]."','".$row_0['InternationalShippingServiceAdditionalCost'.$row_41['ShippingServicePriority']]."',ShippingServicePriority,ShipToLocation from i_s_template where id = '".$row_41['id']."'";
                 $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
             }elseif(empty($row_0['InternationalShippingServiceCost1'])){
@@ -923,7 +923,11 @@ class Template{
 	PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,Quantity,ReservePrice,
 	Site,SKU,StartPrice,StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,
 	BoldTitle,Border,Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypePlus,GalleryURL,accountId,UseStandardFooter,
-	scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,StandardStyleTemplateId,status) values (
+	scheduleTemplateName,ScheduleStartDate,ScheduleEndDate,shippingTemplateName,StandardStyleTemplateId,
+	ShippingServiceCost1,ShippingServiceAdditionalCost1,ShippingServiceCost2,
+	ShippingServiceAdditionalCost2,ShippingServiceCost3,ShippingServiceAdditionalCost3,
+	InternationalShippingServiceCost1,InternationalShippingServiceAdditionalCost1,InternationalShippingServiceCost2,
+	InternationalShippingServiceAdditionalCost2,InternationalShippingServiceCost3,InternationalShippingServiceAdditionalCost3,status) values (
 	'".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
 	'".htmlentities($_POST['Description'], ENT_QUOTES)."',
 	'".$_POST['ListingDuration']."','".$_POST['ListingType']."','PayPal',
@@ -936,7 +940,11 @@ class Template{
 	'".(empty($_POST['Border'])?0:1)."','".(empty($_POST['Featured'])?0:1)."','".(empty($_POST['Highlight'])?0:1)."',
 	'".(empty($_POST['HomePageFeatured'])?0:1)."','".(empty($_POST['GalleryTypeFeatured'])?0:1)."','".(empty($_POST['GalleryTypePlus'])?0:1)."','".$_POST['GalleryURL']."',
 	'".$this->account_id."','".(empty($_POST['UseStandardFooter'])?0:1)."',
-	'".$_POST['scheduleTemplateName']."',".(empty($_POST['ScheduleStartDate'])?'NULL':"'".$_POST['ScheduleStartDate']."'").",".(empty($_POST['ScheduleEndDate'])?'NULL':"'".$_POST['ScheduleEndDate']."'").",'".$_POST['shippingTemplateName']."',".(empty($_POST['StandardStyleTemplateId'])?'NULL':"'".$_POST['StandardStyleTemplateId']."'").",0)";
+	'".$_POST['scheduleTemplateName']."',".(empty($_POST['ScheduleStartDate'])?'NULL':"'".$_POST['ScheduleStartDate']."'").",".(empty($_POST['ScheduleEndDate'])?'NULL':"'".$_POST['ScheduleEndDate']."'").",'".$_POST['shippingTemplateName']."',".(empty($_POST['StandardStyleTemplateId'])?'NULL':"'".$_POST['StandardStyleTemplateId']."'").",
+	'".$_POST['ShippingServiceCost1']."','".$_POST['ShippingServiceAdditionalCost1']."','".$_POST['ShippingServiceCost2']."',
+	'".$_POST['ShippingServiceAdditionalCost2']."','".$_POST['ShippingServiceCost3']."','".$_POST['ShippingServiceAdditionalCost3']."',
+	'".$_POST['InternationalShippingServiceCost1']."','".$_POST['InternationalShippingServiceAdditionalCost1']."','".$_POST['InternationalShippingServiceCost2']."',
+	'".$_POST['InternationalShippingServiceAdditionalCost2']."','".$_POST['InternationalShippingServiceCost3']."','".$_POST['InternationalShippingServiceAdditionalCost3']."',0)";
 	    
 	
 	$result = mysql_query($sql, eBayListing::$database_connect);
@@ -1409,6 +1417,10 @@ class Template{
 	}
 	*/
 	
+	if(!empty($row['ItemSpecifics'])){
+	    $_SESSION['CustomSpecifics'][$row['Id']] =  $row['ItemSpecifics'];
+	}
+	
 	$sql_5 = "select * from template_attribute_set where templateId = '".$row['Id']."'";
 	$result_5 = mysql_query($sql_5, eBayListing::$database_connect);
 	$row_5 = mysql_fetch_assoc($result_5);
@@ -1529,10 +1541,11 @@ class Template{
     }
     
     public function updateTemplate(){
+	session_start();
         $sql = "select SKU,status,shippingTemplateName from template where Id = ".$_GET['template_id'];
 	$result = mysql_query($sql, eBayListing::$database_connect);
         $row = mysql_fetch_assoc($result);
-        if($row['status'] == 2){
+        if($row['status'] == 2 && $_COOKIE['role'] != "admin"){
             echo '{success: false, errors: {message:""},
                     msg: "Template In Active Status, can\'t update!"}';
             return 0;
@@ -1608,7 +1621,7 @@ class Template{
             return 0;
         }
         */
-	session_start();
+
 	if($_POST['ListingType'] == "FixedPriceItem" || $_POST['ListingType'] == "StoresFixedPrice"){
 	    $_POST['StartPrice'] = $_POST['BuyItNowPrice'];
 	    $_POST['BuyItNowPrice'] = 0;
@@ -1650,6 +1663,12 @@ class Template{
         StandardStyleTemplateId=".(empty($_POST['StandardStyleTemplateId'])?'NULL':"'".$_POST['StandardStyleTemplateId']."'").",ConditionID='".$_POST['ConditionID']."',status=0 where Id = '".$id."'";
 	
 	$result = mysql_query($sql, eBayListing::$database_connect);
+	
+	if(!empty($_SESSION['CustomSpecifics'][$id])){
+	    $sql = "update template set ItemSpecifics = '".str_replace("_", " ", json_encode($_SESSION['CustomSpecifics'][$id]))."' where Id = '".$id."'";
+	    //echo $sql."\n";
+	    $result = mysql_query($sql, eBayListing::$database_connect);
+	}
 	//echo $sql;
 	//exit;
 	//$this->log("template", $sql);

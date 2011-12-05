@@ -129,6 +129,17 @@ class Service{
         
     }
     
+    public function getSkuWeekMonthSale(){
+        $_GET['sku'] = str_replace("\\", "", $_GET['sku']);
+        $sql = "select * from skuWeekMonthSale where sku in (".$_GET['sku'].")";    
+        //echo $sql;
+        $result = mysql_query($sql, Service::$database_connect);
+        while($row = mysql_fetch_assoc($result)){
+            $array[] = $row;
+        }
+        echo json_encode($array);
+    }
+    
     public function __destruct(){
         mysql_close(Service::$database_connect);
     }

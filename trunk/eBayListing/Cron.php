@@ -236,7 +236,7 @@ class Cron{
 			$template = new Template($row_1['accountId']);
                         print_r($row_2);
                         $local_time = $template->getSiteTime($Site, $today, $row_2['time']);
-                        $item_id = $template->changeTemplateToItem($row_1['Id'], $local_time, $today . " " .$row_2['time'], 0);
+                        $item_id = $template->changeTemplateToItem($row_1['Id'], $local_time, $today . " " .$row_2['time'], 1);
                         $this->log("calculateListingSchedule-".$Site.".html", "t:".$row_1['Id']." ==> i:".$item_id.". BeiJing:".$local_time.", ".$Site.": ".$today . " " .$row_2['time']."<br>");
                         $this->log("calculateListingSchedule-".$Site.".html", "<br><font color='red'>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
                     }

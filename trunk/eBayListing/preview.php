@@ -63,7 +63,7 @@ if($_GET['h'] == 's'){
             $result_1 = mysql_query($sql_1, $link);
             $row_1 = mysql_fetch_assoc($result_1);
             echo str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
-                             array($row['Title'], $row['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row['Description'])), html_entity_decode($row_1['content'], ENT_QUOTES));
+                             array($row['Title'], $row['SKU'], (!empty($row_0['picture_1']))?'<img src="'.$row_0['picture_1'].'" />':'', (!empty($row_0['picture_2']))?'<img src="'.$row_0['picture_2'].'" />':'', (!empty($row_0['picture_3']))?'<img src="'.$row_0['picture_3'].'" />':'', (!empty($row_0['picture_4']))?'<img src="'.$row_0['picture_4'].'" />':'', (!empty($row_0['picture_5']))?'<img src="'.$row_0['picture_5'].'" />':'', html_entity_decode($row['Description'])), html_entity_decode($row_1['content'], ENT_QUOTES));	
         }else{
             echo html_entity_decode($row['Description']);
         }
@@ -82,7 +82,7 @@ if($_GET['h'] == 's'){
             $result_1 = mysql_query($sql_1, $link);
             $row_1 = mysql_fetch_assoc($result_1);
 	    $x = str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
-                             array($row['Title'], $row['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row['Description'])), html_entity_decode($row_1['content'], ENT_QUOTES));	
+                             array($row['Title'], $row['SKU'], (!empty($row_0['picture_1']))?'<img src="'.$row_0['picture_1'].'" />':'', (!empty($row_0['picture_2']))?'<img src="'.$row_0['picture_2'].'" />':'', (!empty($row_0['picture_3']))?'<img src="'.$row_0['picture_3'].'" />':'', (!empty($row_0['picture_4']))?'<img src="'.$row_0['picture_4'].'" />':'', (!empty($row_0['picture_5']))?'<img src="'.$row_0['picture_5'].'" />':'', html_entity_decode($row['Description'])), html_entity_decode($row_1['content'], ENT_QUOTES));	
 	}else{
 	    $x = html_entity_decode($row['Description']);
 	}

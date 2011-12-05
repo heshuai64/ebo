@@ -706,7 +706,12 @@ set_time_limit(600);
     
             // Get response from the server.
             $httpResponse = curl_exec($ch);
-    
+	    $error = curl_error($ch);
+	    
+	    if(!empty($error)){
+		$this->log("curl_error", date("Y-m-d H:i:s")."	".$error."\n");
+	    }
+	    
             if(!$httpResponse) {
                     exit("$methodName_ failed: ".curl_error($ch).'('.curl_errno($ch).')');
             }
