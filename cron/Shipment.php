@@ -80,6 +80,9 @@ class Shipment{
     }
     
     private function getShipmentId($type = 'SHA'){
+        $sql = "LOCK TABLES sequence WRITE;";
+        $row = mysql_fetch_assoc($result);
+        
         $today = date("Ym");
         $sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
         $result = mysql_query($sql, Shipment::$database_connect);
@@ -101,7 +104,11 @@ class Shipment{
         $sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
         $result = mysql_query($sql, Shipment::$database_connect);
         $row = mysql_fetch_assoc($result);
-        $shipmentId = $type.$today.$row["curType"].str_repeat("0",(4-strlen($row["curId"]))).$row["curId"];   
+        $shipmentId = $type.$today.$row["curType"].str_repeat("0",(4-strlen($row["curId"]))).$row["curId"];
+        
+        $sql = "UNLOCK TABLES;";
+        $row = mysql_fetch_assoc($result);
+        
         return $shipmentId;
     }
     

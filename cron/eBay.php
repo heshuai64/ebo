@@ -308,6 +308,9 @@ class eBay{
     }
     
     private function getOrderId(){
+	$sql = "LOCK TABLES sequence WRITE;";
+        $row = mysql_fetch_assoc($result);
+	
         $type = 'ORD';
         $today = date("Ym");
         $sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
@@ -330,7 +333,11 @@ class eBay{
         $sql = "select curType,curId from sequence where curDate='$today' and type='$type'";
         $result = mysql_query($sql, eBay::$database_connect);
         $row = mysql_fetch_assoc($result);
-        $orderId = $type.$today.$row["curType"].str_repeat("0",(4-strlen($row["curId"]))).$row["curId"];   
+        $orderId = $type.$today.$row["curType"].str_repeat("0",(4-strlen($row["curId"]))).$row["curId"];
+	
+	$sql = "UNLOCK TABLES;";
+        $row = mysql_fetch_assoc($result);
+	
         return $orderId;
     }
     

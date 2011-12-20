@@ -927,7 +927,7 @@ class Template{
 	ShippingServiceCost1,ShippingServiceAdditionalCost1,ShippingServiceCost2,
 	ShippingServiceAdditionalCost2,ShippingServiceCost3,ShippingServiceAdditionalCost3,
 	InternationalShippingServiceCost1,InternationalShippingServiceAdditionalCost1,InternationalShippingServiceCost2,
-	InternationalShippingServiceAdditionalCost2,InternationalShippingServiceCost3,InternationalShippingServiceAdditionalCost3,status) values (
+	InternationalShippingServiceAdditionalCost2,InternationalShippingServiceCost3,InternationalShippingServiceAdditionalCost3,ItemSpecifics,status) values (
 	'".$_POST['BuyItNowPrice']."','CN','".$_POST['Currency']."',
 	'".htmlentities($_POST['Description'], ENT_QUOTES)."',
 	'".$_POST['ListingDuration']."','".$_POST['ListingType']."','PayPal',
@@ -944,7 +944,7 @@ class Template{
 	'".$_POST['ShippingServiceCost1']."','".$_POST['ShippingServiceAdditionalCost1']."','".$_POST['ShippingServiceCost2']."',
 	'".$_POST['ShippingServiceAdditionalCost2']."','".$_POST['ShippingServiceCost3']."','".$_POST['ShippingServiceAdditionalCost3']."',
 	'".$_POST['InternationalShippingServiceCost1']."','".$_POST['InternationalShippingServiceAdditionalCost1']."','".$_POST['InternationalShippingServiceCost2']."',
-	'".$_POST['InternationalShippingServiceAdditionalCost2']."','".$_POST['InternationalShippingServiceCost3']."','".$_POST['InternationalShippingServiceAdditionalCost3']."',0)";
+	'".$_POST['InternationalShippingServiceAdditionalCost2']."','".$_POST['InternationalShippingServiceCost3']."','".$_POST['InternationalShippingServiceAdditionalCost3']."','".str_replace("_", " ", json_encode($_SESSION['CustomSpecifics'][$_POST['SKU']]))."',0)";
 	    
 	
 	$result = mysql_query($sql, eBayListing::$database_connect);
@@ -1418,7 +1418,7 @@ class Template{
 	*/
 	
 	if(!empty($row['ItemSpecifics'])){
-	    $_SESSION['CustomSpecifics'][$row['Id']] =  $row['ItemSpecifics'];
+	    $_SESSION['CustomSpecifics'][$row['Id']] =  json_decode($row['ItemSpecifics']);
 	}
 	
 	$sql_5 = "select * from template_attribute_set where templateId = '".$row['Id']."'";
