@@ -716,7 +716,7 @@ Ext.onReady(function(){
                                                         itemSpecificsForm.add({
                                                             //id: temp.Attribute[i].id,
                                                             xtype: temp.Attribute[i].xtype,
-                                                            fieldLabel: temp.Attribute[i].name,
+                                                            fieldLabel: temp.Attribute[i].fieldLabel,
                                                             name: temp.Attribute[i].name,
                                                             hiddenName: temp.Attribute[i].hiddenName,
                                                             mode: 'local',
@@ -725,7 +725,7 @@ Ext.onReady(function(){
                                                             selectOnFocus:true,
                                                             valueField: 'id',
                                                             displayField: 'name',
-                                                            store: Ext.decode(temp.Attribute[i].store)
+                                                            store: temp.Attribute[i].store
                                                         });
                                                     break;
                                                 }
@@ -779,11 +779,13 @@ Ext.onReady(function(){
                                             waitMsg:'Please wait...',
                                             success: function(form, action){
                                                 //console.log(action);
+                                                /*
                                                 var temp = Ext.decode(action.response.responseText);
-                                                //console.log(temp);
+                                                console.log(temp);
                                                 for(var i in temp[0]){
                                                     Ext.getCmp(i).setValue(1);
                                                 }
+                                                */
                                             }
                                         });
                                         

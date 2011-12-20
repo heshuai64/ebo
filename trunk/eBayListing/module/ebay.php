@@ -1862,6 +1862,7 @@ class Ebay{
 		$i = 0;
 		$item['ItemSpecifics'] = json_decode($item['ItemSpecifics']);
 		foreach($item['ItemSpecifics'] as $key=>$value){
+		    $key = str_replace("----", "'", $key);
 		    $itemArray['ItemSpecifics']['NameValueList'][$i]['Name'] = $key;
 		    $itemArray['ItemSpecifics']['NameValueList'][$i]['Value'] = $value;
 		    $i++;

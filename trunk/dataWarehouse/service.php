@@ -130,14 +130,62 @@ class Service{
     }
     
     public function getSkuWeekMonthSale(){
-        $_GET['sku'] = str_replace("\\", "", $_GET['sku']);
-        $sql = "select * from skuWeekMonthSale where sku in (".$_GET['sku'].")";    
+        $_REQUEST['sku'] = str_replace("\\", "", $_REQUEST['sku']);
+        $sql = "select * from skuWeekMonthSale where sku in (".$_REQUEST['sku'].")";    
         //echo $sql;
         $result = mysql_query($sql, Service::$database_connect);
         while($row = mysql_fetch_assoc($result)){
             $array[] = $row;
         }
         echo json_encode($array);
+    }
+    
+    public function getListingSkuSaleByEndTime(){
+	$sku_string = str_replace("\\", "", $_REQUEST['sku']);
+	
+	$array = array();
+	$sql = "select SKU from listing where EndTime between '".$_POST['start']."' and '".$_POST['end']."'";
+	if(strlen($sku_string) > 3){
+	    $sql .= " and SKU in (".$sku_string.")";
+	}
+	//echo $sql."\n";
+	$result = mysql_query($sql, Service::$database_connect);
+        while($row = mysql_fetch_assoc($result)){
+	    $array[] = $row;   
+	}
+	echo json_encode($array);
+    }
+    
+    public function getListingSaleByEndTime(){
+	$sku_string = str_replace("\\", "", $_REQUEST['sku']);
+	
+	$templateListing = array();
+	$sql_01 = "select TemplateID,IF(QuantitySold > 1, 1, 0) as soldListing from listing where EndTime between '".$_POST['start']."' and '".$_POST['end']."' and SKU in (".$sku_string.")";
+	//echo $sql_01."\n";
+	$result_01 = mysql_query($sql_01, Service::$database_connect);
+        while($row_01 = mysql_fetch_assoc($result_01)){
+	    $templateListing[$row_01['TemplateID']]['soldListing'] += $row_01['soldListing'];
+	    
+	    $sql_02 = "select count(*) as totalListing from listing where EndTime between '".$_POST['start']."' and '".$_POST['end']."' and TemplateID = ".$row_01['TemplateID'];
+	    //echo $sql_02."\n";
+	    $result_02 = mysql_query($sql_02, Service::$database_connect);
+	    $row_02 = mysql_fetch_assoc($result_02);
+	    $templateListing[$row_01['TemplateID']]['totalListing'] = $row_02['totalListing'];
+	}
+	
+        $array = array();
+	$sql = "select Currency,SellerId as Seller,SKU,TemplateID,Title,PrimaryCategoryCategoryName,ListingType,StartPrice,BuyItNowPrice,ListingDuration,ListingDuration,sum(QuantitySold) as TotalQuantitySold,ScheduleTemplateName,ForeverListingTime from listing where EndTime between '".$_POST['start']."' and '".$_POST['end']."' and SKU in (".$sku_string.") group by TemplateID";
+	//echo $sql."\n";
+	$result = mysql_query($sql, Service::$database_connect);
+        while($row = mysql_fetch_assoc($result)){
+	    $row['SoldRate'] = (round($templateListing[$row['TemplateID']]['soldListing'] / $templateListing[$row['TemplateID']]['totalListing'], 2) * 100)."%";
+	    
+            //$row['V_Stock'] = $sku_data[$row_1['SKU']]['v_stock'];
+            //$row['Status'] = $sku_data[$row_1['SKU']]['status'];
+            //$row['SkuLowPrice'] = $sku_data[$row_1['SKU']]['sku_low_price'];
+            $array[] = $row;   
+	}
+	echo json_encode($array);
     }
     
     public function __destruct(){

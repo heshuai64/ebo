@@ -2,8 +2,8 @@
 ini_set('memory_limit', '256M');
 set_time_limit('1800');
 
-define ('__DOCROOT__', '/export/eBayListing');
-//define ('__DOCROOT__', '.');
+//define ('__DOCROOT__', '/export/eBayListing');
+define ('__DOCROOT__', '.');
 require_once __DOCROOT__ . '/eBaySOAP.php';
 
 function debugLog($file_name, $data){
@@ -785,7 +785,7 @@ class eBayListing{
 	$row = mysql_fetch_assoc($result);
 	$SiteID = $row['id'];
 	
-	$_GET['CategoryID'] = 1217;
+	//$_GET['CategoryID'] = 169001;
 	$sql = "select id,Name,ValidationRulesSelectionMode from name_recommendation where SiteID = ".$SiteID." and CategoryID = ".$_GET['CategoryID'];
 	//echo $sql."\n";
 	$result = mysql_query($sql);
@@ -795,41 +795,41 @@ class eBayListing{
 	while($row = mysql_fetch_array($result, MYSQL_ASSOC)){
 	    switch($row['ValidationRulesSelectionMode']){
 		case "FreeText":
-		    $array['Attribute'][$i]['xtype'] = "combo";
-		    $array['Attribute'][$i]['name'] = $row['Name'];
-		    $array['Attribute'][$i]['hiddenName'] = $row['Name'];
-		    $array['Attribute'][$i]['editable'] = true;
-		    $array['Attribute'][$i]['store'] = "{xtype: 'arraystore', fields: ['id','name'], data: [";
-		    $sql_1 = "select ValueRecommendationValue from value_recommendation where NameRecommendationId = ".$row['id'];
-		    //echo $sql_1."\n";
-		    $result_1 = mysql_query($sql_1);
-		    while($row_1 = mysql_fetch_array($result_1, MYSQL_ASSOC)){
-			$array['Attribute'][$i]['store'] .= "['" .$row_1['ValueRecommendationValue'] . "','" . $row_1['ValueRecommendationValue'] ."'],";
-		    }
-		    $array['Attribute'][$i]['store'] = substr($array['Attribute'][$i]['store'], 0, -1);
-		    $array['Attribute'][$i]['store'] .= "]";
-		    $array['Attribute'][$i]['store'] .= "}";
-		break;
-	    
+		
 		case "SelectionOnly":
+		    $name = str_replace("'", "----", $row['Name']);
 		    $array['Attribute'][$i]['xtype'] = "combo";
-		    $array['Attribute'][$i]['name'] = $row['Name'];
-		    $array['Attribute'][$i]['hiddenName'] = $row['Name'];
-		    $array['Attribute'][$i]['editable'] = false;
+		    $array['Attribute'][$i]['fieldLabel'] = $row['Name'];
+		    $array['Attribute'][$i]['name'] = $name;
+		    $array['Attribute'][$i]['hiddenName'] = $name;
+		    if($row['ValidationRulesSelectionMode'] == "FreeText"){
+			$array['Attribute'][$i]['editable'] = true;
+		    }elseif($row['ValidationRulesSelectionMode'] == "SelectionOnly"){
+			$array['Attribute'][$i]['editable'] = false;
+		    }
+		    
+		    
 		    $array['Attribute'][$i]['store'] = "{xtype: 'arraystore', fields: ['id','name'], data: [";
 		    $sql_1 = "select ValueRecommendationValue from value_recommendation where NameRecommendationId = ".$row['id'];
 		    //echo $sql_1."\n";
 		    $result_1 = mysql_query($sql_1);
+		    $temp = array();
 		    while($row_1 = mysql_fetch_array($result_1, MYSQL_ASSOC)){
-			$array['Attribute'][$i]['store'] .= "['" .$row_1['ValueRecommendationValue'] . "','" . $row_1['ValueRecommendationValue'] ."'],";
+			$array['Attribute'][$i]['store'] .= "['" .str_replace("\"", "", $row_1['ValueRecommendationValue']) . "','" . str_replace("\"", "", $row_1['ValueRecommendationValue']) ."'],";
+			$temp[] = array(str_replace("\"", "", $row_1['ValueRecommendationValue']), str_replace("\"", "", $row_1['ValueRecommendationValue']));
 		    }
-		    $array['Attribute'][$i]['store'] = substr($array['Attribute'][$i]['store'], 0, -1);
+		    if(mysql_num_rows($result_1) > 0){
+			$array['Attribute'][$i]['store'] = substr($array['Attribute'][$i]['store'], 0, -1);
+		    }
 		    $array['Attribute'][$i]['store'] .= "]";
 		    $array['Attribute'][$i]['store'] .= "}";
+		    
+		    $array['Attribute'][$i]['store'] = array("xtype"=>"arraystore", "fields"=>array("id", "name"), "data"=> $temp);
 		break;
 	    }
 	    $i++;
 	}
+	//print_r($array);
 	echo json_encode($array);
     }
     
@@ -843,9 +843,15 @@ class eBayListing{
 	}
 	session_start();
 	if(!empty($_SESSION['CustomSpecifics'][$id])){
-	    echo '['.json_encode($_SESSION['CustomSpecifics'][$id]).']';
+	    $json = "[{";
+	    foreach($_SESSION['CustomSpecifics'][$id] as $key=>$value){
+		$json .= '"'.str_replace("_", " ", $key).'":"'.$value.'",'; 
+	    }
+	    $json = substr($json, 0, -1)."}]";
+	    echo $json;
+	    //echo "[".json_encode($_SESSION['CustomSpecifics'][$id])."]";
 	}
-	//print_r($_SESSION['AttributeSet']);
+	//print_r($_SESSION['CustomSpecifics'][$id]);
     }
     
     public function saveCustomSpecifics(){
@@ -1721,6 +1727,62 @@ class eBayListing{
 	}
     }
     
+    public function getListingSkuSaleByEndTime(){
+	$array = array();
+	$sql = "select SKU from items where EndTime between '".$_POST['start']."' and '".$_POST['end']."'";
+	if(!empty($_POST['sku'])){
+	    $sql .= " and SKU in (".$_POST['sku'].")";
+	}
+	$result = mysql_query($sql, eBayListing::$database_connect);
+        while($row = mysql_fetch_assoc($result)){
+	    $array[] = $row['SKU'];   
+	}
+	echo json_encode($array);
+    }
+    
+    public function getListingSaleBySku(){
+	$_POST['sku'] = str_replace("\\", "", $_POST['sku']);
+	$account_array = array();
+	$sql_0 = "select id,name from account";
+	$result_0 = mysql_query($sql_0, eBayListing::$database_connect);
+	while($row_0 = mysql_fetch_assoc($result_0)){
+	    $account_array[$row_0['id']] = $row_0['name'];
+	}
+	
+	$templateListing = array();
+	$sql_01 = "select TemplateID,IF(QuantitySold > 1, 1, 0) as soldListing from items where EndTime between '".$_POST['start']."' and '".$_POST['end']."' and SKU in (".$_POST['sku'].")";
+	//echo $sql_01."\n";
+	$result_01 = mysql_query($sql_01, eBayListing::$database_connect);
+        while($row_01 = mysql_fetch_assoc($result_01)){
+	    $templateListing[$row_01['TemplateID']]['soldListing'] += $row_01['soldListing'];
+	    
+	    $sql_02 = "select count(*) as totalListing from items where EndTime between '".$_POST['start']."' and '".$_POST['end']."' and TemplateID = ".$row_01['TemplateID'];
+	    //echo $sql_02."\n";
+	    $result_02 = mysql_query($sql_02, eBayListing::$database_connect);
+	    $row_02 = mysql_fetch_assoc($result_02);
+	    $templateListing[$row_01['TemplateID']]['totalListing'] = $row_02['totalListing'];
+	}
+	
+	$sql = "select Currency,accountId,SKU,TemplateID,Title,PrimaryCategoryCategoryName,ListingType,StartPrice,BuyItNowPrice,ListingDuration,ListingDuration,sum(QuantitySold) as TotalQuantitySold from items where EndTime between '".$_POST['start']."' and '".$_POST['end']."' and SKU in (".$_POST['sku'].") group by TemplateID";
+	//echo $sql."\n";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+        while($row = mysql_fetch_assoc($result)){
+	    $sql_1 = "select scheduleTemplateName,ForeverListingTime from template where Id = ".$row['TemplateID'];
+	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	    $row_1 = mysql_fetch_assoc($result_1);
+	    
+	    $sku_low_price = $this->getSkuLowPriceS($row['SKU'], $row['Currency']);
+	    
+	    $row['Seller'] = $account_array[$row['accountId']];
+	    $row['ScheduleTemplateName'] = $row_1['scheduleTemplateName'];
+	    $row['ForeverListingTime'] = $row_1['ForeverListingTime'];
+	    $row['SkuLowPrice'] = $sku_low_price;
+	    $row['SoldRate'] = (round($templateListing[$row['TemplateID']]['soldListing'] / $templateListing[$row['TemplateID']]['totalListing'], 2) * 100)."%";
+	    $array[] = $row;   
+	}
+	echo json_encode($array);
+    }
+    
     public function __destruct(){
         mysql_close(eBayListing::$database_connect);
     }
@@ -1746,15 +1808,15 @@ $ebay_service = array('getCategoryFeatures', 'getCategorySpecifics',
 $service = new eBayListing();
 $acton = (!empty($_GET['action'])?$_GET['action']:$argv[1]);
 if(in_array($acton, $ebay_service)){
-    require_once 'module/ebay.php';
+    require 'module/ebay.php';
     $ebay = new Ebay($service->getAccount());
     $ebay->$acton();
 }elseif(isset($_GET['action']) && strpos($acton, 'Template')){
-    require_once 'module/template.php';
+    require 'module/template.php';
     $template = new Template($service->getAccount());
     $template->$acton();
 }elseif(isset($_GET['action']) && strpos($acton, 'Item')){
-    require_once 'module/item.php';
+    require 'module/item.php';
     $item = new Item($service->getAccount());
     $item->$acton();
 }else{

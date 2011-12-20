@@ -661,6 +661,130 @@ Ext.onReady(function(){
                                 });
                             }
                         }
+                    },{
+                        text:"Custom Item Specifics",
+                        iconCls :"item-specifics",
+                        handler:function(){
+                            if(Ext.isEmpty(Ext.getCmp("SiteID").getValue()) || Ext.isEmpty(Ext.getCmp("PrimaryCategoryCategoryID").getValue())){
+                                Ext.Msg.alert('Warn', 'Please choice Site/Category.');
+                            }else{
+                                Ext.Ajax.request({
+                                    url: 'service.php?action=getCustomSpecifics&SiteID='+Ext.getCmp("SiteID").getValue()+'&CategoryID='+Ext.getCmp("PrimaryCategoryCategoryID").getValue(),
+                                    success: function(a, b){
+                                        var temp = Ext.decode(a.responseText);
+                                        /*
+                                        {"CharacteristicsSetId":"2919","Attribute":[{"AttributeId":"10244","Label":"Condition","Type":"dropdown"
+                                        
+                                        ,"ValueList":[{"id":"-10","name":"-"},{"id":"10425","name":"New"},{"id":"10426","name":"Used"}]},{"AttributeId"
+                                        
+                                        :"3801","Label":"SIFFTAS Group Pseudo Attribute","Type":""}]}
+                                        */
+                                        
+                                        //console.log(temp);
+                                        
+                                        var tempArray = new Array();
+                                        for(var t in temp.Attribute){
+                                            if(!Ext.isFunction(temp.Attribute[t])){
+                                                tempArray.push(temp.Attribute[t].name);
+                                            }
+                                        }
+                                        
+                                        //console.log(tempArray);
+                                        
+                                        var itemSpecificsForm = new Ext.FormPanel({
+                                            autoScroll:true,
+                                            reader:new Ext.data.JsonReader({
+                                            },tempArray)
+                                        });
+                                        
+                                        for(var i in temp.Attribute){
+                                            if(!Ext.isFunction(temp.Attribute[i])){
+                                                //console.log(temp.Attribute[i]);
+                                                switch(temp.Attribute[i].xtype){
+                                                    case "combo":
+                                                        itemSpecificsForm.add({
+                                                            //id: temp.Attribute[i].id,
+                                                            xtype: temp.Attribute[i].xtype,
+                                                            fieldLabel: temp.Attribute[i].fieldLabel,
+                                                            name: temp.Attribute[i].name,
+                                                            hiddenName: temp.Attribute[i].hiddenName,
+                                                            mode: 'local',
+                                                            triggerAction: 'all',
+                                                            editable: temp.Attribute[i].editable,
+                                                            selectOnFocus:true,
+                                                            valueField: 'id',
+                                                            displayField: 'name',
+                                                            store: temp.Attribute[i].store
+                                                        });
+                                                    break;
+                                                }
+                                            }
+                                        }
+                            
+                                        var itemSpecificsWindow = new Ext.Window({
+                                            title:"Custom Item Specifics",
+                                            height:300,
+                                            width: 400,
+                                            autoScroll:true,
+                                            defaults:{labelWidth: 120},
+                                            items: itemSpecificsForm,
+                                            buttons:[{
+                                                text:"OK",
+                                                handler:function(){
+                                                    itemSpecificsForm.getForm().submit({
+                                                        clientValidation: true,
+                                                        url: 'service.php?action=saveCustomSpecifics&sku='+sku,
+                                                        success: function(form, action) {
+                                                            itemSpecificsWindow.close();
+                                                            //console.log(action);
+                                                            //Ext.Msg.alert("Success", action.result.msg);
+                                                        },
+                                                        failure: function(form, action) {
+                                                            switch (action.failureType) {
+                                                                case Ext.form.Action.CLIENT_INVALID:
+                                                                    Ext.Msg.alert("Failure", "Form fields may not be submitted with invalid values");
+                                                                    break;
+                                                                case Ext.form.Action.CONNECT_FAILURE:
+                                                                    Ext.Msg.alert("Failure", "Ajax communication failed");
+                                                                    break;
+                                                                case Ext.form.Action.SERVER_INVALID:
+                                                                    Ext.Msg.alert("Failure", action.result.msg);
+                                                            }
+                                                        }
+                                
+                                                    })
+                                                }
+                                            },{
+                                                text:"Close",
+                                                handler:function(){
+                                                    itemSpecificsWindow.close();
+                                                }
+                                            }]
+                                        })
+                                        itemSpecificsWindow.show();
+                                        
+                                        itemSpecificsForm.getForm().load({
+                                            url: 'service.php?action=loadCustomSpecifics&sku='+sku,
+                                            waitMsg:'Please wait...',
+                                            success: function(form, action){
+                                                //console.log(action);
+                                                /*
+                                                var temp = Ext.decode(action.response.responseText);
+                                                console.log(temp);
+                                                for(var i in temp[0]){
+                                                    Ext.getCmp(i).setValue(1);
+                                                }
+                                                */
+                                            }
+                                        });
+                                        
+                                    },
+                                    failure: function(){
+                                        
+                                    }
+                                });
+                            }
+                        }    
                     }],
                     items:[{
                         id:"Title",
