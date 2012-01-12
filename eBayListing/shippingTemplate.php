@@ -10,6 +10,7 @@
     <script type="text/javascript">
 	var template_id = "<?=$_GET['name']?>";
         var site = "<?=$_GET['site']?>";
+	var share = "<?=$_GET['share']?>";
     </script>
     <style type="text/css">
 	html, body {

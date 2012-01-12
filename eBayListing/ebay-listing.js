@@ -118,7 +118,6 @@ Ext.onReady(function(){
                          hiddenName:'category_id'
                     },{
                          xtype:"combo",
-                         xtype: 'combo',
                          fieldLabel:"Supplier",
                          mode: 'local',
                          store: new Ext.data.JsonStore({
@@ -186,6 +185,17 @@ Ext.onReady(function(){
               //{header: "Weight", width: 60, align: 'center', sortable: true, dataIndex: 'Weight'},
               //{header: "Cost", width: 60, align: 'center', sortable: true, dataIndex: 'Cost'}
           ],
+          tbar:[{
+               text:'Open A Share Template',
+               icon: './images/group_add.png',
+               tooltip:'open a share template for edit',
+               handler: function(){
+                    var selections = inventory_grid.selModel.getSelections();
+                    //console.log(selections);
+                    window.open(path + "shareTemplate.php?sku_to_share=Y&id="+selections[0].data.inventory_model_code,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                    return 1;
+               }
+          }],
           bbar: new Ext.PagingToolbar({
               pageSize: 20,
               store: inventory_store,
@@ -1589,7 +1599,7 @@ Ext.onReady(function(){
                          ids += selections[i].data.Id + ","
                     }
                     ids = ids.slice(0,-1);
-                    Ext.Msg.confirm('Confirm', 'Change template status ' + ids + ' to <font color="red">' + status_array[Ext.getCmp('template-status-combo').getValue()] + '</font>', function(a, b, c){
+                    Ext.Msg.confirm('Confirm', 'Change template ' + ids + ' to <font color="red">' + status_array[Ext.getCmp('template-status-combo').getValue()] + '</font>', function(a, b, c){
                          if (a == 'yes'){
                               Ext.Ajax.request({  
                                    waitMsg: 'Please Wait',
@@ -2040,15 +2050,310 @@ Ext.onReady(function(){
                     iconCls: 'template-status',
                     title: "Template Under <font color='red'>"+status_name+"</font> Status",
                     autoScroll: true,
-                    items: template_status_grid,
+                    items: template_status_grid
                     //closable: true,
-                    autoScroll:true
                })
                tabPanel.doLayout();
                tabPanel.activate('template-status-tab');
           }
      }
      
+     var share_template_status_store = new Ext.data.JsonStore({
+          root: 'records',
+          totalProperty: 'totalCount',
+          idProperty: 'id',
+          //autoLoad:true,
+          fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'shippingTemplateName', 'Quantity', 'ListingDuration', 'ListingType', 'Category', 'ForeverListingTime', 'LastUpdateTime'],
+          sortInfo: {
+               field: 'Id',
+               direction: 'ASC'
+          },
+          remoteSort: true,
+          url: 'service.php?action=getShareTemplateByStatus',
+          listeners: {
+               load: function(t, r){
+                    Ext.getCmp('share-template-status').setTitle('Share Template('+t.totalLength+')');
+               }
+          }
+     })
+          
+     var share_template_status_grid = new Ext.grid.GridPanel({
+          title: 'Share Template Under Status List',
+          store: share_template_status_store,
+          //autoHeight: true,
+          width: 1024,
+          height: 460,
+          selModel: new Ext.grid.RowSelectionModel({}),
+          columns:[{header: "ID", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
+               {header: "Site", width: 30, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
+               {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
+               {header: "Title", width: 350, align: 'center', sortable: true, dataIndex: 'Title'},
+               {header: "Listing Type", width: 80, align: 'center', sortable: true, dataIndex: 'ListingType'},
+               {header: "Price", width: 50, align: 'center', sortable: true, dataIndex: 'Price'},
+               //{header: "Shipping Fee", width: 80, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
+               {header: "Shipping TP", width: 80, align: 'center', sortable: true, dataIndex: 'shippingTemplateName'},
+               {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
+               {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
+               {header: "Forever Time", width: 80, align: 'center', sortable: true, dataIndex: 'ForeverListingTime'},
+               {header: "Last Update", width: 120, align: 'center', sortable: true, dataIndex: 'LastUpdateTime'}
+          ],
+          tbar:[{
+               id: 'share-template-status-combo',
+               xtype: 'combo',
+               mode: 'local',
+               width: 100,
+               listWidth: 120,
+               store: new Ext.data.ArrayStore({
+                    fields: [
+                        'id',
+                        'name'
+                    ],
+                    data: [[5,'Freeze SKU']] 
+               }),
+               valueField: 'id',
+               displayField: 'name',
+               triggerAction: 'all',
+               editable: false
+          },{xtype: 'tbspacer', width: 120},{
+               text: 'Change Status',
+               icon: './images/cog_go.png',
+               tooltip:'change share template status',
+               handler: function(){
+                    var status_array = ['new', 'waiting for approve', 'active', 'out of stock', 'under review', 'inactive', 'forever inactive', 'forever listing'];
+                    var selections = share_template_status_grid.selModel.getSelections();
+                    if(share_template_status_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','Please select the template you want to preview.');
+                         return 0;
+                    }
+                    var ids = "";
+                    for(var i = 0; i< share_template_status_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    Ext.Msg.confirm('Confirm', 'Change share template ' + ids + ' to <font color="red">' + status_array[Ext.getCmp('share-template-status-combo').getValue()] + '</font>', function(a, b, c){
+                         if (a == 'yes'){
+                              Ext.Ajax.request({  
+                                   waitMsg: 'Please Wait',
+                                   url: 'service.php?action=changeShareTemplateStatus', 
+                                   params: { 
+                                        ids: ids,
+                                        status: Ext.getCmp('share-template-status-combo').getValue()
+                                   }, 
+                                   success: function(response){
+                                       var result=eval(response.responseText);
+                                       switch(result){
+                                          case 1:  // Success : simply reload
+                                            share_template_status_store.reload();
+                                            break;
+                                          default:
+                                            Ext.MessageBox.alert('Warning','Could not delete the entire selection.');
+                                            break;
+                                       }
+                                   },
+                                   failure: function(response){
+                                       var result=response.responseText;
+                                       Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                                   }
+                              });
+                         }
+                    });
+                    return 1;
+               }
+          },'-',{
+               text: 'Search',
+               icon: './images/magnifier.png',
+               handler: function(){
+                    var  searchWindow = new Ext.Window({
+                              title: 'Search Share Templage' ,
+                              closable:true,
+                              width: 300,
+                              height: 180,
+                              plain:true,
+                              layout: 'form',
+                              items: [/*{
+                                        id:'interval-date',
+                                        fieldLabel:'Date',
+                                        xtype:'datefield',
+                                        format:'Y-m-d',
+                                        minValue: new Date(),
+                                        selectOnFocus:true
+                                   },*/{
+                                        id:'TID',
+                                        fieldLabel:'TID',
+                                        xtype:'numberfield'
+                                   },{
+                                        id:'SKU',
+                                        fieldLabel:'SKU',
+                                        xtype:'textfield'
+                                   },{
+                                        id:'Title',
+                                        fieldLabel:'Item Title',
+                                        xtype:'textfield'
+                                   },{
+                                        id:'ListingDuration',
+                                        fieldLabel:'Duration',
+                                        xtype:"combo",
+                                        store:['', 'Days_3', 'Days_5', 'Days_7', 'Days_10', 'Days_30', 'Days_60', 'Days_90'],
+                                        triggerAction: 'all',
+                                        editable: false,
+                                        selectOnFocus:true,
+                                        listWidth:100,
+                                        width:100
+                                   }
+                              ],
+                              buttons: [{
+                                             text: 'Submit',
+                                             handler: function(){
+                                                  template_status_store.setBaseParam("TID", Ext.getCmp("TID").getValue());
+                                                  template_status_store.setBaseParam("SKU", Ext.getCmp("SKU").getValue());
+                                                  template_status_store.setBaseParam("Title", Ext.getCmp("Title").getValue());
+                                                  template_status_store.setBaseParam("ListingDuration", Ext.getCmp("ListingDuration").getValue());
+                                                  template_status_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
+                                                  searchWindow.close();
+                                             }
+                                        },{
+                                             text: 'Close',
+                                             handler: function(){
+                                                  searchWindow.close();
+                                             }
+                                        }]
+                                        
+                         })
+                         
+                         searchWindow.show();
+               }
+          },'-',{
+               text:'Edit',
+               icon: './images/plugin_edit.png',
+               tooltip:'edit share template',
+               handler: function(){
+                    var selections = share_template_status_grid.selModel.getSelections();
+                    if(share_template_status_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','Please select the template you want to edit.');
+                         return 0;
+                    }
+                    var ids = "";
+                    for(var i = 0; i< share_template_status_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    if(share_template_status_grid.selModel.getCount() > 1){
+                         //window.open(path + "mtemplate.php?id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                    }else{
+                         window.open(path + "shareTemplate.php?sku_to_share=N&id="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                    }
+                    return 1;
+               }     
+          },'-',{
+               text:'Add To Waiting',
+               icon: './images/time.png',
+               tooltip:'add selected share template to schedule panel',
+               handler: function(){
+                    var selections = share_template_status_grid.selModel.getSelections();
+                    if(share_template_status_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','Please select share template.');
+                         return 0;
+                    }
+                    var ids = "";
+                    for(var i = 0; i< share_template_status_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=addShareTemplateToSchedule', 
+                         params: { 
+                              ids: ids
+                         }, 
+                         success: function(response){
+                             var result = eval(response.responseText);
+                              //console.log(result);
+                              if(result[0].success){
+                                   Ext.MessageBox.alert('Success', result[0].msg);      
+                              }else{
+                                   Ext.MessageBox.alert('Failure', result[0].msg);      
+                              }
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
+                    
+                    return 1;
+               }
+          }],
+          bbar: new Ext.PagingToolbar({
+              pageSize: parseInt(getCookie("pagination")),
+              store: share_template_status_store,
+              displayInfo: true
+          })
+     })
+     
+     function share_template_status_tab(status){
+          switch(status){
+               case 0:
+                    var status_name = "New";
+                    Ext.getCmp('share-template-status-combo').getStore().loadData([[1,'Submit Approve']]);
+               break;
+          
+               case 1:
+                    var status_name = "Waiting For Approve";
+                    Ext.getCmp('share-template-status-combo').getStore().loadData([[2,'Approve'], [4,'Not Approve']]);
+               break;
+          
+               case 2:
+                    var status_name = "Active";
+                    if(!Ext.isEmpty(Ext.getCmp('share-template-status-combo'))){
+                         Ext.getCmp('share-template-status-combo').getStore().loadData([[5,'Freeze SKU'], [7,'Forever Listing']]);
+                    }
+               break;
+          
+               case 3:
+                    var status_name = "Out Of Stock";
+               break;
+          
+               case 4:
+                    var status_name = "Under Review";
+                    Ext.getCmp('share-template-status-combo').getStore().loadData([[1, "Re Approve"], [5, "Freeze SKU"]]);
+               break;
+          
+               case 5:
+                    var status_name = "Inactive";
+                    Ext.getCmp('share-template-status-combo').getStore().loadData([[4,'Reactivation SKU'], [6,'Forever Inactive']]);
+               break;
+          
+               case 6:
+                    var status_name = "Forever Inactive";
+                    Ext.getCmp('share-template-status-combo').getStore().loadData([]);
+               break;
+          
+               case 7:
+                    var status_name = "Forever Listing";
+                    Ext.getCmp('share-template-status-combo').getStore().loadData([[5,'Freeze SKU']]);
+               break;
+          }
+          if(Ext.getCmp('share-template-status-tab')){
+               share_template_status_store.baseParams = {'status': status};
+               share_template_status_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
+               tabPanel.activate('share-template-status-tab');
+               tabPanel.getActiveTab().setTitle("Sahre Template Under <font color='red'>"+status_name+"</font> Status");
+          }else{
+               share_template_status_store.baseParams = {'status': status};
+               share_template_status_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
+               tabPanel.add({
+                    id:'share-template-status-tab',
+                    iconCls: 'share-template',
+                    title: "Share Template Under <font color='red'>"+status_name+"</font> Status",
+                    autoScroll: true,
+                    items: share_template_status_grid
+                    //closable: true,
+               })
+               tabPanel.doLayout();
+               tabPanel.activate('share-template-status-tab');
+          }
+     }
      /*
      template_grid.on("rowdblclick", function(oGrid){
           var oRecord = oGrid.getSelectionModel().getSelected();
@@ -3202,9 +3507,8 @@ Ext.onReady(function(){
                                              iconCls: 'template',
                                              title: "Template",
                                              autoScroll: true,
-                                             items: template_grid,
+                                             items: template_grid
                                              //closable: true,
-                                             autoScroll:true
                                         })
                                         tabPanel.doLayout();
                                         tabPanel.activate('template-tab');
@@ -3278,6 +3582,75 @@ Ext.onReady(function(){
                          listeners:{
                               expand: function(p){
                                    template_status_tab(2);
+                              }
+                         }
+                    },{
+                         id:'share-template-status',
+                         title:'Share Template',
+                         border:false,
+                         autoScroll:true,
+                         iconCls:'share-template',
+                         layout:'vbox',
+                         items: [{
+                              xtype:'button',
+                              text: 'NEW',
+                              width:160,
+                              handler: function(){
+                                   share_template_status_tab(0);
+                              }
+                         },{
+                              xtype:'button',
+                              text: 'Waiting For Approve',
+                              width:160,
+                              handler: function(){
+                                   share_template_status_tab(1);
+                              }
+                         },{
+                              xtype:'button',
+                              text: 'Active',
+                              width:160,
+                              handler: function(){
+                                   share_template_status_tab(2);
+                              }
+                         },{
+                              xtype:'button',
+                              text: 'Out Of Stock',
+                              width:160,
+                              handler: function(){
+                                  share_template_status_tab(3);
+                              }
+                         },{
+                              xtype:'button',
+                              text: 'Under Review',
+                              width:160,
+                              handler: function(){
+                                   share_template_status_tab(4);
+                              }
+                         },{
+                              xtype:'button',
+                              text: 'Inactive',
+                              width:160,
+                              handler: function(){
+                                   share_template_status_tab(5);
+                              }
+                         },{
+                              xtype:'button',
+                              text: 'Forever Inactive',
+                              width:160,
+                              handler: function(){
+                                   share_template_status_tab(6);
+                              }
+                         },{
+                              xtype:'button',
+                              text: '<font color="red">Forever Listing</font>',
+                              width:160,
+                              handler: function(){
+                                   share_template_status_tab(7);
+                              }
+                         }],
+                         listeners:{
+                              expand: function(p){
+                                   share_template_status_tab(2);
                               }
                          }
                     },{

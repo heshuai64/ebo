@@ -307,6 +307,58 @@ class Cron{
 	}
     }
     
+    public function calculateShareTemplateForeverListingSchedule(){
+	echo date("H")."\n";
+	if(in_array(date("H"), array('02', '12', '17' ,'18'))){
+            require_once __DOCROOT__ . '/module/template.php';
+            $today = date("Y-m-d");
+            //$Site = $argv[2];
+            switch(date("H")){
+                case "02":
+		    $day = date("Y-m-d", time() + 24 * 60 *60);
+                    $Site = "Australia";
+                    $sql_1 = "select Id,ForeverListingTime,ForeverListingChinaTime from share_template where status = 7 and Site = 'Australia'";
+                break;
+            
+                case "12":
+		    $day = date("Y-m-d", time() + 24 * 60 *60);
+                    $Site = "US";
+                    $sql_1 = "select Id,ForeverListingTime,ForeverListingChinaTime from share_template where status = 7 and (Site = 'US' or Site = 'eBayMotors')";
+                break;
+            
+                case "17":
+		    $day = date("Y-m-d", time() + 24 * 60 *60);
+                    $Site = "UK";
+                    $sql_1 = "select Id,ForeverListingTime,ForeverListingChinaTime from share_template where status = 7 and Site = 'UK'";
+                break;
+            
+                case "18":
+		    $day = date("Y-m-d", time() + 24 * 60 *60);
+                    $Site = "Germany";
+                    $sql_1 = "select Id,ForeverListingTime,ForeverListingChinaTime from share_template where status = 7 and (Site = 'Germany' or Site = 'France')";
+                break;
+            }
+	    
+	    //$sql_1 = "select scheduleTemplateName,accountId from template where status = 2 and Site = '".$Site."'";
+            $this->log("calculateShareTemplateForeverListingSchedule-".$Site.".html", $sql_1."<br>");
+            $result_1 = mysql_query($sql_1, Cron::$database_connect);
+            $i = 0;
+	    $tmp_time = "";
+            while($row_1 = mysql_fetch_assoc($result_1)){
+		$template = new Template($row_1['accountId']);
+		//$local_time = $day." ".$row_1['ForeverListingTime'];
+		$china_time = $day." ".substr($template->getSiteTime($Site, "1983-11-16", $row_1['ForeverListingTime']), 11, 5);
+		$china_time = date("Y-m-d H:i:s", strtotime($china_time) + ($i * (2 * 60 * 60)));
+		$local_time = $template->getLocalTimeByChinaTime($Site, $china_time);
+		//$china_time = $day." ".$row_1['ForeverListingChinaTime'];
+		//$item_id = $template->changeShareTemplateToItem($row_1['Id'], $china_time, $local_time, 1);
+		$this->log("calculateShareTemplateForeverListingSchedule-".$Site.".html", "t:".$row_1['Id']." ==> i:".$item_id.". BeiJing:".$china_time.", ".$Site.": ".$local_time."<br>");
+		$this->log("calculateShareTemplateForeverListingSchedule-".$Site.".html", "<br><font color='red'>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
+		$i++;
+	    }
+	}
+    }
+    
     public function dealSkuStatusMessage(){
     	//ini_set('include_path', '../');
         require_once __DOCROOT__ . '/Stomp.php';

@@ -418,7 +418,7 @@ Ext.onReady(function(){
         //height: 600,
         buttonAlign:"center",
         reader:new Ext.data.JsonReader({
-            }, ['Id','AutoPay','BuyItNowPrice','CategoryMappingAllowed','Country','Currency','Description','DispatchTimeMax','ListingDuration','ListingType','Location','PaymentMethods','PayPalEmailAddress',
+            }, ['Id','TemplateID','ShareTemplateID','AutoPay','BuyItNowPrice','CategoryMappingAllowed','Country','Currency','Description','DispatchTimeMax','ListingDuration','ListingType','Location','PaymentMethods','PayPalEmailAddress',
                 'PostalCode','PrimaryCategoryCategoryID','PrimaryCategoryCategoryName','Quantity','ReturnPolicyDescription','ReturnPolicyReturnsAcceptedOption','ReturnPolicyReturnsAcceptedOption','ReturnPolicyReturnsWithinOption',
                 'ReturnPolicyShippingCostPaidByOption','ReservePrice','CurrentPrice','ListingStatus','ScheduleTime','SecondaryCategoryCategoryID','SecondaryCategoryCategoryName','Site','Motors','SiteID','SKU','StartPrice',
                 'StoreCategory2ID','StoreCategory2Name','StoreCategoryID','StoreCategoryName','SubTitle','Title','UserID','BoldTitle','Border','Featured','Highlight','HomePageFeatured','GalleryTypeFeatured','GalleryTypeGallery','GalleryTypePlus','GalleryURL',
@@ -443,6 +443,18 @@ Ext.onReady(function(){
                 border:false,
                 width: 400,
                 items:[{
+                    xtype:"hidden",
+                    id:'accountId',
+                    name:'accountId'
+                },{
+                    xtype:"hidden",
+                    id:'TemplateID',
+                    name:'TemplateID'
+                },{
+                    xtype:"hidden",
+                    id:'ShareTemplateID',
+                    name:'ShareTemplateID'
+                },{
                     columnWidth:0.3,
                     layout:"form",
                     defaults:{
@@ -1399,7 +1411,7 @@ Ext.onReady(function(){
                     },{
                          layout:"column",
                         border:false,
-                        title:"standard Style Template",
+                        title:"Standard Style Template",
                         items:[/*{
                             width: 180,
                             border:false,
@@ -1432,21 +1444,25 @@ Ext.onReady(function(){
                                 }
                             }]
                         },{
-                            width: 110,
+                            width: 160,
                             border:false,
                             items:[{
                                 xtype:"button",
-                                text:"Edit Standard Style",
+                                text:"Edit Standard Style(<font color='red'>Non/Share</font>)",
                                 handler: function(){
-                                    if(!Ext.isEmpty(standardStyleTemplate.getValue())){
-                                        window.open(path + "style.php?id="+standardStyleTemplate.getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                    if(Ext.getCmp("ShareTemplateID").getValue() != 0){
+                                        window.open(path + "account-style.php?account_id="+Ext.getCmp("accountId").getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                     }else{
-                                        Ext.Msg.alert('Warn', 'Please first select standard style template.');
+                                        if(!Ext.isEmpty(standardStyleTemplate.getValue())){
+                                            window.open(path + "style.php?id="+standardStyleTemplate.getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                        }else{
+                                            Ext.Msg.alert('Warn', 'Please first select standard style template.');
+                                        }
                                     }
                                 }
                             }]
                         },{
-                            width: 150,
+                            width: 130,
                             layout:"form",
                             border:false,
                             style:"padding:0px;",
@@ -1463,11 +1479,11 @@ Ext.onReady(function(){
                                 inputValue:1
                             }]
                         },{
-                            width: 150,
+                            width: 120,
                             border:false,
                             items:[{
                                 xtype:"button",
-                                text:"Preview Description",
+                                text:"Preview(<font color='red'>Non/Share</font>)",
                                 handler: function(){
                                     Ext.Ajax.request({
                                         url: 'service.php?action=saveTempDescription&type=items&id='+item_id,
@@ -1477,7 +1493,11 @@ Ext.onReady(function(){
                                             sku: Ext.getCmp("SKU").getValue()
                                         },
                                         success: function(a, b){
-                                            window.open(path + "preview.php?type=items&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+item_id+"&sku="+Ext.getCmp("SKU").getValue()+"&standardStyleTemplateId="+standardStyleTemplate.getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                                            var h = "";
+                                            if(Ext.getCmp("ShareTemplateID").getValue() != 0){
+                                                h = "h=x&account_id="+Ext.getCmp("accountId").getValue()+"&share_template_id="+Ext.getCmp("ShareTemplateID").getValue()+"&";
+                                            }
+                                            window.open(path + "preview.php?"+h+"type=items&u="+Ext.getCmp("UseStandardFooter").getValue()+"&id="+item_id+"&sku="+Ext.getCmp("SKU").getValue()+"&standardStyleTemplateId="+standardStyleTemplate.getValue(),"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
                                         }
                                     })
                                 }

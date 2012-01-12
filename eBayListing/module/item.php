@@ -30,6 +30,8 @@ class Item{
 	30: reason is status
 	31: has active listings
 	32: ebay return error
+	
+	40: ready change to
     */
     private function getService($request){
         $json = file_get_contents(Template::INVENTORY_SERVICE.$request);
@@ -209,7 +211,7 @@ class Item{
                 $_POST['limit'] = 20;
             }
 	    
-	    $sql = "select Id,TemplateID,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,ScheduleTime,ScheduleLocalTime,Site from items where accountId = '".$this->account_id."' and Status = 0 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
+	    $sql = "select Id,TemplateID,ShareTemplateID,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,ScheduleTime,ScheduleLocalTime,Site from items where accountId = '".$this->account_id."' and Status = 0 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
             $result = mysql_query($sql, eBayListing::$database_connect);
             
 	}else{
@@ -241,7 +243,7 @@ class Item{
             $row = mysql_fetch_assoc($result);
             $totalCount = $row['count'];
             
-            $sql = "select Id,TemplateID,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,ScheduleTime,ScheduleLocalTime,Site from items ".$where." order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
+            $sql = "select Id,TemplateID,ShareTemplateID,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,ScheduleTime,ScheduleLocalTime,Site from items ".$where." order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
             //echo $sql;
             $result = mysql_query($sql, eBayListing::$database_connect);
 	}
@@ -258,6 +260,9 @@ class Item{
 	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	    $row_1 = mysql_fetch_assoc($result_1);
 	    $row['ShippingFee'] = $row_1['ShippingServiceCost'];
+	    if(!empty($row['ShareTemplateID'])){
+		$row['TemplateID'] = $row['ShareTemplateID'];
+	    }
 	    $array[] = $row;
 	}
 	
@@ -310,7 +315,7 @@ class Item{
                 $_POST['limit'] = 20;
             }
 	    
-	    $sql = "select Id,TemplateID,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,ScheduleTime,ScheduleLocalTime,Site from items where accountId = '".$this->account_id."' and Status = 1 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
+	    $sql = "select Id,TemplateID,ShareTemplateID,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,ScheduleTime,ScheduleLocalTime,Site from items where accountId = '".$this->account_id."' and Status = 1 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
             $result = mysql_query($sql, eBayListing::$database_connect);
             
 	}else{
@@ -342,7 +347,7 @@ class Item{
             $row = mysql_fetch_assoc($result);
             $totalCount = $row['count'];
             
-            $sql = "select Id,TemplateID,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,ScheduleTime,ScheduleLocalTime,Site from items ".$where." order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
+            $sql = "select Id,TemplateID,ShareTemplateID,SKU,Title,BuyItNowPrice,ListingDuration,ListingType,Quantity,StartPrice,ScheduleTime,ScheduleLocalTime,Site from items ".$where." order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
             //echo $sql;
             $result = mysql_query($sql, eBayListing::$database_connect);
 	}
@@ -359,6 +364,9 @@ class Item{
 	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	    $row_1 = mysql_fetch_assoc($result_1);
 	    $row['ShippingFee'] = $row_1['ShippingServiceCost'];
+	    if(!empty($row['ShareTemplateID'])){
+		$row['TemplateID'] = $row['ShareTemplateID'];
+	    }
 	    $array[] = $row;
 	}
 	
@@ -493,7 +501,7 @@ class Item{
 	$row = mysql_fetch_assoc($result);
 	$totalCount = $row['count'];
 	
-	$sql_1 = "select Id,TemplateID,SKU,ItemID,Title,Site,ListingType,Quantity,ListingDuration,StartTime,EndTime,StartPrice,BuyItNowPrice,ViewItemURL from items where accountId = '".$this->account_id."' ".$where." and Status = 2 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
+	$sql_1 = "select Id,TemplateID,ShareTemplateID,SKU,ItemID,Title,Site,ListingType,Quantity,ListingDuration,StartTime,EndTime,StartPrice,BuyItNowPrice,ViewItemURL from items where accountId = '".$this->account_id."' ".$where." and Status = 2 order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
 	//echo $sql_1."\n";
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$data = array();
@@ -504,6 +512,9 @@ class Item{
 		$row_1['Price'] = $row_1['BuyItNowPrice'];
 	    }
             $row_1['EndTime'] = date("Y-m-d H:i:s", strtotime($row_1['EndTime']) + (8 * 60 * 60));
+	    if(!empty($row_1['ShareTemplateID'])){
+		$row_1['TemplateID'] = $row_1['ShareTemplateID'];
+	    }
 	    $data[] = $row_1;
 	}
 	
@@ -534,6 +545,9 @@ class Item{
 		$row_1['Price'] = $row_1['BuyItNowPrice'];
 	    }
             $row_1['EndTime'] = date("Y-m-d H:i:s", strtotime($row_1['EndTime']) + (8 * 60 * 60));
+	    if(!empty($row_1['ShareTemplateID'])){
+		$row_1['TemplateID'] = $row_1['ShareTemplateID'];
+	    }
 	    $data[] = $row_1;
 	}
 	
@@ -564,6 +578,9 @@ class Item{
 		$row_1['Price'] = $row_1['BuyItNowPrice'];
 	    }
             $row_1['EndTime'] = date("Y-m-d H:i:s", strtotime($row_1['EndTime']) + (8 * 60 * 60));
+	    if(!empty($row_1['ShareTemplateID'])){
+		$row_1['TemplateID'] = $row_1['ShareTemplateID'];
+	    }
 	    $data[] = $row_1;
 	}
 	

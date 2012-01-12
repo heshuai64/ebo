@@ -103,7 +103,13 @@ class eBayListing{
     }
     
     public static function getExchangeRateS($currency){
-	return eBayListing::$exchange_rate[$currency];
+	$config = parse_ini_file(__DOCROOT__ . '/config.ini', true);
+	return $config['exchange_rate'][$currency];
+    }
+    
+    public static function getTimeZoneS($site){
+	$config = parse_ini_file(__DOCROOT__ . '/config.ini', true);
+	return $config['time_zone'][$site];
     }
     
     public  function setAccount($account_id){
@@ -273,7 +279,8 @@ class eBayListing{
     }
     
     public static function getInventoryServiceS($request){
-        $json = file_get_contents(eBayListing::$service['inventory'].$request);
+	$config = parse_ini_file(__DOCROOT__ . '/config.ini', true);
+        $json = file_get_contents($config['service']['inventory'].$request);
         return json_decode($json);
     }
     
@@ -330,6 +337,10 @@ class eBayListing{
     }
     
     public function saveSkuPicture(){
+	if(!empty($_GET['account_id'])){
+	    $this->account_id = $_GET['account_id'];
+	}
+	
 	$sql_1 = "select count(*) as num from account_sku_picture where account_id = '".$this->account_id."' and sku = '".$_POST['sku']."'";
 	$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 	$row_1 = mysql_fetch_assoc($result_1);
@@ -348,6 +359,10 @@ class eBayListing{
     }
     
     public function getSkuPicture($sku=''){
+	if(!empty($_GET['account_id'])){
+	    $this->account_id = $_GET['account_id'];
+	}
+	
 	if(!empty($sku)){
 	    $_POST['sku'] = $sku;
 	}
@@ -530,9 +545,12 @@ class eBayListing{
     }
     
     public function getStoreCategoriesTree(){
+	if(!empty($_GET['account_id'])){
+	    $this->account_id = $_GET['account_id'];
+	}
 	$sql = "select CategoryID,Name from account_store_categories where AccountId = '".$this->account_id."' and CategoryParentID ='".$_POST['node']."' order by `Order`";
+	//echo $sql."\n";
 	
-	//echo $sql;
 	$result = mysql_query($sql, eBayListing::$database_connect);
 	$array = array();
 	$i = 0;
@@ -1686,10 +1704,10 @@ class eBayListing{
 	$msg = "";
 	switch(true){
 	    case !empty($_POST['english']):
-		$sql = "update template set Description = '".htmlentities($_POST['english'], ENT_QUOTES)."' where (Site = 'US' or Site = 'UK' or Site = 'Australia') and SKU = '".$_POST['sku']."'";
+		$sql = "update template set Description = '".htmlentities($_POST['english'], ENT_QUOTES)."' where (Site = 'US' or Site = 'UK' or Site = 'Australia' or Site = 'eBayMotors') and SKU = '".$_POST['sku']."'";
 		$result = mysql_query($sql, eBayListing::$database_connect);
 		
-		$sql_1 = "update items set Description = '".htmlentities($_POST['english'], ENT_QUOTES)."' where (Site = 'US' or Site = 'UK' or Site = 'Australia') and SKU = '".$_POST['sku']."' and Status in (0,1,3,4.8)";
+		$sql_1 = "update items set Description = '".htmlentities($_POST['english'], ENT_QUOTES)."' where (Site = 'US' or Site = 'UK' or Site = 'Australia' or Site = 'eBayMotors') and SKU = '".$_POST['sku']."' and Status in (0,1,3,4.8)";
 		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 		
 		if($result && $result_1){
