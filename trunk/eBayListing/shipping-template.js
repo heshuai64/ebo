@@ -1526,6 +1526,11 @@ Ext.onReady(function(){
             style: 'position: relative; left: 230px;',
             width: 200
         }:{},{
+            xtype: 'hidden',
+            id:'share',
+            name: 'share',
+            value: share
+        },{
             xtype: 'button',
             style: 'float: left; position: relative; left: 250px;',
             text: 'OK',

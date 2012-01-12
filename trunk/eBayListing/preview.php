@@ -152,6 +152,29 @@ if($_GET['h'] == 's'){
             <div id="preview"><?=$x?></div>
         <?php
     }
+}elseif($_GET['h'] == 'x'){
+    session_start();
+    $sql_0 = "select content from account_style_template where account_id = '".$_GET['account_id']."'";
+    $result_0 = mysql_query($sql_0, $link);
+    $row_0 = mysql_fetch_assoc($result_0);
+    
+    $sql_1 = "select Title,SKU,Description from share_template where Id = ".$_GET['share_template_id'];
+    $result_1 = mysql_query($sql_1, $link);
+    $row_1 = mysql_fetch_assoc($result_1);
+    
+    $sql_01 = "select * from account_sku_picture where account_id = '".$_GET['account_id']."' and sku = '".$row_1['SKU']."'";
+    $result_01 = mysql_query($sql_01, $link);
+    $row_01 = mysql_fetch_assoc($result_01);
+    
+    if(!empty($_SESSION[$_GET['type']][$_GET['id']]['title'])){
+	$row_1['Title'] = $_SESSION[$_GET['type']][$_GET['id']]['title'];
+	$row_1['Description'] = $_SESSION[$_GET['type']][$_GET['id']]['description'];
+    }
+    
+    echo str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
+		     array($row_1['Title'], $row_1['SKU'], 
+		       '<img src="'.$row_01['picture_1'].'" />', '<img src="'.$row_01['picture_2'].'" />', '<img src="'.$row_01['picture_3'].'" />', '<img src="'.$row_01['picture_4'].'" />', '<img src="'.$row_01['picture_5'].'" />',
+		       html_entity_decode(str_replace("\\", "",$row_1['Description']))), html_entity_decode($row_0['content'], ENT_QUOTES));
 }else{
     session_start();
     //print_r($_SESSION);

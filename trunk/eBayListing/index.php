@@ -38,6 +38,9 @@ if(empty($_COOKIE['account_id'])){
 	.template-status {
 	    background-image:url(./images/cog.png);
 	}
+	.share-template {
+	    background-image:url(./images/group.png);
+	}
 	.waiting-to{
 	    background-image:url(./images/bomb.png);
 	}

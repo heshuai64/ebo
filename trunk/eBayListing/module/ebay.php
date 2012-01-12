@@ -1421,25 +1421,39 @@ class Ebay{
     //----------------------------------------------------------------------------------------------
     
     private function getItemTemplateStatus($itemId){
-	$sql_1 = "select TemplateID from items where Id = ".$itemId;
+	$sql_1 = "select TemplateID,ShareTemplateID from items where Id = ".$itemId;
 	$result_1 = mysql_query($sql_1);
 	$row_1 = mysql_fetch_assoc($result_1);
 	
-        if(empty($row_1['TemplateID'])){
-            return 6;
-        }
-	$sql_2 = "select status from template where Id = ".$row_1['TemplateID'];
-	$result_2 = mysql_query($sql_2);
-	$row_2 = mysql_fetch_assoc($result_2);
-	
+	if(!empty($row_1['TemplateID'])){
+	    $sql_2 = "select status from template where Id = ".$row_1['TemplateID'];
+	    $result_2 = mysql_query($sql_2);
+	    $row_2 = mysql_fetch_assoc($result_2);
+	}elseif(!empty($row_1['ShareTemplateID'])){
+	    $sql_2 = "select status from share_template where Id = ".$row_1['ShareTemplateID'];
+	    $result_2 = mysql_query($sql_2);
+	    $row_2 = mysql_fetch_assoc($result_2);
+	}else{
+	    return 6;
+	}
+
 	return $row_2['status'];
     }
     
-    private function getTemplateActiveItemCount($templateId){
-	$sql = "select count(*) as num from items where Status = 2 and TemplateID = ".$templateId;
-	$result = mysql_query($sql);
-	$row = mysql_fetch_assoc($result);
-	//file_put_contents("/tmp/getTemplateActiveItemCount-".date("Ymd").".log", $sql."\n".$row['num']."\n\n");
+    private function getTemplateActiveItemCount($templateId, $shareTemplateId){
+	if(!empty($templateId)){
+	    $sql = "select count(*) as num from items where Status = 2 and TemplateID = ".$templateId;
+	    $result = mysql_query($sql);
+	    $row = mysql_fetch_assoc($result);
+	    //file_put_contents("/tmp/getTemplateActiveItemCount-".date("Ymd").".log", $sql."\n".$row['num']."\n\n");
+	}elseif(!empty($shareTemplateId)){
+	    $sql = "select count(*) as num from items where Status = 2 and ShareTemplateID = ".$shareTemplateId;
+	    $result = mysql_query($sql);
+	    $row = mysql_fetch_assoc($result);
+	    //file_put_contents("/tmp/getTemplateActiveItemCount-".date("Ymd").".log", $sql."\n".$row['num']."\n\n");
+	}else{
+	    return 0;
+	}
 	return $row['num'];
     }
     
@@ -1484,7 +1498,7 @@ class Ebay{
 	$from = date("Y-m-d H:i:s", time() - 60);
 	$to = date("Y-m-d H:i:s", time() + 30);
 	
-	$sql = "select Id,AccountId,TemplateID,SKU,ScheduleTime from items where Status = 1 and ScheduleTime between '".$from."' and '".$to."'";
+	$sql = "select Id,AccountId,TemplateID,ShareTemplateID,SKU,ScheduleTime from items where Status = 1 and ScheduleTime between '".$from."' and '".$to."'";
 	//$sql = "select Id,AccountId from items where Status = 1";
 	$this->debug($sql);
 	$readyUploadItem = array();
@@ -1522,7 +1536,7 @@ class Ebay{
 		continue;
 	    }
 	    
-	    if($this->getTemplateActiveItemCount($row['TemplateID']) > 0){
+	    if($this->getTemplateActiveItemCount($row['TemplateID'], $row['ShareTemplateID']) > 0){
 		$this->updateItemStatus($row['Id'], 31);
 		$this->debug("has active listings");
 		$this->log("upload", "System Item ID:".$row['Id'].", Template ID:".$row['TemplateID'].". has active listings", "warn");
@@ -1536,26 +1550,39 @@ class Ebay{
 	}
 	
 	foreach($readyUploadItem as $id){
-		$row['Id'] = $id;
+	    $row['Id'] = $id;
 	    //$row['item_id'] = 98;
 	    $sql_1 = "select * from items where Id = '".$row['Id']."'";
 	    $result_1 = mysql_query($sql_1);
 	    $row_1 = mysql_fetch_assoc($result_1);
 	    $this->setAccount($row_1['accountId']);
 	    
-	    if($row_1['UseStandardFooter']){
+	    if(!empty($row_1['ShareTemplateID'])){
 		$sql_0 = "select * from account_sku_picture where account_id = '".$row_1['accountId']."' and sku = '".$row_1['SKU']."'";
 		$result_0 = mysql_query($sql_0);
 		$row_0 = mysql_fetch_assoc($result_0);
 		
-		$sql_01 = "select content from standard_style_template where id = '".$row_1['StandardStyleTemplateId']."' and accountId = '".$row_1['accountId']."'";
+		$sql_01 = "select content from account_style_template where account_id = ".$row_1['accountId'];
 		$result_01 = mysql_query($sql_01);
 		$row_01 = mysql_fetch_assoc($result_01);
 		
 		$row_1['Description'] = str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
 						    array(html_entity_decode($row_1['Title'], ENT_QUOTES), $row_1['SKU'], (!empty($row_0['picture_1']))?'<img src="'.$row_0['picture_1'].'" />':'', (!empty($row_0['picture_2']))?'<img src="'.$row_0['picture_2'].'" />':'', (!empty($row_0['picture_3']))?'<img src="'.$row_0['picture_3'].'" />':'', (!empty($row_0['picture_4']))?'<img src="'.$row_0['picture_4'].'" />':'', (!empty($row_0['picture_5']))?'<img src="'.$row_0['picture_5'].'" />':'', html_entity_decode($row_1['Description'])), html_entity_decode($row_01['content'], ENT_QUOTES));
 	    }else{
-		$row_1['Description'] = html_entity_decode($row_1['Description'], ENT_QUOTES);
+		if($row_1['UseStandardFooter']){
+		    $sql_0 = "select * from account_sku_picture where account_id = '".$row_1['accountId']."' and sku = '".$row_1['SKU']."'";
+		    $result_0 = mysql_query($sql_0);
+		    $row_0 = mysql_fetch_assoc($result_0);
+		    
+		    $sql_01 = "select content from standard_style_template where id = '".$row_1['StandardStyleTemplateId']."' and accountId = '".$row_1['accountId']."'";
+		    $result_01 = mysql_query($sql_01);
+		    $row_01 = mysql_fetch_assoc($result_01);
+		    
+		    $row_1['Description'] = str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
+							array(html_entity_decode($row_1['Title'], ENT_QUOTES), $row_1['SKU'], (!empty($row_0['picture_1']))?'<img src="'.$row_0['picture_1'].'" />':'', (!empty($row_0['picture_2']))?'<img src="'.$row_0['picture_2'].'" />':'', (!empty($row_0['picture_3']))?'<img src="'.$row_0['picture_3'].'" />':'', (!empty($row_0['picture_4']))?'<img src="'.$row_0['picture_4'].'" />':'', (!empty($row_0['picture_5']))?'<img src="'.$row_0['picture_5'].'" />':'', html_entity_decode($row_1['Description'])), html_entity_decode($row_01['content'], ENT_QUOTES));
+		}else{
+		    $row_1['Description'] = html_entity_decode($row_1['Description'], ENT_QUOTES);
+		}
 	    }
 	    
 	    $this->checkItemDesEncoding($row_1['Id'], $row_1['Description']);

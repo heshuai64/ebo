@@ -79,8 +79,14 @@ var pictureManage = {
     icon: './images/photos.png',
     tooltip:'Manage SKU Picture',
     handler: function(){
+        var account_id = null;
+        
+        if(!Ext.isEmpty(Ext.getCmp("AccountId"))){
+            account_id = Ext.getCmp("AccountId").getValue();
+        }
+        
         Ext.Ajax.request({
-            url: 'service.php?action=getSkuPicture',
+            url: 'service.php?action=getSkuPicture'+(!Ext.isEmpty(account_id)?'&account_id='+account_id:''),
             params: {
                 sku: Ext.getCmp("SKU").getValue()
             },
@@ -192,7 +198,7 @@ var pictureManage = {
                 text:"Save",
                 handler:function(){
                     Ext.Ajax.request({
-                        url: 'service.php?action=saveSkuPicture',
+                        url: 'service.php?action=saveSkuPicture'+(!Ext.isEmpty(account_id)?'&account_id='+account_id:''),
                         params: {
                             sku: Ext.getCmp("SKU").getValue(),
                             picture_1: Ext.getCmp("picture-0").getValue(),
@@ -202,6 +208,12 @@ var pictureManage = {
                             picture_5: Ext.getCmp("picture-4").getValue()
                         },
                         success: function(a, b){
+                            if(!Ext.isEmpty(Ext.getCmp("account-template-count-grid"))){
+                                var picture_1 = Ext.getCmp("picture-0").getValue();
+                                Ext.getCmp("GalleryURL").setValue(picture_1);
+                                Ext.getCmp("picture_1").setValue(picture_1);
+                                Ext.getCmp("picture_panel_1").body.dom.innerHTML = '<img width="60" height="60" src="' + picture_1 + '"/>';
+                            }
                             window.close();
                         }
                     })
