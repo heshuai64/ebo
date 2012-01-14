@@ -351,7 +351,7 @@ class Cron{
 		$china_time = date("Y-m-d H:i:s", strtotime($china_time) + ($i * (2 * 60 * 60)));
 		$local_time = $template->getLocalTimeByChinaTime($Site, $china_time);
 		//$china_time = $day." ".$row_1['ForeverListingChinaTime'];
-		//$item_id = $template->changeShareTemplateToItem($row_1['Id'], $china_time, $local_time, 1);
+		$item_id = $template->changeShareTemplateToItem($row_1['Id'], $china_time, $local_time, 1);
 		$this->log("calculateShareTemplateForeverListingSchedule-".$Site.".html", "t:".$row_1['Id']." ==> i:".$item_id.". BeiJing:".$china_time.", ".$Site.": ".$local_time."<br>");
 		$this->log("calculateShareTemplateForeverListingSchedule-".$Site.".html", "<br><font color='red'>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
 		$i++;
