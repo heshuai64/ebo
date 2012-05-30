@@ -342,19 +342,19 @@ class Cron{
 	    //$sql_1 = "select scheduleTemplateName,accountId from template where status = 2 and Site = '".$Site."'";
             $this->log("calculateShareTemplateForeverListingSchedule-".$Site.".html", $sql_1."<br>");
             $result_1 = mysql_query($sql_1, Cron::$database_connect);
-            $i = 0;
+            //$i = 0;
 	    $tmp_time = "";
             while($row_1 = mysql_fetch_assoc($result_1)){
 		$template = new Template($row_1['accountId']);
 		//$local_time = $day." ".$row_1['ForeverListingTime'];
 		$china_time = $day." ".substr($template->getSiteTime($Site, "1983-11-16", $row_1['ForeverListingTime']), 11, 5);
-		$china_time = date("Y-m-d H:i:s", strtotime($china_time) + ($i * (2 * 60 * 60)));
+		//$china_time = date("Y-m-d H:i:s", strtotime($china_time) + ($i * (2 * 60 * 60)));
 		$local_time = $template->getLocalTimeByChinaTime($Site, $china_time);
 		//$china_time = $day." ".$row_1['ForeverListingChinaTime'];
 		$item_id = $template->changeShareTemplateToItem($row_1['Id'], $china_time, $local_time, 1);
 		$this->log("calculateShareTemplateForeverListingSchedule-".$Site.".html", "t:".$row_1['Id']." ==> i:".$item_id.". BeiJing:".$china_time.", ".$Site.": ".$local_time."<br>");
 		$this->log("calculateShareTemplateForeverListingSchedule-".$Site.".html", "<br><font color='red'>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
-		$i++;
+		//$i++;
 	    }
 	}
     }

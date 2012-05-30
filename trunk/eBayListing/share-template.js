@@ -993,7 +993,8 @@ Ext.onReady(function(){
                 'GalleryTypeFeatured','GalleryTypeGallery','GalleryTypePlus','PhotoDisplay',
                 'accountId','UseStandardFooter','ForeverListingTime','ScheduleStartDate','ScheduleEndDate','scheduleTemplateName','shippingTemplateId','shippingTemplateName',
                 'ShippingServiceCost','ShippingServiceAdditionalCost',
-                'StandardStyleTemplateId','LowPrice','ConditionID'
+                'StandardStyleTemplateId','LowPrice','ConditionID',
+                'USStoreCategoryID','USStoreCategoryName','DEStoreCategoryID','DEStoreCategoryName'
         ]),
         items:[{
                 layout:"column",
@@ -1666,7 +1667,177 @@ Ext.onReady(function(){
                             id:"SecondaryCategoryCategoryID",
                             name:"SecondaryCategoryCategoryID"
                         }]
-                      }]
+                      },{
+                            layout:"column",
+                            border: false,
+                            defaults:{
+                                border:false
+                            },
+                            width:680,
+                            items:[{
+                                columnWidth:0.9,
+                                layout:"form",
+                                items:[{
+                                    //id:"USStoreCategoryName",
+                                    xtype:"combo",
+                                    fieldLabel:"Store Category(US)",
+                                    editable:false,
+                                    name:"USStoreCategoryName",
+                                    hiddenName:"USStoreCategoryName",
+                                    width: 600,
+                                    listWidth: 600
+                                }]
+                              },{
+                                columnWidth:0.1,
+                                layout:"form",
+                                items:[{
+                                    xtype:"button",
+                                    text:"Select",
+                                    style:"padding-top:18px;",
+                                    handler: function(){
+                                        
+                                        var storeCategoriesTree = new Ext.tree.TreePanel({
+                                            useArrows:true,
+                                            autoScroll:true,
+                                            animate:true,
+                                            //containerScroll:true,
+                                            height:600,
+                                            width:300,
+                                            // auto create TreeLoader
+                                            dataUrl: 'service.php?action=getUSStoreCategoriesTree',
+                                    
+                                            root: {
+                                                nodeType: 'async',
+                                                draggable:false,
+                                                id: "0"
+                                            },
+                                            rootVisible: false,
+                                            listeners:{
+                                                click: function(n, e){
+                                                    if(n.leaf){
+                                                        //console.log(n);
+                                                        var categoryPath = "";
+                                                        var categoryPath = n.text;
+                                                        var parentNode = n.parentNode;
+                                                        while(parentNode.id != "0"){
+                                                            //console.log(parentNode);
+                                                            categoryPath = parentNode.text + " --> " + categoryPath;
+                                                            parentNode = parentNode.parentNode;
+                                                        }
+                                                        
+                                                        itemForm.getForm().findField("USStoreCategoryName").setValue(categoryPath);
+                                                        document.getElementById("USStoreCategoryID").value = n.id;
+                                                        selectStoreCategoryWindow.close();
+                                                    }
+                                                    //else{
+                                                    //    categoryPath = categoryPath + " --> " + n.text;
+                                                    //}
+                                                    //console.log(n);
+                                                },
+                                                expandnode: function(n){
+                                                    //console.log(n);
+                                                }
+                                            }
+                                        })
+                                        
+                                        var selectStoreCategoryWindow = new Ext.Window({
+                                            title:"Select Store Category",
+                                            items: [{
+                                                xtype:"label",
+                                                text:"Select a store category for you item."
+                                            },storeCategoriesTree]
+                                        })
+                                        
+                                        selectStoreCategoryWindow.show();
+                                    }
+                                }]
+                              },{
+                                columnWidth:0.9,
+                                layout:"form",
+                                items:[{
+                                    //id:"DEStoreCategoryName",
+                                    xtype:"combo",
+                                    fieldLabel:"Store Category(DE)",
+                                    editable:false,
+                                    name:"DEStoreCategoryName",
+                                    hiddenName:"DEStoreCategoryName",
+                                    width: 600,
+                                    listWidth: 600
+                                }]
+                              },{
+                                columnWidth:0.1,
+                                layout:"form",
+                                items:[{
+                                    xtype:"button",
+                                    text:"Select",
+                                    style:"padding-top:18px;",
+                                    handler: function(){
+                                        
+                                        var storeCategoriesTree = new Ext.tree.TreePanel({
+                                            useArrows:true,
+                                            autoScroll:true,
+                                            animate:true,
+                                            //containerScroll:true,
+                                            height:600,
+                                            width:300,
+                                            // auto create TreeLoader
+                                            dataUrl: 'service.php?action=getDEStoreCategoriesTree',
+                                    
+                                            root: {
+                                                nodeType: 'async',
+                                                draggable:false,
+                                                id: "0"
+                                            },
+                                            rootVisible: false,
+                                            listeners:{
+                                                click: function(n, e){
+                                                    if(n.leaf){
+                                                        //console.log(n);
+                                                        var categoryPath = "";
+                                                        var categoryPath = n.text;
+                                                        var parentNode = n.parentNode;
+                                                        while(parentNode.id != "0"){
+                                                            //console.log(parentNode);
+                                                            categoryPath = parentNode.text + " --> " + categoryPath;
+                                                            parentNode = parentNode.parentNode;
+                                                        }
+                                                        
+                                                        itemForm.getForm().findField("DEStoreCategoryName").setValue(categoryPath);
+                                                        document.getElementById("DEStoreCategoryID").value = n.id;
+                                                        selectStoreCategoryWindow.close();
+                                                    }
+                                                    //else{
+                                                    //    categoryPath = categoryPath + " --> " + n.text;
+                                                    //}
+                                                    //console.log(n);
+                                                },
+                                                expandnode: function(n){
+                                                    //console.log(n);
+                                                }
+                                            }
+                                        })
+                                        
+                                        var selectStoreCategoryWindow = new Ext.Window({
+                                            title:"Select Store Category",
+                                            items: [{
+                                                xtype:"label",
+                                                text:"Select a store category for you item."
+                                            },storeCategoriesTree]
+                                        })
+                                        
+                                        selectStoreCategoryWindow.show();
+                                    }
+                                }]
+                              },{
+                                xtype:"hidden",
+                                id:"USStoreCategoryID",
+                                name:"USStoreCategoryID"
+                            },{
+                                xtype:"hidden",
+                                id:"DEStoreCategoryID",
+                                name:"DEStoreCategoryID"    
+                            }]
+                        }]
                   },{
                         xtype:"panel",
                         width: 690,
@@ -1838,7 +2009,7 @@ Ext.onReady(function(){
                                     fieldLabel:"Start Price",
                                     id:"StartPrice",
                                     name:"StartPrice",
-                                    maxValue: 9.9,
+                                    maxValue: 9.9/*,
                                     listeners: {
                                         blur: function(t){
                                             if(global_config.LP){
@@ -1850,12 +2021,12 @@ Ext.onReady(function(){
                                                 })
                                             }
                                         }
-                                    }
+                                    }*/
                                   },{
                                     xtype:"numberfield",
                                     fieldLabel:"Buy It Now Price",
                                     id:"BuyItNowPrice",
-                                    name:"BuyItNowPrice",
+                                    name:"BuyItNowPrice"/*,
                                     listeners: {
                                         blur: function(t){
                                             if(global_config.LP){
@@ -1867,7 +2038,7 @@ Ext.onReady(function(){
                                                 })
                                             }
                                         }
-                                    }
+                                    }*/
                                   },{
                                     xtype:"numberfield",
                                     fieldLabel:"Quantity",
@@ -2102,7 +2273,12 @@ Ext.onReady(function(){
                                         xtype:"numberfield",
                                         fieldLabel:"Cost",
                                         id:"ShippingServiceCost",
-                                        name:"ShippingServiceCost"
+                                        name:"ShippingServiceCost",
+                                        listeners: {
+                                            change: function(t, n, o){
+                                                Ext.getCmp("ShippingServiceAdditionalCost").setValue(n);
+                                            }
+                                        }
                                       }]
                                   },{
                                     columnWidth:0.5,
@@ -2113,7 +2289,8 @@ Ext.onReady(function(){
                                         xtype:"numberfield",
                                         fieldLabel:"E A I",
                                         id:"ShippingServiceAdditionalCost",
-                                        name:"ShippingServiceAdditionalCost"
+                                        name:"ShippingServiceAdditionalCost",
+                                        readOnly: true
                                       }]
                                   }]
                             },{

@@ -1,7 +1,7 @@
 <?php
 class Item{
     private $account_id;
-    const INVENTORY_SERVICE = 'http://192.168.1.169:8080/inventory/service.php';
+    const INVENTORY_SERVICE = 'http://new-inventory:8018/inventory/service.php';
     
     public function __construct($account_id){
         $this->account_id = $account_id;

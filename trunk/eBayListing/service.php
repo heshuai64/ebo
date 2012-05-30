@@ -570,6 +570,52 @@ class eBayListing{
 	mysql_free_result($result);
     }
     
+    public function getUSStoreCategoriesTree(){
+	$sql = "select CategoryID,Name from account_store_categories where AccountId = 11 and CategoryParentID ='".$_POST['node']."' order by `Order`";
+	//echo $sql."\n";
+	
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$array = array();
+	$i = 0;
+	while($row = mysql_fetch_assoc($result)){
+	    $array[$i]['id'] = $row['CategoryID'];
+	    $array[$i]['text'] = $row['Name'];
+	    $sql_1 = "select count(*) as count from account_store_categories where CategoryParentID = '".$row['CategoryID']."'";
+	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	    $row_1 = mysql_fetch_assoc($result_1);
+	    
+	    if($row_1['count'] == 0){
+		$array[$i]['leaf'] = true;
+	    }
+	    $i++;
+	}
+	echo json_encode($array);
+	mysql_free_result($result);
+    }
+    
+    public function getDEStoreCategoriesTree(){
+	$sql = "select CategoryID,Name from account_store_categories where AccountId = 0 and CategoryParentID ='".$_POST['node']."' order by `Order`";
+	//echo $sql."\n";
+	
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$array = array();
+	$i = 0;
+	while($row = mysql_fetch_assoc($result)){
+	    $array[$i]['id'] = $row['CategoryID'];
+	    $array[$i]['text'] = $row['Name'];
+	    $sql_1 = "select count(*) as count from account_store_categories where CategoryParentID = '".$row['CategoryID']."'";
+	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	    $row_1 = mysql_fetch_assoc($result_1);
+	    
+	    if($row_1['count'] == 0){
+		$array[$i]['leaf'] = true;
+	    }
+	    $i++;
+	}
+	echo json_encode($array);
+	mysql_free_result($result);
+    }
+    
     public function getListingDurationType(){
 	$sql = "select name from listing_duration_type";
 	$result = mysql_query($sql, eBayListing::$database_connect);
@@ -803,8 +849,14 @@ class eBayListing{
 	$row = mysql_fetch_assoc($result);
 	$SiteID = $row['id'];
 	
+	$suffix = "";
+	switch($SiteID){
+	    case 77:
+		$suffix = "_de";
+	    break;
+	}
 	//$_GET['CategoryID'] = 169001;
-	$sql = "select id,Name,ValidationRulesSelectionMode from name_recommendation where SiteID = ".$SiteID." and CategoryID = ".$_GET['CategoryID'];
+	$sql = "select id,Name,ValidationRulesSelectionMode from name_recommendation".$suffix." where SiteID = ".$SiteID." and CategoryID = ".$_GET['CategoryID'];
 	//echo $sql."\n";
 	$result = mysql_query($sql);
 	
@@ -828,7 +880,7 @@ class eBayListing{
 		    
 		    
 		    $array['Attribute'][$i]['store'] = "{xtype: 'arraystore', fields: ['id','name'], data: [";
-		    $sql_1 = "select ValueRecommendationValue from value_recommendation where NameRecommendationId = ".$row['id'];
+		    $sql_1 = "select ValueRecommendationValue from value_recommendation".$suffix." where NameRecommendationId = ".$row['id'];
 		    //echo $sql_1."\n";
 		    $result_1 = mysql_query($sql_1);
 		    $temp = array();
@@ -1710,7 +1762,10 @@ class eBayListing{
 		$sql_1 = "update items set Description = '".htmlentities($_POST['english'], ENT_QUOTES)."' where (Site = 'US' or Site = 'UK' or Site = 'Australia' or Site = 'eBayMotors') and SKU = '".$_POST['sku']."' and Status in (0,1,3,4.8)";
 		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 		
-		if($result && $result_1){
+		$sql_2 = "update share_template set Description = '".htmlentities($_POST['english'], ENT_QUOTES)."' where (Site = 'US' or Site = 'UK' or Site = 'Australia' or Site = 'eBayMotors') and SKU = '".$_POST['sku']."' and Status in (0,1,3,4.8)";
+		$result_2 = mysql_query($sql_1, eBayListing::$database_connect);
+		
+		if($result && $result_1 && $result_2){
 		    $msg .= "Update English language description success. ";
 		}
 	    
@@ -1721,7 +1776,10 @@ class eBayListing{
 		$sql_1 = "update items set Description = '".htmlentities($_POST['french'], ENT_QUOTES)."' where Site = 'France' and SKU = '".$_POST['sku']."' and Status in (0,1,3,4.8)";
 		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 		
-		if($result && $result_1){
+		$sql_2 = "update share_template set Description = '".htmlentities($_POST['french'], ENT_QUOTES)."' where Site = 'France' and SKU = '".$_POST['sku']."' and Status in (0,1,3,4.8)";
+		$result_2 = mysql_query($sql_1, eBayListing::$database_connect);
+		
+		if($result && $result_1 && $result_2){
 		    $msg .= "Update French language description success. ";
 		}
 	
@@ -1732,7 +1790,10 @@ class eBayListing{
 		$sql_1 = "update items set Description = '".htmlentities($_POST['germany'], ENT_QUOTES)."' where Site = 'Germany' and SKU = '".$_POST['sku']."' and Status in (0,1,3,4.8)";
 		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
 		
-		if($result && $result_1){
+		$sql_2 = "update share_template set Description = '".htmlentities($_POST['germany'], ENT_QUOTES)."' where Site = 'Germany' and SKU = '".$_POST['sku']."' and Status in (0,1,3,4.8)";
+		$result_2 = mysql_query($sql_2, eBayListing::$database_connect);
+		
+		if($result && $result_1 && $result_2){
 		    $msg .= "Update German language description success. ";
 		}
 	    break;

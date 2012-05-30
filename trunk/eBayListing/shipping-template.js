@@ -121,7 +121,7 @@ Ext.onReady(function(){
                                 fieldLabel:"Item must be returned within",
                                 store: new Ext.data.SimpleStore({
                                     fields: ["id","name"],
-                                    data: [["Days_3", "3 Days"],["Days_7", "7 Days"], ["Days_10", "10 Days"], ["Days_14", "14 Days"], ["Days_30", "30 Days"], ["Days_60", "60 Days"]]
+                                    data: [["Days_10", "10 Days"], ["Days_14", "14 Days"], ["Days_30", "30 Days"], ["Days_60", "60 Days"]]
                                 }),
                                 mode: 'local',
                                 valueField: 'id',
@@ -143,7 +143,7 @@ Ext.onReady(function(){
                                 fieldLabel:"Refund will be given as",
                                 store: new Ext.data.SimpleStore({
                                     fields: ["id","name"],
-                                    data: [["Exchange", "Exchange"],["MerchandiseCredit", "Merchandise Credit"], ["MoneyBack", "Money Back"]]
+                                    data: [["MoneyBack", "Money Back"], ["MoneyBackOrExchange", "Money Back Or Exchange"]]
                                 }),
                                 mode: 'local',
                                 valueField: 'id',

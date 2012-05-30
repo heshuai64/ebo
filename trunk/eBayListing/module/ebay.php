@@ -1,7 +1,7 @@
 <?php
 
 class Ebay{
-    const LOG_DIR = '/export/eBayListing/log/eBay/';
+    const LOG_DIR = '/export/eBayListing/log/eBay/module/';
     
     private $startTime;
     private $endTime;
@@ -50,7 +50,8 @@ class Ebay{
 	    $results->Errors->LongMessage = str_replace(">", "]", $results->Errors->LongMessage);
 	    $temp .= "<font color='red'>".$results->Errors->ShortMessage."</font>: ".$results->Errors->LongMessage."<br>";
 	}
-	$this->log($type, "System Item ID: ".$item['Id'] .", System Template ID: ".$item['TemplateID']."<br>" . $temp, (empty($results->ItemID)?"error":"warn"));
+	$templateId = (!empty($item['ShareTemplateID']))?$item['ShareTemplateID']:$item['TemplateID'];
+	$this->log($type, "System Item ID: ".$item['Id'] .", System Template ID: ".$templateId."<br>" . $temp, (empty($results->ItemID)?"error":"warn"));
     }
     
     public  function setAccount($account_id){
@@ -142,68 +143,45 @@ class Ebay{
     }
     //------------------  eBay Category --------------------------------------------------------------------
     private function checkCategoriesVersion($siteId, $categoryVersion){
-        try {
-                $client = new eBaySOAP($this->session);
-
-                $CategorySiteID = $siteId;
-                $Version = $this->version;
-                $params = array('Version' => $Version, 'CategorySiteID' => $CategorySiteID);
-                $results = $client->GetCategories($params);
-                //----------   debug --------------------------------
-                //print "Request: \n".$client->__getLastRequest() ."\n";
-                //print "Response: \n".$client->__getLastResponse()."\n";
-		$this->saveFetchData("checkCategoriesVersion-".$siteId."[".$categoryVersion."]-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
-		echo $siteId.":".$categoryVersion." >> ".$results->CategoryVersion."\n";
-		
-		if($categoryVersion < $results->CategoryVersion){
-		    $this->updateTempalteCategoryByCategoryMap($siteId, $categoryVersion);
-		    //return false;
-		
-		    $sql = "update site set categoryVersion = '".$results->CategoryVersion."' where id = '".$siteId."'";
-		    echo $sql."\n";
-		    $result = mysql_query($sql, eBayListing::$database_connect);
-		    return true;
-		}else{
-		    return false;
-		}
-		
-        } catch (SOAPFault $f) {
-                print $f; // error handling
-        }
+	$sql = "select id,categoryVersion from site where categoryVersion <> newCategoryVersion";
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	while($row = mysql_fetch_assoc($result)){
+	    $this->updateTempalteCategoryByCategoryMap($row['id'], $row['categoryVersion']);
+	    
+	    $sql_1 = "update site set categoryVersion = newCategoryVersion where id = ".$row['id'];
+	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	}
     }
     
     private function updateTempalteCategoryByCategoryMap($siteId, $CategoryVersion){
 	try {
-		if(empty($categoryVersion)){
-		    $sql_0 = "select categoryVersion,name from site where id = ".$siteId;
-		    $result_0 = mysql_query($sql_0, eBayListing::$database_connect);
-		    $row_0 = mysql_fetch_assoc($result_0);
-		    $CategoryVersion = $row_0['categoryVersion'];
-		    $siteName = $row_0['name'];
-		}
-		
-		echo $siteId."[".$CategoryVersion."]\n";
-		
-		$this->configEbay($siteId);
-		$client = new eBaySOAP($this->session);
-                $Version = $this->version;
-                $params = array('Version' => $Version, 'DetailLevel' => 'ReturnAll', 'CategoryVersion' => $CategoryVersion);
-                $results = $client->GetCategoryMappings($params);
-                //----------   debug --------------------------------
-                //print "Request: \n".$client->__getLastRequest() ."\n";
-                //print "Response: \n".$client->__getLastResponse()."\n";
-		$this->saveFetchData("GetCategoryMappings-".$siteId."[".$CategoryVersion."]-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
-		
-		foreach($results->CategoryMapping as $CategoryMapping){
-		    $sql_1 = "update template set PrimaryCategoryCategoryID = ".$CategoryMapping->id." where Site = '".$siteName."' and PrimaryCategoryCategoryID = ".$CategoryMapping->oldID;
-		    //echo $sql_1."\n";
-		    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
-		    $num_rows = mysql_num_rows($result_1);
-		    echo $siteName.": have ".$num_rows." count ".$CategoryMapping->oldID." update to ".$CategoryMapping->id."\n";
-		}
-		sleep(10);
+	    echo $siteId."[".$CategoryVersion."]\n";
+	    
+	    $this->configEbay($siteId);
+	    $client = new eBaySOAP($this->session);
+	    $Version = $this->version;
+	    $params = array('Version' => $Version, 'DetailLevel' => 'ReturnAll', 'CategoryVersion' => $CategoryVersion);
+	    $results = $client->GetCategoryMappings($params);
+	    //----------   debug --------------------------------
+	    //print "Request: \n".$client->__getLastRequest() ."\n";
+	    //print "Response: \n".$client->__getLastResponse()."\n";
+	    $this->saveFetchData("GetCategoryMappings-".$siteId."[".$CategoryVersion."]-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+	    
+	    foreach($results->CategoryMapping as $CategoryMapping){
+		$sql_1 = "update template set PrimaryCategoryCategoryID = ".$CategoryMapping->id." where Site = '".$siteName."' and PrimaryCategoryCategoryID = ".$CategoryMapping->oldID;
+		//echo $sql_1."\n";
+		$result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+		$num_rows = mysql_num_rows($result_1);
+		echo $siteName.":Template have ".$num_rows." count ".$CategoryMapping->oldID." change to ".$CategoryMapping->id."\n";
+	    
+		$sql_2 = "update share_template set PrimaryCategoryCategoryID = ".$CategoryMapping->id." where Site = '".$siteName."' and PrimaryCategoryCategoryID = ".$CategoryMapping->oldID;
+		$result_2 = mysql_query($sql_2, eBayListing::$database_connect);
+		$num_rows = mysql_num_rows($result_2);
+		echo $siteName.":Share template have ".$num_rows." count ".$CategoryMapping->oldID." change to ".$CategoryMapping->id."\n";
+	    }
+	    sleep(10);
         } catch (SOAPFault $f) {
-                print $f; // error handling
+            print $f; // error handling
         }
     }
     
@@ -231,20 +209,24 @@ class Ebay{
 	    //----------   debug --------------------------------
 	    //print "Request: \n".$client->__getLastRequest() ."\n";
 	    //print "Response: \n".$client->__getLastResponse()."\n";
-	    print_r($results->Errors);
+	    //var_dump($results);
             if(!empty($results->CategoryArray)){
+		$sql_00 = "update site set newCategoryVersion = ".$results->CategoryVersion." where id = ".$CategorySiteID;
+		echo $sql_00."\n";
+		$result_00 = mysql_query($sql_00, eBayListing::$database_connect);
+		
 		$sql_0 = "delete from categories where CategorySiteID = ".$CategorySiteID;
 		echo $sql_0."\n";
 		$result_0 = mysql_query($sql_0, eBayListing::$database_connect);
-		
-		//$this->saveFetchData("getCategories-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
+		sleep(3);
+		$this->saveFetchData("getCategories-".$CategorySiteID."-".date("Y-m-d H:i:s").".xml", $client->__getLastResponse());
 		foreach($results->CategoryArray->Category as $category){
 		    $sql = "insert into categories (CategoryID,CategoryLevel,CategoryName,CategoryParentID,LeafCategory,BestOfferEnabled,AutoPayEnabled,SellerGuaranteeEligible,CategorySiteID) values 
 		    ('".$category->CategoryID."','".$category->CategoryLevel."','".mysql_real_escape_string($category->CategoryName)."','".$category->CategoryParentID."',
 		    '".$category->LeafCategory."','".$category->BestOfferEnabled."','".$category->AutoPayEnabled."','".$category->SellerGuaranteeEligible."','".$CategorySiteID."')";
 		    //echo $sql."\n";
 		    $result = mysql_query($sql, eBayListing::$database_connect);
-		    echo $CategorySiteID.":".$category->CategoryName."[".$category->CategoryID."]\n";
+		    //echo $CategorySiteID.":".$category->CategoryName."[".$category->CategoryID."]\n";
 		}
 	    }else{
 		echo "failure.\n";
@@ -1440,14 +1422,14 @@ class Ebay{
 	return $row_2['status'];
     }
     
-    private function getTemplateActiveItemCount($templateId, $shareTemplateId){
+    private function getTemplateActiveItemCount($templateId, $shareTemplateId, $accountId = 0){
 	if(!empty($templateId)){
 	    $sql = "select count(*) as num from items where Status = 2 and TemplateID = ".$templateId;
 	    $result = mysql_query($sql);
 	    $row = mysql_fetch_assoc($result);
 	    //file_put_contents("/tmp/getTemplateActiveItemCount-".date("Ymd").".log", $sql."\n".$row['num']."\n\n");
 	}elseif(!empty($shareTemplateId)){
-	    $sql = "select count(*) as num from items where Status = 2 and ShareTemplateID = ".$shareTemplateId;
+	    $sql = "select count(*) as num from items where Status = 2 and ShareTemplateID = ".$shareTemplateId." and accountId = ".$accountId;
 	    $result = mysql_query($sql);
 	    $row = mysql_fetch_assoc($result);
 	    //file_put_contents("/tmp/getTemplateActiveItemCount-".date("Ymd").".log", $sql."\n".$row['num']."\n\n");
@@ -1498,14 +1480,14 @@ class Ebay{
 	$from = date("Y-m-d H:i:s", time() - 60);
 	$to = date("Y-m-d H:i:s", time() + 30);
 	
-	$sql = "select Id,AccountId,TemplateID,ShareTemplateID,SKU,ScheduleTime from items where Status = 1 and ScheduleTime between '".$from."' and '".$to."'";
-	//$sql = "select Id,AccountId from items where Status = 1";
+	$sql = "select Id,accountId,TemplateID,ShareTemplateID,SKU,ScheduleTime from items where Status = 1 and ScheduleTime between '".$from."' and '".$to."'";
+	//$sql = "select Id,accountId from items where Status = 1";
 	$this->debug($sql);
 	$readyUploadItem = array();
 	
 	$result = mysql_query($sql);
 	while($row = mysql_fetch_assoc($result)){
-	    $this->setAccount($row['AccountId']);
+	    $this->setAccount($row['accountId']);
 	    $template_status = $this->getItemTemplateStatus($row['Id']);
 	    $this->debug("".$row['Id']."|".$row['TemplateID']."|".$row['ScheduleTime']."|".$template_status);
 	    if($template_status !=2 && $template_status != 3 && $template_status != 7){
@@ -1536,7 +1518,7 @@ class Ebay{
 		continue;
 	    }
 	    
-	    if($this->getTemplateActiveItemCount($row['TemplateID'], $row['ShareTemplateID']) > 0){
+	    if($this->getTemplateActiveItemCount($row['TemplateID'], $row['ShareTemplateID'], $row['accountId']) > 0){
 		$this->updateItemStatus($row['Id'], 31);
 		$this->debug("has active listings");
 		$this->log("upload", "System Item ID:".$row['Id'].", Template ID:".$row['TemplateID'].". has active listings", "warn");
@@ -1566,6 +1548,37 @@ class Ebay{
 		$result_01 = mysql_query($sql_01);
 		$row_01 = mysql_fetch_assoc($result_01);
 		
+		//------   images host ---------------------------------------------------
+		$sql_02 = "select images_host from account where id = ".$row_1['accountId'];
+		$result_02 = mysql_query($sql_02, eBayListing::$database_connect);
+		$row_02 = mysql_fetch_assoc($result_02);
+		$images_host = $row_02['images_host'];
+		
+		$pre = substr($images_host, 7 , 4);
+		$tmp = $images_host."images/".$pre."/".strtoupper(substr($row_1['SKU'], 0 , 2)."/".strtoupper($pre)."-".$row_1['SKU']);
+		$this->debug($tmp.".jpg");
+		
+		//if(@file_exists($tmp.".jpg")){
+		    //$row_1['GalleryURL'] = $tmp.".jpg";
+		//}
+		
+		if(empty($row_1['GalleryURL'])){
+		    $row_1['GalleryURL'] = $tmp.".jpg";
+		}
+		
+		for($ih = 1; $ih <=5; $ih++){
+		    if($ih == 1){
+			//if(@file_exists($tmp.".jpg")){
+			    $row_0['picture_'.$ih] = $tmp.".jpg";
+			//}
+			continue;
+		    }
+		    $this->debug($tmp."-".($ih).".jpg");
+		    if(@fopen($tmp."-".($ih).".jpg", "r") != false){
+			$row_0['picture_'.$ih] = $tmp."-".($ih).".jpg";
+		    }
+		}
+		//---------------------------------------------------------------------------
 		$row_1['Description'] = str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
 						    array(html_entity_decode($row_1['Title'], ENT_QUOTES), $row_1['SKU'], (!empty($row_0['picture_1']))?'<img src="'.$row_0['picture_1'].'" />':'', (!empty($row_0['picture_2']))?'<img src="'.$row_0['picture_2'].'" />':'', (!empty($row_0['picture_3']))?'<img src="'.$row_0['picture_3'].'" />':'', (!empty($row_0['picture_4']))?'<img src="'.$row_0['picture_4'].'" />':'', (!empty($row_0['picture_5']))?'<img src="'.$row_0['picture_5'].'" />':'', html_entity_decode($row_1['Description'])), html_entity_decode($row_01['content'], ENT_QUOTES));
 	    }else{
@@ -1585,7 +1598,7 @@ class Ebay{
 		}
 	    }
 	    
-	    $this->checkItemDesEncoding($row_1['Id'], $row_1['Description']);
+	    //$this->checkItemDesEncoding($row_1['Id'], $row_1['Description']);
 	    
 	    //$row_1['Description'] = utf8_encode($row_1['Description']);
 	    $row_1['Title'] = html_entity_decode($row_1['Title'], ENT_QUOTES);
@@ -1608,14 +1621,18 @@ class Ebay{
 		$InternationalShippingServiceOption[] = $row_3;
 	    }
 	    
-	    $sql_4 = "select * from picture_url where ItemID = '".$row['Id']."'";
-	    //echo $sql_4;
-	    //echo "<br>";
-	    $result_4 = mysql_query($sql_4);
-	    $PictureURL = array();
-	    while($row_4 = mysql_fetch_assoc($result_4)){
-		$PictureURL[] = $row_4['url'];
-	    } 
+	    if(!empty($row_1['ShareTemplateID'])){
+		$PictureURL[0] = $tmp.".jpg";
+	    }else{
+		$sql_4 = "select * from picture_url where ItemID = '".$row['Id']."'";
+		//echo $sql_4;
+		//echo "<br>";
+		$result_4 = mysql_query($sql_4);
+		$PictureURL = array();
+		while($row_4 = mysql_fetch_assoc($result_4)){
+		    $PictureURL[] = $row_4['url'];
+		} 
+	    }
 	    
 	    $sql_5 = "select * from attribute_set where item_id = '".$row['Id']."'";
 	    $result_5 = mysql_query($sql_5);
@@ -2143,21 +2160,33 @@ class Ebay{
 	    $result_1 = mysql_query($sql_1);
 	    $row_1 = mysql_fetch_assoc($result_1);
 	    
-	    if($row_1['UseStandardFooter']){
-	    	$sql_0 = "select * from account_sku_picture where account_id = '".$row_1['accountId']."' and sku = '".$row_1['SKU']."'";
+	    if(!empty($row_1['ShareTemplateID'])){
+		$sql_0 = "select * from account_sku_picture where account_id = '".$row_1['accountId']."' and sku = '".$row_1['SKU']."'";
 		$result_0 = mysql_query($sql_0);
 		$row_0 = mysql_fetch_assoc($result_0);
 		
-		$sql_01 = "select content from standard_style_template where id = '".$row_1['StandardStyleTemplateId']."' and accountId = '".$row_1['accountId']."'";
+		$sql_01 = "select content from account_style_template where account_id = ".$row_1['accountId'];
 		$result_01 = mysql_query($sql_01);
 		$row_01 = mysql_fetch_assoc($result_01);
 		
 		$row_1['Description'] = str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
-						    array(html_entity_decode($row_1['Title'], ENT_QUOTES), $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'], ENT_QUOTES)), html_entity_decode($row_01['content'], ENT_QUOTES));
+						    array(html_entity_decode($row_1['Title'], ENT_QUOTES), $row_1['SKU'], (!empty($row_0['picture_1']))?'<img src="'.$row_0['picture_1'].'" />':'', (!empty($row_0['picture_2']))?'<img src="'.$row_0['picture_2'].'" />':'', (!empty($row_0['picture_3']))?'<img src="'.$row_0['picture_3'].'" />':'', (!empty($row_0['picture_4']))?'<img src="'.$row_0['picture_4'].'" />':'', (!empty($row_0['picture_5']))?'<img src="'.$row_0['picture_5'].'" />':'', html_entity_decode($row_1['Description'])), html_entity_decode($row_01['content'], ENT_QUOTES));
 	    }else{
-		$row_1['Description'] = html_entity_decode($row_1['Description'], ENT_QUOTES);
+		if($row_1['UseStandardFooter']){
+		    $sql_0 = "select * from account_sku_picture where account_id = '".$row_1['accountId']."' and sku = '".$row_1['SKU']."'";
+		    $result_0 = mysql_query($sql_0);
+		    $row_0 = mysql_fetch_assoc($result_0);
+		    
+		    $sql_01 = "select content from standard_style_template where id = '".$row_1['StandardStyleTemplateId']."' and accountId = '".$row_1['accountId']."'";
+		    $result_01 = mysql_query($sql_01);
+		    $row_01 = mysql_fetch_assoc($result_01);
+		    
+		    $row_1['Description'] = str_replace(array("%title%", "%sku%", "%picture-1%", "%picture-2%", "%picture-3%", "%picture-4%", "%picture-5%", "%description%"),
+							array(html_entity_decode($row_1['Title'], ENT_QUOTES), $row_1['SKU'], '<img src="'.$row_0['picture_1'].'" />', '<img src="'.$row_0['picture_2'].'" />', '<img src="'.$row_0['picture_3'].'" />', '<img src="'.$row_0['picture_4'].'" />', '<img src="'.$row_0['picture_5'].'" />', html_entity_decode($row_1['Description'], ENT_QUOTES)), html_entity_decode($row_01['content'], ENT_QUOTES));
+		}else{
+		    $row_1['Description'] = html_entity_decode($row_1['Description'], ENT_QUOTES);
+		}
 	    }
-	    
 	    //$row_1['Description'] = utf8_encode($row_1['Description']);
 	    $row_1['Title'] = html_entity_decode($row_1['Title'], ENT_QUOTES);
 	    //$row_1['Title'] = utf8_encode($row_1['Title']);
