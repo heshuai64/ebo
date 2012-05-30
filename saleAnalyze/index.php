@@ -13,6 +13,12 @@
 		<script type="text/javascript" src="../../ext-3.2.1/ext-all.js"></script>
 		<script type="text/javascript" src="zh_cn.js"></script>
 		<script type="text/javascript" src="sale-analyze.js"></script>
+		<style>
+			.x-selectable, .x-selectable * {  
+				-moz-user-select: text!important;  
+				-khtml-user-select: text!important;  
+			}
+		</style>
 	</head>
     <body>
         <div id="xx"></div>

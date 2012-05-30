@@ -1,7 +1,9 @@
 <?php
 class Template{
+    const LOG_DIR = '/export/eBayListing/log/eBay/module/';
     private $account_id;
     private $batch = false;
+    private $debug = false;
     private $lowest_price;
     
     public function __construct($account_id=0){
@@ -116,6 +118,14 @@ class Template{
 	$result = mysql_query($sql, eBayListing::$database_connect);
     }
     
+    private function debug($message){
+	$sql = "select name from account where id = ".$this->account_id;
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	$row = mysql_fetch_assoc($result);
+	$account_name = $row['name'];
+	
+	file_put_contents(Template::LOG_DIR."template.log.".date("YmdH"), date("H:i:s")."---".$account_name.":".$message."\n", FILE_APPEND);
+    }
     //----------------------------------------------------------------------
     public function getTemplateTree(){
 	$array = array();
@@ -575,6 +585,18 @@ class Template{
 	$result_0 = mysql_query($sql_0, eBayListing::$database_connect);
 	$row_0 = mysql_fetch_assoc($result_0);
 	
+	$sql_00 = "select count(*) as num from share_template where SKU = '".$row_0['SKU']."'";
+	$result_00 = mysql_query($sql_00, eBayListing::$database_connect);
+	$row_00 = mysql_fetch_assoc($result_00);
+	if($row_00['num'] > 2){
+	    if($this->batch){
+                return '['.$row_0['SKU'].']share template number reach limit(3 quantity).';
+            }else{
+                echo "[{success: false, msg: '[".$row_0['SKU']."]share template number reach limit(3 quantity).'}]";
+            }
+            exit;
+	}
+	
         if($row_0['status'] !=2 && $row_0['status'] !=3 && $row_0['status'] !=7 && $_COOKIE['role'] != "admin"){
             if($this->batch){
                 return 'share template('.$template_id.') status error.';
@@ -601,24 +623,59 @@ class Template{
 	$item_ids = "";
 	$sql_2 = "select * from account_template where ShareTemplateId = ".$row_0['Id'];
 	$result_2 = mysql_query($sql_2, eBayListing::$database_connect);
+	$i = 0;
 	while($row_2 = mysql_fetch_assoc($result_2)){
-	    $sql_20 = "select count(*) as num from items where Status = 2 and ShareTemplateID = ".$row_0['Id'];
+	    $sql_20 = "select count(*) as num from items where Status = 2 and ShareTemplateID = ".$row_0['Id']." and accountId = ".$row_2['AccountId'];
 	    $result_20 = mysql_query($sql_20, eBayListing::$database_connect);
 	    $row_20 = mysql_fetch_assoc($result_20);
+	    /*
 	    if($row_20['num'] > 0){
 		continue;
 	    }
+	    */
+	    $time = date("Y-m-d H:i:s", strtotime($time) + ($i * (2 * 60 * 60)));
+	    $local_time = date("Y-m-d H:i:s", strtotime($local_time) + ($i * (2 * 60 * 60)));
+	    $i++;
 	    
 	    $sql_21 = "select PayPalEmailAddress from account where id = '".$row_2['AccountId']."'";
 	    $result_21 = mysql_query($sql_21, eBayListing::$database_connect);
 	    $row_21 = mysql_fetch_assoc($result_21);
+	    
+	    $sql_211 = "select images_host from account where id = ".$row_2['AccountId'];
+	    $result_211 = mysql_query($sql_211, eBayListing::$database_connect);
+	    $row_211 = mysql_fetch_assoc($result_211);
+	    $images_host = $row_211['images_host'];
+	    $pre = substr($images_host, 7 , 4);
+	    if($row_00['num'] == 0){
+		$row_2['GalleryURL'] = $images_host."images/".$pre."/".strtoupper(substr($row_0['SKU'], 0 , 2)."/".strtoupper($pre)."-".$row_0['SKU']).".jpg";
+	    }else{
+		$row_2['GalleryURL'] = $images_host."images/".$pre."/".strtoupper(substr($row_0['SKU'], 0 , 2)."/".strtoupper($pre)."-".$row_0['SKU'])."-".($row_00['num']+1).".jpg";
+	    }
+	    
+	    if(!empty($row_0['USStoreCategoryName'])){
+		$StoreCategoryName = $row_0['USStoreCategoryName'];
+	    }elseif(!empty($row_0['DEStoreCategoryName'])){
+		$StoreCategoryName = $row_0['DEStoreCategoryName'];
+	    }else{
+		$StoreCategoryName = '';
+	    }
+	    if($StoreCategoryName != ''){
+		$tmp = explode(" --> ", $StoreCategoryName);
+		$tmp = $tmp[count($tmp)-1];
+		$sql_212 = "select CategoryID from account_store_categories where Name = '".$tmp."' where AccountId = '".$row_2['AccountId']."'";
+		$result_212 = mysql_query($sql_212, eBayListing::$database_connect);
+		$row_212 = mysql_fetch_assoc($result_212);
+		if($this->debug){
+		    echo $sql_212."\n";
+		}
+	    }
 	    
 	    $sql_22 = "insert into items (ShareTemplateID,AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
 	    Description,DispatchTimeMax,ListingDuration,ListingType,Location,PaymentMethods,PayPalEmailAddress,
 	    PostalCode,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,
 	    ReturnPolicyDescription,ReturnPolicyRefundOption,ReturnPolicyReturnsAcceptedOption,ReturnPolicyReturnsWithinOption,ReturnPolicyShippingCostPaidByOption,
 	    ReservePrice,CurrentPrice,ScheduleTime,ScheduleLocalTime,SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,Motors,SKU,StartPrice,
-	    StoreCategory2ID,StoreCategory2Name,StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
+	    StoreCategoryID,StoreCategoryName,SubTitle,Title,UserID,accountId,BoldTitle,Border,
 	    Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 	    GalleryURL,PhotoDisplay,ShippingServiceOptionsType,InsuranceOption,InsuranceFee,
 	    InternationalShippingServiceOptionType,InternationalInsurance,InternationalInsuranceFee,Status,ItemSpecifics) select '".$template_id."',AutoPay,BuyItNowPrice,CategoryMappingAllowed,Country,Currency,
@@ -626,13 +683,17 @@ class Template{
 	    '".$row_1['PostalCode']."',PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Quantity,
 	    '".$row_1['ReturnPolicyDescription']."','".$row_1['ReturnPolicyRefundOption']."','".$row_1['ReturnPolicyReturnsAcceptedOption']."','".$row_1['ReturnPolicyReturnsWithinOption']."','".$row_1['ReturnPolicyShippingCostPaidByOption']."',
 	    ReservePrice,CurrentPrice,'".$time."','".$local_time."',SecondaryCategoryCategoryID,SecondaryCategoryCategoryName,ShippingType,Site,Motors,SKU,StartPrice,
-	    ".$row_2['StoreCategory2ID'].",'".mysql_real_escape_string($row_2['StoreCategory2Name'])."',".$row_2['StoreCategoryID'].",'".mysql_real_escape_string($row_2['StoreCategoryName'])."',SubTitle,Title,UserID,".$row_2['AccountId'].",BoldTitle,Border,
+	    '".$row_212['CategoryID']."','".mysql_real_escape_string($StoreCategoryName)."',SubTitle,Title,UserID,".$row_2['AccountId'].",BoldTitle,Border,
 	    Featured,Highlight,HomePageFeatured,GalleryTypeFeatured,GalleryTypeGallery,GalleryTypePlus,
 	    '".$row_2['GalleryURL']."',PhotoDisplay,'".$row_1['ShippingServiceOptionsType']."','".$row_1['InsuranceOption']."','".$row_1['InsuranceFee']."',
 	    '".$row_1['InternationalShippingServiceOptionType']."','".$row_1['InternationalInsurance']."','".$row_1['InternationalInsuranceFee']."','".$status."',ItemSpecifics from share_template where Id = '".$template_id."'";
-	    //echo $sql_22."\n";
-	    
+	    if($this->debug){
+		echo $sql_22."\n";
+	    }
 	    $result_22 = mysql_query($sql_22, eBayListing::$database_connect);
+	    if(!$result_22){
+		$this->debug(mysql_errno() . ": " . mysql_error());
+	    }
 	    $item_id = mysql_insert_id(eBayListing::$database_connect);
 	    $item_ids .= $item_id.",";
 	    
@@ -643,6 +704,9 @@ class Template{
 		while($row_31 = mysql_fetch_assoc($result_31)){
 		    $sql_3 = "insert into shipping_service_options (ItemID,FreeShipping,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority) select '".$item_id."',FreeShipping,ShippingService,'".$row_0['ShippingServiceCost']."','".$row_0['ShippingServiceAdditionalCost']."',ShippingServicePriority from s_template where id = '".$row_31['id']."'";
 		    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+		    if($this->debug){
+			echo $sql_3."\n";
+		    }
 		}
 		
 		//InternationalShippingServiceCost1,InternationalShippingServiceAdditionalCost1
@@ -651,11 +715,17 @@ class Template{
 		while($row_41 = mysql_fetch_assoc($result_41)){
 		    $sql_4 = "insert into international_shipping_service_option (ItemID,ShippingService,ShippingServiceCost,ShippingServiceAdditionalCost,ShippingServicePriority,ShipToLocation) select '".$item_id."',ShippingService,'".$row_0['ShippingServiceCost']."','".$row_0['ShippingServiceAdditionalCost']."',ShippingServicePriority,ShipToLocation from i_s_template where id = '".$row_41['id']."'";
 		    $result_4 = mysql_query($sql_4, eBayListing::$database_connect);
+		    if($this->debug){
+			echo $sql_4."\n";
+		    }
+		}
+		
+		$sql_3 = "insert into picture_url (ItemID,url)  select '".$item_id."',url from account_template_picture_url where accountId = '".$row_2['AccountId']."' and accountTemplateId = '".$row_2['Id']."'";
+		$result_3 = mysql_query($sql_3, eBayListing::$database_connect);
+		if($this->debug){
+		    echo $sql_3."\n";
 		}
 	    }
-	    
-	    $sql_3 = "insert into picture_url (ItemID,url)  select '".$item_id."',url from account_template_picture_url where accountId = '".$row_2['AccountId']."' and accountTemplateId = '".$row_2['Id']."'";
-	    $result_3 = mysql_query($sql_3, eBayListing::$database_connect);
 	}
 	
 	if($result_22){
@@ -666,22 +736,17 @@ class Template{
     }
     
     public function addShareTemplateToSchedule(){
+	//$this->debug = true;
 	$temp = "";
 	$item_id = "";
 	$ids = explode(',', $_POST['ids']);
 	
 	if(count($ids) > 1){
 	    foreach($ids as $id){
-		$sql = "select Site from share_template where Id = '".$id."'";
-		$result = mysql_query($sql, eBayListing::$database_connect);
-		$row = mysql_fetch_assoc($result);
-		$item_id  .= $this->changeShareTemplateToItem($id, "", "") . ", ";
+		$item_id  .= $this->changeShareTemplateToItem($id) . ", ";
 	    }
 	}else{
-	    $sql = "select Site from share_template where Id = '".$_POST['ids']."'";
-	    $result = mysql_query($sql, eBayListing::$database_connect);
-	    $row = mysql_fetch_assoc($result);
-	    $item_id  = $this->changeShareTemplateToItem($_POST['ids'], "", "") . ", ";
+	    $item_id  = $this->changeShareTemplateToItem($_POST['ids']) . ", ";
 	}
 	
 	$item_id = substr($item_id, 0, -2);
@@ -1712,7 +1777,7 @@ class Template{
         }
     }
 
-    public function getTemplateLowPrice($site = 'US', $internal = false, $share_template = false){
+    public function getTemplateLowPrice($site = 'US', $internal = false, $share_template = false, $sku = ''){
 	if($share_template == false){
 	    $sql = "select accountLocation from account where id = ".$this->account_id;
 	    $result = mysql_query($sql, eBayListing::$database_connect);
@@ -1721,7 +1786,7 @@ class Template{
 	}
 	
         if(!empty($_REQUEST)){
-            $sku = $_REQUEST['SKU'];
+            $sku = ($sku=='')?$_REQUEST['SKU']:$sku;
             
             if($_REQUEST['ListingType'] == "Chinese" || $_REQUEST['ListingType'] == "Dutch"){
                 $type = "auction";
@@ -2104,7 +2169,75 @@ class Template{
 	$id = $_GET['template_id'];
 	//StartTime,EndTime
 	//$PaymentMethods = ($_POST['PayPalPayment'] == 1)?'PayPal':'';
-    
+	$change = false;
+	$old_sql = "select Title,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Description,BuyItNowPrice,StartPrice from template where Id = ".$id;
+	$old_result = mysql_query($old_sql, eBayListing::$database_connect);
+        $old_row = mysql_fetch_assoc($old_result);
+	if($old_row['Title'] != htmlentities($_POST['Title'], ENT_QUOTES)){
+	    $new_sql = "update items set Title = '".htmlentities($_POST['Title'], ENT_QUOTES)."' where Status = 2 and ShareTemplateID = ".$id;
+	    //echo $new_sql."\n";
+	    $new_result = mysql_query($new_sql, eBayListing::$database_connect);
+	    $change = true;
+	}
+	
+	if($old_row['PrimaryCategoryCategoryID'] != $_POST['PrimaryCategoryCategoryID']){
+	    $new_sql = "update items set PrimaryCategoryCategoryID = '".$_POST['PrimaryCategoryCategoryID']."',
+	    PrimaryCategoryCategoryName = '".mysql_real_escape_string($_POST['PrimaryCategoryCategoryName'])."' where Status = 2 and ShareTemplateID = ".$id;
+	    //echo $new_sql."\n";
+	    $new_result = mysql_query($new_sql, eBayListing::$database_connect);
+	    $change = true;
+	}
+	
+	if($old_row['Description'] != htmlentities($_POST['Description'], ENT_QUOTES)){
+	    $new_sql = "update items set Description = '".htmlentities($_POST['Description'], ENT_QUOTES)."' where QuantitySold = 0 and Status = 2 and ShareTemplateID = ".$id;
+	    //echo $new_sql."\n";
+	    $new_result = mysql_query($new_sql, eBayListing::$database_connect);
+	    if(mysql_num_rows($new_result) > 0){
+		$change = true;
+	    }
+	}
+	
+	if($old_row['BuyItNowPrice'] != $_POST['BuyItNowPrice']){
+	    $new_sql = "update items set BuyItNowPrice = '".$_POST['BuyItNowPrice']."' where Status = 2 and ShareTemplateID = ".$id;
+	    //echo $new_sql."\n";
+	    $new_result = mysql_query($new_sql, eBayListing::$database_connect);
+	    $change = true;
+	}
+	
+	if($old_row['StartPrice'] != $_POST['StartPrice']){
+	    $new_sql = "update items set StartPrice = '".$_POST['StartPrice']."' where Status = 2 and ShareTemplateID = ".$id;
+	    //echo $new_sql."\n";
+	    $new_result = mysql_query($new_sql, eBayListing::$database_connect);
+	    $change = true;
+	}
+	
+	if($old_row['ShippingServiceCost'] != $_POST['ShippingServiceCost']){
+	    $new_sql = "update items as i,shipping_service_options as sso set sso.ShippingServiceCost = '".$_POST['ShippingServiceCost']."' where i.Status = 2 and i.ItemID = sso.ItemID and i.ShareTemplateID = ".$id;
+	    //echo $new_sql."\n";
+	    $new_result = mysql_query($new_sql, eBayListing::$database_connect);
+	    
+	    $new_sql = "update items as i,international_shipping_service_option as iss set iss.ShippingServiceAdditionalCost = '".$_POST['ShippingServiceAdditionalCost']."' where i.Status = 2 and i.ItemID = iss.ItemID and i.ShareTemplateID = ".$id;
+	    //echo $new_sql."\n";
+	    $new_result = mysql_query($new_sql, eBayListing::$database_connect);
+	    $change = true;
+	}
+	
+	if($old_row['ShippingServiceAdditionalCost'] != $_POST['ShippingServiceAdditionalCost']){
+	    $new_sql = "update items as i,shipping_service_options as sso set ShippingServiceAdditionalCost = '".$_POST['ShippingServiceAdditionalCost']."' where i.Status = 2 and i.ItemID = sso.ItemID and i.ShareTemplateID = ".$id;
+	    //echo $new_sql."\n";
+	    $new_result = mysql_query($new_sql, eBayListing::$database_connect);
+	    
+	    $new_sql = "update items as i,international_shipping_service_option as iss set iss.ShippingServiceAdditionalCost = '".$_POST['ShippingServiceAdditionalCost']."' where i.Status = 2 and i.ItemID = iss.ItemID and i.ShareTemplateID = ".$id;
+	    //echo $new_sql."\n";
+	    $new_result = mysql_query($new_sql, eBayListing::$database_connect);
+	    $change = true;
+	}
+	
+	if($change == true){
+	    $new_sql = "update items set Status = 3 where Status = 2 and ShareTemplateID = ".$id;
+	    //echo $new_sql."\n";
+	    $new_result = mysql_query($new_sql, eBayListing::$database_connect);
+	}
 	//
 	$foreverListingChinaTime = substr($this->getSiteTime($_POST['Site'], "1983-11-16", $_POST['ForeverListingTime']), 11, 5);
 	
@@ -2113,7 +2246,7 @@ class Template{
 	Description='".htmlentities($_POST['Description'], ENT_QUOTES)."',
 	ListingDuration='".$_POST['ListingDuration']."',ListingType='".$_POST['ListingType']."',PaymentMethods='PayPal',
 	ForeverListingTime='".$_POST['ForeverListingTime']."',ForeverListingChinaTime='".$foreverListingChinaTime."',
-	PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".$_POST['PrimaryCategoryCategoryName']."',
+	PrimaryCategoryCategoryID='".$_POST['PrimaryCategoryCategoryID']."',PrimaryCategoryCategoryName='".mysql_real_escape_string($_POST['PrimaryCategoryCategoryName'])."',
 	SecondaryCategoryCategoryID='".$_POST['SecondaryCategoryCategoryID']."',SecondaryCategoryCategoryName='".$_POST['SecondaryCategoryCategoryName']."',
 	Quantity='".@$_POST['Quantity']."',ReservePrice='".@$_POST['ReservePrice']."',
 	Site='".$_POST['Site']."',Motors='".(empty($_POST['Motors'])?0:1)."',SKU='".$_POST['SKU']."',StartPrice='".$_POST['StartPrice']."',
@@ -2123,6 +2256,8 @@ class Template{
 	".((!empty($_POST['ScheduleStartDate']))?"ScheduleStartDate='".$_POST['ScheduleStartDate']."',":"").((!empty($_POST['ScheduleEndDate']))?"ScheduleEndDate='".$_POST['ScheduleEndDate']."',":"").
         "scheduleTemplateName='".$_POST['scheduleTemplateName']."',shippingTemplateId=".((!empty($_POST['shippingTemplateId']))?$_POST['shippingTemplateId']:0).",
         ShippingServiceCost=".(($_POST['ShippingServiceCost'] == "")?'NULL':$_POST['ShippingServiceCost']).",ShippingServiceAdditionalCost=".(($_POST['ShippingServiceAdditionalCost']=="")?'NULL':$_POST['ShippingServiceAdditionalCost']).",
+	USStoreCategoryID=".$_POST['USStoreCategoryID'].",USStoreCategoryName='".$_POST['USStoreCategoryName']."',
+	DEStoreCategoryID=".$_POST['DEStoreCategoryID'].",DEStoreCategoryName='".$_POST['DEStoreCategoryName']."',
         ConditionID='".$_POST['ConditionID']."',status=0 where Id = '".$id."'";
 	
 	//echo $sql."\n";
@@ -2146,6 +2281,119 @@ class Template{
 	    $this->log("template", "update share template ".$id." failure.", "error");
 	}
 	
+    }
+    
+    public function batchUpdateShareTemplate(){
+	if(empty($_POST['StartPrice'])){
+            $price = $_POST['BuyItNowPrice'];
+        }elseif(empty($_POST['BuyItNowPrice'])){
+            $price = $_POST['StartPrice'];
+        }else{
+            $price = min($_POST['StartPrice'], $_POST['BuyItNowPrice']);
+        }
+        
+	if($price > 0){
+	    $id_array = explode(",", $_GET['ids']);
+	    foreach($id_array as $id){
+		$sql = "select SKU from share_template where Id = ".$id;
+		$result = mysql_query($sql, eBayListing::$database_connect);
+		$row = mysql_fetch_assoc($result);
+		
+		$lowPrice = $this->getTemplateLowPrice($_POST['Site'], true, true, $row['SKU']);
+		if($price < $lowPrice){
+		    echo '{success: false, errors: {message:""},
+			    msg: "Price < '.$lowPrice.'"}';
+		    return 0;
+		}
+	    }
+	}
+	
+	if($_POST['ListingType'] == "FixedPriceItem" || $_POST['ListingType'] == "StoresFixedPrice"){
+	    $_POST['StartPrice'] = $_POST['BuyItNowPrice'];
+	    $_POST['BuyItNowPrice'] = 0;
+	}
+	
+	if($_POST['ListingType'] == "Chinese"){
+	    $_POST['Quantity'] = 1;   
+	}
+	
+	$foreverListingChinaTime = substr($this->getSiteTime($_POST['Site'], "1983-11-16", $_POST['ForeverListingTime']), 11, 5);
+	
+	$update = "";
+	
+	if(!empty($_POST['Currency'])){
+	    $update .= "Currency = '".$_POST['Currency']."',";
+	}
+	
+	if(!empty($_POST['Site'])){
+	    $update .= "Site = '".$_POST['Site']."',";
+	}
+
+	if(!empty($_POST['Title'])){
+	    $update .= "Title = '".mysql_real_escape_string($_POST['Title'])."',";
+	}
+	
+	if(!empty($_POST['PrimaryCategoryCategoryID'])){
+	    $update .= "PrimaryCategoryCategoryID = ".$_POST['PrimaryCategoryCategoryID'].",PrimaryCategoryCategoryName = '".mysql_real_escape_string($_POST['PrimaryCategoryCategoryName'])."',";
+	}
+	
+	if(!empty($_POST['USStoreCategoryID'])){
+	    $update .= "USStoreCategoryID = '".mysql_real_escape_string($_POST['USStoreCategoryID'])."',USStoreCategoryName = '".mysql_real_escape_string($_POST['USStoreCategoryName'])."',";
+	}
+	
+	if(!empty($_POST['DEStoreCategoryID'])){
+	    $update .= "DEStoreCategoryID = '".mysql_real_escape_string($_POST['DEStoreCategoryID'])."',DEStoreCategoryName = '".mysql_real_escape_string($_POST['DEStoreCategoryName'])."',";
+	}
+	
+	if(!empty($_POST['ListingType'])){
+	    $update .= "ListingType = '".mysql_real_escape_string($_POST['ListingType'])."',";
+	}
+	
+	if(!empty($_POST['ListingDuration'])){
+	    $update .= "ListingDuration = '".mysql_real_escape_string($_POST['ListingDuration'])."',";
+	}
+	
+	if(!empty($_POST['Quantity'])){
+	    $update .= "Quantity = ".$_POST['Quantity'].",";
+	}
+	
+	if(!empty($_POST['BuyItNowPrice'])){
+	    $update .= "BuyItNowPrice = ".$_POST['BuyItNowPrice'].",";
+	}
+	
+	if(!empty($_POST['StartPrice'])){
+	    $update .= "StartPrice = ".$_POST['StartPrice'].",";
+	}
+	
+	if(!empty($_POST['shippingTemplateId'])){
+	    $update .= "shippingTemplateId = ".$_POST['shippingTemplateId'].",";
+	}
+	
+	if(!empty($_POST['ShippingServiceCost'])){
+	    $update .= "ShippingServiceCost = ".$_POST['ShippingServiceCost'].",";
+	}
+	
+	if(!empty($_POST['ShippingServiceAdditionalCost'])){
+	    $update .= "ShippingServiceAdditionalCost = ".$_POST['ShippingServiceAdditionalCost'].",";
+	}
+	
+	if(!empty($_POST['ForeverListingTime'])){
+	    $update .= "ForeverListingTime = '".$_POST['ForeverListingTime']."',";
+	}
+    
+	$sql = "update share_template set ".substr($update, 0, -1)." where Id in (".$_GET['ids'].")";
+	//echo $sql."\n";
+	//exit;
+	$result = mysql_query($sql, eBayListing::$database_connect);
+	if($result){
+	    echo '{success: true, msg: "Batch Update Share Template Success!"}';
+	    $this->log("template", "batch update share template ".$_POST['ids']." success.");
+	}else{
+	    echo '{success: false,
+		    errors: {message: "can\'t batch update share template."}
+		}';
+	    $this->log("template", "batch update share template ".$_POST['ids']." failure.", "error");
+	}
     }
     
     public function getAccountTemplateCount(){
@@ -3429,6 +3677,46 @@ class Template{
         echo $data;*/
     }
     
+    public function mapAccountsToShareTemplate(){
+	$ids = explode(",", $_GET['ids']);
+	foreach($ids as $id){
+	    foreach($_POST as $key=>$value){
+		$sql_0 = "select SKU from share_template where Id = ".$id;
+		$result_0 = mysql_query($sql_0, eBayListing::$database_connect);
+		$row_0 = mysql_fetch_assoc($result_0);
+		$sku = $row_0['SKU'];
+		
+		$sql_02 = "select images_host from account where id = ".$key;
+		$result_02 = mysql_query($sql_02, eBayListing::$database_connect);
+		$row_02 = mysql_fetch_assoc($result_02);
+		$images_host = $row_02['images_host'];
+		$pre = substr($images_host, 7 , 4);
+		$image = $images_host."images/".$pre."/".strtoupper(substr($row_1['SKU'], 0 , 2)."/".strtoupper($pre)."-".$row_1['SKU']).".jpg";
+		
+		$sql = "delete from account_template where ShareTemplateId = ".$id." and AccountId = ".$key;
+		//echo $sql."\n";		
+		$result = mysql_query($sql, eBayListing::$database_connect);
+		
+		$sql = "insert into account_template (ShareTemplateId,AccountId,GalleryURL) values (".$id.",".$key.",'".$image."')";
+		//echo $sql."\n";		
+		$result = mysql_query($sql, eBayListing::$database_connect);
+	    }
+	}
+	echo '{"success":true, "msg":"Success"}';
+    }
+    
+    public function deleteAccountsShareTemplate(){
+	$ids = explode(",", $_GET['ids']);
+	foreach($ids as $id){
+	    foreach($_POST as $key=>$value){
+		$sql = "delete from account_template where ShareTemplateId = ".$id." and AccountId = ".$key;
+		//echo $sql."\n";		
+		$result = mysql_query($sql, eBayListing::$database_connect);
+	    }
+	}
+	echo '{"success":true, "msg":"Success"}';
+    }
+    
     //--------  Standard Style Template ----------------------------------------------------
     public function getStandardStyleTemplate(){
 	$sql = "select id,name from standard_style_template where accountId = '".$this->account_id."' order by id";
@@ -3922,11 +4210,41 @@ class Template{
     public function getShareTemplateByStatus(){
 	$where = "";
         if(!empty($_POST['TID'])){
-            $where .= " and Id = '".$_POST['TID']."'";
+	    $sub_where = "";
+	    if(strpos($_POST['TID'], " ") !== false){
+		$tid_array = explode(" ", $_POST['TID']);
+		foreach($tid_array as $tid){
+		    $sub_where .= $tid.",";
+		}
+		$where .= " and Id in (".substr($sub_where, 0, -1).") ";
+	    }elseif(strpos($_POST['TID'], ",") !== false){
+		$tid_array = explode(",", $_POST['TID']);
+		foreach($tid_array as $tid){
+		    $sub_where .= $tid.",";
+		}
+		$where .= " and Id in (".substr($sub_where, 0, -1).") ";
+	    }else{
+		$where .= " and Id = '".$_POST['TID']."'";
+	    }
         }
         
         if(!empty($_POST['SKU'])){
-            $where .= " and SKU like '%".mysql_real_escape_string($_POST['SKU'])."%'";
+	    $sub_where = "";
+	    if(strpos($_POST['SKU'], " ") !== false){
+		$sku_array = explode(" ", $_POST['SKU']);
+		foreach($sku_array as $sku){
+		    $sub_where .= "SKU like '%".mysql_real_escape_string($sku)."%' or ";
+		}
+		$where .= " and (".substr($sub_where, 0, -4).") ";
+	    }elseif(strpos($_POST['SKU'], ",") !== false){
+		$sku_array = explode(",", $_POST['SKU']);
+		foreach($sku_array as $sku){
+		    $sub_where .= " SKU like '%".mysql_real_escape_string($sku)."%' or ";
+		}
+		$where .= " and (".substr($sub_where, 0, -4).") ";
+	    }else{
+		$where .= " and SKU like '%".mysql_real_escape_string($_POST['SKU'])."%'";
+	    }
         }
         
         if(!empty($_POST['Title'])){
@@ -3936,16 +4254,45 @@ class Template{
         if(!empty($_POST['ListingDuration'])){
             $where .= " and ListingDuration = '".$_POST['ListingDuration']."'";
         }
-            
+        
+	if(!empty($_POST['Site'])){
+	    $where .= " and Site = '".$_POST['Site']."'";
+	}
+	
         $sql = "select count(*) as count from share_template where status = ".$_POST['status'] . $where;
-        $result = mysql_query($sql, eBayListing::$database_connect);
+        //echo $sql."\n";
+	$result = mysql_query($sql, eBayListing::$database_connect);
         $row = mysql_fetch_assoc($result);
         $totalCount = $row['count'];
         
+	$account_array = array();
+	$sql_0 = "select id,name from account";
+	$result_0 = mysql_query($sql_0, eBayListing::$database_connect);
+        while($row_0 = mysql_fetch_assoc($result_0)){
+	    $account_array[$row_0['id']] = $row_0['name'];
+	}
+	
+	$shipping_template_array = array();
+	$sql_01 = "select id,name from shipping_template";
+	$result_01 = mysql_query($sql_01, eBayListing::$database_connect);
+        while($row_01 = mysql_fetch_assoc($result_01)){
+	    $shipping_template_array[$row_01['id']] = $row_01['name'];
+	}
+	
         $array = array();
-        $sql = "select Id,Site,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ForeverListingTime,ListingDuration,shippingTemplateName,status,LastUpdateTime from share_template where status = ".$_POST['status']. $where . " order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
+        $sql = "select Id,Site,SKU,Title,BuyItNowPrice,ListingType,StartPrice,Quantity,ForeverListingTime,ListingDuration,ShippingServiceCost,shippingTemplateId,status,LastUpdateTime from share_template where status = ".$_POST['status']. $where . " order by ".$_POST['sort']." ".$_POST['dir']." limit ".$_POST['start'].",".$_POST['limit'];
         $result = mysql_query($sql, eBayListing::$database_connect);
         while($row = mysql_fetch_assoc($result)){
+	    $sql_1 = "select AccountId from account_template where ShareTemplateId = ".$row['Id'];
+	    $result_1 = mysql_query($sql_1, eBayListing::$database_connect);
+	    while($row_1 = mysql_fetch_assoc($result_1)){
+		if(!empty($row_1['AccountId'])){
+		    $row['accounts'] .= $account_array[$row_1['AccountId']]."<br>";
+		}
+	    }
+	    $row['Price'] = ($row['BuyItNowPrice']!=0)?$row['BuyItNowPrice']:$row['StartPrice'];
+	    $row['shippingTemplateName'] = $shipping_template_array[$row['shippingTemplateId']];
+	    $row['accounts'] = (!empty($row['accounts']))?substr($row['accounts'], 0, -4):'';
             $array[] = $row;
         }
         echo json_encode(array('totalCount'=>$totalCount, 'records'=>$array));
@@ -3988,13 +4335,13 @@ class Template{
                 //print_r($json_object);
                 if($json_object->status == "active" || $json_object->status == "out of stock"){
                     $sql = "update share_template set status = ".$_POST['status'] . " where Id = ".$id;
-                    //echo $sql;
+                    //echo $sql."\n";
                     $result = mysql_query($sql, eBayListing::$database_connect);
                 }
             }
         }else{
             $sql = "update share_template set status = ".$_POST['status'] . " where Id in (".$_POST['ids'].")";
-            //echo $sql;
+            //echo $sql."\n";
             $result = mysql_query($sql, eBayListing::$database_connect);
         }
         echo $result;

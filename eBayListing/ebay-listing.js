@@ -2063,7 +2063,7 @@ Ext.onReady(function(){
           totalProperty: 'totalCount',
           idProperty: 'id',
           //autoLoad:true,
-          fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'shippingTemplateName', 'Quantity', 'ListingDuration', 'ListingType', 'Category', 'ForeverListingTime', 'LastUpdateTime'],
+          fields: ['Id', 'Site', 'SKU', 'Title', 'Price', 'ShippingServiceCost', 'shippingTemplateName', 'Quantity', 'ListingDuration', 'ListingType', 'Category', 'ForeverListingTime', 'LastUpdateTime', 'accounts'],
           sortInfo: {
                field: 'Id',
                direction: 'ASC'
@@ -2084,18 +2084,19 @@ Ext.onReady(function(){
           width: 1024,
           height: 460,
           selModel: new Ext.grid.RowSelectionModel({}),
-          columns:[{header: "ID", width: 60, align: 'center', sortable: true, dataIndex: 'Id'},
+          columns:[{header: "ID", width: 50, align: 'center', sortable: true, dataIndex: 'Id'},
                {header: "Site", width: 30, align: 'center', sortable: true, dataIndex: 'Site', renderer: renderFlag},
                {header: "Sku", width: 80, align: 'center', sortable: true, dataIndex: 'SKU'},
-               {header: "Title", width: 350, align: 'center', sortable: true, dataIndex: 'Title'},
+               {header: "Title", width: 200, align: 'center', sortable: true, dataIndex: 'Title'},
                {header: "Listing Type", width: 80, align: 'center', sortable: true, dataIndex: 'ListingType'},
                {header: "Price", width: 50, align: 'center', sortable: true, dataIndex: 'Price'},
-               //{header: "Shipping Fee", width: 80, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
+               {header: "SC", width: 50, align: 'center', sortable: true, dataIndex: 'ShippingServiceCost'},
                {header: "Shipping TP", width: 80, align: 'center', sortable: true, dataIndex: 'shippingTemplateName'},
                {header: "Qty", width: 30, align: 'center', sortable: true, dataIndex: 'Quantity'},
                {header: "Duration", width: 60, align: 'center', sortable: true, dataIndex: 'ListingDuration'},
-               {header: "Forever Time", width: 80, align: 'center', sortable: true, dataIndex: 'ForeverListingTime'},
-               {header: "Last Update", width: 120, align: 'center', sortable: true, dataIndex: 'LastUpdateTime'}
+               {header: "FT", width: 50, align: 'center', sortable: true, dataIndex: 'ForeverListingTime'},
+               {header: "Last Update", width: 120, align: 'center', sortable: true, dataIndex: 'LastUpdateTime'},
+               {header: "Accounts", width: 100, align: 'center', sortable: true, dataIndex: 'accounts'}
           ],
           tbar:[{
                id: 'share-template-status-combo',
@@ -2167,7 +2168,7 @@ Ext.onReady(function(){
                               title: 'Search Share Templage' ,
                               closable:true,
                               width: 300,
-                              height: 180,
+                              height: 220,
                               plain:true,
                               layout: 'form',
                               items: [/*{
@@ -2180,7 +2181,7 @@ Ext.onReady(function(){
                                    },*/{
                                         id:'TID',
                                         fieldLabel:'TID',
-                                        xtype:'numberfield'
+                                        xtype:'textfield'
                                    },{
                                         id:'SKU',
                                         fieldLabel:'SKU',
@@ -2199,16 +2200,27 @@ Ext.onReady(function(){
                                         selectOnFocus:true,
                                         listWidth:100,
                                         width:100
+                                   },{
+                                        id:'Site',
+                                        fieldLabel:'Site',
+                                        xtype:"combo",
+                                        store:['', 'US', 'UK', 'Australia', 'France', 'Germany'],
+                                        triggerAction: 'all',
+                                        editable: false,
+                                        selectOnFocus:true,
+                                        listWidth:100,
+                                        width:100
                                    }
                               ],
                               buttons: [{
                                              text: 'Submit',
                                              handler: function(){
-                                                  template_status_store.setBaseParam("TID", Ext.getCmp("TID").getValue());
-                                                  template_status_store.setBaseParam("SKU", Ext.getCmp("SKU").getValue());
-                                                  template_status_store.setBaseParam("Title", Ext.getCmp("Title").getValue());
-                                                  template_status_store.setBaseParam("ListingDuration", Ext.getCmp("ListingDuration").getValue());
-                                                  template_status_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
+                                                  share_template_status_store.setBaseParam("TID", Ext.getCmp("TID").getValue());
+                                                  share_template_status_store.setBaseParam("SKU", Ext.getCmp("SKU").getValue());
+                                                  share_template_status_store.setBaseParam("Title", Ext.getCmp("Title").getValue());
+                                                  share_template_status_store.setBaseParam("ListingDuration", Ext.getCmp("ListingDuration").getValue());
+                                                  share_template_status_store.setBaseParam("Site", Ext.getCmp("Site").getValue());
+                                                  share_template_status_store.load({params:{start:0, limit:parseInt(getCookie("pagination"))}});
                                                   searchWindow.close();
                                              }
                                         },{
@@ -2228,8 +2240,8 @@ Ext.onReady(function(){
                tooltip:'edit share template',
                handler: function(){
                     var selections = share_template_status_grid.selModel.getSelections();
-                    if(share_template_status_grid.selModel.getCount() == 0){
-                         Ext.MessageBox.alert('Warning','Please select the template you want to edit.');
+                    if(share_template_status_grid.selModel.getCount() != 1){
+                         Ext.MessageBox.alert('Warning','Please select a share template for you edit.');
                          return 0;
                     }
                     var ids = "";
@@ -2244,6 +2256,25 @@ Ext.onReady(function(){
                     }
                     return 1;
                }     
+          },'-',{
+               text:'Batch Edit',
+               icon: './images/plugin_edit.png',
+               tooltip:'Batch edit share template',
+               handler: function(){
+                    var selections = share_template_status_grid.selModel.getSelections();
+                    if(share_template_status_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','Please select the share template you want to batch edit.');
+                         return 0;  
+                    }
+                    
+                    var ids = "";
+                    for(var i = 0; i< share_template_status_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    window.open(path + "shareTemplateBatchEdit.php?ids="+ids,"_blank","toolbar=no, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=1024, height=768");
+                    return 1;
+               }
           },'-',{
                text:'Add To Waiting',
                icon: './images/time.png',
@@ -2281,6 +2312,186 @@ Ext.onReady(function(){
                          }
                     });
                     
+                    return 1;
+               }
+          },{
+               text:'Accounts Map Share Template',
+               icon: './images/group_add.png',
+               //tooltip:'add selected share template to schedule panel',
+               handler: function(){
+                    var selections = share_template_status_grid.selModel.getSelections();
+                    if(share_template_status_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','Please select share template.');
+                         return 0;
+                    }
+                    var ids = "";
+                    for(var i = 0; i< share_template_status_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=getAllAccount', 
+                         success: function(response){
+                             var account_array = eval(response.responseText);
+                             
+                             var form = new Ext.form.FormPanel({
+                                   defaults:{
+                                       width:50
+                                   }
+                             })
+                             
+                             for(var i in account_array){
+                                   if(!Ext.isFunction(account_array[i])){
+                                        var c = new Ext.form.Checkbox({
+                                             id: account_array[i].id,
+                                             name: account_array[i].id,
+                                             fieldLabel: account_array[i].name
+                                        })
+                                        form.add(c);
+                                   }
+                             }
+                             
+                             var  window = new Ext.Window({
+                                   title: 'Please Select Accounts' ,
+                                   closable:true,
+                                   width: 200,
+                                   height: 300,
+                                   plain:true,
+                                   autoScroll: true,
+                                   items: form,
+                                   buttons: [{
+                                        text: 'Submit',
+                                        handler: function(){
+                                             form.getForm().submit({
+                                                  url: 'service.php?action=mapAccountsToShareTemplate&ids='+ids,
+                                                  success: function(form, action) {
+                                                      //console.log(action);
+                                                      share_template_status_store.reload();
+                                                      Ext.Msg.alert("Success", action.result.msg);
+                                                  },
+                                                  waitMsg:'Please Wait.',
+                                                  failure: function(form, action) {
+                                                      switch (action.failureType) {
+                                                          case Ext.form.Action.CLIENT_INVALID:
+                                                              Ext.Msg.alert("Failure", "Form fields may not be submitted with invalid values");
+                                                              break;
+                                                          case Ext.form.Action.CONNECT_FAILURE:
+                                                              Ext.Msg.alert("Failure", "Ajax communication failed");
+                                                              break;
+                                                          case Ext.form.Action.SERVER_INVALID:
+                                                              Ext.Msg.alert("Failure", action.result.msg);
+                                                      }
+                                                  }
+                                             })
+                                        }
+                                   },{
+                                        text: 'Close',
+                                        handler: function(){
+                                             window.close();
+                                        }
+                                   }]       
+                              })
+                              
+                              
+                              window.show();
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
+                    return 1;
+               }
+          },{
+               text:'Accounts Delete Share Template',
+               icon: './images/group_delete.png',
+               //tooltip:'add selected share template to schedule panel',
+               handler: function(){
+                    var selections = share_template_status_grid.selModel.getSelections();
+                    if(share_template_status_grid.selModel.getCount() == 0){
+                         Ext.MessageBox.alert('Warning','Please select share template.');
+                         return 0;
+                    }
+                    var ids = "";
+                    for(var i = 0; i< share_template_status_grid.selModel.getCount(); i++){
+                         ids += selections[i].data.Id + ","
+                    }
+                    ids = ids.slice(0,-1);
+                    
+                    Ext.Ajax.request({  
+                         waitMsg: 'Please Wait',
+                         url: 'service.php?action=getAllAccount', 
+                         success: function(response){
+                             var account_array = eval(response.responseText);
+                             
+                             var form = new Ext.form.FormPanel({
+                                   defaults:{
+                                       width:50
+                                   }
+                             })
+                             
+                             for(var i in account_array){
+                                   if(!Ext.isFunction(account_array[i])){
+                                        var c = new Ext.form.Checkbox({
+                                             id: account_array[i].id,
+                                             name: account_array[i].id,
+                                             fieldLabel: account_array[i].name
+                                        })
+                                        form.add(c);
+                                   }
+                             }
+                             
+                             var  window = new Ext.Window({
+                                   title: 'Please Select Accounts' ,
+                                   closable:true,
+                                   width: 200,
+                                   height: 500,
+                                   plain:true,
+                                   autoScroll: true,
+                                   items: form,
+                                   buttons: [{
+                                        text: 'Submit',
+                                        handler: function(){
+                                             form.getForm().submit({
+                                                  url: 'service.php?action=deleteAccountsShareTemplate&ids='+ids,
+                                                  success: function(form, action) {
+                                                      //console.log(action);
+                                                      share_template_status_store.reload();
+                                                      Ext.Msg.alert("Success", action.result.msg);
+                                                  },
+                                                  waitMsg:'Please Wait.',
+                                                  failure: function(form, action) {
+                                                      switch (action.failureType) {
+                                                          case Ext.form.Action.CLIENT_INVALID:
+                                                              Ext.Msg.alert("Failure", "Form fields may not be submitted with invalid values");
+                                                              break;
+                                                          case Ext.form.Action.CONNECT_FAILURE:
+                                                              Ext.Msg.alert("Failure", "Ajax communication failed");
+                                                              break;
+                                                          case Ext.form.Action.SERVER_INVALID:
+                                                              Ext.Msg.alert("Failure", action.result.msg);
+                                                      }
+                                                  }
+                                             })
+                                        }
+                                   },{
+                                        text: 'Close',
+                                        handler: function(){
+                                             window.close();
+                                        }
+                                   }]       
+                              })
+                              
+                              
+                              window.show();
+                         },
+                         failure: function(response){
+                             var result=response.responseText;
+                             Ext.MessageBox.alert('error','could not connect to the database. retry later');      
+                         }
+                    });
                     return 1;
                }
           }],

@@ -64,7 +64,8 @@ class PackingList{
         global $argv;
         $this->startTime = $argv[2];
         $this->endTime   = $argv[3];
-        $this->getPackingList();
+        $this->getPackingList('single');
+        $this->getPackingList('multi');
     }
     
     private function getSellerSell(){

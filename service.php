@@ -561,10 +561,13 @@ class Service{
             if($total_quantity >= 20 || $row['grandTotalValue'] >= $registered_conditions[$row['grandTotalCurrency']]){
                 $this->log("updateShippingMethod", "<font color='red'>[R]ordersId: ".$id.", ".$total_quantity."|".$row['grandTotalCurrency'].$row['grandTotalValue']."</font><br>");
                 $shippingMethod = "R";
-            }elseif($total_quantity > 1 && array_key_exists($row['ebayCountry'], $eyoubao_country) && $row['grandTotalCurrency'] > $eyoubao_country[$row['ebayCountry']]){
+            }/*elseif($total_quantity > 1 && array_key_exists($row['ebayCountry'], $eyoubao_country) && $row['grandTotalValue'] > $eyoubao_country[$row['ebayCountry']]){
                 $this->log("updateShippingMethod", "<font color='red'>[E]ordersId: ".$id.", ".$row['ebayCountry']."|".$row['grandTotalCurrency'].$row['grandTotalValue']."</font><br>");
                 $shippingMethod = "E";   
-            }elseif($total_quantity > 1 && array_key_exists($row['ebayCountry'], $postlink_bulk_country) && $row['grandTotalCurrency'] > $postlink_bulk_country[$row['ebayCountry']]){
+            }*/elseif(array_key_exists($row['ebayCountry'], $postlink_bulk_country) && count($sku_array) == 1 && 
+                    (($total_quantity == 1 && $row['grandTotalValue'] > $postlink_bulk_country[$row['ebayCountry']]) ||
+                    ($total_quantity > 1 && $row['grandTotalValue'] > 8))
+                    ){
                 $this->log("updateShippingMethod", "<font color='red'>[P]ordersId: ".$id.", ".$row['ebayCountry']."|".$row['grandTotalCurrency'].$row['grandTotalValue']."</font><br>");
                 $shippingMethod = "P";   
             }else{
@@ -876,7 +879,14 @@ class Service{
         $this->log("getShippingAddressBySku", date("H:i:s").": ".$sql."<br>");
         $result = mysql_query($sql, Service::$database_connect);
         $row = mysql_fetch_assoc($result);
-        
+        /*
+        $json_result = $this->getService($this->inventory_service."?action=getSkuStockFromRemote&sku=".$_GET['sku']);
+        //echo $json_result;
+        $service_result = json_decode($json_result);
+        if($service_result->R < 1){
+            return 0;
+        }
+        */
         if(!empty($row['id']) && empty($_GET['debug'])){
             $sql_1 = "update qo_shipments set printStatus = 1 where id = '".$row['id']."'";
             $this->log("getShippingAddressBySku", date("H:i:s").": ".$sql_1."<br>");
@@ -890,7 +900,8 @@ class Service{
     
     public function syncShipmentPrintStatus(){
         if(!empty($_GET['debug'])){
-            echo "HS:success";
+            $this->log("syncShipmentPrintStatus", date("H:i:s") ."   |  ". print_r($_GET, true)."<br>");
+            echo "SUCCESS:".$_GET['shipmentId'];
             return 1;
         }
         $shipmentId = $_GET['shipmentId'];
@@ -904,6 +915,7 @@ class Service{
             //$sql = "update qo_shipments as s,qo_shipments_detail as sd set s.printStatus=1,s.printOn='' where s.id = sd.shipmentsId and sd.skuId = '".$_GET['sku']."'";
             $sql = "update qo_shipments set status='S',printStatus=2,printOn=now(),printBy='".$_GET['by']."',shippedOn=now(),shippedBy='".$_GET['by']."' where id = '".$_GET['shipmentId']."'";
             $result = mysql_query($sql, Service::$database_connect);
+            echo "SUCCESS:".$_GET['shipmentId'];
             $this->log("syncShipmentPrintStatus", date("H:i:s")."   |  success! shipmentId: ".$shipmentId.", sku: ".$row['skuId'].", quantity: ".$row['quantity'].", by: ".$_GET['by']."<br>");
         }else{
             $this->log("syncShipmentPrintStatus", date("H:i:s")."   |  failure! shipmentId: ".$shipmentId.", inventory return: ".$call_service."<br>");

@@ -2,7 +2,7 @@
 class QoShipments {
 	
 	private $os;
-	private $inventory_service_address = 'http://192.168.1.169:8080/inventory/service.php';
+	private $inventory_service_address = 'http://new-inventory:8018/inventory/service.php';
         //private $inventory_service_address = 'http://127.0.0.1:6666/inventory/service.php';
 	private $email_service_address = 'http://127.0.0.1/eBayBO/service.php';
 	private static $memcache_connect;

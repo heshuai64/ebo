@@ -112,8 +112,8 @@ class Shipment{
         return $shipmentId;
     }
     
-    private function log($content){
-        file_put_contents($this->config['log']['shipments']."CreateShipment-".date("YmdH").".log", date("Y-m-d H:i:s")."   ".$content."\n", FILE_APPEND);
+    private function log($file_name, $content){
+        file_put_contents($this->config['log']['shipments'].$file_name."-".date("YmdH").".log", date("Y-m-d H:i:s")."   ".$content."\n", FILE_APPEND);
     }
     
     public function createShipment(){
@@ -142,14 +142,14 @@ class Shipment{
                 '".mysql_escape_string($orders['ebayEmail'])."','".mysql_escape_string($orders['ebayAddress1'])."','".mysql_escape_string($orders['ebayAddress2'])."','".mysql_escape_string($orders['ebayCity'])."',
                 '".mysql_escape_string($orders['ebayStateOrProvince'])."','".mysql_escape_string($orders['ebayPostalCode'])."','".mysql_escape_string($orders['ebayCountry'])."','".$orders['ebayPhone']."',
                 'System','".date("Y-m-d H:i:s")."','System','".date("Y-m-d H:i:s")."')";
-                $this->log($sql);
+                $this->log("CreateShipment", $sql);
                 $result = mysql_query($sql, Shipment::$database_connect);
                 if($result){
                     foreach($orders['detail'] as $datail){
                         $sql_1 = "insert into qo_shipments_detail (shipmentsId,skuId,skuTitle,itemId,itemTitle,quantity,barCode) values
                         ('".$shipmentId."','".$datail['skuId']."','".mysql_escape_string($datail['skuTitle'])."','".$datail['itemId']."','".mysql_escape_string($datail['itemTitle'])."',
                         '".$datail['quantity']."','".$datail['barCode']."')";
-                        $this->log($sql_1);
+                        $this->log("CreateShipment", $sql_1);
                         $result_1 = mysql_query($sql_1, Shipment::$database_connect);
                     }
                 }
@@ -189,9 +189,10 @@ class Shipment{
 	return $session;
     }
     
-    private function updateEbayShipStatus($transactionId, $itemId){
-        $sql = "update qo_orders_detail set ebayShipStatus = 1 where itemId = '".$itemId."' and ebayTranctionId = '".$transactionId."'";
+    private function updateEbayShipStatus($transactionId, $itemId, $status){
+        $sql = "update qo_orders_detail set ebayShipStatus = ".$status." where itemId = '".$itemId."' and ebayTranctionId = '".$transactionId."'";
         echo $sql."\n";
+        $this->log("synceBayShipped", $sql);
         $result = mysql_query($sql, Shipment::$database_connect);
         return $result;
     }
@@ -225,42 +226,56 @@ class Shipment{
 			$results = $client->CompleteSale($params);
 		}
 		*/
-                $params = array("Version"=>"607", "ItemID"=>$itemId, "Paid"=> true, "Shipped"=>true, "TransactionID"=>$transactionId);
-                print_r($params);
+                $Shipment = array("ShippedTime"=>$shippedOn);
+                $params = array("Version"=>"607", "ItemID"=>$itemId, "Paid"=> true, "Shipment"=>$Shipment, "Shipped"=>true, "TransactionID"=>$transactionId);
+                $this->log("synceBayShipped", print_r($params, true));
                 $results = $client->CompleteSale($params);
                         
 		//print_r($results);
 		if(!empty($results->Ack) && $results->Ack == "Success"){
-			$this->updateEbayShipStatus($transactionId, $itemId);
+                    $this->log("synceBayShipped", "Success");
+		    $this->updateEbayShipStatus($transactionId, $itemId, 1);
 		}else{
-			if(!empty($results->Errors)){
-				print_r($results->Errors);
-			}else{
-				echo $results->faultstring;
-			}
-			$this->updateEbayShipStatus($transactionId, $itemId);
+                    /*
+		    if(!empty($results->Errors)){
+                        print_r($results->Errors);
+		    }else{
+			echo $results->faultstring;
+		    }
+                    */
+                    $this->log("synceBayShipped", "Error:".(!empty($results->Errors))?$results->Errors:$results->faultstring);
+		    $this->updateEbayShipStatus($transactionId, $itemId, 2);
 		}
 		//exit;
-		sleep(1);
+		//sleep(1);
 	} catch (SOAPFault $f) {
 		print $f; // error handling
 	}
     }
     
     public function synceBayShipped(){
+        global $argv;
         require_once 'eBaySOAP.php';
         $sellerToken = $this->getAllSellerToken();
-        // ALTER TABLE `qo_shipments` ADD INDEX ( `shippedOn` )  
-        $shippedOn = date("Y-m-d");
+        // ALTER TABLE `qo_shipments` ADD INDEX ( `shippedOn` )
+        if(!empty($argv[2])){
+            $shippedOn = $argv[2];
+        }else{
+            $shippedOn = date("Y-m-d");
+        }
         //$shippedOn = "2010-06-28";
         $sql = "select ordersId,shipmentMethod,shippedOn,postalReferenceNo from qo_shipments where shippedOn like '".$shippedOn."%'";
         echo $sql."\n";
+        $this->log("synceBayShipped", $sql);
         $result = mysql_query($sql, Shipment::$database_connect);
         while($row = mysql_fetch_assoc($result)){
             $sql_1 = "select o.sellerId,od.itemId,od.ebayTranctionId from qo_orders as o left join qo_orders_detail as od on o.id = od.ordersId where o.id = '".$row['ordersId']."' and od.ebayShipStatus = 0";
-            echo $sql_1."\n";
+            //echo $sql_1."\n";
+            //$this->log("synceBayShipped", $sql_1);
             $result_1 = mysql_query($sql_1, Shipment::$database_connect);
             while($row_1 = mysql_fetch_assoc($result_1)){
+                echo $row_1['sellerId']."|".$row_1['itemId']."|".$row['shipmentMethod']."|".$row['shippedOn']."|".$row['postalReferenceNo'];
+                $this->log("synceBayShipped", $row_1['sellerId']."|".$row_1['ebayTranctionId']."|".$row_1['itemId']."|".$row['shipmentMethod']."|".$row['shippedOn']."|".$row['postalReferenceNo']);
                 $this->CompleteSale($sellerToken[$row_1['sellerId']], $row_1['ebayTranctionId'], $row_1['itemId'], $row['shipmentMethod'], $row['shippedOn'], $row['postalReferenceNo']);
             }
             //exit;
