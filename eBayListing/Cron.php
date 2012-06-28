@@ -227,17 +227,24 @@ class Cron{
             $this->log("calculateListingSchedule-".$Site.".html", $sql_1."<br>");
             $result_1 = mysql_query($sql_1, Cron::$database_connect);
             $i = 0;
+	    $template = new Template();
+	    $template->setBatch(true);
             while($row_1 = mysql_fetch_assoc($result_1)){
+		$template->setAccountId($row_1['accountId']);
+		
                 $sql_2 = "select day,time from schedule_template where name = '".$row_1['scheduleTemplateName']."' and account_id = '".$row_1['accountId']."'";
                 $this->log("calculateListingSchedule-".$Site.".html", $sql_2."<br>");
                 $result_2 = mysql_query($sql_2, Cron::$database_connect);
                 while($row_2 = mysql_fetch_assoc($result_2)){
                     if($day == $row_2['day']){
-			$template = new Template($row_1['accountId']);
-                        print_r($row_2);
+                        //print_r($row_2);
                         $local_time = $template->getSiteTime($Site, $today, $row_2['time']);
                         $item_id = $template->changeTemplateToItem($row_1['Id'], $local_time, $today . " " .$row_2['time'], 1);
-                        $this->log("calculateListingSchedule-".$Site.".html", "t:".$row_1['Id']." ==> i:".$item_id.". BeiJing:".$local_time.", ".$Site.": ".$today . " " .$row_2['time']."<br>");
+                        if(strpos($item_id, "error") !== false){
+			    $this->log("calculateListingSchedule-".$Site.".html", $item_id."<br>");
+			    continue;
+			}
+			$this->log("calculateListingSchedule-".$Site.".html", "t:".$row_1['Id']." ==> i:".$item_id.". BeiJing:".$local_time.", ".$Site.": ".$today . " " .$row_2['time']."<br>");
                         $this->log("calculateListingSchedule-".$Site.".html", "<br><font color='red'>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
                     }
                 }
@@ -287,6 +294,8 @@ class Cron{
             $this->log("calculateForeverListingSchedule-".$Site.".html", $sql_1."<br>");
             $result_1 = mysql_query($sql_1, Cron::$database_connect);
             $i = 0;
+	    $template = new Template();
+	    $template->setBatch(true);
             while($row_1 = mysql_fetch_assoc($result_1)){
 		$sql_2= "select count(*) as num from items where Status = 2 and TemplateID = ".$row_1['Id'];
 		$result_2 = mysql_query($sql_2, Cron::$database_connect);
@@ -295,12 +304,17 @@ class Cron{
 		    $this->log("calculateForeverListingSchedule-".$Site.".html", $row_1['Id']." has active listings.<br>");
 		    continue;
 		}
-		$template = new Template($row_1['accountId']);
+		$template->setAccountId($row_1['accountId']);
+		
 		//$local_time = $day." ".$row_1['ForeverListingTime'];
 		$china_time = $day." ".substr($template->getSiteTime($Site, "1983-11-16", $row_1['ForeverListingTime']), 11, 5);
 		$local_time = $template->getLocalTimeByChinaTime($Site, $china_time);
 		//$china_time = $day." ".$row_1['ForeverListingChinaTime'];
 		$item_id = $template->changeTemplateToItem($row_1['Id'], $china_time, $local_time, 1);
+		if(strpos($item_id, "error") !== false){
+		    $this->log("calculateForeverListingSchedule-".$Site.".html", $item_id."<br>");
+		    continue;
+		}
 		$this->log("calculateForeverListingSchedule-".$Site.".html", "t:".$row_1['Id']." ==> i:".$item_id.". BeiJing:".$china_time.", ".$Site.": ".$local_time."<br>");
 		$this->log("calculateForeverListingSchedule-".$Site.".html", "<br><font color='red'>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
 	    }
@@ -344,14 +358,20 @@ class Cron{
             $result_1 = mysql_query($sql_1, Cron::$database_connect);
             //$i = 0;
 	    $tmp_time = "";
+	    $template = new Template();
             while($row_1 = mysql_fetch_assoc($result_1)){
-		$template = new Template($row_1['accountId']);
+		//$template->setAccountId($row_1['accountId']);
+		$template->setBatch(true);
 		//$local_time = $day." ".$row_1['ForeverListingTime'];
 		$china_time = $day." ".substr($template->getSiteTime($Site, "1983-11-16", $row_1['ForeverListingTime']), 11, 5);
 		//$china_time = date("Y-m-d H:i:s", strtotime($china_time) + ($i * (2 * 60 * 60)));
 		$local_time = $template->getLocalTimeByChinaTime($Site, $china_time);
 		//$china_time = $day." ".$row_1['ForeverListingChinaTime'];
 		$item_id = $template->changeShareTemplateToItem($row_1['Id'], $china_time, $local_time, 1);
+		if(strpos($item_id, "error") !== false){
+		    $this->log("calculateShareTemplateForeverListingSchedule-".$Site.".html", $item_id);
+		    continue;
+		}
 		$this->log("calculateShareTemplateForeverListingSchedule-".$Site.".html", "t:".$row_1['Id']." ==> i:".$item_id.". BeiJing:".$china_time.", ".$Site.": ".$local_time."<br>");
 		$this->log("calculateShareTemplateForeverListingSchedule-".$Site.".html", "<br><font color='red'>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
 		//$i++;

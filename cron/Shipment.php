@@ -198,7 +198,8 @@ class Shipment{
     }
     
     private function CompleteSale($token, $transactionId, $itemId, $shipmentMethod, $shippedOn, $postalReferenceNo){
-	$session = $this->configEbay($token);
+	global $argv;
+        $session = $this->configEbay($token);
 	try {
 		$client = new eBaySOAP($session);
                 /*
@@ -230,8 +231,12 @@ class Shipment{
                 $params = array("Version"=>"607", "ItemID"=>$itemId, "Paid"=> true, "Shipment"=>$Shipment, "Shipped"=>true, "TransactionID"=>$transactionId);
                 $this->log("synceBayShipped", print_r($params, true));
                 $results = $client->CompleteSale($params);
-                        
-		//print_r($results);
+                if($argv[3] == "debug"){
+                    print_r($results);
+                    file_put_contents($this->config['log']['shipments']."CompleteSale_Request.xml", $client->__getLastRequest());
+                    file_put_contents($this->config['log']['shipments']."CompleteSale_Response.xml",$client->__getLastResponse());
+                }
+                
 		if(!empty($results->Ack) && $results->Ack == "Success"){
                     $this->log("synceBayShipped", "Success");
 		    $this->updateEbayShipStatus($transactionId, $itemId, 1);
@@ -243,7 +248,7 @@ class Shipment{
 			echo $results->faultstring;
 		    }
                     */
-                    $this->log("synceBayShipped", "Error:".(!empty($results->Errors))?$results->Errors:$results->faultstring);
+                    @$this->log("synceBayShipped", "Error:".$results->Errors->LongMessage);
 		    $this->updateEbayShipStatus($transactionId, $itemId, 2);
 		}
 		//exit;
@@ -278,7 +283,6 @@ class Shipment{
                 $this->log("synceBayShipped", $row_1['sellerId']."|".$row_1['ebayTranctionId']."|".$row_1['itemId']."|".$row['shipmentMethod']."|".$row['shippedOn']."|".$row['postalReferenceNo']);
                 $this->CompleteSale($sellerToken[$row_1['sellerId']], $row_1['ebayTranctionId'], $row_1['itemId'], $row['shipmentMethod'], $row['shippedOn'], $row['postalReferenceNo']);
             }
-            //exit;
         }
     }
     
