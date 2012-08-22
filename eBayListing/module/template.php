@@ -4193,11 +4193,34 @@ class Template{
     public function getTemplateByStatus(){
         $where = "";
         if(!empty($_POST['TID'])){
-            $where .= " and Id = '".$_POST['TID']."'";
+	    if(strpos($_POST['TID'], ",") !== false){
+		$tmp = $_POST['TID'];
+	    }elseif(strpos($_POST['TID'], "\n") !== false){
+		$tmp = str_replace("\n", ",", $_POST['TID']);
+	    }elseif(strpos($_POST['TID'], " ") !== false){
+		$tmp = str_replace(" ", ",", $_POST['TID']);
+	    }
+	    if($tmp[strlen($tmp)-1] == ","){
+		$tmp = substr($tmp, 0, -1);
+	    }
+	    $where .= " and Id in (".$tmp.")";
         }
         
         if(!empty($_POST['SKU'])){
-            $where .= " and SKU like '%".mysql_real_escape_string($_POST['SKU'])."%'";
+	    $tmp = "";
+	    if(strpos($_POST['SKU'], ",") !== false){
+		$tmp1 = explode(",", $_POST['SKU']);
+	    }elseif(strpos($_POST['SKU'], "\n") !== false){
+		$tmp1 = explode("\n", $_POST['SKU']);
+	    }elseif(strpos($_POST['SKU'], " ") !== false){
+		$tmp1 = explode(" ", $_POST['SKU']);
+	    }
+	    
+	    foreach($tmp1 as $t){
+		$tmp .= "'".$t."',";
+	    }
+	    $tmp = substr($tmp, 0, -1);
+	    $where .= " and SKU in (".$tmp.")";
         }
         
         if(!empty($_POST['Title'])){
@@ -4209,7 +4232,8 @@ class Template{
         }
             
         $sql = "select count(*) as count from template where accountId = '".$this->account_id."' and status = ".$_POST['status'] . $where;
-        $result = mysql_query($sql, eBayListing::$database_connect);
+        //echo $sql."\n";
+	$result = mysql_query($sql, eBayListing::$database_connect);
         $row = mysql_fetch_assoc($result);
         $totalCount = $row['count'];
         
@@ -4226,41 +4250,32 @@ class Template{
     public function getShareTemplateByStatus(){
 	$where = "";
         if(!empty($_POST['TID'])){
-	    $sub_where = "";
-	    if(strpos($_POST['TID'], " ") !== false){
-		$tid_array = explode(" ", $_POST['TID']);
-		foreach($tid_array as $tid){
-		    $sub_where .= $tid.",";
-		}
-		$where .= " and Id in (".substr($sub_where, 0, -1).") ";
-	    }elseif(strpos($_POST['TID'], ",") !== false){
-		$tid_array = explode(",", $_POST['TID']);
-		foreach($tid_array as $tid){
-		    $sub_where .= $tid.",";
-		}
-		$where .= " and Id in (".substr($sub_where, 0, -1).") ";
-	    }else{
-		$where .= " and Id = '".$_POST['TID']."'";
+	    if(strpos($_POST['TID'], ",") !== false){
+		$tmp = $_POST['TID'];
+	    }elseif(strpos($_POST['TID'], "\n") !== false){
+		$tmp = str_replace("\n", ",", $_POST['TID']);
+	    }elseif(strpos($_POST['TID'], " ") !== false){
+		$tmp = str_replace(" ", ",", $_POST['TID']);
 	    }
+	    if($tmp[strlen($tmp)-1] == ","){
+		$tmp = substr($tmp, 0, -1);
+	    }
+	    $where .= " and Id in (".$tmp.")";
         }
         
         if(!empty($_POST['SKU'])){
-	    $sub_where = "";
-	    if(strpos($_POST['SKU'], " ") !== false){
-		$sku_array = explode(" ", $_POST['SKU']);
-		foreach($sku_array as $sku){
-		    $sub_where .= "SKU like '%".mysql_real_escape_string($sku)."%' or ";
-		}
-		$where .= " and (".substr($sub_where, 0, -4).") ";
-	    }elseif(strpos($_POST['SKU'], ",") !== false){
-		$sku_array = explode(",", $_POST['SKU']);
-		foreach($sku_array as $sku){
-		    $sub_where .= " SKU like '%".mysql_real_escape_string($sku)."%' or ";
-		}
-		$where .= " and (".substr($sub_where, 0, -4).") ";
-	    }else{
-		$where .= " and SKU like '%".mysql_real_escape_string($_POST['SKU'])."%'";
+	    if(strpos($_POST['SKU'], ",") !== false){
+		$tmp1 = explode(",", $_POST['SKU']);
+	    }elseif(strpos($_POST['SKU'], "\n") !== false){
+		$tmp1 = explode("\n", $_POST['SKU']);
+	    }elseif(strpos($_POST['SKU'], " ") !== false){
+		$tmp1 = explode(" ", $_POST['SKU']);
 	    }
+	    foreach($tmp1 as $t){
+		$tmp .= "'".$t."',";
+	    }
+	    $tmp = substr($tmp, 0, -1);
+	    $where .= " and SKU in (".$tmp.")";
         }
         
         if(!empty($_POST['Title'])){

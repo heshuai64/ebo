@@ -218,7 +218,7 @@ Ext.onReady(function(){
                 switch(r.data.name){
                     case "Chinese":
                         Ext.getCmp("StartPrice").setDisabled(0);
-                        Ext.getCmp("ReservePrice").setDisabled(0);
+                        Ext.getCmp("ReservePrice").setDisabled(1);
                         Ext.getCmp("Quantity").setValue(1);
                         //Ext.getCmp("Quantity").setDisabled(1);
                     break;
@@ -1740,7 +1740,7 @@ Ext.onReady(function(){
                                     fieldLabel:"Start Price",
                                     id:"StartPrice",
                                     name:"StartPrice",
-                                    maxValue: 9.9,
+                                    //maxValue: 9.9,
                                     listeners: {
                                         focus: function(t){
                                             if(!Ext.isNumber(t.getValue())){
@@ -1756,6 +1756,7 @@ Ext.onReady(function(){
                                                         url: 'service.php?action=getSkuLowSoldPrice&sku=' + sku + '&type=auction&currency=' + currencyCombo.getValue() + '&price=' + t.getValue() + '&shippingTemplate=' + shippingTemplateCombo.getValue() + '&site=' + Ext.getCmp("SiteID").getValue(),
                                                         success: function(a, b){
                                                             Ext.getCmp("LowPrice").setValue(a.responseText);
+                                                            console.log(a.responseText);
                                                             Ext.getCmp("StartPrice").minValue = a.responseText;
                                                         }
                                                     })

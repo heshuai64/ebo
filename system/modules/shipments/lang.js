@@ -8,6 +8,7 @@ lang = {
         shipment_method: [['B', 'Bulk'],['S', 'SpeedPost'],['R', 'Registered'],['U', 'UPS'],['E', 'E You Bao'],['P', 'Post Link(Bulk)']],
         shipments_method_json: {"B": "Bulk", "S": "SpeedPost", "R": "Registered", "U": "UPS", "E": "E You Bao", "P": "Post Link(Bulk)"},
         shipment_reason: [['1', 'Normal'],['L', 'Lost in transit'],['D', 'Damaged item returned'],['F', 'Defective item returned'],['W', 'Wrong item returned'],['N', 'Normal item returned'],['B', 'Bounced back'],['M', 'Missing item']],
-        shipment_reason_json: {"1": "Normal", "L": "Lost in transit", "D": "Damaged item returned", "F": "Defective item returned", "W": "Wrong item returned", "N": "Normal item returned", "B": "Bounced back", "M": "Missing item"}
+        shipment_reason_json: {"1": "Normal", "L": "Lost in transit", "D": "Damaged item returned", "F": "Defective item returned", "W": "Wrong item returned", "N": "Normal item returned", "B": "Bounced back", "M": "Missing item"},
+        print_status:[[0, "No Print"], [1, "Address had Fetch, But No Print"], [3, "Had Printed"], [2, "Print Status Sync Success"]]
     }
 }

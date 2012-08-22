@@ -2,7 +2,8 @@
 class QoShipments {
 	
 	private $os;
-	private $inventory_service_address = 'http://new-inventory:8018/inventory/service.php';
+	//private $inventory_service_address = 'http://new-inventory:8018/inventory/service.php';
+	private $inventory_service_address = 'http://inventory:8080/inventory/service.php';
         //private $inventory_service_address = 'http://127.0.0.1:6666/inventory/service.php';
 	private $email_service_address = 'http://127.0.0.1/eBayBO/service.php';
 	private static $memcache_connect;
@@ -263,7 +264,7 @@ class QoShipments {
 	}
 	
 	public function saveShipmentInfo(){
-		$sql = "update qo_shipments set status='".$_POST['status']."',shipmentMethod='".$_POST['shipmentMethod']."',shipmentReason='".$_POST['shipmentReason']."',
+		$sql = "update qo_shipments set status='".$_POST['status']."',printStatus='".$_POST['printStatus']."',shipmentMethod='".$_POST['shipmentMethod']."',shipmentReason='".$_POST['shipmentReason']."',
 		remarks='".$_POST['remarks']."',postalReferenceNo='".$_POST['postalReferenceNo']."',shippingFeeCurrency='".$_POST['shippingFeeCurrency']."',
 		shippingFeeValue='".$_POST['shippingFeeValue']."',shipToName='".$_POST['shipToName']."',shipToEmail='".$_POST['shipToEmail']."',
 		shipToAddressLine1='".$_POST['shipToAddressLine1']."',shipToAddressLine2='".$_POST['shipToAddressLine2']."',shipToCity='".$_POST['shipToCity']."',

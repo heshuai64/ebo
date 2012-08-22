@@ -12,7 +12,7 @@
         <link rel="stylesheet" type="text/css" href="../Ext/2.2/resources/css/ext-all.css" />
         <script src="../Ext/2.2/adapter/ext/ext-base.js"></script>
         <script src="../Ext/2.2/ext-all.js"></script>
-        <script src="system/modules/shipments/pack-shipment-min.js"></script>
+        <script src="system/modules/shipments/pack-shipment.js"></script>
 </head>
 <body>
     <div id="pack-shipment"></div>
