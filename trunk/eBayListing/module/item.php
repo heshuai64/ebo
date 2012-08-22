@@ -479,8 +479,22 @@ class Item{
 
 	$where = "";
 	
-	if(!empty($_POST['SKU'])){
-	    $where .= " and SKU like '".$_POST['SKU']."%'";
+	if(!empty($_POST['SKUs'])){
+	    $tmp = "";
+	    $tmp1 = explode("\n", $_POST['SKUs']);
+	    foreach($tmp1 as $t){
+		$tmp .= "'".$t."',";
+	    }
+	    $tmp = substr($tmp, 0, -1);
+	    $where .= " and SKU in (".$tmp.")";
+	}
+	
+	if(!empty($_POST['TemplateIDs'])){
+	    $tmp = str_replace("\n", ",", $_POST['TemplateIDs']);
+	    if($tmp[strlen($tmp)-1] == ","){
+		$tmp = substr($tmp, 0, -1);
+	    }
+	    $where .= " and TemplateID in (".$tmp.")";
 	}
 	
 	if(!empty($_POST['ItemID'])){

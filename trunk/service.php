@@ -888,9 +888,15 @@ class Service{
         }
         */
         if(!empty($row['id']) && empty($_GET['debug'])){
-            $sql_1 = "update qo_shipments set printStatus = 1 where id = '".$row['id']."'";
+            $sql_1 = "update qo_shipments set printStatus = 1,getAddressOn = now() where id = '".$row['id']."'";
             $this->log("getShippingAddressBySku", date("H:i:s").": ".$sql_1."<br>");
             $result_1 = mysql_query($sql_1, Service::$database_connect);
+            
+            
+            $one_hour_ago = date("Y-m-d H:i:s", time() - 5 * 60);
+            $sql_2 = "update qo_shipments set printStatus = 0 where printStatus = 1 and getAddressOn > '".$one_hour_ago."' and TIMESTAMPDIFF(SECOND, getAddressOn, now()) > 15";
+            $result_2 = mysql_query($sql_2, Service::$database_connect);
+            $this->log("getShippingAddressBySku", date("H:i:s").": ".$sql_2."|rows:".mysql_affected_rows()."<br>");
         }
         
         //$this->log("getShippingAddressBySku", date("H:i:s").":  result| ".print_r(array($result, $result_1), true)."<br><br>");
@@ -898,9 +904,19 @@ class Service{
         echo json_encode($row);
     }
     
+    public function printShipmentAddressSuccessByShipmentId(){
+        if(!empty($_GET['debug'])){
+            $this->log("getShippingAddressBySku", date("H:i:s").":[DEBUG] print ".$_GET['shipmentId']." address success!<br>");
+            return 1;
+        }
+        $sql_1 = "update qo_shipments set printStatus = 3 where id = '".$_GET['shipmentId']."'";
+        $this->log("getShippingAddressBySku", date("H:i:s").": print ".$_GET['shipmentId']." address success!<br>");
+        $result_1 = mysql_query($sql_1, Service::$database_connect);
+    }
+    
     public function syncShipmentPrintStatus(){
         if(!empty($_GET['debug'])){
-            $this->log("syncShipmentPrintStatus", date("H:i:s") ."   |  ". print_r($_GET, true)."<br>");
+            $this->log("syncShipmentPrintStatus", date("H:i:s") .":[DEBUG] ". print_r($_GET, true)."<br>");
             echo "SUCCESS:".$_GET['shipmentId'];
             return 1;
         }

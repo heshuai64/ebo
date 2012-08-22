@@ -280,7 +280,7 @@ Ext.onReady(function(){
         var shipmentDetailForm = new Ext.FormPanel({
             autoScroll:true,
             reader:new Ext.data.JsonReader({
-                }, ['id','ordersId','status','shipmentMethod','shipmentReason','packedBy','packedOn','shippedBy','shippedOn',
+                }, ['id','ordersId','status','printStatus','shipmentMethod','shipmentReason','packedBy','packedOn','shippedBy','shippedOn',
                     'remarks','postalReferenceNo','shippingFeeCurrency','shippingFeeValue','shipToName','shipToEmail',
                     'shipToAddressLine1','shipToAddressLine2','shipToCity','shipToStateOrProvince','shipToPostalCode',
                     'shipToCountry','shipToPhoneNo','createdBy','createdOn','modifiedBy','modifiedOn'
@@ -625,6 +625,22 @@ Ext.onReady(function(){
                         selectOnFocus:true,
                         name: 'shipmentReason',
                         hiddenName:'shipmentReason'
+                },{
+                        xtype:'combo',
+                        width: 200,
+                        listWidth: 200,
+                        fieldLabel:"Print Status",
+                        store: new Ext.data.SimpleStore({
+                            fields: ["printStatusValue", "printStatusName"],
+                            data: lang.shipments.print_status
+                        }),			  
+                        mode: 'local',
+                        displayField: 'printStatusName',
+                        valueField: 'printStatusValue',
+                        triggerAction: 'all',
+                        editable: false,
+                        name: 'printStatus',
+                        hiddenName:'printStatus'        
                 },{
                         xtype:"textarea",
                         height:50,

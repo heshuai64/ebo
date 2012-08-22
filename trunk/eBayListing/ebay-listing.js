@@ -386,11 +386,11 @@ Ext.onReady(function(){
                     }
                },
                {header: "Listing Type", width: 100, align: 'center', sortable: true, dataIndex: 'ListingType'},
-               {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price',
+               {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'/*,
                     editor: {
                          xtype: 'numberfield',
                          allowBlank: false
-                    }
+                    }*/
                },
                //{header: "Shipping Fee", width: 80, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
                {header: "Shipping TP", width: 80, align: 'center', sortable: true, dataIndex: 'shippingTemplateName'},
@@ -455,7 +455,7 @@ Ext.onReady(function(){
                                         selectOnFocus:true
                                    },*/{
                                         id:'TID',
-                                        fieldLabel:'TID',
+                                        fieldLabel:'Template ID',
                                         xtype:'numberfield'
                                    },{
                                         id:'SKU',
@@ -1517,11 +1517,11 @@ Ext.onReady(function(){
                     }
                },
                {header: "Listing Type", width: 80, align: 'center', sortable: true, dataIndex: 'ListingType'},
-               {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price',
+               {header: "Price", width: 60, align: 'center', sortable: true, dataIndex: 'Price'/*,
                     editor: {
                          xtype: 'numberfield',
                          allowBlank: false
-                    }
+                    }*/
                },
                //{header: "Shipping Fee", width: 80, align: 'center', sortable: true, dataIndex: 'ShippingFee'},
                {header: "Shipping TP", width: 80, align: 'center', sortable: true, dataIndex: 'shippingTemplateName'},
@@ -1636,7 +1636,7 @@ Ext.onReady(function(){
                               title: 'Search Templage' ,
                               closable:true,
                               width: 300,
-                              height: 180,
+                              height: 310,
                               plain:true,
                               layout: 'form',
                               items: [/*{
@@ -1648,12 +1648,16 @@ Ext.onReady(function(){
                                         selectOnFocus:true
                                    },*/{
                                         id:'TID',
-                                        fieldLabel:'TID',
-                                        xtype:'numberfield'
+                                        fieldLabel:'Template IDs',
+                                        xtype:'textarea',
+                                        width:170,
+                                        height: 75
                                    },{
                                         id:'SKU',
-                                        fieldLabel:'SKU',
-                                        xtype:'textfield'
+                                        fieldLabel:'SKUs',
+                                        xtype:'textarea',
+                                        width:170,
+                                        height: 75
                                    },{
                                         id:'Title',
                                         fieldLabel:'Item Title',
@@ -2168,7 +2172,7 @@ Ext.onReady(function(){
                               title: 'Search Share Templage' ,
                               closable:true,
                               width: 300,
-                              height: 220,
+                              height: 310,
                               plain:true,
                               layout: 'form',
                               items: [/*{
@@ -2180,12 +2184,16 @@ Ext.onReady(function(){
                                         selectOnFocus:true
                                    },*/{
                                         id:'TID',
-                                        fieldLabel:'TID',
-                                        xtype:'textfield'
+                                        fieldLabel:'Template IDs',
+                                        xtype:'textarea',
+                                        width:170,
+                                        height: 75
                                    },{
                                         id:'SKU',
-                                        fieldLabel:'SKU',
-                                        xtype:'textfield'
+                                        fieldLabel:'SKUs',
+                                        xtype:'textarea',
+                                        width:170,
+                                        height: 75
                                    },{
                                         id:'Title',
                                         fieldLabel:'Item Title',
@@ -2821,8 +2829,8 @@ Ext.onReady(function(){
                     var  searchWindow = new Ext.Window({
                               title: 'Active Listing Search' ,
                               closable:true,
-                              width: 300,
-                              height: 180,
+                              width: 350,
+                              height: 310,
                               plain:true,
                               layout: 'form',
                               items: [/*{
@@ -2833,17 +2841,27 @@ Ext.onReady(function(){
                                         minValue: new Date(),
                                         selectOnFocus:true
                                    },*/{
-                                        id:'SKU',
-                                        fieldLabel:'SKU',
-                                        xtype:'textfield'
+                                        id:'SKUs',
+                                        fieldLabel:'SKUs',
+                                        xtype:'textarea',
+                                        width:200,
+                                        height: 75
+                                   },{
+                                        id:'TemplateIDs',
+                                        fieldLabel:'Template IDs',
+                                        xtype:'textarea',
+                                        width:200,
+                                        height: 75
                                    },{
                                         id:'ItemID',
                                         fieldLabel:'Item ID',
-                                        xtype:'textfield'
+                                        xtype:'textfield',
+                                        width:200
                                    },{
                                         id:'Title',
                                         fieldLabel:'Item Title',
-                                        xtype:'textfield'
+                                        xtype:'textfield',
+                                        width:200
                                    },{
                                         id:'ListingDuration',
                                         fieldLabel:'Duration',
@@ -2860,7 +2878,8 @@ Ext.onReady(function(){
                                              text: 'Submit',
                                              handler: function(){
                                                   activity_store.baseParams = {
-                                                       SKU: Ext.getCmp("SKU").getValue(),
+                                                       SKUs: Ext.getCmp("SKUs").getValue(),
+                                                       TemplateIDs: Ext.getCmp("TemplateIDs").getValue(),
                                                        ItemID: Ext.getCmp("ItemID").getValue(),
                                                        Title: Ext.getCmp("Title").getValue(),
                                                        ListingDuration: Ext.getCmp("ListingDuration").getValue()

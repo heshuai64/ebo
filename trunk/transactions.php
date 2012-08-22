@@ -14,7 +14,7 @@
         <script src="../Ext/2.2/ext-all.js"></script>
         <script src="system/modules/transactions/lang.js"></script>
         <script src="system/login/cookies.js"></script>
-        <script src="system/modules/transactions/transactions-detail-min.js"></script>
+        <script src="system/modules/transactions/transactions-detail.js"></script>
 </head>
 <body>
     <script type="text/javascript">

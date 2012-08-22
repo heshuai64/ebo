@@ -13,7 +13,7 @@
         <script src="../Ext/2.2/adapter/ext/ext-base.js"></script>
         <script src="../Ext/2.2/ext-all.js"></script>
         <script src="system/modules/transactions/lang.js"></script>
-        <script src="system/modules/transactions/create_transactions-min.js"></script>
+        <script src="system/modules/transactions/create_transactions.js"></script>
 </head>
 <body>
 </body>
