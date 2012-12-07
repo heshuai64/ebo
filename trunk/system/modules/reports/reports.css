@@ -36,3 +36,13 @@
     height: 48px;
     cursor: pointer;
 }
+
+.shipped-report-icon {
+    background-image:url(images/truck-16x16.png) !important;
+}
+.shipped-report img{
+    background-image:url(images/truck.png);
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+}

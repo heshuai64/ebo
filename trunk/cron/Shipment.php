@@ -227,6 +227,8 @@ class Shipment{
 			$results = $client->CompleteSale($params);
 		}
 		*/
+                $tmp = strtotime($shippedOn);
+                $shippedOn = date("Y-m-d\TH:i:s.000\Z", $tmp - 8 * 60 * 60);
                 $Shipment = array("ShippedTime"=>$shippedOn);
                 $params = array("Version"=>"607", "ItemID"=>$itemId, "Paid"=> true, "Shipment"=>$Shipment, "Shipped"=>true, "TransactionID"=>$transactionId);
                 $this->log("synceBayShipped", print_r($params, true));
@@ -266,10 +268,24 @@ class Shipment{
         if(!empty($argv[2])){
             $shippedOn = $argv[2];
         }else{
-            $shippedOn = date("Y-m-d");
+            $shippedOn = date("Y-m-d 00:00:00");
+        }
+        $hour = date("H");
+        switch($hour){
+            case 10:
+                $shippedOn = date("Y-m-d 23:30:00", time() - 24 * 60 * 60);
+            break;
+        
+            case 14:
+                $shippedOn = date("Y-m-d 10:00:00", time());
+            break;
+        
+            case 23:
+                $shippedOn = date("Y-m-d 14:00:00", time());
+            break;
         }
         //$shippedOn = "2010-06-28";
-        $sql = "select ordersId,shipmentMethod,shippedOn,postalReferenceNo from qo_shipments where shippedOn like '".$shippedOn."%'";
+        $sql = "select ordersId,shipmentMethod,shippedOn,postalReferenceNo from qo_shipments where shippedOn > '".$shippedOn."'";
         echo $sql."\n";
         $this->log("synceBayShipped", $sql);
         $result = mysql_query($sql, Shipment::$database_connect);

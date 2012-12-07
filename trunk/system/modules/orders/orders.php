@@ -101,7 +101,7 @@ class QoOrders {
 		$where = " where 1 = 1 ";
 		
 		if(!empty($_POST['id'])){
-			$where .= " and o.id like '%".$_POST['id']."%'";
+			$where .= " and o.id like '".$_POST['id']."%'";
 		}
 		
 		if(!empty($_POST['status'])){
@@ -117,19 +117,19 @@ class QoOrders {
 		}
 		
 		if(!empty($_POST['buyerId'])){
-			$where .= " and o.buyerId like '%".$_POST['buyerId']."%'";
+			$where .= " and o.buyerId = '".$_POST['buyerId']."'";
 		}
 		
 		if(!empty($_POST['buyerName'])){
-			$where .= " and (o.ebayName like '%".$_POST['buyerName']."%' or o.paypalName like '%".$_POST['buyerName']."%')";
+			$where .= " and (o.ebayName = '".$_POST['buyerName']."' or o.paypalName = '".$_POST['buyerName']."')";
 		}
 		
 		if(!empty($_POST['buyerEmail'])){
-			$where .= " and (o.ebayEmail like '%".$_POST['buyerEmail']."%' or o.paypalEmail like '%".$_POST['buyerEmail']."%')";
+			$where .= " and (o.ebayEmail = '".$_POST['buyerEmail']."' or o.paypalEmail = '".$_POST['buyerEmail']."')";
 		}
 		
 		if(!empty($_POST['buyerAddress'])){
-			$where .= " and (o.ebayAddress1 like '%".$_POST['remarks']."%' or o.paypalAddress1 like '%".$_POST['remarks']."%')";
+			$where .= " and (o.ebayAddress1 like '%".$_POST['buyerAddress']."%' or o.paypalAddress1 like '%".$_POST['buyerAddress']."%')";
 		}
 		
 		if(!empty($_POST['createdOnFrom'])){
@@ -141,7 +141,7 @@ class QoOrders {
 		}
 		
 		if(!empty($_POST['skuId'])){
-			$where_sku = " and od.skuId like '%".$_POST['skuId']."%'";
+			$where_sku = " and od.skuId = '".$_POST['skuId']."'";
 		}
 		
 		if(!empty($_POST['skuTitle'])){
@@ -149,7 +149,7 @@ class QoOrders {
 		}
 		
 		if(!empty($_POST['itemId'])){
-			$where_item = " and od.itemId like '%".$_POST['itemId']."%'";
+			$where_item = " and od.itemId = '".$_POST['itemId']."'";
 		}
 		
 		if(!empty($_POST['itemTitle'])){

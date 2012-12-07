@@ -502,6 +502,70 @@ class eBayBOExcel{
 		$writer->save($this->getFilePath('postLink(Bulk).xls'));
 	}
 	
+	public function germanyBulkShipment(){
+		$start = $this->startTime;
+		$end = $this->endTime;
+		
+		$this->php_excel->setActiveSheetIndex(0);
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, 'No');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, 'Buyer Fullname');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, 'Buyer Country');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(3, 1, 'email');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(4, 1, 'Buyer Address');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(5, 1, 'Shipping Service');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(6, 1, 'Item Title');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(7, 1, 'Quantity');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(8, 1, 'declared value');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(9, 1, 'Buyer Zip');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(10, 1, 'Buyer Phone Number');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(11, 1, 'weight');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(12, 1, 'isreturn');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(13, 1, 'Length');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(14, 1, 'Width');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(15, 1, 'Height');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(16, 1, 'company');
+		$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow(17, 1, 'evaluate');
+		
+		$sql = "select id,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,
+		shipToStateOrProvince,shipToPostalCode,shipToCountry,shipToPhoneNo from qo_shipments where status = 'N' and modifiedOn between '".$start."' and '".$end."' and shipmentMethod = 'P' ";
+		$result = mysql_query($sql, eBayBOExcel::$database_connect);
+		$i = 2;
+		$j = 0;
+		while($row = mysql_fetch_assoc($result)){
+			$j = 0;
+			$sql_1 = "select countries_iso_code_2 from qo_countries where countries_name = '".$row['shipToCountry']."'";
+			$result_1 = mysql_query($sql_1, eBayBOExcel::$database_connect);
+			$row_1 = mysql_fetch_assoc($result_1);
+			
+			$address = $row['shipToAddressLine1']."\n".
+			(!empty($row['shipToAddressLine2'])?$row['shipToAddressLine2']."\n":'').
+			(!empty($row['shipToCity'])?$row['shipToCity']."\n":'').
+			(!empty($row['shipToStateOrProvince'])?$row['shipToStateOrProvince']:'');
+			
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['id']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['shipToName']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['shipToCountry']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, '');
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $address);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, 'DEAM');
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, '');
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, '');
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, 15);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['shipToPostalCode']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, $row['shipToPhoneNo']);
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, '');
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, 'Y');
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, '');
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, '');
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, '');
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, '');
+			$this->php_excel->getActiveSheet()->setCellValueByColumnAndRow($j++, $i, '');
+			$i++;
+		}
+		$writer = PHPExcel_IOFactory::createWriter($this->php_excel, 'Excel5');
+		$writer->save($this->getFilePath('DEAM-list.xls'));
+	}
+	
 	public function refundStatistics(){
 		/*
 		$this->php_excel->setActiveSheetIndex(0);
