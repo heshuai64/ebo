@@ -118,11 +118,15 @@ class Service{
     
     const XMAS_TEMPLATE_3  = "
             <p>%s</p>
-            <p>Dear %s,</p>
-            <p>22 days have passed since your item was shipped. I’d like to know that have you received it?</p>
-            <p>If yes and like it, hopefully to receive your valued positive feedback and with all 5 stars DSRs, our system will leave it for you also. Thanks in advance!</p>
-            <p>If still no news then please do not hesitate to countact our customer service representative, we will response you within one working day.</p>
-            Yours Sincerely,<br>
+            <p>Dear %s,
+            <p>Just keep in my mind, a few days have passed since your item was shipped. Have you received it?</p>
+            <p>If it arrived in a satisfactory condition, hope you could leave us a valued positive feedback with full 5-stars Detailed Seller Ratings ,since your support are of vital importance to the growth of our small company.</p>
+            <p>but If you have any problems with the item received, please feel free to tell us. We will offer a satisfied resolution for you and will improve our service to better.</p>
+            <p>Lastly, due to peak period ( Chrismas ) and tightened customs screening, the shipping time from China to your place may delay to 3-5 weeks.</p>
+            <p>pls be patient with this special-time delivery.</p>
+            <p>However, if your packet not arrived by 5 weeks later,then pls feel free to contact us,we will look into your order and offer you a satisfactory resolution, your kindly understanding is highly appreciated.</p>
+            <p>best regards</p>
+            Yours Sincerely,
             %s";
     
     const OUTSTANDING = "
@@ -190,50 +194,53 @@ class Service{
     
     private function sendEmail($seller, $buyer, $subjet, $toContent){
         //include(__DOCCLASS__ . "/class.phpmailer.php");
-        $mail  = new PHPMailer();
-        $mail->PluginDir = __DOCCLASS__ . "/";
-        $mail->IsSMTP();
-        $mail->SMTPAuth   = true;                  // enable SMTP authentication
-        $mail->SMTPSecure = "ssl";                 // sets the prefix to the servier
-        $mail->Host       = "smtp.gmail.com";      // sets GMAIL as the SMTP server
-        $mail->Port       = 465;                   // set the SMTP port for the GMAIL server
-        
-        //$mail->SMTPDebug = true;
-        
-        $mail->Username   = $seller['email'];  // GMAIL username
-        $mail->Password   = $seller['emailPassword'];         // GMAIL password
-        
-        $mail->AddReplyTo($seller['email'], $seller['id']);
-        
-        $mail->From       = $seller['email'];
-        $mail->FromName   = $seller['id'];
-        
-        $mail->Subject    = $subjet;
-        
-        $mail->Body       = $toContent;                      //HTML Body
-        //$mail->AltBody    = $toContent; // optional, comment out and test
-        $mail->WordWrap   = 50; // set word wrap
-        
-        $mail->MsgHTML($toContent);
-        
-        $mail->AddAddress($buyer['email'], $buyer['name']);
-        //$mail->AddAddress("meidgen@hotmail.com", "meidgen");
-        //$mail->AddAddress("heshuai64@gmail.com", "heshuai");
-        
-        $mail->IsHTML(true); // send as HTML
-        
-        if(!$mail->Send()) {
-            //$this->log("email/sendXmasShpmentEmail", "<font color='red'>Send Email Failure: " . $mail->ErrorInfo."</font><br>");
-            echo "Mailer Error: " . $mail->ErrorInfo."!";
-            echo "\n";
-            return 0;
-        } else {
-            //$this->log("email/sendXmasShpmentEmail", "Send Email Success<br>");
-            echo "send email success!";
-            echo "\n";
-            return 1;
+        try {
+            $mail  = new PHPMailer();
+            $mail->PluginDir = __DOCCLASS__ . "/";
+            $mail->IsSMTP();
+            $mail->SMTPAuth   = true;                  // enable SMTP authentication
+            $mail->SMTPSecure = "ssl";                 // sets the prefix to the servier
+            $mail->Host       = "smtp.gmail.com";      // sets GMAIL as the SMTP server
+            $mail->Port       = 465;                   // set the SMTP port for the GMAIL server
+            
+            //$mail->SMTPDebug = true;
+            
+            $mail->Username   = $seller['email'];  // GMAIL username
+            $mail->Password   = $seller['emailPassword'];         // GMAIL password
+            
+            $mail->AddReplyTo($seller['email'], $seller['id']);
+            
+            $mail->From       = $seller['email'];
+            $mail->FromName   = $seller['id'];
+            
+            $mail->Subject    = $subjet;
+            
+            $mail->Body       = $toContent;                      //HTML Body
+            //$mail->AltBody    = $toContent; // optional, comment out and test
+            $mail->WordWrap   = 50; // set word wrap
+            
+            $mail->MsgHTML($toContent);
+            
+            $mail->AddAddress($buyer['email'], $buyer['name']);
+            //$mail->AddAddress("meidgen@hotmail.com", "meidgen");
+            //$mail->AddAddress("heshuai64@gmail.com", "heshuai");
+            
+            $mail->IsHTML(true); // send as HTML
+            
+            if(!$mail->Send()) {
+                //$this->log("email/sendXmasShpmentEmail", "<font color='red'>Send Email Failure: " . $mail->ErrorInfo."</font><br>");
+                echo "Mailer Error: " . $mail->ErrorInfo."!";
+                echo "\n";
+                return 0;
+            } else {
+                //$this->log("email/sendXmasShpmentEmail", "Send Email Success<br>");
+                echo "send email success!";
+                echo "\n";
+                return 1;
+            }
+        } catch (Exception $e) {
+            echo $e->errorMessage();
         }
-
     }
     
     public function sendXamsShipmentEmail(){
@@ -340,16 +347,23 @@ class Service{
             break;
         
             case 22:
-                $sql = "select id,ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where shippedOn like '".$day22."%' and emailStatus = 0 and status = 'S'";
+                $sql = "select id,ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where shippedOn like '".$day22."%' and emailStatus22 = 0 and status = 'S'";
+                echo $sql."\n";
                 $result = mysql_query($sql);
+                $num_rows = mysql_num_rows($result);
                 while($row = mysql_fetch_assoc($result)){
-                    
+                    echo $row['id']." processing ".($i/$num_rows)."%\n";
                     //get seller Id
                     $sql_2 = "select sellerId from qo_orders where id = '".$row['ordersId']."'";
                     $result_2 = mysql_query($sql_2);
                     $row_2 = mysql_fetch_assoc($result_2);
                     $sellerId = $row_2['sellerId'];
                     $seller = $this->getSellerEmailAccountAndPassword($sellerId);
+                    if(empty($seller)){
+                        echo $sellerId." no set email!\n";
+                        continue;
+                    }
+                    print_r($seller);
                     $item = $this->getShipmentItems($row['id']);
                     
                     $toContent = sprintf(self::XMAS_TEMPLATE_3, $item, $row['shipToName'], $sellerId);
@@ -358,14 +372,17 @@ class Service{
                     $subjet = "Have you received the item you bought from us on ebay? How is everything?";
                     $send_result = $this->sendEmail($seller, $buyer, $subjet, $toContent);
                     if($send_result){
-                        $sql_3 = "update qo_shipments set emailStatus = 1 where id = '".$row['id']."'";
+                        echo $row['id']." send success!\n";
+                        $sql_3 = "update qo_shipments set emailStatus22 = 1 where id = '".$row['id']."'";
                         $result_3 = mysql_query($sql_3);
-                        $this->log("22_sendXmasShpmentEmail", $sellerId. ": ".$row['id']." Send <br>".$toContent."<br> To ".$row['shipToName'].": ".$row['shipToEmail']." Success<br>");
+                        $this->log("sendShippedEmail22", $sellerId. ": ".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Success!(".((round($i/$num_rows, 2))*100)."%)<br>");
                     }else{
-                        $this->log("22_sendXmasShpmentEmail", "<font color='red'>".$sellerId. ": ".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure: " . $mail->ErrorInfo."</font><br>");
+                        $this->log("sendShippedEmail22", "<font color='red'>".$sellerId. ": ".$row['id']." Send Email To ".$row['shipToName'].": ".$row['shipToEmail']." Failure! " . "</font><br>");
+                        echo $row['id']." send failure!\n";
                     }
-                    $this->log("22_sendXmasShpmentEmail", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
+                    $this->log("sendShippedEmail22", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
                     //exit;
+                    $i++;
                 }
             break;
         }
@@ -872,9 +889,9 @@ class Service{
     }
     
     public function getShippingAddressBySku(){
-        $sql = "select s.* from qo_orders as o,qo_shipments as s,qo_shipments_detail as sd where o.id = s.ordersId and s.id = sd.shipmentsId 
-        and o.sellerId in (".$this->config['shipment']['split_seller'].")";//and s.modifiedOn like '".$_GET['date']."%'
-        $sql .= " and o.shippingMethod = 'B' and s.status = 'N' and s.printStatus = 0 and sd.skuId = '".$_GET['sku']."' order by s.id";
+        $sql = "select s.* from qo_orders as o,qo_shipments as s,qo_shipments_detail as sd where o.id = s.ordersId and s.id = sd.shipmentsId "; 
+        //and o.sellerId in (".$this->config['shipment']['print_seller'].")";//and s.modifiedOn like '".$_GET['date']."%'
+        $sql .= " and o.shippingMethod = 'B' and s.status = 'N' and s.printStatus = 0 and sd.skuId = '".$_GET['sku']."' and sd.quantity = 1 order by s.id";
         //and s.modifiedOn like '".$_GET['date']."%' 
         $this->log("getShippingAddressBySku", date("H:i:s").": ".$sql."<br>");
         $result = mysql_query($sql, Service::$database_connect);
@@ -887,6 +904,17 @@ class Service{
             return 0;
         }
         */
+        
+        $sql_1 = "select count(*) as num from qo_shipments_detail where shipmentsId = '".$row['id']."'";
+        $result_1 = mysql_query($sql_1, Service::$database_connect);
+        $row_1 = mysql_fetch_assoc($result_1);
+        if($row_1['num'] > 1){
+            $sql_1 = "update qo_shipments set printStatus = 9,getAddressOn = now() where id = '".$row['id']."'";
+            $this->log("getShippingAddressBySku", date("H:i:s").": ".$sql_1."<br>");
+            $result_1 = mysql_query($sql_1, Service::$database_connect);
+            return 0;
+        }
+        
         if(!empty($row['id']) && empty($_GET['debug'])){
             $sql_1 = "update qo_shipments set printStatus = 1,getAddressOn = now() where id = '".$row['id']."'";
             $this->log("getShippingAddressBySku", date("H:i:s").": ".$sql_1."<br>");

@@ -2189,8 +2189,8 @@ class Template{
 	$old_sql = "select Title,PrimaryCategoryCategoryID,PrimaryCategoryCategoryName,Description,BuyItNowPrice,StartPrice from template where Id = ".$id;
 	$old_result = mysql_query($old_sql, eBayListing::$database_connect);
         $old_row = mysql_fetch_assoc($old_result);
-	if($old_row['Title'] != htmlentities($_POST['Title'], ENT_QUOTES)){
-	    $new_sql = "update items set Title = '".htmlentities($_POST['Title'], ENT_QUOTES)."' where Status = 2 and ShareTemplateID = ".$id;
+	if($old_row['Title'] != $_POST['Title']){
+	    $new_sql = "update items set Title = '".mysql_real_escape_string($_POST['Title'])."' where Status = 2 and ShareTemplateID = ".$id;
 	    //echo $new_sql."\n";
 	    $new_result = mysql_query($new_sql, eBayListing::$database_connect);
 	    $change = true;
@@ -2266,7 +2266,7 @@ class Template{
 	SecondaryCategoryCategoryID='".$_POST['SecondaryCategoryCategoryID']."',SecondaryCategoryCategoryName='".$_POST['SecondaryCategoryCategoryName']."',
 	Quantity='".@$_POST['Quantity']."',ReservePrice='".@$_POST['ReservePrice']."',
 	Site='".$_POST['Site']."',Motors='".(empty($_POST['Motors'])?0:1)."',SKU='".$_POST['SKU']."',StartPrice='".$_POST['StartPrice']."',
-	SubTitle='".$_POST['SubTitle']."',Title='".htmlentities($_POST['Title'], ENT_QUOTES)."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
+	SubTitle='".$_POST['SubTitle']."',Title='".mysql_real_escape_string($_POST['Title'])."',BoldTitle='".(empty($_POST['BoldTitle'])?0:1)."',
 	Border='".(empty($_POST['Border'])?0:1)."',Featured='".(empty($_POST['Featured'])?0:1)."',Highlight='".(empty($_POST['Highlight'])?0:1)."',
 	HomePageFeatured='".(empty($_POST['HomePageFeatured'])?0:1)."',GalleryTypeFeatured='".(empty($_POST['GalleryTypeFeatured'])?0:1)."',GalleryTypePlus='".(empty($_POST['GalleryTypePlus'])?0:1)."',
 	".((!empty($_POST['ScheduleStartDate']))?"ScheduleStartDate='".$_POST['ScheduleStartDate']."',":"").((!empty($_POST['ScheduleEndDate']))?"ScheduleEndDate='".$_POST['ScheduleEndDate']."',":"").

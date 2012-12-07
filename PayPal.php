@@ -1,6 +1,12 @@
 <?php
 define ('__DOCROOT__', '/export/eBayBO');
-define ('FETCH_HOUR' , 6);
+
+if(!empty($argv[5])){
+    define ('FETCH_HOUR' , $argv[5]);
+}else{
+    define ('FETCH_HOUR' , 1);
+}
+
 
 ini_set("memory_limit","256M");
 set_time_limit(600);
@@ -1067,6 +1073,7 @@ if(!empty($_GET['action'])){
     }
 }
 */
+
 if(!empty($argv[1]) && $argv[1] == "API"){
     $PayPal = new PayPal();
     
@@ -1075,6 +1082,8 @@ if(!empty($argv[1]) && $argv[1] == "API"){
 	$PayPal->getAllSellerTransactions();
     }else{
 	if(!empty($argv[2]) && !empty($argv[3])){
+	    echo $argv[2]." -- ".$argv[3]."\n";
+	    sleep(5);
 	    $PayPal->setAPITime($argv[2], $argv[3]);
 	}
 	//$PayPal->setAPITime("2010-09-23 00:00:00", "2010-09-23 14:30:00");

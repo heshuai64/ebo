@@ -78,11 +78,11 @@ class QoShipments {
             $where = " where 1 = 1 ";   
             
             if(!empty($_POST['id'])){
-                    $where .= " and s.id like '%".$_POST['id']."%'";
+                    $where .= " and s.id like '".$_POST['id']."%'";
             }
             
             if(!empty($_POST['ordersId'])){
-                    $where .= " and s.ordersId like '%".$_POST['ordersId']."%'";
+                    $where .= " and s.ordersId like '".$_POST['ordersId']."%'";
             }
             
             if(!empty($_POST['shippingMethod'])){
@@ -98,7 +98,7 @@ class QoShipments {
             }
             
             if(!empty($_POST['shipToName'])){
-                    $where .= " and s.shipToName like '%".$_POST['shipToName']."%'";
+                    $where .= " and s.shipToName = '".$_POST['shipToName']."'";
             }
 	    
 	    if(!empty($_POST['shipToEmail'])){
@@ -110,7 +110,7 @@ class QoShipments {
             }
                         
             if(!empty($_POST['postalReferenceNo'])){
-                    $where .= " and s.postalReferenceNo like '%".$_POST['postalReferenceNo']."%'";
+                    $where .= " and s.postalReferenceNo = '".$_POST['postalReferenceNo']."'";
             }
             
             if(!empty($_POST['status'])){
@@ -118,7 +118,7 @@ class QoShipments {
             }
             
             if(!empty($_POST['itemId'])){
-                    $where_item .= " and sd.itemId like '%".$_POST['itemId']."%'";
+                    $where_item .= " and sd.itemId = '".$_POST['itemId']."'";
             }
             
             if(!empty($_POST['itemTitle'])){
@@ -126,7 +126,7 @@ class QoShipments {
             }
             
             if(!empty($_POST['skuId'])){
-                    $where_sku .= " and sd.skuId like '%".$_POST['skuId']."%'";
+                    $where_sku .= " and sd.skuId = '".$_POST['skuId']."'";
             }
             
             if(!empty($_POST['skuTitle'])){
@@ -467,6 +467,19 @@ class QoShipments {
 		$sku_str = "";
                 $quantiry_str = "";
                 
+		if($this->connect_inventory){
+			$sql_4 = "select skuId,sum(quantity) as quantity from qo_shipments_detail where shipmentsId = '".$_POST['id']."' group by skuId";
+			$result_4 = mysql_query($sql_4);
+			while($row_4 = mysql_fetch_assoc($result_4)){
+				$remote_result = file_get_contents($this->inventory_service_address.'?action=checkSkuStockFromRemote&sku='.urlencode($row_4['skuId'])."&quantity=".urlencode($row_4['quantity']));
+				//var_dump($remote_result);
+				if($remote_result == "N"){
+					echo "{success: false, errors: { reason: '<font color=\"red\" size=\"7\">".$row_4['skuId']." 库存不足!</font>' }}";
+					return 0;
+				}
+			}
+		}
+		
 		if($row['status'] == "N" || $row['status'] == "K"){
 			if($this->connect_inventory){
 				$sql_4 = "select shipmentsId,skuId,sum(quantity) as quantity from qo_shipments_detail where shipmentsId = '".$_POST['id']."' group by skuId";
@@ -480,6 +493,7 @@ class QoShipments {
 				$sku_str = substr($sku_str, 0, -1);
 				$quantiry_str = substr($quantiry_str, 0, -1);
 				$service_result_1 = $this->inventoryTakeOut($sku_str, $quantiry_str, $row['id'], $row['shipmentMethod']);
+				//var_dump($this->message);
 				$info .= $this->message;
 				$result_3 = false;
 			}else{

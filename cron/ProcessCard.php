@@ -1,5 +1,6 @@
 <?php
 define ('__DOCROOT__', '/export/eBayBO');
+ini_set("memory_limit","256M");
 
 function cmp($a, $b)
 {
@@ -37,6 +38,14 @@ class ProcessCard{
 	}else{
 	    $this->startTime = date("Y-m-d 09:10:00",mktime(0, 0, 0, date("m"), date("d")-1, date("Y")));
 	    $this->endTime   = date("Y-m-d 09:10:00");
+	}
+	
+	if(!file_exists(self::FILE_PATH.date("Ym"))){
+	    mkdir(self::FILE_PATH.date("Ym"), 0777);
+	}
+	
+	if(!file_exists(self::FILE_PATH.date("Ym")."/".date("d"))){
+	    mkdir(self::FILE_PATH.date("Ym")."/".date("d"), 0777);
 	}
     }
     
@@ -96,6 +105,46 @@ class ProcessCard{
         }
 	usort($data, "cmp");
 	return $data;
+    }
+    
+    private function getReadyPackSku(){
+	$single = array();
+	$multi = array();
+	
+	$sql = "select s.id,sd.skuId,sd.quantity from qo_shipments as s,qo_shipments_detail as sd 
+	where s.id = sd.shipmentsId and s.modifiedOn between '".$this->startTime."' and '".$this->endTime."' 
+        and s.status = 'N'";
+	$result = mysql_query($sql, $this->database_connect);
+	while($row = mysql_fetch_assoc($result)){
+	    $sql_1 = "select count(*) as num from qo_shipments where id = '".$row['id']."'";
+	    $result_1 = mysql_query($sql_1, $this->database_connect);
+	    $row_1 = mysql_fetch_assoc($result_1);
+	    if($row_1['num'] > 1){
+		echo $row['id']." num > 1\n";
+		$multi[$row['skuId']]['quantity'] += $row['quantity'];
+	    }elseif($row['quantity'] > 1){
+		echo $row['id']." quantity > 1\n";
+		$multi[$row['skuId']]['quantity'] += $row['quantity'];
+	    }else{
+		echo $row['id']." quantity = 1\n";
+		$single[$row['skuId']]['quantity'] += $row['quantity'];
+	    }
+	}
+	
+	foreach($single as $k=>$v){
+	    $inventory_data = json_decode($this->getService($this->config['service']['inventory'], 'getSkuProcessCardInfo', array('sku'=>$k)));
+            $single[$k]['inventory_data'] = $inventory_data;
+	    $single[$k]['sort'] = $inventory_data[0]->locator_number;
+	}
+	
+	foreach($multi as $k=>$v){
+	    $inventory_data = json_decode($this->getService($this->config['service']['inventory'], 'getSkuProcessCardInfo', array('sku'=>$k)));
+	    $multi[$k]['inventory_data'] = $inventory_data;
+	    $multi[$k]['sort'] = $inventory_data[0]->locator_number;
+	}
+	
+	return array('single'=>$single,
+		     'multi'=>$multi);
     }
     
     private function template($data){
@@ -195,7 +244,7 @@ class ProcessCard{
 	$accessories = (!empty($data['inventory_data'][0]->combo_accessories))?$data['inventory_data'][0]->combo_accessories:$data['inventory_data'][0]->accessories;
 	$test_it = (!empty($data['inventory_data'][0]->combo_test_it))?$data['inventory_data'][0]->combo_test_it:$data['inventory_data'][0]->test_it;
 	
-	return sprintf($tempalte_str, $locator_number, substr($data['createdOn'], 0, 10), $test_it, $weight.'g',
+	return sprintf($tempalte_str, $locator_number, /*substr($data['createdOn'], 0, 10)*/ date("Y-m-d"), $test_it, $weight.'g',
 		       $week_sale, $data['quantity'], $stock, $sku, $accessories, $sku, $bom);
     }
     
@@ -259,11 +308,48 @@ class ProcessCard{
 	</html>';
 	file_put_contents(self::FILE_PATH.date("Ym")."/".date("d").'/process-card(non-bulk).html', $t);
     }
+    
+    public function generateSkuProcessCard(){
+        $data = $this->getReadyPackSku();
+	foreach($data as $k=>$v){
+	    $t = '
+	    <html>
+		<head>
+		    <title>Process Card</title>
+		    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		<style>
+		    table{
+			border-collapse:collapse;
+			width: 100%;
+			font-size: 12px;
+		    }
+		</style>
+		</head>
+		<body>';
+	    $i = 1;
+	    foreach($v as $d){
+		$t .= $this->template($d)."<br/>";
+		if($i % 7 == 0){
+		    $t .= "<br/>";
+		}
+		$i++;
+	    }
+	    
+	    $t .= '
+		</body>
+	    </html>';
+	    file_put_contents(self::FILE_PATH.date("Ym")."/".date("d").'/process-card('.$k.').html', $t);
+	}
+    }
+    
 }
 
 $pc = new ProcessCard();
 //$pc->setStartTime("2009-06-03");
 //$pc->setEndTime("2009-06-04");
+
 $pc->generateBulkProcessCard();
 $pc->generateNoBulkProcessCard();
+
+$pc->generateSkuProcessCard();
 ?>
