@@ -1,5 +1,5 @@
 <?php
-//define ('__DOCROOT__', '/export/eBayBO');
+define ('__DOCROOT__', '/export/eBayBO');
 define ('__DOCROOT__', '.');
 define ('__DOCCLASS__', __DOCROOT__ . '/class');
 
@@ -347,6 +347,7 @@ class Service{
             break;
         
             case 22:
+                $start_time = time();
                 $sql = "select id,ordersId,shipmentMethod,postalReferenceNo,shipToName,shipToEmail,shipToAddressLine1,shipToAddressLine2,shipToCity,shipToStateOrProvince,shipToPostalCode,shipToCountry from qo_shipments where shippedOn like '".$day22."%' and emailStatus22 = 0 and status = 'S'";
                 echo $sql."\n";
                 $result = mysql_query($sql);
@@ -367,7 +368,10 @@ class Service{
                     $item = $this->getShipmentItems($row['id']);
                     
                     $toContent = sprintf(self::XMAS_TEMPLATE_3, $item, $row['shipToName'], $sellerId);
-                    
+                    if(strpos($row['shipToEmail'], '@') === false){
+                        echo $row['shipToEmail']." email address error!\n";
+                        continue;
+                    }
                     $buyer = array('name'=> $row['shipToName'], 'email'=> $row['shipToEmail']);
                     $subjet = "Have you received the item you bought from us on ebay? How is everything?";
                     $send_result = $this->sendEmail($seller, $buyer, $subjet, $toContent);
@@ -383,6 +387,11 @@ class Service{
                     $this->log("sendShippedEmail22", "<br><font color='red'>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</font><br>");
                     //exit;
                     $i++;
+                    $current_time = time();
+                    if($current_time - $start_time > 53 * 60){
+                        echo "have a rest!\n";
+                        return 1;
+                    }
                 }
             break;
         }
@@ -657,6 +666,10 @@ class Service{
                 $this->log("updateShipmentEnvelope", $sql_2."<br>");
                 $result_2 = mysql_query($sql_2, Service::$database_connect);
             }else{
+                $sql_2 = "update qo_shipments set envelopeStatus = 2 where id = '".$row['id']."'";
+                //echo $sql_2;
+                $this->log("updateShipmentEnvelope", $sql_2."<br>");
+                $result_2 = mysql_query($sql_2, Service::$database_connect);
                 $this->log("updateShipmentEnvelope", "shipmentsId: ".$row['id'].", sku: ".print_r($skuArray, true)." no in inventory system<br>\n");
             }
             $this->log("updateShipmentEnvelope", "<br>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++<br>");
