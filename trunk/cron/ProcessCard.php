@@ -111,23 +111,30 @@ class ProcessCard{
 	$single = array();
 	$multi = array();
 	
-	$sql = "select s.id,sd.skuId,sd.quantity from qo_shipments as s,qo_shipments_detail as sd 
-	where s.id = sd.shipmentsId and s.modifiedOn between '".$this->startTime."' and '".$this->endTime."' 
-        and s.status = 'N'";
+	$sql = "select id from qo_shipments where modifiedOn between '".$this->startTime."' and '".$this->endTime."' and status = 'N'";
 	$result = mysql_query($sql, $this->database_connect);
 	while($row = mysql_fetch_assoc($result)){
-	    $sql_1 = "select count(*) as num from qo_shipments where id = '".$row['id']."'";
+	    $multi_mum = false;
+	    
+	    $sql_1 = "select skuId,quantity from qo_shipments_detail where shipmentsId = '".$row['id']."'";
 	    $result_1 = mysql_query($sql_1, $this->database_connect);
-	    $row_1 = mysql_fetch_assoc($result_1);
-	    if($row_1['num'] > 1){
-		echo $row['id']." num > 1\n";
-		$multi[$row['skuId']]['quantity'] += $row['quantity'];
-	    }elseif($row['quantity'] > 1){
-		echo $row['id']." quantity > 1\n";
-		$multi[$row['skuId']]['quantity'] += $row['quantity'];
-	    }else{
-		echo $row['id']." quantity = 1\n";
-		$single[$row['skuId']]['quantity'] += $row['quantity'];
+	    
+	    $num_rows_1 = mysql_num_rows($result_1);
+	    if($num_rows_1 > 1){
+		$multi_mum = true;
+	    }
+	    
+	    while($row_1 = mysql_fetch_assoc($result_1)){
+		if($multi_mum == true){
+		    echo $row['id']." num > 1\n";
+		    $multi[$row_1['skuId']]['quantity'] += $row_1['quantity'];
+		}elseif($row_1['quantity'] > 1){
+		    echo $row['id']." quantity > 1\n";
+		    $multi[$row_1['skuId']]['quantity'] += $row_1['quantity'];
+		}else{
+		    echo $row['id']." quantity = 1\n";
+		    $single[$row_1['skuId']]['quantity'] += $row_1['quantity'];
+		}
 	    }
 	}
 	
@@ -143,6 +150,8 @@ class ProcessCard{
 	    $multi[$k]['sort'] = $inventory_data[0]->locator_number;
 	}
 	
+	usort($single, "cmp");
+	usort($multi, "cmp");
 	return array('single'=>$single,
 		     'multi'=>$multi);
     }
